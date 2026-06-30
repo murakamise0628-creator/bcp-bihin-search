@@ -1,0 +1,31 @@
+﻿name: Update affiliate site
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 21 * * 0'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run update
+        env:
+          RAKUTEN_APP_ID: ${{ secrets.RAKUTEN_APP_ID }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+          SITE_URL: https://jigyousho-bousai.com
+      - name: Publish generated files
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          cp -R dist/* .
+          git add .
+          git commit -m "Update generated affiliate pages" || echo "No changes"
+          git push
