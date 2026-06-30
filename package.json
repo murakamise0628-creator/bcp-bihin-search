@@ -1,0 +1,1 @@
+﻿{"scripts":{"fetch":"node scripts/fetch-products.js","build":"node scripts/generate-site.js","update":"npm run fetch && npm run build"},"engines":{"node":">=18"},"dependencies":{}}
