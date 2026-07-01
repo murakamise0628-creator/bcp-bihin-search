@@ -60,16 +60,7 @@ async function fetchForKeyword(row) {
 }
 
 function sampleProducts(row) {
-  return [{
-    name: row.title + ' サンプル商品',
-    price: 99990,
-    image: '',
-    url: 'https://a.r10.to/hPtx46',
-    reviewCount: 12,
-    reviewAverage: 4.5,
-    shopName: '楽天市場',
-    score: 126
-  }];
+  return [];
 }
 
 async function main() {

@@ -1,113 +1,47 @@
 {
-  "generatedAt": "2026-06-30T14:15:26.504Z",
+  "generatedAt": "2026-07-01T14:46:12.032Z",
   "pages": [
     {
       "slug": "portable-power-kaigo",
       "title": "介護施設向けポータブル電源比較",
       "keyword": "介護施設 停電対策 ポータブル電源",
       "intent": "購入前比較",
-      "products": [
-        {
-          "name": "介護施設向けポータブル電源比較 サンプル商品",
-          "price": 99990,
-          "image": "",
-          "url": "https://a.r10.to/hPtx46",
-          "reviewCount": 12,
-          "reviewAverage": 4.5,
-          "shopName": "楽天市場",
-          "score": 126
-        }
-      ]
+      "products": []
     },
     {
       "slug": "office-bichiku",
       "title": "小規模オフィス向け防災備蓄セット比較",
       "keyword": "会社 防災 備蓄 セット",
       "intent": "購入前比較",
-      "products": [
-        {
-          "name": "小規模オフィス向け防災備蓄セット比較 サンプル商品",
-          "price": 99990,
-          "image": "",
-          "url": "https://a.r10.to/hPtx46",
-          "reviewCount": 12,
-          "reviewAverage": 4.5,
-          "shopName": "楽天市場",
-          "score": 126
-        }
-      ]
+      "products": []
     },
     {
       "slug": "kitaku-konnansha",
       "title": "帰宅困難者対策の備蓄品比較",
       "keyword": "帰宅困難者 備蓄 セット",
       "intent": "購入前比較",
-      "products": [
-        {
-          "name": "帰宅困難者対策の備蓄品比較 サンプル商品",
-          "price": 99990,
-          "image": "",
-          "url": "https://a.r10.to/hPtx46",
-          "reviewCount": 12,
-          "reviewAverage": 4.5,
-          "shopName": "楽天市場",
-          "score": 126
-        }
-      ]
+      "products": []
     },
     {
       "slug": "restaurant-dansui",
       "title": "飲食店向け断水対策用品比較",
       "keyword": "飲食店 断水 対策 備蓄",
       "intent": "購入前比較",
-      "products": [
-        {
-          "name": "飲食店向け断水対策用品比較 サンプル商品",
-          "price": 99990,
-          "image": "",
-          "url": "https://a.r10.to/hPtx46",
-          "reviewCount": 12,
-          "reviewAverage": 4.5,
-          "shopName": "楽天市場",
-          "score": 126
-        }
-      ]
+      "products": []
     },
     {
       "slug": "hoikuen-bousai",
       "title": "保育園向け防災備蓄セット比較",
       "keyword": "保育園 防災 備蓄",
       "intent": "購入前比較",
-      "products": [
-        {
-          "name": "保育園向け防災備蓄セット比較 サンプル商品",
-          "price": 99990,
-          "image": "",
-          "url": "https://a.r10.to/hPtx46",
-          "reviewCount": 12,
-          "reviewAverage": 4.5,
-          "shopName": "楽天市場",
-          "score": 126
-        }
-      ]
+      "products": []
     },
     {
       "slug": "toilet-office",
       "title": "事業所向け簡易トイレ比較",
       "keyword": "事業所 防災 簡易トイレ",
       "intent": "購入前比較",
-      "products": [
-        {
-          "name": "事業所向け簡易トイレ比較 サンプル商品",
-          "price": 99990,
-          "image": "",
-          "url": "https://a.r10.to/hPtx46",
-          "reviewCount": 12,
-          "reviewAverage": 4.5,
-          "shopName": "楽天市場",
-          "score": 126
-        }
-      ]
+      "products": []
     }
   ]
 }
