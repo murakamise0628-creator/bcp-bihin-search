@@ -4,6 +4,7 @@ const path = require('path');
 const appId = String(process.env.RAKUTEN_APP_ID || '').trim();
 const accessKey = String(process.env.RAKUTEN_ACCESS_KEY || '').trim();
 const affiliateId = String(process.env.RAKUTEN_AFFILIATE_ID || '').trim();
+const siteUrl = String(process.env.SITE_URL || 'https://jigyousho-bousai.com/').trim();
 const root = path.resolve(__dirname, '..');
 const keywordsPath = path.join(root, 'data', 'keywords.csv');
 const outPath = path.join(root, 'data', 'products.json');
@@ -41,7 +42,11 @@ async function fetchForKeyword(row) {
   url.searchParams.set('sort', '-reviewCount');
   url.searchParams.set('availability', '1');
 
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: {
+      Referer: siteUrl.endsWith('/') ? siteUrl : siteUrl + '/'
+    }
+  });
   if (!res.ok) throw new Error('Rakuten API failed: ' + res.status + ' ' + await res.text());
   const json = await res.json();
   const products = (json.Items || json.items || [])
