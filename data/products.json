@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-03T14:32:05.920Z",
+  "generatedAt": "2026-07-03T14:39:13.522Z",
   "pages": [
     {
       "slug": "portable-power-kaigo",
@@ -7,7 +7,7 @@
       "keyword": "介護施設 停電対策 ポータブル電源",
       "intent": "購入前比較",
       "products": [],
-      "error": "Rakuten API failed: 400 {\"error_description\":\"specify valid applicationId\",\"error\":\"wrong_parameter\"}"
+      "error": "Rakuten API failed: 403 {\n  \"errors\": {\n    \"errorCode\": 403,\n    \"errorMessage\": \"REQUEST_CONTEXT_BODY_HTTP_REFERRER_MISSING\"\n  }\n}"
     },
     {
       "slug": "office-bichiku",
@@ -15,7 +15,7 @@
       "keyword": "会社 防災 備蓄 セット",
       "intent": "購入前比較",
       "products": [],
-      "error": "Rakuten API failed: 400 {\"error_description\":\"specify valid applicationId\",\"error\":\"wrong_parameter\"}"
+      "error": "Rakuten API failed: 403 {\n  \"errors\": {\n    \"errorCode\": 403,\n    \"errorMessage\": \"REQUEST_CONTEXT_BODY_HTTP_REFERRER_MISSING\"\n  }\n}"
     },
     {
       "slug": "kitaku-konnansha",
@@ -23,7 +23,7 @@
       "keyword": "帰宅困難者 備蓄 セット",
       "intent": "購入前比較",
       "products": [],
-      "error": "Rakuten API failed: 400 {\"error_description\":\"specify valid applicationId\",\"error\":\"wrong_parameter\"}"
+      "error": "Rakuten API failed: 403 {\n  \"errors\": {\n    \"errorCode\": 403,\n    \"errorMessage\": \"REQUEST_CONTEXT_BODY_HTTP_REFERRER_MISSING\"\n  }\n}"
     },
     {
       "slug": "restaurant-dansui",
@@ -31,7 +31,7 @@
       "keyword": "飲食店 断水 対策 備蓄",
       "intent": "購入前比較",
       "products": [],
-      "error": "Rakuten API failed: 400 {\"error_description\":\"specify valid applicationId\",\"error\":\"wrong_parameter\"}"
+      "error": "Rakuten API failed: 403 {\n  \"errors\": {\n    \"errorCode\": 403,\n    \"errorMessage\": \"REQUEST_CONTEXT_BODY_HTTP_REFERRER_MISSING\"\n  }\n}"
     },
     {
       "slug": "hoikuen-bousai",
@@ -39,7 +39,7 @@
       "keyword": "保育園 防災 備蓄",
       "intent": "購入前比較",
       "products": [],
-      "error": "Rakuten API failed: 400 {\"error_description\":\"specify valid applicationId\",\"error\":\"wrong_parameter\"}"
+      "error": "Rakuten API failed: 403 {\n  \"errors\": {\n    \"errorCode\": 403,\n    \"errorMessage\": \"REQUEST_CONTEXT_BODY_HTTP_REFERRER_MISSING\"\n  }\n}"
     },
     {
       "slug": "toilet-office",
@@ -47,7 +47,7 @@
       "keyword": "事業所 防災 簡易トイレ",
       "intent": "購入前比較",
       "products": [],
-      "error": "Rakuten API failed: 400 {\"error_description\":\"specify valid applicationId\",\"error\":\"wrong_parameter\"}"
+      "error": "Rakuten API failed: 403 {\n  \"errors\": {\n    \"errorCode\": 403,\n    \"errorMessage\": \"REQUEST_CONTEXT_BODY_HTTP_REFERRER_MISSING\"\n  }\n}"
     }
   ]
 }
