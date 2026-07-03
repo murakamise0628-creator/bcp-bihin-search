@@ -68,7 +68,12 @@ async function main() {
   const results = [];
   for (const row of rows) {
     console.log('fetch:', row.keyword);
-    results.push(await fetchForKeyword(row));
+    try {
+      results.push(await fetchForKeyword(row));
+    } catch (err) {
+      console.warn('skip:', row.keyword, err.message);
+      results.push({ ...row, products: [], error: err.message });
+    }
     await new Promise((resolve) => setTimeout(resolve, 1200));
   }
   fs.writeFileSync(outPath, JSON.stringify({ generatedAt: new Date().toISOString(), pages: results }, null, 2));
