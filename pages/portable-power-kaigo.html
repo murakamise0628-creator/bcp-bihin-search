@@ -7,38 +7,52 @@
   <meta name="description" content="介護施設向けポータブル電源比較。停電時にスマホ、照明、通信機器、見守り機器の電源を最低限確保したい施設向けです。">
   <link rel="canonical" href="https://jigyousho-bousai.com/pages/portable-power-kaigo.html">
   <style>
-    :root{color-scheme:light;--ink:#18231f;--muted:#5d6b64;--line:#d9e1dc;--soft:#f3f6f2;--paper:#fff;--main:#17634d;--accent:#b31942}
-    *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;line-height:1.8}
-    a{color:var(--main)}main{max-width:1120px;margin:0 auto;padding:28px 18px 56px}.site-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:20px}
-    .brand{font-weight:900;font-size:20px;text-decoration:none;color:var(--ink)}.nav{display:flex;gap:12px;flex-wrap:wrap}.nav a{font-size:14px;text-decoration:none;color:var(--muted)}
-    .hero{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:34px;box-shadow:0 8px 24px rgba(24,35,31,.06)}
-    .eyebrow{font-size:13px;font-weight:800;color:var(--main);margin:0 0 8px}h1{font-size:clamp(30px,5vw,50px);line-height:1.25;margin:0 0 14px;letter-spacing:0}h2{font-size:24px;line-height:1.35;margin:0 0 12px}h3{font-size:18px;margin:0 0 8px}.lead{font-size:18px;max-width:780px}.muted{color:var(--muted)}.section{margin-top:28px}
+    :root{color-scheme:light;--ink:#15201b;--muted:#596862;--line:#d9e2dc;--soft:#f5f7f3;--paper:#fff;--main:#12614b;--main2:#0f4f72;--accent:#b31942;--warn:#8a5a00}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;line-height:1.75}
+    a{color:var(--main)}main{max-width:1160px;margin:0 auto;padding:24px 18px 56px}.site-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:18px}
+    .brand{font-weight:900;font-size:21px;text-decoration:none;color:var(--ink)}.nav{display:flex;gap:14px;flex-wrap:wrap}.nav a{font-size:14px;text-decoration:none;color:var(--muted)}
+    .hero{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:34px;box-shadow:0 10px 28px rgba(21,32,27,.07)}
+    .eyebrow{font-size:13px;font-weight:800;color:var(--main);margin:0 0 8px}h1{font-size:clamp(30px,5vw,48px);line-height:1.25;margin:0 0 14px;letter-spacing:0}h2{font-size:24px;line-height:1.35;margin:0 0 12px}h3{font-size:18px;line-height:1.45;margin:0 0 8px}.lead{font-size:18px;max-width:850px}.muted{color:var(--muted)}.section{margin-top:28px}.section-title{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:12px}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:22px}.card h2 a,.card h3 a{text-decoration:none;color:var(--ink)}.card h2 a:hover,.card h3 a:hover{text-decoration:underline}
-    .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:16px 0 0;padding:0;list-style:none}.checklist li{background:#eef4f0;border:1px solid #d6e3dc;border-radius:8px;padding:12px 14px}
-    .pill{display:inline-block;background:#e8f2ed;color:#145641;border:1px solid #cde0d6;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:800}.button{display:inline-block;margin-top:12px;padding:11px 18px;background:var(--main);color:white;border-radius:7px;text-decoration:none;font-weight:900}.button.secondary{background:#fff;color:var(--main);border:1px solid var(--main)}
-    .product{display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:start}.product-img{width:120px;height:120px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px}.price{font-size:22px;font-weight:900;color:var(--accent);margin:8px 0}.notice{font-size:13px;color:var(--muted)}.empty{border:1px dashed #b8c8bf;background:#fbfcfb}
-    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}@media(max-width:760px){main{padding:18px 14px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.lead{font-size:16px}.product{grid-template-columns:1fr}.product-img{width:100%;max-width:180px}.two{grid-template-columns:1fr}}
+    .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:16px 0 0;padding:0;list-style:none}.checklist li{background:#eef5f1;border:1px solid #d6e3dc;border-radius:8px;padding:12px 14px}
+    .pill{display:inline-block;background:#e8f2ed;color:#145641;border:1px solid #cde0d6;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:800}.pill.blue{background:#e8f1f6;color:#0f4f72;border-color:#c7dce8}.button{display:inline-block;margin-top:12px;padding:11px 18px;background:var(--main);color:white;border-radius:7px;text-decoration:none;font-weight:900}.button.secondary{background:#fff;color:var(--main);border:1px solid var(--main)}
+    .product-list{display:grid;gap:14px}.product{display:grid;grid-template-columns:156px 1fr;gap:18px;align-items:start}.product-img{width:156px;height:156px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}.product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px}.product h2{font-size:20px;overflow-wrap:anywhere}.summary{margin:8px 0;color:#33423b}.price{font-size:23px;font-weight:900;color:var(--accent);margin:8px 0}.facts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.fact{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;background:#fbfcfb;color:#33423b}.notice{font-size:13px;color:var(--muted)}.empty{border:1px dashed #b8c8bf;background:#fbfcfb}.ad-note{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}.steps li{counter-increment:step;padding:12px 14px;border-left:4px solid var(--main);background:#fbfcfb}.steps li:before{content:counter(step) ". ";font-weight:900;color:var(--main)}
+    @media(max-width:760px){main{padding:18px 14px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.lead{font-size:16px}.section-title{display:block}.product{grid-template-columns:104px 1fr;gap:12px}.product-img{width:104px;height:104px}.product h2{font-size:17px}.two{grid-template-columns:1fr}.nav{gap:10px}}
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#categories">用途別に探す</a><a href="https://jigyousho-bousai.com/#method">選び方</a><a href="https://jigyousho-bousai.com/sitemap.xml">サイトマップ</a></nav></header><section class="hero">
     <p class="eyebrow">介護施設・小規模福祉施設向け</p>
     <h1>介護施設向けポータブル電源比較</h1>
     <p class="lead">停電時にスマホ、照明、通信機器、見守り機器の電源を最低限確保したい施設向けです。</p>
+    <p class="notice">商品候補は楽天市場の公開データをもとに自動更新しています。最終更新: 2026/7/4</p>
   </section>
   <section class="section two">
     <article class="card"><h2>選ぶ前に見るポイント</h2><ul class="checklist"><li>容量はWh表記で見る</li><li>出力W数が使う機器に足りるか確認</li><li>保管場所で持ち運べる重量か見る</li><li>長期保管時の充電管理がしやすいものを選ぶ</li></ul></article>
-    <article class="card"><h2>失敗しやすい点</h2><p>キャンプ用の雰囲気だけで選ばず、停電時に何時間使えるかを先に見ます。</p></article>
+    <article class="card"><h2>先に決めること</h2><ol class="steps"><li>対象人数を決める</li><li>待機時間を決める</li><li>置き場所と期限管理を決める</li></ol><p class="muted">キャンプ用の雰囲気だけで選ばず、停電時に何時間使えるかを先に見ます。</p></article>
   </section>
-  <section class="section"><h2>比較候補</h2><div class="grid"><article class="card product">
-    <div class="product-img" aria-hidden="true"></div>
+  <section class="section">
+    <div class="section-title"><h2>比較候補</h2><p class="notice">価格・在庫・レビューは変動します</p></div>
+    <div class="product-list"><article class="card product">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/aiwo/cabinet/10010935/imgrc0116708585.jpg" alt="AIWOLL ポータブル電源 515Wh 介護施設・高齢者施設向け 非常用電源 600W出力 瞬間最大1200W リン酸鉄リチウム 長寿命 コンパクト 業務用蓄電池 停電時の機器対応 防災バッテリー BCP対策 地震・台風・停電対策" loading="lazy">
     <div>
-      <p class="pill">候補 1</p>
+      <p class="pill blue">比較候補 1</p>
       <h2>AIWOLL ポータブル電源 515Wh 介護施設・高齢者施設向け 非常用電源 600W出力 瞬間最大1200W リン酸鉄リチウム 長寿命 コンパクト 業務用蓄電池 停電時の機器対応 防災バッテリー BCP対策 地震・台風・停電対策</h2>
+      <p class="summary">ポータブル電源 リン酸鉄 515Wh/160938mAh AC出力600W (瞬間最大1200W) 大容量 充放電サイクル3,000回以上 高耐久 キャンペーン</p>
       <p class="price">29,999円</p>
-      <p class="muted">レビュー  / 件数  / AIWOLL JAPAN 楽天市場店</p>
+      <div class="facts">
+        <span class="fact">レビュー -</span>
+        <span class="fact">件数 </span>
+        <span class="fact">AIWOLL JAPAN 楽天市場店</span>
+      </div>
       <a class="button" href="https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll600-cp%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000066%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener">楽天で詳細を見る</a>
     </div>
-  </article></div></section>
-  <p class="notice">価格・在庫・レビューは変動します。購入前に楽天市場の商品ページで最新情報を確認してください。</p>
-  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"Product","name":"AIWOLL ポータブル電源 515Wh 介護施設・高齢者施設向け 非常用電源 600W出力 瞬間最大1200W リン酸鉄リチウム 長寿命 コンパクト 業務用蓄電池 停電時の機器対応 防災バッテリー BCP対策 地震・台風・停電対策","offers":{"@type":"Offer","priceCurrency":"JPY","price":29999,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll600-cp%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000066%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"}}]</script></main></body>
+  </article></div>
+  </section>
+  <section class="section card">
+    <h2>このページの見方</h2>
+    <p>レビュー件数が多い商品は購入判断の材料が集まりやすい一方で、事業所用途では「人数分に足りるか」「保管できるか」「期限管理できるか」が重要です。購入前に楽天の商品ページでセット内容、個数、保存年数、送料を確認してください。</p>
+    <p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p>
+  </section>
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"Product","name":"AIWOLL ポータブル電源 515Wh 介護施設・高齢者施設向け 非常用電源 600W出力 瞬間最大1200W リン酸鉄リチウム 長寿命 コンパクト 業務用蓄電池 停電時の機器対応 防災バッテリー BCP対策 地震・台風・停電対策","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/aiwo/cabinet/10010935/imgrc0116708585.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":29999,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll600-cp%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000066%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"}}]</script></main></body>
 </html>

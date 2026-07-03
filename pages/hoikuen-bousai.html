@@ -7,74 +7,108 @@
   <meta name="description" content="保育園向け防災備蓄セット比較。子どもを一定時間安全に待機させるため、水、食料、衛生、防寒を確認するページです。">
   <link rel="canonical" href="https://jigyousho-bousai.com/pages/hoikuen-bousai.html">
   <style>
-    :root{color-scheme:light;--ink:#18231f;--muted:#5d6b64;--line:#d9e1dc;--soft:#f3f6f2;--paper:#fff;--main:#17634d;--accent:#b31942}
-    *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;line-height:1.8}
-    a{color:var(--main)}main{max-width:1120px;margin:0 auto;padding:28px 18px 56px}.site-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:20px}
-    .brand{font-weight:900;font-size:20px;text-decoration:none;color:var(--ink)}.nav{display:flex;gap:12px;flex-wrap:wrap}.nav a{font-size:14px;text-decoration:none;color:var(--muted)}
-    .hero{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:34px;box-shadow:0 8px 24px rgba(24,35,31,.06)}
-    .eyebrow{font-size:13px;font-weight:800;color:var(--main);margin:0 0 8px}h1{font-size:clamp(30px,5vw,50px);line-height:1.25;margin:0 0 14px;letter-spacing:0}h2{font-size:24px;line-height:1.35;margin:0 0 12px}h3{font-size:18px;margin:0 0 8px}.lead{font-size:18px;max-width:780px}.muted{color:var(--muted)}.section{margin-top:28px}
+    :root{color-scheme:light;--ink:#15201b;--muted:#596862;--line:#d9e2dc;--soft:#f5f7f3;--paper:#fff;--main:#12614b;--main2:#0f4f72;--accent:#b31942;--warn:#8a5a00}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;line-height:1.75}
+    a{color:var(--main)}main{max-width:1160px;margin:0 auto;padding:24px 18px 56px}.site-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:18px}
+    .brand{font-weight:900;font-size:21px;text-decoration:none;color:var(--ink)}.nav{display:flex;gap:14px;flex-wrap:wrap}.nav a{font-size:14px;text-decoration:none;color:var(--muted)}
+    .hero{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:34px;box-shadow:0 10px 28px rgba(21,32,27,.07)}
+    .eyebrow{font-size:13px;font-weight:800;color:var(--main);margin:0 0 8px}h1{font-size:clamp(30px,5vw,48px);line-height:1.25;margin:0 0 14px;letter-spacing:0}h2{font-size:24px;line-height:1.35;margin:0 0 12px}h3{font-size:18px;line-height:1.45;margin:0 0 8px}.lead{font-size:18px;max-width:850px}.muted{color:var(--muted)}.section{margin-top:28px}.section-title{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:12px}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:22px}.card h2 a,.card h3 a{text-decoration:none;color:var(--ink)}.card h2 a:hover,.card h3 a:hover{text-decoration:underline}
-    .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:16px 0 0;padding:0;list-style:none}.checklist li{background:#eef4f0;border:1px solid #d6e3dc;border-radius:8px;padding:12px 14px}
-    .pill{display:inline-block;background:#e8f2ed;color:#145641;border:1px solid #cde0d6;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:800}.button{display:inline-block;margin-top:12px;padding:11px 18px;background:var(--main);color:white;border-radius:7px;text-decoration:none;font-weight:900}.button.secondary{background:#fff;color:var(--main);border:1px solid var(--main)}
-    .product{display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:start}.product-img{width:120px;height:120px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px}.price{font-size:22px;font-weight:900;color:var(--accent);margin:8px 0}.notice{font-size:13px;color:var(--muted)}.empty{border:1px dashed #b8c8bf;background:#fbfcfb}
-    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}@media(max-width:760px){main{padding:18px 14px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.lead{font-size:16px}.product{grid-template-columns:1fr}.product-img{width:100%;max-width:180px}.two{grid-template-columns:1fr}}
+    .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:16px 0 0;padding:0;list-style:none}.checklist li{background:#eef5f1;border:1px solid #d6e3dc;border-radius:8px;padding:12px 14px}
+    .pill{display:inline-block;background:#e8f2ed;color:#145641;border:1px solid #cde0d6;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:800}.pill.blue{background:#e8f1f6;color:#0f4f72;border-color:#c7dce8}.button{display:inline-block;margin-top:12px;padding:11px 18px;background:var(--main);color:white;border-radius:7px;text-decoration:none;font-weight:900}.button.secondary{background:#fff;color:var(--main);border:1px solid var(--main)}
+    .product-list{display:grid;gap:14px}.product{display:grid;grid-template-columns:156px 1fr;gap:18px;align-items:start}.product-img{width:156px;height:156px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}.product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px}.product h2{font-size:20px;overflow-wrap:anywhere}.summary{margin:8px 0;color:#33423b}.price{font-size:23px;font-weight:900;color:var(--accent);margin:8px 0}.facts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.fact{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;background:#fbfcfb;color:#33423b}.notice{font-size:13px;color:var(--muted)}.empty{border:1px dashed #b8c8bf;background:#fbfcfb}.ad-note{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}.steps li{counter-increment:step;padding:12px 14px;border-left:4px solid var(--main);background:#fbfcfb}.steps li:before{content:counter(step) ". ";font-weight:900;color:var(--main)}
+    @media(max-width:760px){main{padding:18px 14px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.lead{font-size:16px}.section-title{display:block}.product{grid-template-columns:104px 1fr;gap:12px}.product-img{width:104px;height:104px}.product h2{font-size:17px}.two{grid-template-columns:1fr}.nav{gap:10px}}
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#categories">用途別に探す</a><a href="https://jigyousho-bousai.com/#method">選び方</a><a href="https://jigyousho-bousai.com/sitemap.xml">サイトマップ</a></nav></header><section class="hero">
     <p class="eyebrow">保育園・小規模園・一時預かり施設向け</p>
     <h1>保育園向け防災備蓄セット比較</h1>
     <p class="lead">子どもを一定時間安全に待機させるため、水、食料、衛生、防寒を確認するページです。</p>
+    <p class="notice">商品候補は楽天市場の公開データをもとに自動更新しています。最終更新: 2026/7/4</p>
   </section>
   <section class="section two">
     <article class="card"><h2>選ぶ前に見るポイント</h2><ul class="checklist"><li>園児数と職員数を分けて計算</li><li>アレルギー表示を確認</li><li>衛生用品と防寒用品を厚めに見る</li><li>持ち出し用と備蓄用を分ける</li></ul></article>
-    <article class="card"><h2>失敗しやすい点</h2><p>大人用のセットをそのまま流用せず、子ども向けの食べやすさと衛生を見ます。</p></article>
+    <article class="card"><h2>先に決めること</h2><ol class="steps"><li>対象人数を決める</li><li>待機時間を決める</li><li>置き場所と期限管理を決める</li></ol><p class="muted">大人用のセットをそのまま流用せず、子ども向けの食べやすさと衛生を見ます。</p></article>
   </section>
-  <section class="section"><h2>比較候補</h2><div class="grid"><article class="card product">
-    <div class="product-img" aria-hidden="true"></div>
+  <section class="section">
+    <div class="section-title"><h2>比較候補</h2><p class="notice">価格・在庫・レビューは変動します</p></div>
+    <div class="product-list"><article class="card product">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-bread-12p/03/00.jpg" alt="【選べるセット】 7年保存 非常食 パン 3日分 非常食セット 5年超 保存食 お菓子 おやつ 非常食・保存食 子ども 防災食 災害 美味しい 防災 グッズ 食品 レトルト 食料 備蓄食 調理不要 長期保存 保育園 学校 災害備蓄用パン 缶詰以外 パウチ チョコ メープル 非常持出袋" loading="lazy">
     <div>
-      <p class="pill">候補 1</p>
+      <p class="pill blue">比較候補 1</p>
       <h2>【選べるセット】 7年保存 非常食 パン 3日分 非常食セット 5年超 保存食 お菓子 おやつ 非常食・保存食 子ども 防災食 災害 美味しい 防災 グッズ 食品 レトルト 食料 備蓄食 調理不要 長期保存 保育園 学校 災害備蓄用パン 缶詰以外 パウチ チョコ メープル 非常持出袋</h2>
+      <p class="summary">【送料無料】 防災食グランプリ受賞! 大型施設や官公庁でも多数採用! 驚きの7年保存パン 選べる3種セット 幼稚園や保育園の実績も多数で子供も安心の災害保存食パン</p>
       <p class="price">4,280円</p>
-      <p class="muted">レビュー 4.6 / 件数 85 / 防災屋ライフ</p>
+      <div class="facts">
+        <span class="fact">レビュー 4.6</span>
+        <span class="fact">件数 85</span>
+        <span class="fact">防災屋ライフ</span>
+      </div>
       <a class="button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-bread-12p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000088%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener">楽天で詳細を見る</a>
     </div>
   </article><article class="card product">
-    <div class="product-img" aria-hidden="true"></div>
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-bread-4p/0.jpg" alt="＼お得にお試し／ 7年保存 非常食 パン 4個 お試し セット レトルト 保存食 お菓子 子供 防災食 防災グッズ 調理不要 長期保存 保育園 幼稚園 学校 地震 備え 食料 備蓄 会社 高齢者 人気 缶詰以外 パウチ袋 メープル チョコ ミルク 災害備蓄用パン 食品 グリーンケミー" loading="lazy">
     <div>
-      <p class="pill">候補 2</p>
+      <p class="pill blue">比較候補 2</p>
       <h2>＼お得にお試し／ 7年保存 非常食 パン 4個 お試し セット レトルト 保存食 お菓子 子供 防災食 防災グッズ 調理不要 長期保存 保育園 幼稚園 学校 地震 備え 食料 備蓄 会社 高齢者 人気 缶詰以外 パウチ袋 メープル チョコ ミルク 災害備蓄用パン 食品 グリーンケミー</h2>
+      <p class="summary">【送料無料】 防災食グランプリ受賞! 大型施設や官公庁でも多数採用! 驚きの7年保存レトルトパン 全4種 試食 セット 幼稚園や保育園の実績も多数で子供も安心 保存食パン</p>
       <p class="price">3,100円</p>
-      <p class="muted">レビュー 4.52 / 件数 75 / 防災屋ライフ</p>
+      <div class="facts">
+        <span class="fact">レビュー 4.52</span>
+        <span class="fact">件数 75</span>
+        <span class="fact">防災屋ライフ</span>
+      </div>
       <a class="button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-bread-4p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000100%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener">楽天で詳細を見る</a>
     </div>
   </article><article class="card product">
-    <div class="product-img" aria-hidden="true"></div>
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/uniconline/cabinet/09136582/09136585/11770014/imgrc0090628119.jpg" alt="リュック キッズ 子供 小学生 小学校 幼稚園 保育園 男子 男の子 リュックサック 低学年 高学年 アウトドア リュックサック 大きめ 大容量 a4 20L 18L 塾 通学 入学 学童 習い事 教科書 旅行 遠足 合宿 防災 災害 防水 撥水 軽量" loading="lazy">
     <div>
-      <p class="pill">候補 3</p>
+      <p class="pill blue">比較候補 3</p>
       <h2>リュック キッズ 子供 小学生 小学校 幼稚園 保育園 男子 男の子 リュックサック 低学年 高学年 アウトドア リュックサック 大きめ 大容量 a4 20L 18L 塾 通学 入学 学童 習い事 教科書 旅行 遠足 合宿 防災 災害 防水 撥水 軽量</h2>
+      <p class="summary">バックパック 子供用 大きい バック 防災リュック キャンプ 山登 林間学校 お出かけ 誕生日 備蓄 おしゃれ かっこいい 可愛い おすすめ ずれ落ち防止 厚手 ベルト 黒 水色 ネイビー</p>
       <p class="price">3,980円</p>
-      <p class="muted">レビュー 4.58 / 件数 72 / UNIC online store</p>
+      <div class="facts">
+        <span class="fact">レビュー 4.58</span>
+        <span class="fact">件数 72</span>
+        <span class="fact">UNIC online store</span>
+      </div>
       <a class="button" href="https://hb.afl.rakuten.co.jp/hgc/g00u8fpn.oroxz689.g00u8fpn.oroy07ae/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Funiconline%2F169ruck-child%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Funiconline%2Fi%2F10000105%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener">楽天で詳細を見る</a>
     </div>
   </article><article class="card product">
-    <div class="product-img" aria-hidden="true"></div>
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-gohan24p/0.jpg" alt="アルファ米を超えた! 非常食 ごはん ご飯 7年保存 保存食 7日分 セット アレルギー対応 24個 非常食・保存食 レトルト 防災 グッズ パウチ袋 美味しい そのまま食べれる 水不要 子供 保育園 幼稚園 学校 病院 高齢者 災害用 食品 備蓄食 非常食 缶詰以外 グリーンケミー" loading="lazy">
     <div>
-      <p class="pill">候補 4</p>
+      <p class="pill blue">比較候補 4</p>
       <h2>アルファ米を超えた! 非常食 ごはん ご飯 7年保存 保存食 7日分 セット アレルギー対応 24個 非常食・保存食 レトルト 防災 グッズ パウチ袋 美味しい そのまま食べれる 水不要 子供 保育園 幼稚園 学校 病院 高齢者 災害用 食品 備蓄食 非常食 缶詰以外 グリーンケミー</h2>
+      <p class="summary">アルファ米を超えた！ 簡単美味しい！ 7年保存の非常食・保存食 アレルギー対応ごはんで安心の防災備蓄！ ご家庭はもちろん会社や施設の備蓄でも扱いやすいレトルト保存食です</p>
       <p class="price">15,800円</p>
-      <p class="muted">レビュー 4.61 / 件数 66 / 防災屋ライフ</p>
+      <div class="facts">
+        <span class="fact">レビュー 4.61</span>
+        <span class="fact">件数 66</span>
+        <span class="fact">防災屋ライフ</span>
+      </div>
       <a class="button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan24p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000097%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener">楽天で詳細を見る</a>
     </div>
   </article><article class="card product">
-    <div class="product-img" aria-hidden="true"></div>
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-bread-3p/00.jpg" alt="非常食 パン 7年保存 選べる セット レトルト 防災 送料無料 保存食 お試し お菓子 美味しい 長期保存 缶詰以外 5年超 子供 菓子パン 防災グッズ パウチ袋 チョコ ミルク メープル ブルーベリー 備蓄食 車載 地震 備え 食料 保育園 幼稚園 学校 会社 高齢者 グリーンケミー" loading="lazy">
     <div>
-      <p class="pill">候補 5</p>
+      <p class="pill blue">比較候補 5</p>
       <h2>非常食 パン 7年保存 選べる セット レトルト 防災 送料無料 保存食 お試し お菓子 美味しい 長期保存 缶詰以外 5年超 子供 菓子パン 防災グッズ パウチ袋 チョコ ミルク メープル ブルーベリー 備蓄食 車載 地震 備え 食料 保育園 幼稚園 学校 会社 高齢者 グリーンケミー</h2>
+      <p class="summary">防災食 7年 保存食 パン 食べくらべ おためし 少量 子供 人気 お菓子 長期保存 送料無料 レトルト 防災 安心 こども おいしい しっとり 菓子パン</p>
       <p class="price">1,880円</p>
-      <p class="muted">レビュー 4.42 / 件数 117 / 防災屋ライフ</p>
+      <div class="facts">
+        <span class="fact">レビュー 4.42</span>
+        <span class="fact">件数 117</span>
+        <span class="fact">防災屋ライフ</span>
+      </div>
       <a class="button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-bread-3p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000042%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener">楽天で詳細を見る</a>
     </div>
-  </article></div></section>
-  <p class="notice">価格・在庫・レビューは変動します。購入前に楽天市場の商品ページで最新情報を確認してください。</p>
-  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"Product","name":"【選べるセット】 7年保存 非常食 パン 3日分 非常食セット 5年超 保存食 お菓子 おやつ 非常食・保存食 子ども 防災食 災害 美味しい 防災 グッズ 食品 レトルト 食料 備蓄食 調理不要 長期保存 保育園 学校 災害備蓄用パン 缶詰以外 パウチ チョコ メープル 非常持出袋","offers":{"@type":"Offer","priceCurrency":"JPY","price":4280,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-bread-12p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000088%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.6,"reviewCount":85}},{"@context":"https://schema.org","@type":"Product","name":"＼お得にお試し／ 7年保存 非常食 パン 4個 お試し セット レトルト 保存食 お菓子 子供 防災食 防災グッズ 調理不要 長期保存 保育園 幼稚園 学校 地震 備え 食料 備蓄 会社 高齢者 人気 缶詰以外 パウチ袋 メープル チョコ ミルク 災害備蓄用パン 食品 グリーンケミー","offers":{"@type":"Offer","priceCurrency":"JPY","price":3100,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-bread-4p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000100%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.52,"reviewCount":75}},{"@context":"https://schema.org","@type":"Product","name":"リュック キッズ 子供 小学生 小学校 幼稚園 保育園 男子 男の子 リュックサック 低学年 高学年 アウトドア リュックサック 大きめ 大容量 a4 20L 18L 塾 通学 入学 学童 習い事 教科書 旅行 遠足 合宿 防災 災害 防水 撥水 軽量","offers":{"@type":"Offer","priceCurrency":"JPY","price":3980,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u8fpn.oroxz689.g00u8fpn.oroy07ae/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Funiconline%2F169ruck-child%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Funiconline%2Fi%2F10000105%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":72}}]</script></main></body>
+  </article></div>
+  </section>
+  <section class="section card">
+    <h2>このページの見方</h2>
+    <p>レビュー件数が多い商品は購入判断の材料が集まりやすい一方で、事業所用途では「人数分に足りるか」「保管できるか」「期限管理できるか」が重要です。購入前に楽天の商品ページでセット内容、個数、保存年数、送料を確認してください。</p>
+    <p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p>
+  </section>
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"Product","name":"【選べるセット】 7年保存 非常食 パン 3日分 非常食セット 5年超 保存食 お菓子 おやつ 非常食・保存食 子ども 防災食 災害 美味しい 防災 グッズ 食品 レトルト 食料 備蓄食 調理不要 長期保存 保育園 学校 災害備蓄用パン 缶詰以外 パウチ チョコ メープル 非常持出袋","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-bread-12p/03/00.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":4280,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-bread-12p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000088%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.6,"reviewCount":85}},{"@context":"https://schema.org","@type":"Product","name":"＼お得にお試し／ 7年保存 非常食 パン 4個 お試し セット レトルト 保存食 お菓子 子供 防災食 防災グッズ 調理不要 長期保存 保育園 幼稚園 学校 地震 備え 食料 備蓄 会社 高齢者 人気 缶詰以外 パウチ袋 メープル チョコ ミルク 災害備蓄用パン 食品 グリーンケミー","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-bread-4p/0.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3100,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-bread-4p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000100%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.52,"reviewCount":75}},{"@context":"https://schema.org","@type":"Product","name":"リュック キッズ 子供 小学生 小学校 幼稚園 保育園 男子 男の子 リュックサック 低学年 高学年 アウトドア リュックサック 大きめ 大容量 a4 20L 18L 塾 通学 入学 学童 習い事 教科書 旅行 遠足 合宿 防災 災害 防水 撥水 軽量","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/uniconline/cabinet/09136582/09136585/11770014/imgrc0090628119.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3980,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u8fpn.oroxz689.g00u8fpn.oroy07ae/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Funiconline%2F169ruck-child%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Funiconline%2Fi%2F10000105%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":72}}]</script></main></body>
 </html>
