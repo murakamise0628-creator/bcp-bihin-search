@@ -1,7 +1,8 @@
 ﻿const fs = require('fs');
 const path = require('path');
 
-const appId = String(process.env.RAKUTEN_APP_ID || '').replace(/\D/g, '');
+const appId = String(process.env.RAKUTEN_APP_ID || '').trim();
+const accessKey = String(process.env.RAKUTEN_ACCESS_KEY || '').trim();
 const affiliateId = String(process.env.RAKUTEN_AFFILIATE_ID || '').trim();
 const root = path.resolve(__dirname, '..');
 const keywordsPath = path.join(root, 'data', 'keywords.csv');
@@ -25,24 +26,26 @@ function score(item) {
 }
 
 async function fetchForKeyword(row) {
-  if (!appId || !affiliateId) {
+  if (!appId || !accessKey || !affiliateId) {
     return { ...row, products: sampleProducts(row) };
   }
 
-  const url = new URL('https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706');
+  const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
   url.searchParams.set('format', 'json');
   url.searchParams.set('applicationId', appId);
+  url.searchParams.set('accessKey', accessKey);
   url.searchParams.set('affiliateId', affiliateId);
   url.searchParams.set('keyword', row.keyword);
   url.searchParams.set('hits', '10');
+  url.searchParams.set('formatVersion', '2');
   url.searchParams.set('sort', '-reviewCount');
   url.searchParams.set('availability', '1');
 
   const res = await fetch(url);
   if (!res.ok) throw new Error('Rakuten API failed: ' + res.status + ' ' + await res.text());
   const json = await res.json();
-  const products = (json.Items || [])
-    .map((entry) => entry.Item)
+  const products = (json.Items || json.items || [])
+    .map((entry) => entry.Item || entry.item || entry)
     .map((item) => ({
       name: item.itemName,
       price: item.itemPrice,
