@@ -1,8 +1,8 @@
 ﻿const fs = require('fs');
 const path = require('path');
 
-const appId = process.env.RAKUTEN_APP_ID;
-const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
+const appId = String(process.env.RAKUTEN_APP_ID || '').replace(/\D/g, '');
+const affiliateId = String(process.env.RAKUTEN_AFFILIATE_ID || '').trim();
 const root = path.resolve(__dirname, '..');
 const keywordsPath = path.join(root, 'data', 'keywords.csv');
 const outPath = path.join(root, 'data', 'products.json');
