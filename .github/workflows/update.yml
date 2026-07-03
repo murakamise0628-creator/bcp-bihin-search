@@ -2,6 +2,12 @@
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'data/keywords.csv'
+      - '.github/workflows/update.yml'
   schedule:
     - cron: '0 21 * * 0'
 

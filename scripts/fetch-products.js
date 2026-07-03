@@ -26,6 +26,49 @@ function score(item) {
   return reviewCount * 0.5 + reviewAverage * 20 + priceScore;
 }
 
+function normalizeImageUrl(value) {
+  if (!value) return '';
+  if (typeof value === 'string') {
+    return value.replace(/^http:\/\//, 'https://').replace(/\?_ex=\d+x\d+$/, '');
+  }
+  if (typeof value.imageUrl === 'string') return normalizeImageUrl(value.imageUrl);
+  if (typeof value.url === 'string') return normalizeImageUrl(value.url);
+  return '';
+}
+
+function firstImage(item) {
+  const groups = [
+    item.mediumImageUrls,
+    item.smallImageUrls,
+    item.itemImageUrls,
+    item.images
+  ];
+
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    for (const entry of group) {
+      const url = normalizeImageUrl(entry);
+      if (url) return url;
+    }
+  }
+
+  return normalizeImageUrl(
+    item.imageUrl ||
+    item.itemImageUrl ||
+    item.mediumImageUrl ||
+    item.smallImageUrl ||
+    item.thumbnailUrl
+  );
+}
+
+function compactText(value, maxLength = 130) {
+  const text = String(value || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length > maxLength ? text.slice(0, maxLength - 1) + '…' : text;
+}
+
 async function fetchForKeyword(row) {
   if (!appId || !accessKey || !affiliateId) {
     return { ...row, products: sampleProducts(row) };
@@ -58,11 +101,13 @@ async function fetchForKeyword(row) {
     .map((item) => ({
       name: item.itemName,
       price: item.itemPrice,
-      image: item.mediumImageUrls?.[0]?.imageUrl || item.smallImageUrls?.[0]?.imageUrl || '',
+      image: firstImage(item),
+      summary: compactText(item.catchcopy || item.itemCaption || ''),
       url: item.affiliateUrl || item.itemUrl,
       reviewCount: item.reviewCount || 0,
       reviewAverage: item.reviewAverage || 0,
       shopName: item.shopName || '',
+      itemCode: item.itemCode || '',
       score: score(item)
     }))
     .sort((a, b) => b.score - a.score)
