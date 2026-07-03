@@ -5,6 +5,7 @@
 ## GitHub Secrets に入れるもの
 
 - `RAKUTEN_APP_ID`: 楽天 Developers の Application ID
+- `RAKUTEN_ACCESS_KEY`: 楽天 Developers の Access Key
 - `RAKUTEN_AFFILIATE_ID`: 楽天 Developers または楽天アフィリエイトで確認できる Affiliate ID
 
 ## 動き
