@@ -32,6 +32,7 @@ async function fetchForKeyword(row) {
   }
 
   const url = new URL('https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701');
+  const referer = siteUrl.endsWith('/') ? siteUrl : siteUrl + '/';
   url.searchParams.set('format', 'json');
   url.searchParams.set('applicationId', appId);
   url.searchParams.set('accessKey', accessKey);
@@ -44,7 +45,10 @@ async function fetchForKeyword(row) {
 
   const res = await fetch(url, {
     headers: {
-      Referer: siteUrl.endsWith('/') ? siteUrl : siteUrl + '/'
+      accessKey,
+      Referer: referer,
+      Referrer: referer,
+      Origin: referer.replace(/\/$/, '')
     }
   });
   if (!res.ok) throw new Error('Rakuten API failed: ' + res.status + ' ' + await res.text());
