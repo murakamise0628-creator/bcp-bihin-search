@@ -5,10 +5,26 @@ const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 const siteUrl = (process.env.SITE_URL || 'https://jigyousho-bousai.com').replace(/\/$/, '');
 const dataPath = path.join(root, 'data', 'products.json');
+const keywordsPath = path.join(root, 'data', 'keywords.csv');
 
 const data = fs.existsSync(dataPath)
   ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
   : { generatedAt: new Date().toISOString(), pages: [] };
+
+function parseCsv(text) {
+  const [headerLine, ...lines] = text.trim().split(/\r?\n/);
+  const headers = headerLine.split(',');
+  return lines.filter(Boolean).map((line) => {
+    const cells = line.split(',');
+    return Object.fromEntries(headers.map((h, i) => [h, cells[i] || '']));
+  });
+}
+
+const keywordRows = fs.existsSync(keywordsPath) ? parseCsv(fs.readFileSync(keywordsPath, 'utf8')) : [];
+const dataPagesBySlug = new Map((data.pages || []).map((page) => [page.slug, page]));
+data.pages = keywordRows.map((row) => ({ ...row, ...(dataPagesBySlug.get(row.slug) || {}), products: dataPagesBySlug.get(row.slug)?.products || [] }));
+
+const requiredNotice = '当サイトは、事業所向け防災用品を比較しやすくするための情報サイトです。価格、在庫、レビュー、商品仕様は変動する場合があります。購入前に必ず販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄については、メーカー、専門業者、施設管理者に確認してください。';
 
 const pageNotes = {
   'portable-power-kaigo': {
@@ -94,22 +110,98 @@ const pageNotes = {
       ['簡易トイレは何回分必要ですか？', '目安として1人1日5回で計算します。利用者数や待機日数が増える場合は余裕を見ます。'],
       ['防臭袋は必要ですか？', '保管や一時置きが発生する場合、防臭袋や消臭用品があると負担を減らしやすいです。']
     ]
+  },
+  'earthquake-office': {
+    audience: '会社・店舗・小規模事業所',
+    disasters: ['地震', '帰宅困難者', '断水'],
+    conclusion: '事業所の地震対策は、水・簡易トイレ・非常食・ライト・防寒用品を人数と待機日数で分けて確認します。',
+    mustHave: ['保存水', '非常食', '簡易トイレ', 'ライト', '防寒用品'],
+    problem: '地震で会社や店舗に従業員・来客が残る場面に備え、防災備蓄を比較するページです。帰宅困難者対策も合わせて確認します。',
+    checks: ['水とトイレを先に数量計算する', '従業員と来客を分けて考える', '停電時のライトと充電も見る', '保管場所と期限管理を確認する'],
+    avoid: '地震対策は防災セット名だけで選ばず、断水・停電・帰宅困難者を分けて備えます。',
+    related: ['office-bichiku', 'toilet-office', 'kitaku-konnansha', 'water-food-stock'],
+    faq: [
+      ['会社の防災備蓄は何日分必要ですか？', 'まずは1日分から不足がないか確認し、地域リスクや帰宅困難者の発生可能性に応じて複数日分を検討します。'],
+      ['地震対策で最初に揃えるものは？', '保存水、簡易トイレ、非常食、ライト、防寒用品を人数と日数で確認します。'],
+      ['台風対策と地震対策で備えるものは違いますか？', '共通する備蓄もありますが、地震では断水・トイレ・帰宅困難者、台風では停電・浸水前の待機を特に見ます。']
+    ]
+  },
+  'typhoon-office': {
+    audience: '会社・店舗・施設管理者',
+    disasters: ['台風', '大雨', '停電'],
+    conclusion: '台風・大雨対策は、停電時の連絡手段、照明、水、簡易トイレ、浸水前の備えを分けて確認します。',
+    mustHave: ['ポータブル電源', 'LEDライト', '保存水', '簡易トイレ', '給水用品'],
+    problem: '台風や大雨で出勤・帰宅が難しくなる会社、店舗、施設向けに、防災用品を比較するページです。',
+    checks: ['停電時の照明と通信を確認', '水とトイレを待機人数で計算', '台風前に配送が間に合うか見る', '屋外対策用品と室内備蓄を分ける'],
+    avoid: '営業継続を断定せず、従業員と来客が安全に待機できる備えを優先します。',
+    related: ['blackout-power', 'office-bichiku', 'restaurant-dansui', 'kitaku-konnansha'],
+    faq: [
+      ['台風対策と地震対策で備えるものは違いますか？', '台風では停電や交通停止、地震では断水やトイレ不足が目立ちやすいです。水・トイレ・食料は共通して確認します。'],
+      ['台風で停電した場合、まず必要なものは？', 'スマホ充電、照明、連絡手段を確保するため、電源とライトを先に確認します。'],
+      ['店舗では何を準備すべきですか？', '従業員と来客の待機用に、水、簡易トイレ、ライト、衛生用品を用意する目安を確認します。']
+    ]
+  },
+  'blackout-power': {
+    audience: '事業所・介護施設・店舗',
+    disasters: ['停電', '台風', '地震'],
+    conclusion: '停電対策では、ポータブル電源のWh容量、出力W数、充電方法、保管管理のしやすさを先に比較します。',
+    mustHave: ['ポータブル電源', 'LEDライト', '充電ケーブル', '延長コード', '乾電池'],
+    problem: '停電時に会社、店舗、介護施設でスマホ、照明、通信機器を使うための電源用品を比較するページです。',
+    checks: ['使う機器の消費電力を確認', 'Wh容量と出力W数を見る', 'リン酸鉄など電池方式を確認', '保管時の充電管理を決める'],
+    avoid: '医療機器や介護機器に使えると断定せず、必ずメーカーや専門業者に確認します。',
+    related: ['portable-power-kaigo', 'typhoon-office', 'earthquake-office', 'office-bichiku'],
+    faq: [
+      ['停電対策でまず必要なものは何ですか？', '照明、スマホ充電、連絡手段を確保する電源用品を先に確認します。'],
+      ['介護施設でポータブル電源を選ぶときの注意点は？', '見守り機器や通信機器の消費電力、出力W数、保管時の充電管理を確認します。医療機器への利用可否は専門確認が必要です。'],
+      ['WhとWは何が違いますか？', 'Whは使える電力量の目安、Wは同時に動かせる出力の目安です。両方を確認します。']
+    ]
+  },
+  'water-food-stock': {
+    audience: '会社・事業所・店舗',
+    disasters: ['地震', '台風', '帰宅困難者'],
+    conclusion: '保存水・非常食は、人数と待機日数から水は1人1日3L、食料は1人1日3食を目安に確認します。',
+    mustHave: ['保存水', '非常食', 'アルファ米', '個包装食', '配布しやすいセット'],
+    problem: '会社や事業所で従業員・来客が待機する場面に備え、保存水と非常食を比較するページです。',
+    checks: ['人数と日数で必要量を見る', '保存年数と期限管理を見る', 'アレルギー表示を確認', '配布しやすい個包装か見る'],
+    avoid: '食料だけを先に揃えず、水、簡易トイレ、防寒も合わせて確認します。',
+    related: ['office-bichiku', 'earthquake-office', 'kitaku-konnansha', 'hoikuen-bousai'],
+    faq: [
+      ['会社の防災備蓄は何日分必要ですか？', 'まずは従業員と来客が待機する時間を想定し、1日分から不足がないか確認します。地域や建物条件で増やします。'],
+      ['保存水はどれくらい必要ですか？', '目安として1人1日3Lで計算します。来客や利用者がいる場合は上乗せします。'],
+      ['非常食で注意することは？', '保存年数、アレルギー表示、配布しやすさ、食べるために水や加熱が必要かを確認します。']
+    ]
+  },
+  'bcp-stockpile-checklist': {
+    audience: '事業所・店舗・施設管理者',
+    disasters: ['地震', '台風', '停電', '断水', '帰宅困難者'],
+    conclusion: '事業所防災備蓄は、水・食料・簡易トイレ・ライト・電源・衛生・防寒をチェックリスト化して不足を確認します。',
+    mustHave: ['保存水', '非常食', '簡易トイレ', 'ライト', '電源', '衛生用品', '防寒用品'],
+    problem: '会社や店舗の防災備蓄を、地震、台風、停電、断水、帰宅困難者の観点で漏れなく確認するためのページです。',
+    checks: ['人数と日数を入力して目安を見る', '水・トイレ・食料を先に確認', '停電用品と衛生用品を追加', '保管場所と期限管理を決める'],
+    avoid: 'チェックリストは目安です。施設運用や業界ルールに関わる備蓄は専門確認を行います。',
+    related: ['earthquake-office', 'typhoon-office', 'water-food-stock', 'toilet-office', 'blackout-power'],
+    faq: [
+      ['事業所の簡易トイレは何回分必要ですか？', '目安として1人1日5回で計算します。利用者や来客がいる場合は上乗せします。'],
+      ['会社の防災備蓄は何から確認しますか？', '水、簡易トイレ、非常食、ライト、電源、衛生用品、防寒用品の順で漏れを確認します。'],
+      ['チェックリストだけで足りますか？', '目安として使い、建物条件、地域リスク、施設運用、アレルギー対応などは別途確認します。']
+    ]
   }
 };
 
 const categoryDefinitions = [
   ['小規模オフィス向け防災備蓄', 'office-bichiku', '地震・台風で従業員が待機する前提の基本備蓄。', ['地震', '台風']],
   ['事業所向け簡易トイレ', 'toilet-office', '断水や排水不可に備える回数ベースの比較。', ['断水', '地震']],
-  ['台風・大雨対策', 'portable-power-kaigo', '停電・浸水前に確認したい電源と待機用品。', ['台風', '停電']],
-  ['地震対策', 'office-bichiku', '水・トイレ・食料・防寒を優先する備蓄導線。', ['地震']],
-  ['停電対策', 'portable-power-kaigo', 'スマホ、照明、通信機器の電源確保。', ['停電', '台風']],
+  ['台風・大雨対策', 'typhoon-office', '停電・浸水前に確認したい電源と待機用品。', ['台風', '停電']],
+  ['地震対策', 'earthquake-office', '水・トイレ・食料・防寒を優先する備蓄導線。', ['地震']],
+  ['停電対策', 'blackout-power', 'スマホ、照明、通信機器の電源確保。', ['停電', '台風']],
   ['飲食店向け断水対策', 'restaurant-dansui', '衛生、トイレ、片付け用水を分けて確認。', ['断水']],
   ['保育園向け防災備蓄', 'hoikuen-bousai', '園児と職員を分けて考える備蓄。', ['地震', '台風']],
   ['介護施設向けポータブル電源', 'portable-power-kaigo', '見守り、通信、照明の停電対策。', ['停電']],
   ['帰宅困難者対策', 'kitaku-konnansha', '施設内待機に必要な水・トイレ・防寒。', ['帰宅困難者', '地震']],
-  ['保存水・非常食', 'office-bichiku', '人数と日数で不足を防ぐ基本備蓄。', ['地震', '台風']],
+  ['保存水・非常食', 'water-food-stock', '人数と日数で不足を防ぐ基本備蓄。', ['地震', '台風']],
   ['衛生用品・感染対策', 'restaurant-dansui', '断水時の手指衛生と片付け用品。', ['断水']],
-  ['防寒・睡眠用品', 'kitaku-konnansha', '待機時の体温維持と休息用品。', ['帰宅困難者']]
+  ['防寒・睡眠用品', 'kitaku-konnansha', '待機時の体温維持と休息用品。', ['帰宅困難者']],
+  ['事業所防災備蓄チェックリスト', 'bcp-stockpile-checklist', '水・食料・トイレ・電源をまとめて点検。', ['BCP', '備蓄']]
 ];
 
 const topicPages = [
@@ -118,7 +210,7 @@ const topicPages = [
     title: '地震対策の事業所防災用品比較',
     lead: '地震後に会社や店舗で待機する前提で、水、簡易トイレ、食料、防寒、ライトを優先して確認します。',
     chips: ['地震', '水', '簡易トイレ', '帰宅困難者'],
-    links: ['office-bichiku', 'toilet-office', 'kitaku-konnansha', 'hoikuen-bousai'],
+    links: ['earthquake-office', 'office-bichiku', 'toilet-office', 'kitaku-konnansha', 'hoikuen-bousai'],
     mustHave: ['保存水', '簡易トイレ', '非常食', 'ライト', '防寒用品'],
     faq: [
       ['地震対策で最初に見るものは？', '水、簡易トイレ、ライト、非常食、防寒用品を人数と待機日数で確認するのが現実的です。'],
@@ -130,7 +222,7 @@ const topicPages = [
     title: '台風・大雨対策の事業所防災用品比較',
     lead: '台風や大雨では、停電、交通停止、浸水前の待機に備え、電源、ライト、水、衛生用品を確認します。',
     chips: ['台風', '大雨', '停電', '待機'],
-    links: ['portable-power-kaigo', 'office-bichiku', 'kitaku-konnansha', 'restaurant-dansui'],
+    links: ['typhoon-office', 'blackout-power', 'portable-power-kaigo', 'office-bichiku', 'kitaku-konnansha', 'restaurant-dansui'],
     mustHave: ['ポータブル電源', 'LEDライト', '保存水', '簡易トイレ', '防水用品'],
     faq: [
       ['台風対策では何を優先しますか？', '停電時の連絡手段、照明、最低限の水とトイレを先に確認します。'],
@@ -142,7 +234,7 @@ const topicPages = [
     title: '停電対策の事業所防災用品比較',
     lead: '停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。',
     chips: ['停電', 'ポータブル電源', '照明', '通信'],
-    links: ['portable-power-kaigo', 'office-bichiku', 'hoikuen-bousai'],
+    links: ['blackout-power', 'portable-power-kaigo', 'office-bichiku', 'hoikuen-bousai'],
     mustHave: ['ポータブル電源', '充電ケーブル', 'LEDライト', '乾電池', '延長コード'],
     faq: [
       ['ポータブル電源は容量だけ見ればいいですか？', '容量Whに加えて、使う機器に必要な出力W数、充電方法、保管時の管理も確認します。'],
@@ -154,7 +246,7 @@ const topicPages = [
     title: '断水対策の事業所防災用品比較',
     lead: '断水時は飲料水だけでなく、トイレ、手指衛生、清掃用水、給水容器を分けて確認します。',
     chips: ['断水', 'トイレ', '衛生', '給水'],
-    links: ['restaurant-dansui', 'toilet-office', 'office-bichiku'],
+    links: ['restaurant-dansui', 'toilet-office', 'water-food-stock', 'office-bichiku'],
     mustHave: ['保存水', '給水タンク', '簡易トイレ', '手指消毒', '使い捨て手袋'],
     faq: [
       ['断水対策で飲料水以外に必要なものは？', '簡易トイレ、手指消毒、給水タンク、清掃用品を分けて確認します。'],
@@ -166,7 +258,7 @@ const topicPages = [
     title: '帰宅困難者対策の事業所防災用品比較',
     lead: '交通停止で従業員や来客が施設内に残る前提で、水、トイレ、防寒、スマホ充電を確認します。',
     chips: ['帰宅困難者', '待機', '防寒', '水'],
-    links: ['kitaku-konnansha', 'office-bichiku', 'toilet-office', 'portable-power-kaigo'],
+    links: ['kitaku-konnansha', 'office-bichiku', 'toilet-office', 'blackout-power', 'bcp-stockpile-checklist'],
     mustHave: ['保存水', '非常食', '簡易トイレ', 'アルミブランケット', '充電用品'],
     faq: [
       ['帰宅困難者対策は何人分必要ですか？', '従業員数に加えて、来客や利用者の最大滞在人数を少し見込むと不足しにくくなります。'],
@@ -201,12 +293,26 @@ function updatedDate() {
 }
 
 function shortName(name, maxLength = 54) {
-  const compact = String(name || '').replace(/[【】■◆＼／]/g, '').replace(/\s+/g, ' ').trim();
+  const compact = String(name || '')
+    .replace(/[【】\[\]■◆★☆◎〇○●◇<>＜＞＼／]/g, ' ')
+    .replace(/送料無料|ポイント\d+倍|ランキング.{0,10}|セール|最安|激安|お買い物マラソン|スーパーSALE|クーポン|あす楽/g, ' ')
+    .replace(/防災グッズ|災害対策|非常時|備蓄用品/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   return compact.length > maxLength ? compact.slice(0, maxLength - 1) + '…' : compact;
 }
 
+function displayTitle(product, maxLength = 58) {
+  const raw = product.titleShort || product.name || product.titleRaw || '';
+  return shortName(raw, maxLength);
+}
+
+function rawTitle(product) {
+  return product.titleRaw || product.name || product.titleShort || '';
+}
+
 function extractSpec(product) {
-  const name = String(product.name || '');
+  const name = String(rawTitle(product));
   const years = name.match(/(\d{1,2})年保存/);
   const toiletCount = name.match(/(\d{1,4})回分/);
   const wh = name.match(/(\d{3,5})Wh/i);
@@ -219,23 +325,26 @@ function extractSpec(product) {
 }
 
 function storageYears(product) {
-  const match = String(product.name || '').match(/(\d{1,2})年保存/);
+  const match = String(rawTitle(product)).match(/(\d{1,2})年保存/);
   return match ? `${match[1]}年` : '要確認';
 }
 
 function recommendedType(product, note) {
-  const name = String(product.name || '');
-  if (/トイレ|凝固|汚物|排泄|便/.test(name)) return 'トイレ重視';
-  if (/電源|Wh|バッテリー|蓄電/.test(name)) return '停電対策';
-  if (/水|ウォーター|給水/.test(name)) return '水の備蓄';
-  if (/食|パン|ご飯|保存食|非常食/.test(name)) return '食料備蓄';
-  if (/ブランケット|寝袋|防寒|毛布/.test(name)) return '防寒・待機';
-  if (/衛生|消毒|手袋/.test(name)) return '衛生用品';
-  return note.disasters?.includes('停電') ? '停電対策' : '基本備蓄';
+  const name = String(rawTitle(product));
+  if (/トイレ|凝固|汚物|排泄|便/.test(name)) return '断水対策向け';
+  if (/電源|Wh|バッテリー|蓄電|ランタン|ライト/.test(name)) return '停電対策向け';
+  if (/水|ウォーター|給水/.test(name)) return '長期保存向け';
+  if (/食|パン|ご飯|保存食|非常食|アルファ米/.test(name)) return '長期保存向け';
+  if (/ブランケット|寝袋|防寒|毛布/.test(name)) return '省スペース向け';
+  if (/保育園|子供|こども|幼稚園/.test(name)) return '保育園向け';
+  if (/介護|福祉/.test(name)) return '介護施設向け';
+  if (/大容量|500回|100回|1000Wh|1500W|業務用|法人|企業/.test(name)) return '大人数向け';
+  if (Number(product.price || 0) && Number(product.price || 0) < 5000) return 'コスパ重視';
+  return 'まず確認したい候補';
 }
 
 function suitedFacility(product, note) {
-  const name = String(product.name || '');
+  const name = String(rawTitle(product));
   if (/法人|企業|事業所|業務用/.test(name)) return '事業所・施設';
   if (/保育園|子供|園児|幼稚園/.test(name)) return '保育園・学校';
   if (/介護|高齢者/.test(name)) return '介護施設';
@@ -244,13 +353,56 @@ function suitedFacility(product, note) {
 }
 
 function cautionForProduct(product) {
-  const name = String(product.name || '');
+  const name = String(rawTitle(product));
   if (!Number(product.reviewCount || 0)) return 'レビューが少ないため仕様確認';
   if (/送料別途|外直送|見積り/.test(name)) return '送料・納期を確認';
   if (/トイレ|凝固/.test(name)) return '袋・凝固剤の数を確認';
   if (/電源|Wh|バッテリー/.test(name)) return '出力W数と充電管理を確認';
   if (/食|パン|ご飯|保存食/.test(name)) return 'アレルギーと期限を確認';
   return '購入前に最新条件を確認';
+}
+
+function recommendationBasis(product) {
+  const basis = [];
+  if (Number(product.price || 0)) basis.push('価格');
+  if (Number(product.reviewAverage || 0)) basis.push('レビュー点数');
+  if (Number(product.reviewCount || 0) >= 5) basis.push('レビュー件数');
+  if (storageYears(product) !== '要確認') basis.push('保存年数');
+  if (extractSpec(product) !== '商品ページで確認') basis.push('容量または回数');
+  if (Number(product.relevance || 0) > 60) basis.push('事業所用途との一致度');
+  if (product.summary && product.summary.length >= 30) basis.push('商品説明の明確さ');
+  return basis.length ? basis.slice(0, 4).join('・') : '要確認';
+}
+
+function targetPeople(product) {
+  const name = String(rawTitle(product));
+  const toilet = name.match(/(\d{2,5})回分/);
+  if (toilet) return `約${Math.max(1, Math.floor(Number(toilet[1]) / 5))}人1日分の目安`;
+  const people = name.match(/(\d{1,3})人用/);
+  if (people) return `${people[1]}人用表記`;
+  const meals = name.match(/(\d{1,4})食/);
+  if (meals) return `約${Math.max(1, Math.floor(Number(meals[1]) / 3))}人1日分の目安`;
+  return '人数入力で確認';
+}
+
+function effectiveProducts(page, note, minCount = 8) {
+  const own = (page.products || []).map((product) => ({ ...product, relatedCandidate: false }));
+  if (own.length >= minCount) return own;
+
+  const seen = new Set(own.map((product) => product.itemCode || product.url || rawTitle(product)));
+  const related = [];
+  for (const slug of note.related || []) {
+    const relatedPage = pageBySlug(slug);
+    for (const product of relatedPage?.products || []) {
+      const key = product.itemCode || product.url || rawTitle(product);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      related.push({ ...product, relatedCandidate: true, relatedFrom: relatedPage.title });
+      if (own.length + related.length >= minCount) break;
+    }
+    if (own.length + related.length >= minCount) break;
+  }
+  return [...own, ...related];
 }
 
 function quantityEstimateSection() {
@@ -346,9 +498,10 @@ function clientScript() {
 }
 
 function productJsonLd(products) {
-  const graph = products.filter((product) => product.name && product.url).slice(0, 3).map((product) => ({
+  const graph = products.filter((product) => product.name && product.url).slice(0, 12).map((product) => ({
     '@type': 'Product',
-    name: product.name,
+    name: displayTitle(product),
+    description: product.summary || undefined,
     image: product.image || undefined,
     offers: {
       '@type': 'Offer',
@@ -392,12 +545,27 @@ function faqJsonLd(faq) {
   });
 }
 
+function faqItems(note) {
+  const common = [
+    ['会社の防災備蓄は何日分必要ですか？', 'まずは人数と待機日数を決め、水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に不足を確認します。'],
+    ['事業所の簡易トイレは何回分必要ですか？', '目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。'],
+    ['台風対策と地震対策で備えるものは違いますか？', '共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。']
+  ];
+  const merged = [...(note.faq || []), ...common];
+  const seen = new Set();
+  return merged.filter(([q]) => {
+    if (seen.has(q)) return false;
+    seen.add(q);
+    return true;
+  }).slice(0, 5);
+}
+
 function itemListJsonLd(products, canonical) {
-  const items = products.filter((product) => product.name && product.url).slice(0, 8).map((product, index) => ({
+  const items = products.filter((product) => product.name && product.url).slice(0, 12).map((product, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     url: product.url,
-    name: product.name
+    name: displayTitle(product)
   }));
   if (!items.length) return '';
   return jsonLd({
@@ -428,17 +596,34 @@ function comparisonRows(products, note) {
     return `<tr><td colspan="10"><strong>商品候補の取得改善が必要です。</strong><br>このページは選び方・必要数量・確認ポイントを先に掲載し、次の段階で複数キーワード取得により比較候補を増やします。</td></tr>`;
   }
   return products.map((product) => `<tr>
-    <td class="table-product">${esc(shortName(product.name, 46))}</td>
-    <td>${esc(recommendedType(product, note))}</td>
+    <td class="table-product">${esc(displayTitle(product, 46))}</td>
+    <td>${esc(product.relatedCandidate ? '関連候補' : recommendedType(product, note))}</td>
     <td>${esc(yen(product.price))}</td>
     <td>${esc(product.reviewAverage || '-')}</td>
     <td>${esc(product.reviewCount || 0)}</td>
     <td>${esc(storageYears(product))}</td>
     <td>${esc(extractSpec(product))}</td>
-    <td>人数入力で確認</td>
+    <td>${esc(targetPeople(product))}</td>
     <td>${esc(suitedFacility(product, note))}</td>
-    <td>${esc(cautionForProduct(product))}<br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener">詳細</a></td>
+    <td>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener">詳細</a></td>
   </tr>`).join('');
+}
+
+function webPageJsonLd(title, description, canonical) {
+  return jsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description,
+    url: canonical,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: '事業所防災ナビ',
+      url: `${siteUrl}/`
+    },
+    inLanguage: 'ja',
+    dateModified: data.generatedAt || new Date().toISOString()
+  });
 }
 
 function comparisonTable(products, note) {
@@ -458,10 +643,11 @@ function productCards(products, note) {
     return `<article class="card empty"><p class="pill orange">次に商品取得を改善</p><h2>比較候補を増やす必要があります</h2><p>このページは現時点で商品候補が不足しています。UI上では選び方・必要数量・FAQを表示し、次工程で検索キーワードを増やして商品候補を補強します。</p></article>`;
   }
   return products.map((product, index) => `<article class="card product">
-    ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(shortName(product.name))}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">商品画像<br>取得待ち</div>'}
+    ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">商品画像<br>取得待ち</div>'}
     <div>
-      <p class="pill navy">比較候補 ${index + 1} / ${esc(recommendedType(product, note))}</p>
-      <h2>${esc(shortName(product.name))}</h2>
+      <p class="pill navy">${esc(product.relatedCandidate ? '関連候補' : recommendedType(product, note))}</p>
+      <h2>${esc(displayTitle(product))}</h2>
+      ${product.relatedCandidate ? `<p class="notice">この商品は「${esc(product.relatedFrom || '関連ページ')}」から補完した関連候補です。用途の一致度は販売ページで確認してください。</p>` : ''}
       ${product.summary ? `<p class="summary">${esc(product.summary)}</p>` : ''}
       <p class="price">${yen(product.price)}</p>
       <div class="facts">
@@ -471,7 +657,7 @@ function productCards(products, note) {
       </div>
       <div class="spec-grid">
         <div><span>主要スペック</span><strong>${esc(extractSpec(product))}</strong></div>
-        <div><span>おすすめポイント</span><strong>${esc(recommendedType(product, note))}</strong></div>
+        <div><span>おすすめ度の根拠</span><strong>${esc(recommendationBasis(product))}</strong></div>
         <div><span>注意点</span><strong>${esc(cautionForProduct(product))}</strong></div>
         <div><span>向いている施設</span><strong>${esc(suitedFacility(product, note))}</strong></div>
       </div>
@@ -481,7 +667,7 @@ function productCards(products, note) {
 }
 
 function faqSection(note) {
-  const items = (note.faq || []).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
+  const items = faqItems(note).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
   return `<section class="section faq"><h2>FAQ</h2>${items}</section>`;
 }
 
@@ -491,6 +677,11 @@ function relatedLinks(slugs) {
     return page ? `<a href="${siteUrl}/pages/${esc(slug)}.html">${esc(page.title)}</a>` : '';
   }).filter(Boolean).join('');
   return `<section class="section"><div class="section-title"><h2>関連ページ</h2><p class="notice">災害別・施設別に続けて確認</p></div><div class="link-list">${links}</div></section>`;
+}
+
+function pageDescription(page, note) {
+  const disasters = (note.disasters || []).join('、');
+  return `${page.title}。${note.conclusion} ${note.problem} 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。`;
 }
 
 function pageHtml(page) {
@@ -504,8 +695,10 @@ function pageHtml(page) {
     avoid: '商品名だけで選ばず、用途に合うかを確認します。',
     related: ['office-bichiku']
   };
-  const products = page.products || [];
+  const ownProducts = page.products || [];
+  const products = effectiveProducts(page, note, 8);
   const canonical = `${siteUrl}/pages/${page.slug}.html`;
+  const description = pageDescription(page, note);
   const checks = note.checks.map((item) => `<li>${esc(item)}</li>`).join('');
   const mustHave = note.mustHave.map((item) => `<span class="pill orange">${esc(item)}</span>`).join('');
   const body = `<section class="hero">
@@ -516,6 +709,7 @@ function pageHtml(page) {
       <span class="pill navy">対象施設: ${esc(note.audience)}</span>
       <span class="pill navy">想定災害: ${esc(note.disasters.join('・'))}</span>
       <span class="pill orange">比較候補数: ${products.length}件</span>
+      ${ownProducts.length < 8 ? '<span class="pill">関連候補を含む</span>' : ''}
       <span class="pill">最終更新: ${esc(updatedDate())}</span>
     </div>
   </section>
@@ -530,16 +724,17 @@ function pageHtml(page) {
   ${quantityEstimateSection()}
   ${comparisonTable(products, note)}
   <section class="section"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>候補ごとの向き・注意点を見る</h2></div><p class="notice">価格・在庫・レビューは変動します</p></div><div class="product-list">${productCards(products, note)}</div></section>
-  <section class="section card"><h2>注意点</h2><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。購入前に楽天の商品ページでセット内容、個数、保存年数、送料、納期を確認してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
+  <section class="section card"><h2>注意点</h2><p>${esc(requiredNotice)}</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
   ${faqSection(note)}
   ${relatedLinks(note.related)}
   ${structuredData(
+    webPageJsonLd(page.title, description, canonical),
     breadcrumbJsonLd([{ name: page.title, url: canonical }]),
-    faqJsonLd(note.faq),
+    faqJsonLd(faqItems(note)),
     itemListJsonLd(products, canonical),
     productJsonLd(products)
   )}`;
-  return layout(page.title, body, `${page.title}。${note.problem}`, canonical, { crumbs: [page.title] });
+  return layout(page.title, body, description, canonical, { crumbs: [page.title] });
 }
 
 function topicHtml(topic) {
@@ -548,7 +743,7 @@ function topicHtml(topic) {
     const page = pageBySlug(slug);
     if (!page) return '';
     const note = pageNotes[slug] || {};
-    const products = page.products || [];
+    const products = effectiveProducts(page, note, 8);
     return `<article class="card category-card">
       <p class="pill orange">${esc(note.disasters ? note.disasters.join('・') : '比較')}</p>
       <h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(page.title)}</a></h3>
@@ -575,20 +770,22 @@ function topicHtml(topic) {
   ${quantityEstimateSection()}
   <section class="section" id="related"><div class="section-title"><div><p class="eyebrow">関連する比較ページ</p><h2>用途別に詳しく比較する</h2></div></div><div class="grid">${linkCards}</div></section>
   ${faqSection(topic)}
-  <section class="section card"><h2>注意点</h2><p>このページは災害別の入口です。実際の商品比較は、関連する比較ページで価格、レビュー、容量、回数、保存年数を確認してください。</p></section>
+  <section class="section card"><h2>注意点</h2><p>${esc(requiredNotice)}</p><p>このページは災害別の入口です。実際の商品比較は、関連する比較ページで価格、レビュー、容量、回数、保存年数を確認してください。</p></section>
   ${structuredData(
+    webPageJsonLd(topic.title, topic.lead, canonical),
     breadcrumbJsonLd([{ name: topic.title, url: canonical }]),
-    faqJsonLd(topic.faq)
+    faqJsonLd(faqItems(topic))
   )}`;
   return layout(topic.title, body, topic.lead, canonical, { crumbs: [topic.title] });
 }
 
-const totalProducts = data.pages.reduce((sum, page) => sum + (page.products || []).length, 0);
-const weakPages = data.pages.filter((page) => (page.products || []).length < 2).length;
+const totalProducts = data.pages.reduce((sum, page) => sum + effectiveProducts(page, pageNotes[page.slug] || {}, 8).length, 0);
+const weakPages = data.pages.filter((page) => effectiveProducts(page, pageNotes[page.slug] || {}, 8).length < 8).length;
 
 const categoryCards = categoryDefinitions.map(([title, slug, desc, chips]) => {
   const page = pageBySlug(slug);
-  const count = page ? (page.products || []).length : 0;
+  const note = pageNotes[slug] || {};
+  const count = page ? effectiveProducts(page, note, 8).length : 0;
   return `<article class="card category-card" data-search-card>
     <div class="chip-row">${chips.map((chip) => `<span class="chip">${esc(chip)}</span>`).join('')}</div>
     <h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3>
@@ -600,8 +797,12 @@ const categoryCards = categoryDefinitions.map(([title, slug, desc, chips]) => {
 const popularCards = [
   ['まず見るべき比較', '小規模オフィス向け防災備蓄', 'office-bichiku'],
   ['トイレ不足を防ぐ', '事業所向け簡易トイレ', 'toilet-office'],
-  ['停電に備える', '介護施設向けポータブル電源', 'portable-power-kaigo']
-].map(([label, title, slug]) => `<article class="card popular-card"><p class="pill orange">${esc(label)}</p><h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3><p class="notice">比較候補: ${esc((pageBySlug(slug)?.products || []).length)}件</p></article>`).join('');
+  ['停電に備える', '停電対策用品比較', 'blackout-power']
+].map(([label, title, slug]) => {
+  const page = pageBySlug(slug);
+  const count = page ? effectiveProducts(page, pageNotes[slug] || {}, 8).length : 0;
+  return `<article class="card popular-card"><p class="pill orange">${esc(label)}</p><h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3><p class="notice">比較候補: ${esc(count)}件</p></article>`;
+}).join('');
 
 const indexBody = `<section class="hero">
   <p class="eyebrow">会社・店舗・施設向けの防災備蓄比較</p>
@@ -639,8 +840,15 @@ const indexBody = `<section class="hero">
 ${quantityEstimateSection()}
 <section class="section" id="popular"><div class="section-title"><div><p class="eyebrow">人気比較ページ</p><h2>最初に確認されやすいページ</h2></div></div><div class="grid">${popularCards}</div></section>
 <section class="section" id="categories"><div class="section-title"><div><p class="eyebrow">主要カテゴリ</p><h2>用途・災害・施設別に探す</h2></div><p class="notice">検索窓で絞り込みできます</p></div><div class="grid">${categoryCards}</div></section>
-<section class="section card"><h2>比較サイトとしての見方</h2><p>商品名だけではなく、人数、待機日数、用途、容量、回数、保存年数、レビュー件数を合わせて確認してください。0件または1件のページは、次の工程で商品取得キーワードを増やして補強します。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。価格・在庫・レビューは変動するため、購入前にリンク先で最新情報を確認してください。</p></section>
-${structuredData(websiteJsonLd())}`;
+<section class="section card"><h2>比較サイトとしての見方</h2><p>商品名だけではなく、人数、待機日数、用途、容量、回数、保存年数、レビュー件数を合わせて確認してください。0件または1件のページは関連候補を明確に分け、次回の商品取得で補強します。</p><p>${esc(requiredNotice)}</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。価格・在庫・レビューは変動するため、購入前にリンク先で最新情報を確認してください。</p></section>
+${structuredData(
+  websiteJsonLd(),
+  webPageJsonLd(
+    '地震・台風・停電・断水に備える 事業所防災用品比較',
+    '会社、店舗、保育園、介護施設、飲食店向けに、防災備蓄品を人数・用途・災害別に比較できます。',
+    `${siteUrl}/`
+  )
+)}`;
 
 fs.writeFileSync(path.join(dist, 'index.html'), layout(
   '地震・台風・停電・断水に備える 事業所防災用品比較',
