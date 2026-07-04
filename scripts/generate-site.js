@@ -443,21 +443,22 @@ function layout(title, body, description, canonical, options = {}) {
   <meta property="og:url" content="${esc(canonical)}">
   <meta name="twitter:card" content="summary">
   <style>
+    /* Hallmark pre-emit critique: P4 H4 E4 S4 R4 V4 */
     :root{color-scheme:light;--ink:#17212b;--muted:#5c6874;--line:#dbe4e4;--soft:#f7f2e8;--paper:#fff;--main:#103f4a;--main2:#0d6258;--accent:#e47b24;--accent-soft:#fff1e3;--ok:#187060;--warn:#a45d08}
-    *{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;font-size:16px;line-height:1.75;letter-spacing:0;overflow-x:hidden}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:clip}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;font-size:16px;line-height:1.75;letter-spacing:0;overflow-x:clip}
     a{color:var(--main2)}main{max-width:1180px;margin:0 auto;padding:22px 18px 56px}.site-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:14px}.brand{font-weight:900;font-size:22px;text-decoration:none;color:var(--main)}.nav{display:flex;gap:10px;flex-wrap:wrap}.nav a{font-size:14px;text-decoration:none;color:var(--muted);padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.65)}
     .breadcrumb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 14px;color:var(--muted);font-size:13px}.breadcrumb a{text-decoration:none;color:var(--muted)}
     .hero{background:#fff;border:1px solid #d8e1df;border-radius:8px;padding:34px;box-shadow:0 10px 28px rgba(31,35,30,.07);min-width:0}.visual-hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(320px,.74fr);gap:28px;align-items:start;overflow:hidden}.visual-hero>*{min-width:0}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.hero-visual{display:grid;gap:12px}.shelf-photo{position:relative;min-height:280px;border-radius:8px;overflow:hidden;background:linear-gradient(160deg,#123f46,#0d6258 48%,#f4a261 49%,#fff7ed);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}.shelf-photo:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,34,38,.1),rgba(8,34,38,.64))}.shelf-label{position:absolute;left:18px;right:18px;bottom:18px;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.35)}.shelf-label strong{display:block;font-size:22px;line-height:1.35}.hero-products{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.hero-product{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;display:grid;gap:8px;min-width:0}.hero-product img{width:100%;height:96px;object-fit:contain}.hero-product span{font-size:12px;font-weight:900;line-height:1.45;color:var(--ink)}.trust-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.trust-row div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px}.trust-row strong{display:block;color:var(--main);font-size:18px}.trust-row span{font-size:13px;color:var(--muted)}
-    .eyebrow{font-size:13px;font-weight:900;color:var(--main2);margin:0 0 8px}h1{font-size:clamp(30px,5vw,48px);line-height:1.25;margin:0 0 14px;letter-spacing:0;overflow-wrap:anywhere}h2{font-size:24px;line-height:1.35;margin:0 0 12px;overflow-wrap:anywhere}h3{font-size:18px;line-height:1.45;margin:0 0 8px;overflow-wrap:anywhere}.lead{font-size:18px;max-width:890px;overflow-wrap:anywhere}.muted{color:var(--muted)}.section{margin-top:28px}.section-title{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:12px}
+    .eyebrow{font-size:13px;font-weight:900;color:var(--main2);margin:0 0 8px}h1{font-size:clamp(34px,5.4vw,56px);line-height:1.16;margin:0 0 16px;letter-spacing:0;overflow-wrap:anywhere;min-width:0}h2{font-size:24px;line-height:1.35;margin:0 0 12px;overflow-wrap:anywhere;min-width:0}h3{font-size:18px;line-height:1.45;margin:0 0 8px;overflow-wrap:anywhere;min-width:0}.lead{font-size:18px;max-width:890px;overflow-wrap:anywhere}.muted{color:var(--muted)}.section{margin-top:28px}.section-title{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:12px}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:22px;box-shadow:0 10px 24px rgba(29,38,34,.06)}.card h2 a,.card h3 a{text-decoration:none;color:var(--ink)}.card h2 a:hover,.card h3 a:hover{text-decoration:underline}
     .button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 18px;background:var(--main2);color:white;border-radius:8px;text-decoration:none;font-weight:900;box-shadow:0 8px 16px rgba(13,98,88,.18)}.button.orange{background:var(--accent);box-shadow:0 8px 16px rgba(228,123,36,.18)}.button.secondary{background:#fff;color:var(--main2);border:1px solid var(--main2);box-shadow:none}.button.block{width:100%}
     .chip-row{display:flex;gap:9px;flex-wrap:wrap}.chip,.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:900;text-decoration:none}.chip{background:#fff;color:var(--main);border:1px solid var(--line)}.chip.active,.pill.orange{background:var(--accent-soft);border:1px solid #f4c497;color:#9b4d08}.pill{background:#e9f3f1;color:var(--main2);border:1px solid #cfe2de}.pill.navy{background:#e9eef2;color:var(--main);border-color:#cbd8de}
     .search-box{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}.search-box input{min-height:48px;border:1px solid var(--line);border-radius:8px;padding:0 14px;font-size:16px;background:#fff}.mini-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.mini-stats div,.estimate-grid div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px}.mini-stats strong,.estimate-grid strong{display:block;font-size:24px;color:var(--main)}
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:16px 0 0;padding:0;list-style:none}.checklist li{background:#f6faf8;border:1px solid #d9e7e3;border-radius:8px;padding:12px 14px}.steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}.steps li{counter-increment:step;padding:12px 14px;border-left:4px solid var(--accent);background:#fffaf4;border-radius:0 8px 8px 0}.steps li:before{content:counter(step) ". ";font-weight:900;color:var(--accent)}
-    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.category-card{display:flex;flex-direction:column;gap:10px}.category-card .count{margin-top:auto;color:var(--muted);font-size:13px}.popular-card{border-top:5px solid var(--accent)}.scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.scenario-card{display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:center;box-shadow:none}.scenario-card img{width:74px;height:74px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px}.buyer-path{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.path-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px}.path-card strong{display:block;font-size:18px;color:var(--main);margin-bottom:6px}.source-panel{background:#eef7f4;border:1px solid #cfe2de}.source-panel a{font-weight:900}.hero-kicker{display:inline-flex;background:#eef7f4;border:1px solid #cfe2de;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:900;color:var(--main);margin-bottom:12px}.hero-sub{font-size:22px;line-height:1.45;margin:0 0 14px;color:#26343d;font-weight:900;overflow-wrap:anywhere}.concern-list{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}.concern-list li{background:#f8faf9;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-weight:800}.concern-list span{color:var(--accent);font-weight:900}.hero-showcase{background:#fbfcfb;border:1px solid var(--line);border-radius:8px;padding:14px}.showcase-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.showcase-head strong{font-size:18px;color:var(--main)}.showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.showcase-card{min-height:178px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px;display:grid;grid-template-rows:104px auto;gap:8px}.showcase-card:first-child{grid-row:span 2;grid-template-rows:220px auto}.showcase-card img{width:100%;height:100%;object-fit:contain;background:#fff;border-radius:7px}.showcase-card span{font-size:13px;font-weight:900;line-height:1.45}.decision-panel{margin-top:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}.decision-row{display:grid;grid-template-columns:86px 1fr;gap:0;border-top:1px solid var(--line)}.decision-row:first-child{border-top:0}.decision-row strong{background:#eef7f4;color:var(--main);padding:10px 12px}.decision-row span{padding:10px 12px;color:#33423b}.field-note{margin-top:10px;background:#fff7ed;border:1px solid #f4c497;border-radius:8px;padding:12px}.field-note strong{display:block;color:#9b4d08}.starter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.starter-card{display:grid;grid-template-columns:88px 1fr;gap:12px;align-items:center;box-shadow:none}.starter-card img{width:88px;height:88px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px}.starter-card h3{margin-bottom:4px}.starter-card .small-button{margin-top:8px}.editor-note{border-left:5px solid var(--accent);background:#fff}.human-copy{font-size:17px}.check-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.check-strip div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px}.check-strip strong{display:block;color:var(--main);font-size:18px}.check-strip span{display:block;color:var(--muted);font-size:13px}.site-footer{border-top:1px solid var(--line);margin-top:44px;padding:16px 0 0;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.site-footer a{color:var(--muted);text-decoration:none}
+    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.category-card{display:flex;flex-direction:column;gap:10px}.category-card .count{margin-top:auto;color:var(--muted);font-size:13px}.popular-card{border-top:5px solid var(--accent)}.scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.scenario-card{display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:center;box-shadow:none}.scenario-card img{width:74px;height:74px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px}.buyer-path{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.path-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px}.path-card strong{display:block;font-size:18px;color:var(--main);margin-bottom:6px}.source-panel{background:#eef7f4;border:1px solid #cfe2de}.source-panel a{font-weight:900}.hero-kicker{display:inline-flex;background:#eef7f4;border:1px solid #cfe2de;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:900;color:var(--main);margin-bottom:12px}.hero-sub{font-size:22px;line-height:1.45;margin:0 0 14px;color:#26343d;font-weight:900;overflow-wrap:anywhere}.concern-list{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}.concern-list li{background:#f8faf9;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-weight:800}.concern-list span{color:var(--accent);font-weight:900}.hero-showcase{background:#fbfcfb;border:1px solid var(--line);border-radius:8px;padding:14px}.showcase-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.showcase-head strong{font-size:18px;color:var(--main)}.showcase-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.showcase-card{min-height:178px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px;display:grid;grid-template-rows:104px auto;gap:8px}.showcase-card:first-child{grid-row:span 2;grid-template-rows:220px auto}.showcase-card img{width:100%;height:100%;object-fit:contain;background:#fff;border-radius:7px}.showcase-card span{font-size:13px;font-weight:900;line-height:1.45}.decision-panel{margin-top:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}.decision-row{display:grid;grid-template-columns:86px 1fr;gap:0;border-top:1px solid var(--line)}.decision-row:first-child{border-top:0}.decision-row strong{background:#eef7f4;color:var(--main);padding:10px 12px}.decision-row span{padding:10px 12px;color:#33423b}.field-note{margin-top:10px;background:#fff7ed;border:1px solid #f4c497;border-radius:8px;padding:12px}.field-note strong{display:block;color:#9b4d08}.starter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.starter-card{display:grid;grid-template-columns:88px 1fr;gap:12px;align-items:center;box-shadow:none}.starter-card img{width:88px;height:88px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px}.starter-card h3{margin-bottom:4px}.starter-card .small-button{margin-top:8px}.editor-note{border-left:5px solid var(--accent);background:#fff}.human-copy{font-size:17px}.check-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.check-strip div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px}.check-strip strong{display:block;color:var(--main);font-size:18px}.check-strip span{display:block;color:var(--muted);font-size:13px}.procurement-board{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:16px;align-items:start}.desk-note{background:#103f4a;color:#f8fbf9;border-radius:8px;padding:22px;box-shadow:0 14px 26px rgba(16,63,74,.16)}.desk-note h2{color:#fff}.desk-note .eyebrow{color:#ffd3a3}.desk-note p{margin:0 0 14px}.desk-note small{display:block;color:#d7e5e2}.proof-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}.proof-list li{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px}.proof-list strong{display:block;color:var(--main);margin-bottom:2px}.comparison-lane{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.lane-card{display:grid;grid-template-columns:92px 1fr;gap:14px;align-items:center}.lane-card img{width:92px;height:92px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px}.site-footer{border-top:1px solid var(--line);margin-top:44px;padding:16px 0 0;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.site-footer a{color:var(--muted);text-decoration:none}
     .compare-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}.compare-table{width:100%;min-width:980px;border-collapse:collapse}.compare-table th,.compare-table td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.compare-table th{background:#f2f6f5;color:var(--main);font-size:13px}.compare-table tr:last-child td{border-bottom:0}.table-product{font-weight:900;max-width:260px;overflow-wrap:anywhere}.small-button{display:inline-flex;min-height:36px;align-items:center;padding:7px 10px;border-radius:7px;background:var(--main2);color:white;text-decoration:none;font-weight:900;white-space:nowrap}
     .product-list{display:grid;gap:14px}.product{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:start}.product-img{width:150px;height:150px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}.product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:#f6f6f2}.product h2{font-size:20px;overflow-wrap:anywhere}.summary{margin:8px 0;color:#33423b}.price{font-size:24px;font-weight:900;color:var(--main);margin:8px 0}.facts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.fact{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;background:#fbfcfb;color:#33423b}.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}.spec-grid div{background:#f8faf8;border:1px solid var(--line);border-radius:8px;padding:8px}.spec-grid span{display:block;font-size:12px;color:var(--muted)}.spec-grid strong{display:block;color:var(--ink)}.notice{font-size:13px;color:var(--muted)}.empty{border:1px dashed #d6b681;background:#fffaf4}.ad-note{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.calc-grid label{display:grid;gap:6px;font-weight:900}.calc-input{min-height:44px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:16px}.estimate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:14px}.estimate-grid span,.estimate-grid small{display:block;color:var(--muted)}.faq details{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px}.faq details+details{margin-top:10px}.faq summary{font-weight:900;cursor:pointer}.link-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.link-list a{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;text-decoration:none;font-weight:900;color:var(--main)}
-    @media(max-width:760px){main{padding:16px 12px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.visual-hero{grid-template-columns:1fr}.hero-sub{font-size:19px;line-height:1.6}.hero-meta{display:grid;grid-template-columns:1fr;align-items:start}.hero-meta .pill{justify-content:flex-start;width:max-content;max-width:100%}.shelf-photo{min-height:210px}.hero-products{grid-template-columns:repeat(3,minmax(88px,1fr));overflow-x:auto}.trust-row{grid-template-columns:1fr}.lead{font-size:16px}.section-title{display:block}.two,.three{grid-template-columns:1fr}.search-box{grid-template-columns:1fr}.scenario-card{grid-template-columns:72px 1fr}.scenario-card img{width:72px;height:72px}.showcase-head{display:grid;align-items:start}.showcase-grid{grid-template-columns:1fr}.showcase-card:first-child{grid-row:auto;grid-template-rows:150px auto}.showcase-card{grid-template-rows:130px auto}.decision-row{grid-template-columns:74px 1fr}.starter-card{grid-template-columns:82px 1fr}.starter-card img{width:82px;height:82px}.product{grid-template-columns:104px 1fr;gap:12px}.product-img{width:104px;height:104px}.product h2{font-size:17px}.nav{gap:8px}.hero-actions .button{width:100%}.card{padding:18px}}
+    @media(max-width:760px){main{padding:16px 12px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.visual-hero{grid-template-columns:1fr}.hero-sub{font-size:19px;line-height:1.6}.hero-meta{display:grid;grid-template-columns:1fr;align-items:start}.hero-meta .pill{justify-content:flex-start;width:max-content;max-width:100%}.shelf-photo{min-height:210px}.hero-products{grid-template-columns:repeat(3,minmax(88px,1fr));overflow-x:auto}.trust-row{grid-template-columns:1fr}.lead{font-size:16px}.section-title{display:block}.two,.three,.procurement-board,.comparison-lane{grid-template-columns:1fr}.search-box{grid-template-columns:1fr}.scenario-card{grid-template-columns:72px 1fr}.scenario-card img{width:72px;height:72px}.showcase-head{display:grid;align-items:start}.showcase-grid{grid-template-columns:1fr}.showcase-card:first-child{grid-row:auto;grid-template-rows:150px auto}.showcase-card{grid-template-rows:130px auto}.decision-row{grid-template-columns:74px 1fr}.starter-card,.lane-card{grid-template-columns:82px 1fr}.starter-card img,.lane-card img{width:82px;height:82px}.product{grid-template-columns:104px 1fr;gap:12px}.product-img{width:104px;height:104px}.product h2{font-size:17px}.nav{gap:8px}.nav a,.button,.small-button{white-space:nowrap}.hero-actions .button{width:100%}.card{padding:18px}}
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">よく使う比較</a></nav></header>${breadcrumb}${body}${siteFooter()}${clientScript()}</main></body>
@@ -851,10 +852,28 @@ function starterCard(label, title, slug, product, body) {
   </article>`;
 }
 
+function laneCard(label, title, slug, product, body) {
+  return `<article class="card lane-card" data-search-card>
+    ${product?.image ? `<img src="${esc(product.image)}" alt="${esc(title)}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">候補</div>'}
+    <div>
+      <p class="eyebrow">${esc(label)}</p>
+      <h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3>
+      <p class="notice">${esc(body)}</p>
+    </div>
+  </article>`;
+}
+
 const starterCards = [
   starterCard('まず不足しやすい', '簡易トイレ', 'toilet-office', firstProduct('toilet-office', /トイレ|凝固/), '断水後に買い足しが難しいため、人数と回数で先に確認。'),
   starterCard('停電が不安なら', 'ポータブル電源・ライト', 'blackout-power', firstProduct('blackout-power', /電源|Wh/), '通信、照明、受付端末など最低限使いたい機器から逆算。'),
   starterCard('帰れない日に備える', '保存水・非常食', 'water-food-stock', firstProduct('water-food-stock', /保存水|非常食/), '従業員と来客が残る前提で、日数と保管場所を確認。')
+].join('');
+
+const laneCards = [
+  laneCard('発注前に見る', '簡易トイレの回数', 'toilet-office', firstProduct('toilet-office', /トイレ|凝固|防臭/), '人数分ではなく、1人1日あたりの回数で不足を見ます。'),
+  laneCard('置き場所から見る', '保存水・非常食', 'water-food-stock', firstProduct('water-food-stock', /保存水|非常食|アルファ米/), '重さ、箱数、期限管理まで含めて確認します。'),
+  laneCard('停電で止まるもの', 'ポータブル電源', 'blackout-power', firstProduct('blackout-power', /電源|Wh|リン酸鉄/), '照明、通信、受付端末など使う機器から容量を見ます。'),
+  laneCard('施設別の注意', '保育園・介護施設', 'hoikuen-bousai', firstProduct('hoikuen-bousai', /子供|非常食|防災/), '子ども、利用者、職員を分けて備蓄を見ます。')
 ].join('');
 
 function scenarioCard(title, slug, imageProduct, body) {
@@ -873,14 +892,14 @@ const scenarioCards = [
 
 const indexBody = `<section class="hero visual-hero">
   <div>
-    <span class="hero-kicker">会社・店舗・施設の備蓄を、買う前に整理する</span>
-    <h1>事業所防災ナビ</h1>
-    <p class="hero-sub">何を何人分そろえるか、先に決めてから商品を見る。</p>
-    <p class="lead">事業所の防災備蓄は、商品名よりも人数、待機日数、断水、停電、帰宅困難者の想定で必要量が変わります。このサイトでは、買う前の確認順と比較候補をまとめて見られるようにしています。</p>
+    <span class="hero-kicker">総務・店長・施設管理者のための防災備蓄チェック</span>
+    <h1>会社の備蓄、足りるかを先に見る。</h1>
+    <p class="hero-sub">地震、台風、停電、断水。必要量を出してから、買うものを絞ります。</p>
+    <p class="lead">事業所の防災用品は、セット名だけでは判断しにくいです。従業員、来客、園児、利用者が何人残るか。トイレは何回分いるか。停電で何を動かすか。この順番で見れば、買い足すべきものが見えます。</p>
     <ul class="concern-list">
-      <li><span>地震:</span> 交通停止で従業員や来客が社内に残る</li>
-      <li><span>断水:</span> トイレ、手洗い、飲食店の営業判断に直結する</li>
-      <li><span>停電:</span> 照明、スマホ充電、通信機器が止まりやすい</li>
+      <li><span>地震:</span> 帰宅できない従業員と来客の待機用品を見る</li>
+      <li><span>断水:</span> トイレ、手洗い、飲食店の衛生用品を分ける</li>
+      <li><span>停電:</span> 照明、スマホ充電、通信機器の電源を確認する</li>
     </ul>
     <div class="hero-actions">
       <a class="button orange" href="${siteUrl}/pages/earthquake-office.html">地震で帰れない場合を見る</a>
@@ -896,15 +915,32 @@ const indexBody = `<section class="hero visual-hero">
     <div class="search-box"><input id="siteSearch" type="search" placeholder="例: 地震、台風、停電、断水、保育園、トイレ"><a class="button" href="#categories">探す</a></div>
   </div>
   <aside class="hero-showcase" aria-label="比較できる防災用品の例">
-    <div class="showcase-head"><strong>比較候補の例</strong><span class="pill">価格・仕様は購入前確認</span></div>
+    <div class="showcase-head"><strong>発注前に見る候補</strong><span class="pill">価格・仕様は購入前確認</span></div>
     <div class="showcase-grid">${showcaseCards}</div>
     <div class="decision-panel" aria-label="購入前の確認順">
       <div class="decision-row"><strong>人数</strong><span>従業員、来客、利用者を分けて最大人数を見る</span></div>
       <div class="decision-row"><strong>場面</strong><span>地震、停電、断水、帰宅困難者で不足品が変わる</span></div>
       <div class="decision-row"><strong>比較</strong><span>価格、容量、回数、レビュー件数、保存年数を見る</span></div>
     </div>
-    <div class="field-note"><strong>最初から商品を選ばない。</strong><span>必要量を出してから、価格、レビュー件数、容量、保存年数を横並びで確認します。</span></div>
+    <div class="field-note"><strong>買う前に、数を出す。</strong><span>人数と待機日数を決めてから、価格、レビュー件数、容量、保存年数を横並びで確認します。</span></div>
   </aside>
+</section>
+<section class="section procurement-board">
+  <article class="desk-note">
+    <p class="eyebrow">このサイトの使い方</p>
+    <h2>「とりあえず防災セット」から始めない</h2>
+    <p>事業所で抜けやすいのは、商品そのものより数量です。水は足りても、トイレ回数が足りない。電源はあっても、使いたい機器の出力に合わない。食品は買ったが、アレルギーや配布方法を見ていない。まず不足箇所を切り分けます。</p>
+    <small>価格、在庫、レビュー、仕様は変わるため、購入前に販売ページで確認してください。</small>
+  </article>
+  <article class="card">
+    <h2>見積もり前の確認メモ</h2>
+    <ul class="proof-list">
+      <li><strong>人数</strong><span>従業員だけでなく、来客、利用者、園児、アルバイトも含める。</span></li>
+      <li><strong>場所</strong><span>倉庫、事務所、店舗バックヤードに置ける重さと箱数を見る。</span></li>
+      <li><strong>止まるもの</strong><span>水道、電気、交通、通信のどれが止まる想定かを分ける。</span></li>
+      <li><strong>配る人</strong><span>災害時に誰が取り出して配るかまで決める。</span></li>
+    </ul>
+  </article>
 </section>
 <section class="section">
   <div class="section-title"><div><p class="eyebrow">まず困りごとを選ぶ</p><h2>災害時に止まるものから見る</h2></div></div>
@@ -924,9 +960,24 @@ const indexBody = `<section class="hero visual-hero">
   <div><strong>購入前に確認</strong><span>価格、在庫、レビュー、仕様は販売ページで最新情報を確認する前提です。</span></div>
   <div><strong>不足を見つける</strong><span>「セットを買ったから大丈夫」ではなく、トイレ回数や電源容量まで確認します。</span></div>
 </section>
+<section class="section comparison-lane">
+  <article>
+    <div class="section-title"><div><p class="eyebrow">発注前の見方</p><h2>商品ではなく、足りない機能から探す</h2></div></div>
+    <div class="starter-grid">${laneCards}</div>
+  </article>
+  <article class="card">
+    <h2>担当者が迷いやすいところ</h2>
+    <ul class="checklist">
+      <li>保存水は容量だけでなく、運べる重さと置き場を確認する</li>
+      <li>簡易トイレは人数ではなく、回数で見る</li>
+      <li>ポータブル電源はWhだけでなく、使う機器の出力を見る</li>
+      <li>施設向けは、利用者の年齢、体調、アレルギーを確認する</li>
+    </ul>
+  </article>
+</section>
 <section class="section card editor-note">
   <h2>編集方針</h2>
-  <p class="human-copy">防災用品は「安いセット」だけで選ぶと、人数に対してトイレが足りない、保存水が重すぎて置き場所がない、停電時に使いたい機器の容量が足りない、というズレが起きます。ここでは商品リンクの前に、人数、日数、用途、レビュー件数、容量を並べて確認できるようにしています。</p>
+  <p class="human-copy">防災用品は、安いセットだけで選ぶとズレが出ます。人数に対してトイレが足りない。保存水が重く、置き場所がない。停電時に使いたい機器の容量が足りない。そういう失敗を避けるため、商品リンクの前に人数、日数、用途、レビュー件数、容量を並べて確認できるようにしています。</p>
 </section>
 <section class="section card source-panel">
   <h2>備蓄の考え方は、公的資料の視点も参考にしています</h2>
@@ -955,16 +1006,16 @@ ${quantityEstimateSection()}
 ${structuredData(
   websiteJsonLd(),
   webPageJsonLd(
-    '地震・台風・停電・断水に備える 事業所防災用品比較',
-    '会社、店舗、保育園、介護施設、飲食店向けに、防災備蓄品を人数・用途・災害別に比較できます。',
+    '会社・店舗の防災備蓄を人数から比較',
+    '会社、店舗、保育園、介護施設、飲食店向けに、防災備蓄品を人数、待機日数、地震、台風、停電、断水の想定から比較できます。',
     `${siteUrl}/`
   )
 )}`;
 
 fs.writeFileSync(path.join(dist, 'index.html'), layout(
-  '地震・台風・停電・断水に備える 事業所防災用品比較',
+  '会社・店舗の防災備蓄を人数から比較',
   indexBody,
-  '会社、店舗、保育園、介護施設、飲食店向けに、防災備蓄品を人数・用途・災害別に比較できます。',
+  '会社、店舗、保育園、介護施設、飲食店向けに、防災備蓄品を人数、待機日数、地震、台風、停電、断水の想定から比較できます。',
   `${siteUrl}/`
 ));
 fs.writeFileSync(path.join(dist, 'CNAME'), 'jigyousho-bousai.com\n');
