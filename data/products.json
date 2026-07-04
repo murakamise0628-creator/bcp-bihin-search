@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T13:04:52.063Z",
+  "generatedAt": "2026-07-04T13:47:57.626Z",
   "pages": [
     {
       "slug": "portable-power-kaigo",
@@ -1749,21 +1749,6 @@
           "relevance": 138
         },
         {
-          "name": "000個 防寒用品",
-          "titleShort": "000個 防寒用品",
-          "titleRaw": "【COUPONで2,180円】 モバイルバッテリー 大容量 35000mAh 軽量 320,000個＋累計販売 4台同時充電 モバイルバッテリー 小型 ケーブル内蔵 スマホ 充電器 LED付 急速充電 Max2.1A USB充電 携帯充電器 持運び 機内持込 防災グッズ 電熱ベスト バッテリー 電気毛布 停電策",
-          "price": 3180,
-          "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/yumenomori/cabinet/07365260/v16pzt_he.jpg",
-          "summary": "【一年間保証】モバイルバッテリー ケーブル4本内蔵 スマホ 出張 旅行 出勤 通学 空調ウェア ハンディファン 首掛け扇風機 ネッククラー 持運び LED懐中灯 iPhone/ iPadmini /andoroid対",
-          "url": "https://hb.afl.rakuten.co.jp/hgc/g00tdsyn.oroxz8f1.g00tdsyn.oroy0708/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyumenomori%2Fp1dx3whe%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyumenomori%2Fi%2F10000113%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 959,
-          "reviewAverage": 4.15,
-          "shopName": "夢の森",
-          "itemCode": "yumenomori:10000113",
-          "score": 526.3,
-          "relevance": 138
-        },
-        {
           "name": "27w 防寒用品",
           "titleShort": "27w 防寒用品",
           "titleRaw": "モバイルバッテリー 【48Hセール！2,980円●楽天1位●Max27w急速充電】 60000mAh 大容量 モバイルバッテリー 大容量 小型 SCP22.5W 高速充電 3台同時 LED残量表示 懐中電灯 携帯充電器 安全回路保護 持ち運び便利 PSE認証 電熱ベスト/電気毛布用 地震対策 父の日",
@@ -1777,6 +1762,21 @@
           "itemCode": "beneru:10000014",
           "score": 534.88,
           "relevance": 124
+        },
+        {
+          "name": "ポータブル電源",
+          "titleShort": "ポータブル電源",
+          "titleRaw": "モバイルバッテリー 10000mAh 大容量 ポータブル 急速充電 5V/2.1A対応 3台同時充電 iPhone17/16 スマホ/タブレット充電器 PSE認証済み 残電量表示 コンパクト 179g 超小型 軽量 薄型 地震・災害 防災備え 非常用電源 90日あんしん保証付き【PL保険加入済み製品・安心】",
+          "price": 1580,
+          "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/aidort/cabinet/06553239/imgrc0076594783.jpg",
+          "summary": "全国一律送料無料 三台同時充電可能。家族のスマホも、自分だけの複数デバイスもまとめて電力補充。 パワーバンク ポリマー電池 安全設計 持ち運び便利 停電対策 機内持ち込み可能",
+          "url": "https://hb.afl.rakuten.co.jp/hgc/g00skpsn.oroxzf33.g00skpsn.oroy0ab1/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faidort%2Fslub-544%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Faidort%2Fi%2F10000404%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
+          "reviewCount": 17201,
+          "reviewAverage": 4.33,
+          "shopName": "愛度楽天市場店",
+          "itemCode": "aidort:10000404",
+          "score": 505.26,
+          "relevance": 150
         }
       ]
     },
