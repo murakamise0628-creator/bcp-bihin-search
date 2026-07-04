@@ -447,17 +447,17 @@ function layout(title, body, description, canonical, options = {}) {
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;font-size:16px;line-height:1.75;letter-spacing:0}
     a{color:var(--main2)}main{max-width:1180px;margin:0 auto;padding:22px 18px 56px}.site-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:14px}.brand{font-weight:900;font-size:22px;text-decoration:none;color:var(--main)}.nav{display:flex;gap:10px;flex-wrap:wrap}.nav a{font-size:14px;text-decoration:none;color:var(--muted);padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.65)}
     .breadcrumb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 14px;color:var(--muted);font-size:13px}.breadcrumb a{text-decoration:none;color:var(--muted)}
-    .hero{background:linear-gradient(135deg,#fff 0%,#fff7ed 100%);border:1px solid #eadfce;border-radius:8px;padding:34px;box-shadow:0 14px 34px rgba(31,35,30,.09)}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .hero{background:linear-gradient(135deg,#fff 0%,#fff7ed 100%);border:1px solid #eadfce;border-radius:8px;padding:34px;box-shadow:0 14px 34px rgba(31,35,30,.09)}.visual-hero{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(320px,.72fr);gap:28px;align-items:center;overflow:hidden}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.hero-visual{display:grid;gap:12px}.shelf-photo{position:relative;min-height:280px;border-radius:8px;overflow:hidden;background:linear-gradient(160deg,#123f46,#0d6258 48%,#f4a261 49%,#fff7ed);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}.shelf-photo:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,34,38,.1),rgba(8,34,38,.64))}.shelf-label{position:absolute;left:18px;right:18px;bottom:18px;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.35)}.shelf-label strong{display:block;font-size:22px;line-height:1.35}.hero-products{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.hero-product{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;display:grid;gap:8px;min-width:0}.hero-product img{width:100%;height:96px;object-fit:contain}.hero-product span{font-size:12px;font-weight:900;line-height:1.45;color:var(--ink)}.trust-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.trust-row div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px}.trust-row strong{display:block;color:var(--main);font-size:18px}.trust-row span{font-size:13px;color:var(--muted)}
     .eyebrow{font-size:13px;font-weight:900;color:var(--main2);margin:0 0 8px}h1{font-size:clamp(30px,5vw,48px);line-height:1.25;margin:0 0 14px;letter-spacing:0}h2{font-size:24px;line-height:1.35;margin:0 0 12px}h3{font-size:18px;line-height:1.45;margin:0 0 8px}.lead{font-size:18px;max-width:890px}.muted{color:var(--muted)}.section{margin-top:28px}.section-title{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:12px}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:22px;box-shadow:0 10px 24px rgba(29,38,34,.06)}.card h2 a,.card h3 a{text-decoration:none;color:var(--ink)}.card h2 a:hover,.card h3 a:hover{text-decoration:underline}
     .button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 18px;background:var(--main2);color:white;border-radius:8px;text-decoration:none;font-weight:900;box-shadow:0 8px 16px rgba(13,98,88,.18)}.button.orange{background:var(--accent);box-shadow:0 8px 16px rgba(228,123,36,.18)}.button.secondary{background:#fff;color:var(--main2);border:1px solid var(--main2);box-shadow:none}.button.block{width:100%}
     .chip-row{display:flex;gap:9px;flex-wrap:wrap}.chip,.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:900;text-decoration:none}.chip{background:#fff;color:var(--main);border:1px solid var(--line)}.chip.active,.pill.orange{background:var(--accent-soft);border:1px solid #f4c497;color:#9b4d08}.pill{background:#e9f3f1;color:var(--main2);border:1px solid #cfe2de}.pill.navy{background:#e9eef2;color:var(--main);border-color:#cbd8de}
     .search-box{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}.search-box input{min-height:48px;border:1px solid var(--line);border-radius:8px;padding:0 14px;font-size:16px;background:#fff}.mini-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.mini-stats div,.estimate-grid div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px}.mini-stats strong,.estimate-grid strong{display:block;font-size:24px;color:var(--main)}
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:16px 0 0;padding:0;list-style:none}.checklist li{background:#f6faf8;border:1px solid #d9e7e3;border-radius:8px;padding:12px 14px}.steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}.steps li{counter-increment:step;padding:12px 14px;border-left:4px solid var(--accent);background:#fffaf4;border-radius:0 8px 8px 0}.steps li:before{content:counter(step) ". ";font-weight:900;color:var(--accent)}
-    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.category-card{display:flex;flex-direction:column;gap:10px}.category-card .count{margin-top:auto;color:var(--muted);font-size:13px}.popular-card{border-top:5px solid var(--accent)}
+    .two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.category-card{display:flex;flex-direction:column;gap:10px}.category-card .count{margin-top:auto;color:var(--muted);font-size:13px}.popular-card{border-top:5px solid var(--accent)}.scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.scenario-card{display:grid;grid-template-columns:86px 1fr;gap:14px;align-items:center}.scenario-card img{width:86px;height:86px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px}.buyer-path{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.path-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px}.path-card strong{display:block;font-size:18px;color:var(--main);margin-bottom:6px}.source-panel{background:#eef7f4;border:1px solid #cfe2de}.source-panel a{font-weight:900}
     .compare-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}.compare-table{width:100%;min-width:980px;border-collapse:collapse}.compare-table th,.compare-table td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.compare-table th{background:#f2f6f5;color:var(--main);font-size:13px}.compare-table tr:last-child td{border-bottom:0}.table-product{font-weight:900;max-width:260px;overflow-wrap:anywhere}.small-button{display:inline-flex;min-height:36px;align-items:center;padding:7px 10px;border-radius:7px;background:var(--main2);color:white;text-decoration:none;font-weight:900;white-space:nowrap}
     .product-list{display:grid;gap:14px}.product{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:start}.product-img{width:150px;height:150px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}.product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:#f6f6f2}.product h2{font-size:20px;overflow-wrap:anywhere}.summary{margin:8px 0;color:#33423b}.price{font-size:24px;font-weight:900;color:var(--main);margin:8px 0}.facts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.fact{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;background:#fbfcfb;color:#33423b}.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}.spec-grid div{background:#f8faf8;border:1px solid var(--line);border-radius:8px;padding:8px}.spec-grid span{display:block;font-size:12px;color:var(--muted)}.spec-grid strong{display:block;color:var(--ink)}.notice{font-size:13px;color:var(--muted)}.empty{border:1px dashed #d6b681;background:#fffaf4}.ad-note{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.calc-grid label{display:grid;gap:6px;font-weight:900}.calc-input{min-height:44px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:16px}.estimate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:14px}.estimate-grid span,.estimate-grid small{display:block;color:var(--muted)}.faq details{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px}.faq details+details{margin-top:10px}.faq summary{font-weight:900;cursor:pointer}.link-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.link-list a{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;text-decoration:none;font-weight:900;color:var(--main)}
-    @media(max-width:760px){main{padding:16px 12px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.lead{font-size:16px}.section-title{display:block}.two,.three{grid-template-columns:1fr}.search-box{grid-template-columns:1fr}.product{grid-template-columns:104px 1fr;gap:12px}.product-img{width:104px;height:104px}.product h2{font-size:17px}.nav{gap:8px}.hero-actions .button{width:100%}.card{padding:18px}}
+    @media(max-width:760px){main{padding:16px 12px 44px}.site-head{align-items:flex-start;flex-direction:column}.hero{padding:24px}.visual-hero{grid-template-columns:1fr}.shelf-photo{min-height:210px}.hero-products{grid-template-columns:repeat(3,minmax(88px,1fr));overflow-x:auto}.trust-row{grid-template-columns:1fr}.lead{font-size:16px}.section-title{display:block}.two,.three{grid-template-columns:1fr}.search-box{grid-template-columns:1fr}.scenario-card{grid-template-columns:72px 1fr}.scenario-card img{width:72px;height:72px}.product{grid-template-columns:104px 1fr;gap:12px}.product-img{width:104px;height:104px}.product h2{font-size:17px}.nav{gap:8px}.hero-actions .button{width:100%}.card{padding:18px}}
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">人気比較</a></nav></header>${breadcrumb}${body}${clientScript()}</main></body>
@@ -804,23 +804,77 @@ const popularCards = [
   return `<article class="card popular-card"><p class="pill orange">${esc(label)}</p><h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3><p class="notice">比較候補: ${esc(count)}件</p></article>`;
 }).join('');
 
-const indexBody = `<section class="hero">
-  <p class="eyebrow">会社・店舗・施設向けの防災備蓄比較</p>
-  <h1>地震・台風・停電・断水に備える 事業所防災用品比較</h1>
-  <p class="lead">会社、店舗、保育園、介護施設、飲食店向けに、防災備蓄品を人数・用途・災害別に比較できます。</p>
-  <div class="hero-actions">
-    <a class="button orange" href="${siteUrl}/topics/earthquake.html">地震対策を見る</a>
-    <a class="button" href="${siteUrl}/topics/typhoon.html">台風・停電対策を見る</a>
-    <a class="button secondary" href="${siteUrl}/pages/toilet-office.html">簡易トイレを比較する</a>
-    <a class="button secondary" href="#quantity">人数別の備蓄目安を見る</a>
+function firstProduct(slug, pattern) {
+  const page = pageBySlug(slug);
+  const products = effectiveProducts(page || { products: [] }, pageNotes[slug] || {}, 8);
+  return products.find((product) => product.image && (!pattern || pattern.test(displayTitle(product))))
+    || products.find((product) => product.image && (!pattern || pattern.test(rawTitle(product))))
+    || products.find((product) => product.image)
+    || null;
+}
+
+const heroProducts = [
+  firstProduct('toilet-office', /トイレ|凝固|防臭/),
+  firstProduct('blackout-power', /電源|Wh|ライト|ランタン/),
+  firstProduct('water-food-stock', /保存水|非常食|アルファ米/)
+].filter(Boolean);
+
+const heroProductCards = heroProducts.map((product) => `<article class="hero-product">
+  <img src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">
+  <span>${esc(displayTitle(product, 34))}</span>
+</article>`).join('');
+
+function scenarioCard(title, slug, imageProduct, body) {
+  return `<article class="card scenario-card" data-search-card>
+    ${imageProduct?.image ? `<img src="${esc(imageProduct.image)}" alt="${esc(title)}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">備蓄</div>'}
+    <div><p class="eyebrow">${esc(title)}</p><h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(body)}</a></h3><p class="notice">必要なものを先に絞り込む</p></div>
+  </article>`;
+}
+
+const scenarioCards = [
+  scenarioCard('地震で社員が帰れない', 'earthquake-office', firstProduct('office-bichiku', /防災|備蓄|保存水/), '水・トイレ・食料をまとめて確認'),
+  scenarioCard('台風で停電が心配', 'blackout-power', firstProduct('blackout-power', /電源|Wh|ランタン/), '電源・ライト・通信を比較'),
+  scenarioCard('断水でトイレが使えない', 'toilet-office', firstProduct('toilet-office', /トイレ|凝固/), '簡易トイレの回数を確認'),
+  scenarioCard('保育園・介護施設の備蓄', 'hoikuen-bousai', firstProduct('hoikuen-bousai', /子供|非常食|防災/), '利用者に合わせた備蓄を見る')
+].join('');
+
+const indexBody = `<section class="hero visual-hero">
+  <div>
+    <p class="eyebrow">会社・店舗・施設向けの防災備蓄比較</p>
+    <h1>地震・台風・停電・断水に備える 事業所防災用品比較</h1>
+    <p class="lead">会社、店舗、保育園、介護施設、飲食店向けに、防災備蓄品を人数・用途・災害別に比較できます。まずは「何が起きたら困るか」から選んで、必要量と商品候補を確認してください。</p>
+    <div class="hero-actions">
+      <a class="button orange" href="${siteUrl}/pages/earthquake-office.html">地震対策を見る</a>
+      <a class="button" href="${siteUrl}/pages/blackout-power.html">停電対策を見る</a>
+      <a class="button secondary" href="${siteUrl}/pages/toilet-office.html">簡易トイレを比較する</a>
+      <a class="button secondary" href="#quantity">人数別の備蓄目安を見る</a>
+    </div>
+    <div class="hero-meta">
+      <span class="pill navy">比較ページ: ${data.pages.length}件</span>
+      <span class="pill orange">商品候補: ${totalProducts}件</span>
+      <span class="pill">全ページ12件表示</span>
+      <span class="pill">最終更新: ${esc(updatedDate())}</span>
+    </div>
+    <div class="search-box"><input id="siteSearch" type="search" placeholder="例: 地震、台風、停電、断水、保育園、トイレ"><a class="button" href="#categories">探す</a></div>
   </div>
-  <div class="hero-meta">
-    <span class="pill navy">比較ページ: ${data.pages.length}件</span>
-    <span class="pill orange">商品候補: ${totalProducts}件</span>
-    <span class="pill">改善対象ページ: ${weakPages}件</span>
-    <span class="pill">最終更新: ${esc(updatedDate())}</span>
-  </div>
-  <div class="search-box"><input id="siteSearch" type="search" placeholder="例: 地震、台風、停電、断水、保育園、トイレ"><a class="button" href="#categories">探す</a></div>
+  <aside class="hero-visual" aria-label="比較できる防災用品の例">
+    <div class="shelf-photo"><div class="shelf-label"><strong>棚に置く前に、人数と用途で比較。</strong><span>水・トイレ・電源・食料を、事業所単位で見落とさない。</span></div></div>
+    <div class="hero-products">${heroProductCards}</div>
+  </aside>
+</section>
+<section class="section">
+  <div class="section-title"><div><p class="eyebrow">初めての人へ</p><h2>まず、自分の事業所で起きそうな困りごとから選ぶ</h2></div></div>
+  <div class="scenario-grid">${scenarioCards}</div>
+</section>
+<section class="section trust-row">
+  <div><strong>人数で確認</strong><span>水・食料・簡易トイレは、従業員と来客数を入れて目安を出せます。</span></div>
+  <div><strong>用途で比較</strong><span>地震、台風、停電、断水、帰宅困難者の場面ごとに入口を分けています。</span></div>
+  <div><strong>購入前に確認</strong><span>価格、在庫、レビュー、仕様は販売ページで最新情報を確認する前提です。</span></div>
+</section>
+<section class="section card source-panel">
+  <h2>備蓄の考え方は、公式資料の視点も参考にしています</h2>
+  <p>食品備蓄は、長期保存品を並べるだけではなく、日頃の活用、保管、要配慮者への対応まで含めて考える必要があります。事業所ではそこに、停電時の電源、断水時のトイレ、帰宅困難者の待機用品を加えて確認します。</p>
+  <p class="notice">参考: <a href="https://www.maff.go.jp/j/zyukyu/foodstock/guidebook.html" target="_blank" rel="noopener">農林水産省「災害時に備えた食品ストックガイド」</a> / <a href="https://www.bousai.go.jp/kyoiku/hokenkyousai/jishin.html" target="_blank" rel="noopener">内閣府 防災情報</a></p>
 </section>
 <section class="section" id="disasters">
   <div class="section-title"><div><p class="eyebrow">災害別チップ</p><h2>まずは起きる場面から選ぶ</h2></div></div>
