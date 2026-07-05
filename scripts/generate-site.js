@@ -24,7 +24,7 @@ const keywordRows = fs.existsSync(keywordsPath) ? parseCsv(fs.readFileSync(keywo
 const dataPagesBySlug = new Map((data.pages || []).map((page) => [page.slug, page]));
 data.pages = keywordRows.map((row) => ({ ...row, ...(dataPagesBySlug.get(row.slug) || {}), products: dataPagesBySlug.get(row.slug)?.products || [] }));
 
-const requiredNotice = '当サイトは、事業所向け防災用品を比較しやすくするための情報サイトです。価格、在庫、レビュー、商品仕様は変動する場合があります。購入前に必ず販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄については、メーカー、専門業者、施設管理者に確認してください。';
+const requiredNotice = '価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。';
 
 const pageNotes = {
   'portable-power-kaigo': {
@@ -958,7 +958,7 @@ const indexBody = `<section class="hero visual-hero">
 <section class="section check-strip">
   <div><strong>人数で確認</strong><span>水・食料・簡易トイレは、従業員と来客数を入れて目安を出せます。</span></div>
   <div><strong>用途で比較</strong><span>地震、台風、停電、断水、帰宅困難者の場面ごとに入口を分けています。</span></div>
-  <div><strong>購入前に確認</strong><span>価格、在庫、レビュー、仕様は販売ページで最新情報を確認する前提です。</span></div>
+  <div><strong>購入前に確認</strong><span>価格、在庫、レビュー、仕様は販売ページで最新情報を確認してください。</span></div>
   <div><strong>不足を見つける</strong><span>「セットを買ったから大丈夫」ではなく、トイレ回数や電源容量まで確認します。</span></div>
 </section>
 <section class="section comparison-lane">
@@ -977,8 +977,8 @@ const indexBody = `<section class="hero visual-hero">
   </article>
 </section>
 <section class="section card editor-note">
-  <h2>編集方針</h2>
-  <p class="human-copy">防災用品は、安いセットだけで選ぶとズレが出ます。人数に対してトイレが足りない。保存水が重く、置き場所がない。停電時に使いたい機器の容量が足りない。そういう失敗を避けるため、商品リンクの前に人数、日数、用途、レビュー件数、容量を並べて確認できるようにしています。</p>
+  <h2>買う前に見ること</h2>
+  <p class="human-copy">防災用品は、安いセットだけで選ぶとズレが出ます。人数に対してトイレが足りない。保存水が重く、置き場所がない。停電時に使いたい機器の容量が足りない。先に人数、日数、用途、レビュー件数、容量を確認してください。</p>
 </section>
 <section class="section card source-panel">
   <h2>備蓄の考え方</h2>
