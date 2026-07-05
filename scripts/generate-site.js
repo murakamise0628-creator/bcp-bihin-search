@@ -599,7 +599,7 @@ function structuredData(...items) {
 
 function comparisonRows(products, note) {
   if (!products.length) {
-    return `<tr><td colspan="10"><strong>商品候補の取得改善が必要です。</strong><br>このページは選び方・必要数量・確認ポイントを先に掲載し、次の段階で複数キーワード取得により比較候補を増やします。</td></tr>`;
+    return `<tr><td colspan="10"><strong>条件に合う候補を確認中です。</strong><br>人数、用途、保管場所、必要回数を先に確認し、関連する備蓄品もあわせて見てください。</td></tr>`;
   }
   return products.map((product) => `<tr>
     <td class="table-product">${esc(displayTitle(product, 46))}</td>
@@ -646,7 +646,7 @@ function comparisonTable(products, note) {
 
 function productCards(products, note) {
   if (!products.length) {
-    return `<article class="card empty"><p class="pill orange">次に商品取得を改善</p><h2>比較候補を増やす必要があります</h2><p>このページは現時点で商品候補が不足しています。UI上では選び方・必要数量・FAQを表示し、次工程で検索キーワードを増やして商品候補を補強します。</p></article>`;
+    return `<article class="card empty"><p class="pill orange">候補を確認中</p><h2>条件を広げて確認してください</h2><p>人数、用途、保管場所、必要回数を先に確認し、関連する備蓄品もあわせて見てください。</p></article>`;
   }
   return products.map((product, index) => `<article class="card product">
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">商品画像<br>取得待ち</div>'}
@@ -931,10 +931,10 @@ const indexBody = `<section class="hero visual-hero">
 </section>
 <section class="section route-board">
   <article class="desk-note">
-    <p class="eyebrow">参考サイトから反映した入口</p>
-    <h2>診断、手順、実物感を先に出す</h2>
-    <p>防災サイトで信頼されるのは、きれいなカードではなく「何が止まり、何を先に見るか」が分かることです。人数診断、5STEPの判断順、実物商品の見え方、公的資料への接続をTOPの上部に集めています。</p>
-    <small>価格、在庫、レビュー、仕様は変わるため、購入前に販売ページで確認してください。</small>
+    <p class="eyebrow">最初に見るポイント</p>
+    <h2>人数・止まるもの・置き場所を確認</h2>
+    <p>備蓄は、商品名だけで選ぶと不足が出やすくなります。まず従業員数、来客数、待機日数を決め、水、トイレ、電源、食料を順番に確認してください。</p>
+    <small>価格、在庫、レビュー、仕様は変わります。購入前にリンク先で最新情報を確認してください。</small>
   </article>
   <div class="route-tiles">
     <a class="route-tile" href="${siteUrl}/pages/earthquake-office.html">${firstProduct('office-bichiku', /防災|備蓄|保存水/)?.image ? `<img src="${esc(firstProduct('office-bichiku', /防災|備蓄|保存水/).image)}" alt="地震対策用品" loading="lazy">` : ''}<span><strong>地震で帰れない</strong><span>水、食料、トイレ、待機用品を見る</span></span></a>
@@ -981,7 +981,7 @@ const indexBody = `<section class="hero visual-hero">
   <p class="human-copy">防災用品は、安いセットだけで選ぶとズレが出ます。人数に対してトイレが足りない。保存水が重く、置き場所がない。停電時に使いたい機器の容量が足りない。そういう失敗を避けるため、商品リンクの前に人数、日数、用途、レビュー件数、容量を並べて確認できるようにしています。</p>
 </section>
 <section class="section card source-panel">
-  <h2>備蓄の考え方は、公的資料の視点も参考にしています</h2>
+  <h2>備蓄の考え方</h2>
   <p>食品備蓄は、長期保存品を置くだけではなく、日頃の活用、保管、要配慮者への対応まで含めて考える必要があります。事業所ではそこに、停電時の電源、断水時のトイレ、帰宅困難者の待機用品を加えて確認します。</p>
   <p class="notice">参考: <a href="https://www.maff.go.jp/j/zyukyu/foodstock/guidebook.html" target="_blank" rel="noopener">農林水産省「災害時に備えた食品ストックガイド」</a> / <a href="https://www.bousai.go.jp/kyoiku/hokenkyousai/jishin.html" target="_blank" rel="noopener">内閣府 防災情報</a></p>
 </section>
@@ -998,12 +998,12 @@ const indexBody = `<section class="hero visual-hero">
 <section class="section three">
   <article class="card"><h2>施設で見る</h2><div class="chip-row"><a class="chip" href="${siteUrl}/pages/office-bichiku.html">会社</a><a class="chip" href="${siteUrl}/pages/hoikuen-bousai.html">保育園</a><a class="chip" href="${siteUrl}/pages/portable-power-kaigo.html">介護施設</a><a class="chip" href="${siteUrl}/pages/restaurant-dansui.html">飲食店</a></div></article>
   <article class="card"><h2>最初の確認順</h2><ol class="steps"><li>簡易トイレの回数</li><li>保存水・非常食の日数</li><li>停電時の電源容量</li></ol></article>
-  <article class="card"><h2>比較で見る点</h2><p>レビュー件数、価格、容量、保存年数、法人・施設で使いやすいかを並べます。根拠が弱い商品は、購入前に販売ページで確認する前提です。</p></article>
+  <article class="card"><h2>比較で見る点</h2><p>レビュー件数、価格、容量、保存年数、法人・施設で使いやすいかを見ます。仕様が分かりにくい商品は、購入前に販売ページで確認してください。</p></article>
 </section>
 ${quantityEstimateSection()}
 <section class="section" id="popular"><div class="section-title"><div><p class="eyebrow">よく使う比較</p><h2>迷ったらここから見る</h2></div></div><div class="grid">${popularCards}</div></section>
 <section class="section" id="categories"><div class="section-title"><div><p class="eyebrow">主要カテゴリ</p><h2>用途・災害・施設別に探す</h2></div><p class="notice">検索窓で絞り込みできます</p></div><div class="grid">${categoryCards}</div></section>
-<section class="section card"><h2>購入前の確認</h2><p>商品名だけではなく、人数、待機日数、用途、容量、回数、保存年数、レビュー件数を合わせて確認してください。商品候補が少ない領域は関連候補を分けて表示し、取得条件の見直し対象として扱います。</p><p>${esc(requiredNotice)}</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。価格・在庫・レビューは変動するため、購入前にリンク先で最新情報を確認してください。</p></section>
+<section class="section card"><h2>購入前の確認</h2><p>商品名だけではなく、人数、待機日数、用途、容量、回数、保存年数、レビュー件数を合わせて確認してください。条件に合うものが見つからない場合は、用途が近い備蓄品もあわせて確認してください。</p><p>${esc(requiredNotice)}</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。価格・在庫・レビューは変動するため、購入前にリンク先で最新情報を確認してください。</p></section>
 ${structuredData(
   websiteJsonLd(),
   webPageJsonLd(
