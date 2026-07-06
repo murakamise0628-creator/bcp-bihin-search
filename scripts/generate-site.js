@@ -1108,6 +1108,7 @@ fs.writeFileSync(path.join(dist, 'index.html'), layout(
   `${siteUrl}/`
 ));
 fs.writeFileSync(path.join(dist, 'CNAME'), 'jigyousho-bousai.com\n');
+fs.writeFileSync(path.join(dist, 'google2ec9ab5d0fbf2c67.html'), 'google-site-verification: google2ec9ab5d0fbf2c67.html\n');
 fs.mkdirSync(path.join(dist, 'pages'), { recursive: true });
 for (const page of data.pages) {
   fs.writeFileSync(path.join(dist, 'pages', page.slug + '.html'), pageHtml(page));
