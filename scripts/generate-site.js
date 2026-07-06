@@ -4,6 +4,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 const siteUrl = (process.env.SITE_URL || 'https://jigyousho-bousai.com').replace(/\/$/, '');
+const gaMeasurementId = 'G-LN824MSD7X';
 const dataPath = path.join(root, 'data', 'products.json');
 const keywordsPath = path.join(root, 'data', 'keywords.csv');
 
@@ -442,6 +443,7 @@ function layout(title, body, description, canonical, options = {}) {
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${esc(canonical)}">
   <meta name="twitter:card" content="summary">
+  ${analyticsHead()}
   <style>
     :root{color-scheme:light;--ink:#17212b;--muted:#5c6874;--line:#dbe4e4;--soft:#f7f2e8;--paper:#fff;--main:#103f4a;--main2:#0d6258;--accent:#e47b24;--accent-soft:#fff1e3;--ok:#187060;--warn:#a45d08}
     *{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:clip}body{margin:0;background:var(--soft);color:var(--ink);font-family:system-ui,-apple-system,"Yu Gothic","Meiryo",sans-serif;font-size:16px;line-height:1.75;letter-spacing:0;overflow-x:clip}
@@ -465,6 +467,16 @@ function layout(title, body, description, canonical, options = {}) {
 </html>`;
 }
 
+function analyticsHead() {
+  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${gaMeasurementId}');
+  </script>`;
+}
+
 function siteFooter() {
   return `<footer class="site-footer"><span>© 2026 事業所防災ナビ</span><span>運営: 事業所防災ナビ編集部 / 楽天アフィリエイト等のリンクを含む場合があります</span></footer>`;
 }
@@ -472,6 +484,24 @@ function siteFooter() {
 function clientScript() {
   return `<script>
     (function(){
+      function trackEvent(name, params){
+        if(typeof window.gtag !== 'function') return;
+        window.gtag('event', name, Object.assign({
+          page_path: window.location.pathname,
+          page_title: document.title
+        }, params || {}));
+      }
+      function cleanText(value){ return String(value || '').replace(/\\s+/g,' ').trim().slice(0,120); }
+      function anchorText(anchor){ return cleanText(anchor.getAttribute('aria-label') || anchor.textContent || anchor.href); }
+      function productParams(anchor){
+        return {
+          product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
+          product_price: anchor.dataset.productPrice || '',
+          product_category: anchor.dataset.productCategory || '',
+          link_text: anchorText(anchor),
+          destination: anchor.href
+        };
+      }
       function numberValue(id, fallback){ var el=document.getElementById(id); var value=el ? Number(el.value) : fallback; return Number.isFinite(value) && value >= 0 ? value : fallback; }
       function updateEstimate(){
         var staff=numberValue('staffCount',10);
@@ -489,7 +519,21 @@ function clientScript() {
       }
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
       updateEstimate();
+      var quantityTracked=false;
+      ['staffCount','daysCount','visitorCount'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el) el.addEventListener('change', function(){
+          if(quantityTracked) return;
+          quantityTracked=true;
+          trackEvent('quantity_calculator_use', {
+            staff_count: document.getElementById('staffCount')?.value || '',
+            days_count: document.getElementById('daysCount')?.value || '',
+            visitor_count: document.getElementById('visitorCount')?.value || ''
+          });
+        });
+      });
       var search=document.getElementById('siteSearch');
+      var searchTimer=null;
       function filterCards(value){
         var term=String(value || '').trim().toLowerCase();
         document.querySelectorAll('[data-search-card]').forEach(function(card){
@@ -497,13 +541,46 @@ function clientScript() {
         });
       }
       if(search){
-        search.addEventListener('input', function(){ filterCards(search.value); });
+        search.addEventListener('input', function(){
+          filterCards(search.value);
+          clearTimeout(searchTimer);
+          var term=search.value.trim();
+          if(term.length >= 2){
+            searchTimer=setTimeout(function(){ trackEvent('site_search', { search_term: term }); }, 700);
+          }
+        });
         var initialTerm='';
         try { initialTerm = new URLSearchParams(window.location.search).get('q') || ''; } catch(e) {}
         if(initialTerm){ search.value=initialTerm; filterCards(initialTerm); }
       }
+      document.addEventListener('click', function(event){
+        var anchor=event.target.closest && event.target.closest('a');
+        if(!anchor || !anchor.href) return;
+        var url=anchor.href;
+        if(url.indexOf('hb.afl.rakuten.co.jp') !== -1){
+          var params = productParams(anchor);
+          trackEvent('product_card_click', params);
+          trackEvent('rakuten_click', params);
+          return;
+        }
+        if(url.indexOf('/topics/') !== -1){
+          trackEvent('disaster_chip_click', { link_text: anchorText(anchor), destination: url });
+          return;
+        }
+        if(url.indexOf('/pages/') !== -1){
+          trackEvent('compare_page_click', { link_text: anchorText(anchor), destination: url });
+          return;
+        }
+        if(url.indexOf('#categories') !== -1){
+          trackEvent('category_click', { link_text: anchorText(anchor), destination: url });
+        }
+      });
     })();
   </script>`;
+}
+
+function productTrackingAttrs(product, category = '') {
+  return `data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}"`;
 }
 
 function productJsonLd(products) {
@@ -619,7 +696,7 @@ function comparisonRows(products, note) {
     <td>${esc(extractSpec(product))}</td>
     <td>${esc(targetPeople(product))}</td>
     <td>${esc(suitedFacility(product, note))}</td>
-    <td>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener">詳細</a></td>
+    <td>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title)}>詳細</a></td>
   </tr>`).join('');
 }
 
@@ -675,7 +752,7 @@ function productCards(products, note) {
         <div><span>注意点</span><strong>${esc(cautionForProduct(product))}</strong></div>
         <div><span>向いている施設</span><strong>${esc(suitedFacility(product, note))}</strong></div>
       </div>
-      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener">楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title)}>楽天で価格・在庫を確認する</a>
     </div>
   </article>`).join('');
 }
@@ -833,7 +910,7 @@ const heroProducts = [
   firstProduct('water-food-stock', /保存水|非常食|アルファ米/)
 ].filter(Boolean);
 
-const heroProductCards = heroProducts.map((product) => `<a class="hero-product" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener">
+const heroProductCards = heroProducts.map((product) => `<a class="hero-product" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, 'トップ')}>
   <img src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">
   <span>${esc(displayTitle(product, 34))}</span>
 </a>`).join('');
@@ -844,7 +921,7 @@ const showcaseProducts = [
   firstProduct('blackout-power', /電源|Wh|ライト|ランタン/)
 ].filter(Boolean);
 
-const showcaseCards = showcaseProducts.map((product) => `<a class="showcase-card" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener">
+const showcaseCards = showcaseProducts.map((product) => `<a class="showcase-card" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, 'トップ')}>
   <img src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">
   <span>${esc(displayTitle(product, 38))}</span>
   <em>楽天で価格・在庫を見る</em>
