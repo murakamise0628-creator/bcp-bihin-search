@@ -27,6 +27,27 @@ data.pages = keywordRows.map((row) => ({ ...row, ...(dataPagesBySlug.get(row.slu
 
 const requiredNotice = '価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。';
 
+const publicSources = {
+  workplaceGuideline: {
+    title: '事業所における帰宅困難者等対策ガイドライン',
+    publisher: '内閣府 防災情報のページ',
+    url: 'https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf',
+    note: '3日分の備蓄、水1人1日3L、主食1人1日3食、毛布1人1枚などの考え方を確認できます。'
+  },
+  toiletGuideline: {
+    title: '避難所におけるトイレの確保・管理ガイドライン',
+    publisher: '内閣府 防災情報のページ',
+    url: 'https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf',
+    note: '携帯・簡易トイレの備蓄日数や、使用・管理時に確認する項目を確認できます。'
+  },
+  stockpilePortal: {
+    title: '東京都防災 備蓄ナビ',
+    publisher: '東京都',
+    url: 'https://www.bichiku.metro.tokyo.lg.jp/',
+    note: '人数や条件から備蓄品と数量を考えるための公的な案内です。'
+  }
+};
+
 const pageNotes = {
   'portable-power-kaigo': {
     audience: '介護施設・小規模福祉施設',
@@ -715,6 +736,16 @@ ${socialImage}
     .fill-list strong{display:block;color:var(--main);font-size:15px}
     .fill-list .sub{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
 
+    /* primary sources */
+    .source-references{padding:28px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+    .source-references .source-intro{max-width:760px;color:var(--ink-2);margin:0}
+    .source-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0 24px;margin:18px 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+    .source-list li{padding:15px 0;border-bottom:1px solid var(--rule)}
+    .source-list a{display:inline;font-weight:700;color:var(--main);text-decoration-thickness:1px;text-underline-offset:4px}
+    .source-list span,.source-list small{display:block}
+    .source-list span{margin-top:4px;color:var(--muted);font-size:12px}
+    .source-list small{margin-top:7px;color:var(--ink-2);font-size:13px;line-height:1.65}
+
     /* entrance */
     @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
     .hero-main>*,.hero>*{animation:rise .55s ease both}
@@ -776,6 +807,7 @@ ${socialImage}
       .decision-strip.flow{grid-template-columns:1fr}
       .share-bar{flex-direction:column;align-items:flex-start;gap:10px}
       .jump-nav{gap:6px}
+      .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
       .hero{padding:26px 2px 20px}
@@ -839,6 +871,28 @@ function stockCheckSection(currentSlug) {
     .join('');
   if (!links) return '';
   return `<section class="section"><div class="section-title"><div><p class="eyebrow">揃え漏れチェック</p><h2>あわせて確認したい備蓄</h2></div><p class="notice">水・食料・トイレ・電源・防寒に漏れがないかを確認</p></div><div class="link-list fill-list">${links}</div></section>`;
+}
+
+function sourceKeysFor(slug = '') {
+  if (/toilet|dansui|water-outage/.test(slug)) return ['toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
+  if (/portable-power|blackout|power-outage|typhoon/.test(slug)) return ['workplaceGuideline', 'stockpilePortal'];
+  return ['workplaceGuideline', 'toiletGuideline', 'stockpilePortal'];
+}
+
+function sourceUrlsFor(slug = '') {
+  return sourceKeysFor(slug).map((key) => publicSources[key].url);
+}
+
+function sourceSection(slug = '') {
+  const items = sourceKeysFor(slug).map((key) => {
+    const source = publicSources[key];
+    return `<li><a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.title)}</a><span>${esc(source.publisher)}</span><small>${esc(source.note)}</small></li>`;
+  }).join('');
+  return `<section class="section source-references" aria-labelledby="public-sources-title">
+    <div class="section-title"><div><p class="eyebrow">公的資料</p><h2 id="public-sources-title">数量・備蓄期間を決めるときの根拠</h2></div></div>
+    <p class="source-intro">3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。</p>
+    <ul class="source-list">${items}</ul>
+  </section>`;
 }
 
 function clientScript() {
@@ -1095,7 +1149,7 @@ function comparisonRows(products, note) {
   </tr>`).join('');
 }
 
-function webPageJsonLd(title, description, canonical) {
+function webPageJsonLd(title, description, canonical, citationUrls = []) {
   return jsonLd({
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -1107,6 +1161,12 @@ function webPageJsonLd(title, description, canonical) {
       name: '事業所防災ナビ',
       url: `${siteUrl}/`
     },
+    publisher: {
+      '@type': 'Organization',
+      name: '事業所防災ナビ',
+      url: `${siteUrl}/`
+    },
+    citation: citationUrls,
     inLanguage: 'ja',
     dateModified: data.generatedAt || new Date().toISOString()
   });
@@ -1222,6 +1282,7 @@ function pageHtml(page) {
     <article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>
   </section>
   ${quantityEstimateSection()}
+  ${sourceSection(page.slug)}
   ${comparisonTable(products, note)}
   <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>候補ごとの向き・注意点を見る</h2></div><p class="notice">価格・在庫・レビューは変動します</p></div><div class="product-list">${productCards(products, note)}</div></section>
   ${stockCheckSection(page.slug)}
@@ -1229,7 +1290,7 @@ function pageHtml(page) {
   ${faqSection(note)}
   ${relatedLinks(note.related)}
   ${structuredData(
-    webPageJsonLd(page.title, description, canonical),
+    webPageJsonLd(page.title, description, canonical, sourceUrlsFor(page.slug)),
     breadcrumbJsonLd([{ name: page.title, url: canonical }]),
     faqJsonLd(faqItems(note)),
     itemListJsonLd(products, canonical),
@@ -1240,6 +1301,7 @@ function pageHtml(page) {
 
 function topicHtml(topic) {
   const canonical = `${siteUrl}/topics/${topic.slug}.html`;
+  const description = `${topic.title}。${topic.lead} 事業所の人数と待機日数から、水、食料、簡易トイレ、停電対策用品の必要量と関連する比較ページを確認できます。`;
   const linkCards = topic.links.map((slug) => {
     const page = pageBySlug(slug);
     if (!page) return '';
@@ -1269,16 +1331,17 @@ function topicHtml(topic) {
     <article class="card"><h2>見方</h2><ol class="steps"><li>人数と待機日数を決める</li><li>水・トイレ・食料・電源を分けて見る</li><li>関連する比較ページで商品候補を確認する</li></ol></article>
   </section>
   ${quantityEstimateSection()}
+  ${sourceSection(topic.slug)}
   <section class="section" id="related"><div class="section-title"><div><p class="eyebrow">関連する比較ページ</p><h2>用途別に詳しく比較する</h2></div></div><div class="grid">${linkCards}</div></section>
   ${stockCheckSection('')}
   ${faqSection(topic)}
   <section class="section card"><h2>注意点</h2><p>${esc(requiredNotice)}</p><p>このページは災害別の入口です。実際の商品比較は、関連する比較ページで価格、レビュー、容量、回数、保存年数を確認してください。</p></section>
   ${structuredData(
-    webPageJsonLd(topic.title, topic.lead, canonical),
+    webPageJsonLd(topic.title, description, canonical, sourceUrlsFor(topic.slug)),
     breadcrumbJsonLd([{ name: topic.title, url: canonical }]),
     faqJsonLd(faqItems(topic))
   )}`;
-  return layout(topic.title, body, topic.lead, canonical, { crumbs: [topic.title] });
+  return layout(topic.title, body, description, canonical, { crumbs: [topic.title] });
 }
 
 const totalProducts = data.pages.reduce((sum, page) => sum + effectiveProducts(page, pageNotes[page.slug] || {}, 8).length, 0);
@@ -1473,6 +1536,7 @@ const indexBody = `<section class="home-hero">
   <div><strong>介護施設</strong><span>停電時の照明、通信、電源、利用者対応を確認。</span></div>
 </section>
 ${quantityEstimateSection()}
+${sourceSection('home')}
 <section class="section" id="disasters">
   <h2>災害別に見る</h2>
   <div class="chip-row">
@@ -1492,7 +1556,8 @@ ${structuredData(
   webPageJsonLd(
     '事業所の防災備蓄は何を何日分？会社・店舗向け用品比較',
     '会社、店舗、保育園、介護施設、飲食店の防災備蓄を、人数と待機日数から確認。地震、台風、停電、断水に備える簡易トイレ、保存水、非常食、ポータブル電源を比較できます。',
-    `${siteUrl}/`
+    `${siteUrl}/`,
+    sourceUrlsFor('home')
   ),
   itemListJsonLd(showcaseProducts, `${siteUrl}/`),
   productJsonLd(showcaseProducts),
@@ -1523,5 +1588,5 @@ const urls = [
 ];
 const sitemapLastmod = (data.generatedAt || new Date().toISOString()).slice(0, 10);
 fs.writeFileSync(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((url) => `<url><loc>${url}</loc><lastmod>${sitemapLastmod}</lastmod></url>`).join('')}</urlset>\n`);
-fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`);
+fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
 console.log('built', dist);
