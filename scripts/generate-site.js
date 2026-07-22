@@ -1074,11 +1074,13 @@ function clientScript() {
         };
       }
       var stockPlanActive=false;
+      var stockPlanState={ staff:10, days:1, visitors:0 };
       function numberValue(id, fallback){ var el=document.getElementById(id); var value=el ? Number(el.value) : fallback; return Number.isFinite(value) && value >= 0 ? value : fallback; }
       function stockPlanValues(){
-        var staff=numberValue('staffCount',10);
-        var days=Math.max(1,numberValue('daysCount',1));
-        var visitors=numberValue('visitorCount',0);
+        var staff=numberValue('staffCount',stockPlanState.staff);
+        var days=Math.max(1,numberValue('daysCount',stockPlanState.days));
+        var visitors=numberValue('visitorCount',stockPlanState.visitors);
+        stockPlanState={ staff:staff, days:days, visitors:visitors };
         var people=staff+visitors;
         return { active:stockPlanActive, staff:staff, visitors:visitors, people:people, days:days, water:people*days*3, food:people*days*3, toilet:people*days*5, blankets:people };
       }
@@ -1091,7 +1093,11 @@ function clientScript() {
           var value=Number(params.get(item[0]));
           var input=document.getElementById(item[1]);
           var minimum=item[0]==='days' ? 1 : 0;
-          if(input && Number.isFinite(value) && value >= minimum && value <= item[2]){ input.value=String(value); found=true; }
+          if(Number.isFinite(value) && value >= minimum && value <= item[2]){
+            stockPlanState[item[0]]=value;
+            if(input) input.value=String(value);
+            found=true;
+          }
         });
         stockPlanActive=found;
       }
@@ -1119,6 +1125,15 @@ function clientScript() {
           target.hash='comparison';
           link.href=target.toString();
         });
+        document.querySelectorAll('[data-paid-kit-offer][data-plan-path]').forEach(function(link){
+          var target=new URL(link.dataset.planPath,window.location.origin);
+          if(plan.active){
+            target.searchParams.set('staff',String(plan.staff));
+            target.searchParams.set('days',String(plan.days));
+            target.searchParams.set('visitors',String(plan.visitors));
+          }
+          link.href=target.toString();
+        });
         var summary=document.getElementById('planSummary');
         var summaryText=document.getElementById('planSummaryText');
         if(summary && summaryText && stockPlanActive){
@@ -1144,6 +1159,43 @@ function clientScript() {
           stock_plan_people:paidPlan.people,
           stock_plan_days:paidPlan.days
         });
+        var paidKitEngagement={ activeSeconds:0, elapsed:false, screens:false, conditions:false, tracked:false };
+        function trackQualifiedPaidKitView(){
+          if(paidKitEngagement.tracked || !paidKitEngagement.elapsed || !paidKitEngagement.conditions) return;
+          if(!paidPlan.active && !paidKitEngagement.screens) return;
+          paidKitEngagement.tracked=true;
+          trackEvent('paid_kit_qualified_view',{
+            product_name:cleanText(paidKitPage.dataset.productName),
+            value:Number(paidKitPage.dataset.productPrice || 0),
+            currency:'JPY',
+            qualification_basis:paidPlan.active ? 'stock_plan_and_conditions' : 'product_review_and_conditions',
+            stock_plan_people:paidPlan.people,
+            stock_plan_days:paidPlan.days
+          });
+        }
+        function markPaidKitSection(id){
+          if(id==='paid-kit-screens') paidKitEngagement.screens=true;
+          if(id==='paid-kit-conditions') paidKitEngagement.conditions=true;
+          trackQualifiedPaidKitView();
+        }
+        function checkPaidKitSections(){
+          document.querySelectorAll('[data-paid-kit-section]').forEach(function(el){
+            var rect=el.getBoundingClientRect();
+            if(rect.bottom >= window.innerHeight*0.25 && rect.top <= window.innerHeight*0.75) markPaidKitSection(el.dataset.paidKitSection);
+          });
+        }
+        var paidKitActiveTimer=window.setInterval(function(){
+          if(document.visibilityState!=='visible') return;
+          checkPaidKitSections();
+          paidKitEngagement.activeSeconds+=1;
+          if(paidKitEngagement.activeSeconds < 20) return;
+          paidKitEngagement.elapsed=true;
+          window.clearInterval(paidKitActiveTimer);
+          trackQualifiedPaidKitView();
+        },1000);
+        window.addEventListener('scroll',checkPaidKitSections,{ passive:true });
+        window.addEventListener('resize',checkPaidKitSections);
+        checkPaidKitSections();
       }
       var quantityTracked=false;
       ['staffCount','daysCount','visitorCount'].forEach(function(id){
@@ -1252,7 +1304,21 @@ function clientScript() {
           return;
         }
         if(anchor.dataset && anchor.dataset.paidKitOffer){
-          trackEvent('paid_kit_offer_click',{ link_text:anchorText(anchor),destination:url });
+          var offerPlan=stockPlanValues();
+          var offerTarget=new URL(url,window.location.origin);
+          if(offerPlan.active){
+            offerTarget.searchParams.set('staff',String(offerPlan.staff));
+            offerTarget.searchParams.set('days',String(offerPlan.days));
+            offerTarget.searchParams.set('visitors',String(offerPlan.visitors));
+            anchor.href=offerTarget.toString();
+          }
+          trackEvent('paid_kit_offer_click',{
+            link_text:anchorText(anchor),
+            destination:offerTarget.toString(),
+            stock_plan_active:offerPlan.active ? 'true' : 'false',
+            stock_plan_people:offerPlan.people,
+            stock_plan_days:offerPlan.days
+          });
           return;
         }
         if(anchor.dataset && anchor.dataset.share){
@@ -1799,7 +1865,7 @@ function paidKitPageBody() {
     </div>
   </section>
   <section class="section" aria-labelledby="kit-screens"><div class="section-title"><div><p class="eyebrow">実際の画面</p><h2 id="kit-screens">入力する場所と、確認する場所</h2></div></div>
-    <div class="kit-gallery">
+    <div class="kit-gallery" data-paid-kit-section="paid-kit-screens">
       <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/basic-input.png" alt="人数、備蓄日数、想定災害を入力する基本入力シート" loading="lazy"><figcaption>1. 人数・備蓄日数・想定災害を入力</figcaption></figure>
       <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/inventory-gap.png" alt="必要量と有効在庫から不足量を表示する在庫ギャップシート" loading="lazy"><figcaption>2. 不足量と必要箱数を確認</figcaption></figure>
       <article class="kit-example"><p class="eyebrow">記入例: 20人・3日分</p><h3>仮単価まで入れた結果</h3><dl><dt>不足分類</dt><dd>4分類</dd><dt>購入箱数</dt><dd>18箱</dd><dt>概算合計</dt><dd class="sample-total">55,000円</dd></dl><small>記入例の仮単価で計算した金額です。実際の商品価格ではありません。</small></article>
@@ -1814,7 +1880,7 @@ function paidKitPageBody() {
     <article class="card"><p class="eyebrow">向いている担当者</p><h2>こんなときに使えます</h2><ul><li>備蓄品の不足数を確認したい</li><li>購入予算を上司へ説明したい</li><li>保管場所と保存期限を引き継ぎたい</li><li>商品候補を比較ページから選びたい</li></ul></article>
   </section>
   <section class="section kit-terms" aria-labelledby="kit-conditions">
-    <article class="card"><p class="eyebrow">購入前の確認</p><h2 id="kit-conditions">対応環境と利用範囲</h2><ul><li>Microsoft Excel 2021 / Microsoft 365 Windows版を推奨</li><li>マクロは使用していません</li><li>1事業者・1拠点での内部利用を想定</li><li>Googleスプレッドシート、Mac版Excel、スマートフォンは動作保証外</li></ul></article>
+    <article class="card" data-paid-kit-section="paid-kit-conditions"><p class="eyebrow">購入前の確認</p><h2 id="kit-conditions">対応環境と利用範囲</h2><ul><li>Microsoft Excel 2021 / Microsoft 365 Windows版を推奨</li><li>マクロは使用していません</li><li>1事業者・1拠点での内部利用を想定</li><li>Googleスプレッドシート、Mac版Excel、スマートフォンは動作保証外</li></ul></article>
     <article class="card"><p class="eyebrow">対象外</p><h2>別途確認が必要な内容</h2><ul><li>法令や行政基準への適合判定</li><li>医療機器・介護機器の電源設計</li><li>食品アレルギーや施設固有の運用判断</li><li>多拠点を一括管理するシステム</li></ul><p class="notice">デジタル商品の受け取り方法、返品・不具合時の対応、利用条件は購入ページで確認してください。</p></article>
   </section>
   <section class="section faq"><h2>購入前によくある質問</h2>${paidKitFaq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
@@ -1833,7 +1899,7 @@ function paidKitPageBody() {
 </div>`;
 }
 
-const paidKitHomePromo = paidProduct.published ? `<section class="section card kit-final"><div><p class="eyebrow">Excelで備蓄数を整理</p><h2>不足数・購入箱数・概算予算をまとめる</h2><p>人数と現在庫を入力し、発注前の数字を一つのファイルで確認できます。</p></div><a class="button" href="${paidKitCanonical}" data-paid-kit-offer="true">Excelキットを見る</a></section>` : '';
+const paidKitHomePromo = paidProduct.published ? `<section class="section card kit-final"><div><p class="eyebrow">Excelで備蓄数を整理</p><h2>不足数・購入箱数・概算予算をまとめる</h2><p>人数と現在庫を入力し、発注前の数字を一つのファイルで確認できます。</p></div><a class="button" href="${paidKitCanonical}" data-paid-kit-offer="true" data-plan-path="${paidKitCanonical}">Excelキットを見る</a></section>` : '';
 
 const indexBody = `<section class="home-hero">
   <div class="hero-main">
