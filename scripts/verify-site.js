@@ -78,6 +78,8 @@ for (const file of files) {
   if (!html.includes("trackEvent('rakuten_click'")) issues.push(`${relative}: Rakuten click tracking missing`);
   if (!html.includes("trackEvent('select_item'")) issues.push(`${relative}: GA4 select_item tracking missing`);
   if (!html.includes("trackEvent('view_item_list'")) issues.push(`${relative}: GA4 item-list tracking missing`);
+  if (!html.includes("trackEvent('stock_plan_compare_click'")) issues.push(`${relative}: stock-plan comparison tracking missing`);
+  if (!html.includes("trackEvent('stock_plan_view'")) issues.push(`${relative}: stock-plan landing tracking missing`);
   if (!html.includes('index: params.product_position ? params.product_position - 1')) issues.push(`${relative}: GA4 item index must be zero-based`);
   const rakutenAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]*hb\.afl\.rakuten\.co\.jp[^"]*"[^>]*>/g)].map((match) => match[0]);
   for (const anchor of rakutenAnchors) {
@@ -88,6 +90,9 @@ for (const file of files) {
   for (const anchor of rakutenAnchors) {
     const position = Number(anchor.match(/data-product-position="(\d+)"/)?.[1] || 0);
     if (!position) issues.push(`${relative}: Rakuten link missing a positive product position`);
+    if (/\/pages\//.test(relative.replace(/\\/g, '/')) && !/data-product-category="[^"]+"/.test(anchor)) {
+      issues.push(`${relative}: Rakuten link has an empty product category`);
+    }
   }
   if (rakutenAnchors.length) {
     const disclosureIndex = html.indexOf('このサイトにはアフィリエイト広告を含みます。');
@@ -169,6 +174,15 @@ for (const page of data.pages || []) {
   if ((page.products || []).length < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} products`);
   const pageFile = path.join(root, 'pages', `${page.slug}.html`);
   const pageHtml = fs.existsSync(pageFile) ? fs.readFileSync(pageFile, 'utf8') : '';
+  if (!pageHtml.includes('data-stock-plan="toilet"') || !pageHtml.includes('data-stock-plan="water_food"')) {
+    issues.push(`${page.slug}: stock-plan comparison links missing`);
+  }
+  if (!pageHtml.includes('id="planSummary"') || !pageHtml.includes("target.searchParams.set('staff'")) {
+    issues.push(`${page.slug}: stock-plan URL restoration missing`);
+  }
+  if (!pageHtml.includes("var minimum=item[0]==='days' ? 1 : 0")) {
+    issues.push(`${page.slug}: stock-plan day validation missing`);
+  }
   const displayedIds = new Set([...pageHtml.matchAll(/data-product-id="([^"]+)"/g)].map((match) => match[1]));
   if (displayedIds.size < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} displayed product candidates`);
   for (const product of page.products || []) {
