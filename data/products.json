@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T21:41:09.812Z",
+  "generatedAt": "2026-07-22T15:38:52.262Z",
   "pages": [
     {
       "slug": "portable-power-kaigo",
@@ -20,7 +20,7 @@
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で69,484円 7/18 00:00から】Jackery ポータブル電源 1000 New 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
+          "titleRaw": "【クーポン利用で69,484円 7/26 23:59まで】Jackery ポータブル電源 1000 New 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
           "price": 119800,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg",
           "summary": "最速60分満充電 コンパクト 軽量 持ち運びやすい 発電機 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
@@ -29,21 +29,23 @@
           "reviewAverage": 4.72,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000025",
+          "availability": 1,
           "score": 538.8399999999999,
           "relevance": 176
         },
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で86,576円 7/18 00:00から】Jackery Solar Generator 1000 New 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 長寿命 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 車中泊 UPS機能 太陽光発電 ジャクリ",
+          "titleRaw": "【クーポン利用で86,576円 7/26 23:59まで】Jackery Solar Generator 1000 New 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 長寿命 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 車中泊 UPS機能 太陽光発電 ジャクリ",
           "price": 154600,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725814.jpg",
           "summary": "太陽光発電セット 最速60分満充電 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 発電機 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 2614,
+          "reviewCount": 2615,
           "reviewAverage": 4.64,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000033",
+          "availability": 1,
           "score": 537.0799999999999,
           "relevance": 176
         },
@@ -59,6 +61,7 @@
           "reviewAverage": 4.67,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000132",
+          "availability": 1,
           "score": 537.74,
           "relevance": 152
         },
@@ -70,11 +73,12 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/ba01-2026/f2400.jpg",
           "summary": "【安心の7年間保証】業界初！充電速度調整機能 1.5時間急速充電 ポータブル電源 2048Wh 2400W 16台デバイス同時充電 バックアップ電源 1000Wh以上 PSE ポータブルバッテリー UPS 正弦波",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 790,
+          "reviewCount": 792,
           "reviewAverage": 4.55,
           "shopName": "FOSSiBOT 楽天市場店",
           "itemCode": "heystop:10000143",
-          "score": 460.6,
+          "availability": 1,
+          "score": 461.5,
           "relevance": 156
         },
         {
@@ -89,22 +93,24 @@
           "reviewAverage": 4.64,
           "shopName": "Smart Tap 楽天市場店",
           "itemCode": "kashima-tokeiten:10096097",
+          "availability": 1,
           "score": 346.28000000000003,
           "relevance": 176
         },
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で86,576円 7/18 00:00から】Jackery Solar Generator 1000 New サンドゴールド 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 大容量 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 グッズ",
+          "titleRaw": "【クーポン利用で86,576円 7/26 23:59まで】Jackery Solar Generator 1000 New サンドゴールド 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 大容量 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 グッズ",
           "price": 154600,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725819.jpg",
           "summary": "太陽光発電セット 最速60分満充電 コンパクト サンドゴールド 軽量 持ち運びやすい 家庭用 蓄電池 発電機 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2F60-010010-jp00018%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000181%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 289,
-          "reviewAverage": 4.61,
+          "reviewCount": 290,
+          "reviewAverage": 4.6,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000181",
-          "score": 261.47,
+          "availability": 1,
+          "score": 261.7,
           "relevance": 176
         },
         {
@@ -119,6 +125,7 @@
           "reviewAverage": 4.54,
           "shopName": "TOGO POWER",
           "itemCode": "togopower:10000012",
+          "availability": 1,
           "score": 252.28,
           "relevance": 148
         },
@@ -134,6 +141,7 @@
           "reviewAverage": 4.63,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000266",
+          "availability": 1,
           "score": 232.66,
           "relevance": 156
         },
@@ -149,13 +157,14 @@
           "reviewAverage": 4.68,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000092",
+          "availability": 1,
           "score": 218.91,
           "relevance": 156
         },
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で69,484円 7/18 00:00から】Jackery ポータブル電源 1000 New サンドゴールド 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 ジャクリ",
+          "titleRaw": "【クーポン利用で69,484円 7/26 23:59まで】Jackery ポータブル電源 1000 New サンドゴールド 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 ジャクリ",
           "price": 119800,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725818.jpg",
           "summary": "最速60分満充電 コンパクト サンドゴールド 軽量 持ち運びやすい 発電機 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
@@ -164,6 +173,7 @@
           "reviewAverage": 4.71,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000180",
+          "availability": 1,
           "score": 176.82,
           "relevance": 176
         },
@@ -172,13 +182,14 @@
           "titleShort": "1024Wh 1800W ポータブル電源",
           "titleRaw": "【2000円OFFクーポン利用で48990円～】AFERIY Nomad1800Pro ポータブル電源 1800W 1024Wh 拡張バッテリー対応 APP対応 ポタ電 1000wh リン酸鉄 家庭用 蓄電池 UPS パススルー 53分80％急速充電 停電対策 防災 車中泊 ソーラー充電対応 長寿命 非常用電源 容量を増やせる",
           "price": 50990,
-          "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/lovleopstore/cabinet/nomad1800pro/1800pro.jpg",
+          "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/lovleopstore/cabinet/shohin34/1800pro-2000.jpg",
           "summary": "【7年保証】aferiy ポータブル電源 1000wh ポータブル電源 1000W 家庭用蓄電池 車中泊 停電 防災 長寿命 パススル 純正弦波 蓄電池ソーラーパネルセット 長く使える ポタ電増設バッテリー",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00u9v8n.oroxz4cd.g00u9v8n.oroy0813/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flovleopstore%2Frk0002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flovleopstore%2Fi%2F10000023%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
           "reviewCount": 92,
           "reviewAverage": 4.58,
           "shopName": "AFERIY公式楽天市場店",
           "itemCode": "lovleopstore:10000023",
+          "availability": 1,
           "score": 172.16,
           "relevance": 176
         },
@@ -194,6 +205,7 @@
           "reviewAverage": 4.74,
           "shopName": "AIWOLL JAPAN 楽天市場店",
           "itemCode": "aiwo:10000016",
+          "availability": 1,
           "score": 153.63,
           "relevance": 176
         }
@@ -227,6 +239,7 @@
           "reviewAverage": 4.5,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000008",
+          "availability": 1,
           "score": 534,
           "relevance": 164
         },
@@ -242,6 +255,7 @@
           "reviewAverage": 4.59,
           "shopName": "AZ.MARKET エージーマーケット",
           "itemCode": "import-garden:10002620",
+          "availability": 1,
           "score": 502.23,
           "relevance": 148
         },
@@ -257,6 +271,7 @@
           "reviewAverage": 4.56,
           "shopName": "AZ.MARKET エージーマーケット",
           "itemCode": "import-garden:10002621",
+          "availability": 1,
           "score": 436.32,
           "relevance": 166
         },
@@ -272,6 +287,7 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000522",
+          "availability": 1,
           "score": 402.34000000000003,
           "relevance": 192
         },
@@ -287,6 +303,7 @@
           "reviewAverage": 4.59,
           "shopName": "ふくしまの防災 HIH ヒカリネット",
           "itemCode": "nayami-kaiketu:10021116",
+          "availability": 1,
           "score": 324.48,
           "relevance": 162
         },
@@ -302,6 +319,7 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000260",
+          "availability": 1,
           "score": 251.14000000000001,
           "relevance": 192
         },
@@ -317,13 +335,14 @@
           "reviewAverage": 4.64,
           "shopName": "ふくしまの防災 HIH ヒカリネット",
           "itemCode": "nayami-kaiketu:10021175",
+          "availability": 1,
           "score": 279.23,
           "relevance": 162
         },
         {
           "name": "5年保存 12食 非常食",
           "titleShort": "5年保存 12食 非常食",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
+          "titleRaw": "非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
           "price": 5780,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10009491-01r.jpg",
           "summary": "【週間ランキング1位獲得！】白米・わかめ・青菜・梅じゃこ・五目・ドライカレー・野菜ピラフ・チャーハン・根菜ご飯＆パスタ3種類の全12種類セット",
@@ -332,6 +351,7 @@
           "reviewAverage": 4.67,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10009491",
+          "availability": 1,
           "score": 266.39,
           "relevance": 166
         },
@@ -347,6 +367,7 @@
           "reviewAverage": 4.62,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10016016",
+          "availability": 1,
           "score": 244.14,
           "relevance": 186
         },
@@ -362,13 +383,14 @@
           "reviewAverage": 4.32,
           "shopName": "地震防災グッズ通販ペアークレーン",
           "itemCode": "jisin-bousai-goods:10000016",
+          "availability": 1,
           "score": 214.14000000000001,
           "relevance": 186
         },
         {
           "name": "4個 防寒用品",
           "titleShort": "4個 防寒用品",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
+          "titleRaw": "【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
           "price": 467,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001144-01r.jpg",
           "summary": "【週間ランキング1位獲得！】楽天最安値に挑戦！軽量・コンパクトな携帯寝袋。大人1人楽々寝られる大きさです。小さくたためて便利",
@@ -377,6 +399,7 @@
           "reviewAverage": 4.58,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10001144",
+          "availability": 1,
           "score": 229.96,
           "relevance": 158
         },
@@ -392,6 +415,7 @@
           "reviewAverage": 4.44,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000528",
+          "availability": 1,
           "score": 184.38,
           "relevance": 194
         }
@@ -420,10 +444,11 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/nayami-kaiketu/cabinet/02887876/06944001/imgrc0110266216.jpg",
           "summary": "在宅避難や帰宅困難者にも対応するオールマイティな防災セット 一人用",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00qd5cn.oroxz15d.g00qd5cn.oroy0dce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fnayami-kaiketu%2Fnsns002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fnayami-kaiketu%2Fi%2F10000630%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 3225,
+          "reviewCount": 3227,
           "reviewAverage": 4.6,
           "shopName": "ふくしまの防災 HIH ヒカリネット",
           "itemCode": "nayami-kaiketu:10000630",
+          "availability": 1,
           "score": 536.2,
           "relevance": 152
         },
@@ -439,6 +464,7 @@
           "reviewAverage": 4.5,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000008",
+          "availability": 1,
           "score": 534,
           "relevance": 140
         },
@@ -454,6 +480,7 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000522",
+          "availability": 1,
           "score": 402.34000000000003,
           "relevance": 192
         },
@@ -469,6 +496,7 @@
           "reviewAverage": 4.62,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10016016",
+          "availability": 1,
           "score": 244.14,
           "relevance": 178
         },
@@ -484,13 +512,14 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000260",
+          "availability": 1,
           "score": 251.14000000000001,
           "relevance": 168
         },
         {
           "name": "5年保存 12食 非常食",
           "titleShort": "5年保存 12食 非常食",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
+          "titleRaw": "非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
           "price": 5780,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10009491-01r.jpg",
           "summary": "【週間ランキング1位獲得！】白米・わかめ・青菜・梅じゃこ・五目・ドライカレー・野菜ピラフ・チャーハン・根菜ご飯＆パスタ3種類の全12種類セット",
@@ -499,6 +528,7 @@
           "reviewAverage": 4.67,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10009491",
+          "availability": 1,
           "score": 266.39,
           "relevance": 150
         },
@@ -514,13 +544,14 @@
           "reviewAverage": 4.69,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10001325",
+          "availability": 1,
           "score": 222.28000000000003,
           "relevance": 152
         },
         {
           "name": "4個 防寒用品",
           "titleShort": "4個 防寒用品",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
+          "titleRaw": "【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
           "price": 467,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001144-01r.jpg",
           "summary": "【週間ランキング1位獲得！】楽天最安値に挑戦！軽量・コンパクトな携帯寝袋。大人1人楽々寝られる大きさです。小さくたためて便利",
@@ -529,13 +560,14 @@
           "reviewAverage": 4.58,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10001144",
+          "availability": 1,
           "score": 229.96,
           "relevance": 142
         },
         {
           "name": "保存水",
           "titleShort": "保存水",
-          "titleRaw": "受注生産 賞味期限2031.04以降 防災士厳選 非常食 保存食セット 1人 3日分 11種類 16点 長期保存 5年 調理不要 水不要 備蓄 帰宅困難者対策 BCP 1人1箱 A4サイズ 企業 法人 自治体 自治会 町内会 マンション 管理組合 大量 災害対策本舗 ミニマム3days リマインダー対象",
+          "titleRaw": "受注生産 賞味期限2031.10以降 防災士厳選 非常食 保存食セット 1人 3日分 11種類 16点 長期保存 5年 調理不要 水不要 備蓄 帰宅困難者対策 BCP 1人1箱 A4サイズ 企業 法人 自治体 自治会 町内会 マンション 管理組合 大量 災害対策本舗 ミニマム3days リマインダー対象",
           "price": 5184,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/minimum3/08-02-007_wh.jpg",
           "summary": "最新ロット 保存食 パン おかゆ おこげ クッキー 備蓄食 避難 会社 オフィス 官公庁 学校 施設 病院 組合 自治体 団体 まとめ買い 期限管理シール付 見積書 請求書 納期相談",
@@ -544,13 +576,14 @@
           "reviewAverage": 4.83,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000872",
+          "availability": 1,
           "score": 141.66000000000003,
           "relevance": 202
         },
         {
           "name": "8年保存 21食 非常食",
           "titleShort": "8年保存 21食 非常食",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 非常食セット 8年保存 7日分 7種類 21食セット レスキューライス 国産米使用 アルファ米 アルファー米 保存食セット 防災食 防災グッズ 防災セット 企業 団体 法人 自治体 備蓄品 帰宅困難者対策 防災用",
+          "titleRaw": "非常食セット 8年保存 7日分 7種類 21食セット レスキューライス 国産米使用 アルファ米 アルファー米 保存食セット 防災食 防災グッズ 防災セット 企業 団体 法人 自治体 備蓄品 帰宅困難者対策 防災用",
           "price": 8870,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10008161-01.jpg",
           "summary": "お湯やお水を注ぐだけで、いつでもどこでも簡単に、美味しい炊きたて風味のごはんが食べられるアルファ化米。",
@@ -559,6 +592,7 @@
           "reviewAverage": 4.58,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10010366",
+          "availability": 1,
           "score": 141.56,
           "relevance": 194
         },
@@ -574,13 +608,14 @@
           "reviewAverage": 5,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10001547",
+          "availability": 1,
           "score": 143.15,
           "relevance": 186
         },
         {
           "name": "7年保存 非常食",
           "titleShort": "7年保存 非常食",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 7年保存缶 牛肉大和煮 24缶/ケース 非常食 保存食 防災グッズ 防災セット おかず缶詰 牛肉 防災用品 企業 団体 備蓄品 長期保存食 帰宅困難者対策",
+          "titleRaw": "7年保存缶 牛肉大和煮 24缶/ケース 非常食 保存食 防災グッズ 防災セット おかず缶詰 牛肉 防災用品 企業 団体 備蓄品 長期保存食 帰宅困難者対策",
           "price": 13478,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001290-01.jpg",
           "summary": "賞味期限7年の非常備蓄用缶詰！温めなくてもすぐに食べられる！",
@@ -589,6 +624,7 @@
           "reviewAverage": 5,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10001290",
+          "availability": 1,
           "score": 141.35,
           "relevance": 186
         }
@@ -623,6 +659,7 @@
           "reviewAverage": 4.19,
           "shopName": "マックスシェアー maxshare",
           "itemCode": "maxshare:10057441",
+          "availability": 1,
           "score": 421.43,
           "relevance": 89
         },
@@ -634,11 +671,12 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/smile88/cabinet/master/1st/a04226.jpg",
           "summary": "【2個組】便利な専用バッグ・自在付ロープ付属 ウォータータンク 非常用 アンカー ペグ代わり タープテント 固定 テントウエイト おもり タンク 折りたたみ ウォータージャグ 給水タンク",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00q6pen.oroxzb85.g00q6pen.oroy0f86/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsmile88%2Fa04226%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsmile88%2Fi%2F10060746%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 333,
-          "reviewAverage": 4.18,
+          "reviewCount": 334,
+          "reviewAverage": 4.19,
           "shopName": "タープ&テントのスマイルプライス",
           "itemCode": "smile88:10060746",
-          "score": 271.81,
+          "availability": 1,
+          "score": 272.48,
           "relevance": 116
         },
         {
@@ -653,13 +691,14 @@
           "reviewAverage": 4.33,
           "shopName": "タープ&テントのスマイルプライス",
           "itemCode": "smile88:10057599",
+          "availability": 1,
           "score": 265.86,
           "relevance": 97
         },
         {
           "name": "10L 保存水",
           "titleShort": "10L 保存水",
-          "titleRaw": "【P5倍★19日20時〜】給水タンク 10L ウォータータンク 防災グッズ ポリタンク アイリスオーヤマ 水 タンク 防災用品 避難グッズ 避難用品 水くみ ウォータータンク 給水袋 コック 折りたたみ コンパクト 災害 震災 備蓄 断水 給水 非常用 WAT-10L",
+          "titleRaw": "【P5倍★27日10時迄】給水タンク 10L ウォータータンク 防災グッズ ポリタンク アイリスオーヤマ 水 タンク 防災用品 避難グッズ 避難用品 水くみ ウォータータンク 給水袋 コック 折りたたみ コンパクト 災害 震災 備蓄 断水 給水 非常用 WAT-10L",
           "price": 1000,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/lock110/cabinet/eigyou/532098_rank.jpg",
           "summary": "ウォータータンク 折りたたみ 給水タンク 防災 避難 給水 アウトドア キャンプ",
@@ -668,6 +707,7 @@
           "reviewAverage": 4.46,
           "shopName": "住まいと暮らしの110番",
           "itemCode": "lock110:10000036",
+          "availability": 1,
           "score": 221.02,
           "relevance": 117
         },
@@ -683,6 +723,7 @@
           "reviewAverage": 4.52,
           "shopName": "TK-JIANG",
           "itemCode": "takara-jiang:10033987",
+          "availability": 1,
           "score": 258.34000000000003,
           "relevance": 65
         },
@@ -698,6 +739,7 @@
           "reviewAverage": 4.67,
           "shopName": "fukufukustore",
           "itemCode": "bestco:10000409",
+          "availability": 1,
           "score": 134.08999999999997,
           "relevance": 162
         },
@@ -713,6 +755,7 @@
           "reviewAverage": 4.45,
           "shopName": "収納・家具・寝具の収納宅配館",
           "itemCode": "rack-kan:10003296",
+          "availability": 1,
           "score": 142.95000000000002,
           "relevance": 150
         },
@@ -728,6 +771,7 @@
           "reviewAverage": 4.83,
           "shopName": "ドラード・ライフ",
           "itemCode": "dorado:10000003",
+          "availability": 1,
           "score": 113.96000000000001,
           "relevance": 170
         },
@@ -743,13 +787,14 @@
           "reviewAverage": 4.26,
           "shopName": "マックスシェアー maxshare",
           "itemCode": "maxshare:10055562",
+          "availability": 1,
           "score": 185.12,
           "relevance": 97
         },
         {
           "name": "20L 保存水",
           "titleShort": "20L 保存水",
-          "titleRaw": "【P10倍★19日20時〜】給水タンク 20L ウォータータンク 折りたたみ コック付 キャンプ コンパクト 持ち運び 水タンク 給水バッグ 給水袋 防災 災害タンク 携帯水タンク 防災グッズ 断水 アウトドア レジャー アイリスオーヤマ WAT-20L *",
+          "titleRaw": "【P10倍★27日10時迄】給水タンク 20L ウォータータンク 折りたたみ コック付 キャンプ コンパクト 持ち運び 水タンク 給水バッグ 給水袋 防災 災害タンク 携帯水タンク 防災グッズ 断水 アウトドア レジャー アイリスオーヤマ WAT-20L *",
           "price": 1280,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/lock110/cabinet/jishahin40/532109-sa.jpg",
           "summary": "■【10個セット】はこちら ■【30個セット】はこちら コンパクトにたためるウォータータンクです。 折りたたみが簡単で、持ち運びにも便利！！ コック付きなので、水を注ぐのも楽チン♪ 防災やレジャーに最適です★ ●商品サイズ（約）：幅29×奥行29×高さ33.…",
@@ -758,6 +803,7 @@
           "reviewAverage": 4.43,
           "shopName": "住まいと暮らしの110番",
           "itemCode": "lock110:10000038",
+          "availability": 1,
           "score": 186.61,
           "relevance": 93
         },
@@ -773,13 +819,14 @@
           "reviewAverage": 4.36,
           "shopName": "Rack World",
           "itemCode": "rackworld:10003067",
+          "availability": 1,
           "score": 110.82000000000001,
           "relevance": 162
         },
         {
           "name": "3L 保存水",
           "titleShort": "3L 保存水",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 折りたたみウォーターバッグ 3L 3リットル (防災グッズ 給水袋 ポリタンク ウォータータンク 給水バッグ 給水タンク 非常持ち出し袋 非常持出袋 避難セット 防災セット 保存食 非常食 備蓄品 保存水 帰宅困難者対策",
+          "titleRaw": "折りたたみウォーターバッグ 3L 3リットル (防災グッズ 給水袋 ポリタンク ウォータータンク 給水バッグ 給水タンク 非常持ち出し袋 非常持出袋 避難セット 防災セット 保存食 非常食 備蓄品 保存水 帰宅困難者対策",
           "price": 379,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/82101-01.jpg",
           "summary": "コック式なので大変便利です。折りたたみ式で収納時にかさばりません！",
@@ -788,6 +835,7 @@
           "reviewAverage": 4.62,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10005182",
+          "availability": 1,
           "score": 118.34,
           "relevance": 154
         }
@@ -821,13 +869,14 @@
           "reviewAverage": 4.67,
           "shopName": "防災用品 オシャレ",
           "itemCode": "bousaiyouhin-oshare:10000164",
+          "availability": 1,
           "score": 537.74,
           "relevance": 166
         },
         {
           "name": "1人用 5年保存 非常用トイレ",
           "titleShort": "1人用 5年保存 非常用トイレ",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 防災セット 1人用 30点 防災士監修 避難セット 防災リュック 選べる9カラー おしゃれ 防災グッズ 防災食 5年保存 非常食 10年保存水 簡易トイレ 懐中電灯 地震 災害 女性用 男女兼用 レディース 子供用 ピースアップ PBS30",
+          "titleRaw": "防災セット 1人用 30点 防災士監修 避難セット 防災リュック 選べる9カラー おしゃれ 防災グッズ 防災食 5年保存 非常食 10年保存水 簡易トイレ 懐中電灯 地震 災害 女性用 男女兼用 レディース 子供用 ピースアップ PBS30",
           "price": 5979,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001476-01rmb.jpg",
           "summary": "「週間ランキング1位獲得！」全9色から選べる一人用の防災セット お部屋に合わせてオシャレに防災 必要なものが揃った基本の非常用持ち出し袋",
@@ -836,6 +885,7 @@
           "reviewAverage": 4.61,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10001476",
+          "availability": 1,
           "score": 536.4200000000001,
           "relevance": 158
         },
@@ -851,6 +901,7 @@
           "reviewAverage": 4.62,
           "shopName": "Relieved Life",
           "itemCode": "relieved-life:10002188",
+          "availability": 1,
           "score": 536.64,
           "relevance": 142
         },
@@ -866,6 +917,7 @@
           "reviewAverage": 4.34,
           "shopName": "地震防災グッズ通販ペアークレーン",
           "itemCode": "jisin-bousai-goods:10000070",
+          "availability": 1,
           "score": 530.48,
           "relevance": 142
         },
@@ -881,6 +933,7 @@
           "reviewAverage": 4.27,
           "shopName": "地震防災グッズ通販ペアークレーン",
           "itemCode": "jisin-bousai-goods:10000037",
+          "availability": 1,
           "score": 528.94,
           "relevance": 142
         },
@@ -896,6 +949,7 @@
           "reviewAverage": 4.34,
           "shopName": "地震防災グッズ通販ペアークレーン",
           "itemCode": "jisin-bousai-goods:10000015",
+          "availability": 1,
           "score": 310.88,
           "relevance": 142
         },
@@ -911,13 +965,14 @@
           "reviewAverage": 4.73,
           "shopName": "防災用品 オシャレ",
           "itemCode": "bousaiyouhin-oshare:10000165",
+          "availability": 1,
           "score": 278.51,
           "relevance": 166
         },
         {
           "name": "防災セット",
           "titleShort": "防災セット",
-          "titleRaw": "【19日20時〜 ポイント最大37.5倍 お買い物マラソン】防災リュック 単品 避難リュック のみ 非常用持ち出し袋 防災セット リュック 非常用リュック 7077 防災セット メンズ レディース 子供 大容量 デイパック リュックサック 台風 災害",
+          "titleRaw": "【ポイント最大37.5倍 お買い物マラソン】防災リュック 単品 避難リュック のみ 非常用持ち出し袋 防災セット リュック 非常用リュック 7077 防災セット メンズ レディース 子供 大容量 デイパック リュックサック 台風 災害",
           "price": 1820,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/kabansoko/cabinet/shohin38/imgrc0266869804.jpg",
           "summary": "選べる7色 防災用品 防災グッズ 防災リュック 子供用 防災グッズ 避難袋 地震対策防災リュック 震災 防災 防災袋 災害対策 避難準備 避難 備え レジャー 家族 避難セット 帰宅困難",
@@ -926,6 +981,7 @@
           "reviewAverage": 4.59,
           "shopName": "バッグ 財布の専門店 かばん創庫",
           "itemCode": "kabansoko:10000084",
+          "availability": 1,
           "score": 262.13,
           "relevance": 154
         },
@@ -941,6 +997,7 @@
           "reviewAverage": 4.66,
           "shopName": "非常食・防災食ならアルファー食品",
           "itemCode": "alphasyokuhin:10000015",
+          "availability": 1,
           "score": 306.67,
           "relevance": 108
         },
@@ -956,6 +1013,7 @@
           "reviewAverage": 4.62,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10016016",
+          "availability": 1,
           "score": 244.14,
           "relevance": 170
         },
@@ -971,6 +1029,7 @@
           "reviewAverage": 4.27,
           "shopName": "Nextオンライン",
           "itemCode": "next-online:10000143",
+          "availability": 1,
           "score": 308.44,
           "relevance": 99
         },
@@ -986,6 +1045,7 @@
           "reviewAverage": 4.54,
           "shopName": "くらしのeショップ",
           "itemCode": "e-kurashi:10027048",
+          "availability": 1,
           "score": 265.08000000000004,
           "relevance": 134
         }
@@ -1015,10 +1075,11 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/pykespeak/cabinet/event/marason2026/p0244_top_0228-7r-3.jpg",
           "summary": "【楽天モバイル最強感謝祭】 安心の日本企業 PYKES PEAK 防災グッズ 災害用トイレ 車中泊用 救急トイレ プレミアムサポートセット 携帯トイレ 排便袋付 持ち運び 災害用トイレ 登山",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00sulxn.oroxzd81.g00sulxn.oroy0d07/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpykespeak%2Fp0244%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpykespeak%2Fi%2F10002322%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 960,
+          "reviewCount": 961,
           "reviewAverage": 4.49,
           "shopName": "PYKES PEAK Direct",
           "itemCode": "pykespeak:10002322",
+          "availability": 1,
           "score": 508.78,
           "relevance": 158
         },
@@ -1034,6 +1095,7 @@
           "reviewAverage": 4.5,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000008",
+          "availability": 1,
           "score": 534,
           "relevance": 89
         },
@@ -1049,6 +1111,7 @@
           "reviewAverage": 4.55,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10020901",
+          "availability": 1,
           "score": 246.4,
           "relevance": 168
         },
@@ -1064,6 +1127,7 @@
           "reviewAverage": 4.67,
           "shopName": "介護BOX パンドラ",
           "itemCode": "pandora:10013385",
+          "availability": 1,
           "score": 134.08999999999997,
           "relevance": 178
         },
@@ -1079,6 +1143,7 @@
           "reviewAverage": 4.56,
           "shopName": "Across【アクロース】",
           "itemCode": "across-zakka:10000252",
+          "availability": 1,
           "score": 159.32,
           "relevance": 144
         },
@@ -1094,6 +1159,7 @@
           "reviewAverage": 5,
           "shopName": "防災のサイボウ 楽天市場店",
           "itemCode": "saibou:10000382",
+          "availability": 1,
           "score": 140.45,
           "relevance": 152
         },
@@ -1109,6 +1175,7 @@
           "reviewAverage": 4.49,
           "shopName": "Across【アクロース】",
           "itemCode": "across-zakka:10000421",
+          "availability": 1,
           "score": 140.68,
           "relevance": 144
         },
@@ -1124,6 +1191,7 @@
           "reviewAverage": 4.3,
           "shopName": "アップタウン",
           "itemCode": "uptown:10002405",
+          "availability": 1,
           "score": 129.1,
           "relevance": 146
         },
@@ -1139,6 +1207,7 @@
           "reviewAverage": 5,
           "shopName": "オゾンアソシア除菌消臭楽天市場店",
           "itemCode": "ozoneassocia:10002007",
+          "availability": 1,
           "score": 140.45,
           "relevance": 134
         },
@@ -1154,13 +1223,14 @@
           "reviewAverage": 4.67,
           "shopName": "usnsm",
           "itemCode": "usnsm:10000027",
+          "availability": 1,
           "score": 109.08999999999999,
           "relevance": 162
         },
         {
           "name": "02L 非常用トイレ",
           "titleShort": "02L 非常用トイレ",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 簡易トイレ+テントセット プライベートテント 非常用トイレ 簡単設置 長期保存 備蓄用 トイレットペーパー 排泄物処理セット 簡易便器 凝固剤 汚物袋 断水 災害時 避難 着替え アウトドア 企業・団体 OKT02L EST100 EVERSAFE",
+          "titleRaw": "簡易トイレ+テントセット プライベートテント 非常用トイレ 簡単設置 長期保存 備蓄用 トイレットペーパー 排泄物処理セット 簡易便器 凝固剤 汚物袋 断水 災害時 避難 着替え アウトドア 企業・団体 OKT02L EST100 EVERSAFE",
           "price": 9799,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10002540sku-01.jpg",
           "summary": "災害時やアウトドアの必需品 周囲の視線を気にせず使える テント付きトイレセット 非常用トイレ100回分 ポップアップテント",
@@ -1169,6 +1239,7 @@
           "reviewAverage": 4.07,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10020512",
+          "availability": 1,
           "score": 125.84,
           "relevance": 144
         },
@@ -1184,6 +1255,7 @@
           "reviewAverage": 4.4,
           "shopName": "PONS SHOP 楽天市場店",
           "itemCode": "ponsshoponline:10000071",
+          "availability": 1,
           "score": 106.30000000000001,
           "relevance": 160
         }
@@ -1216,6 +1288,7 @@
           "reviewAverage": 4.5,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000008",
+          "availability": 1,
           "score": 534,
           "relevance": 164
         },
@@ -1231,6 +1304,7 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000522",
+          "availability": 1,
           "score": 402.34000000000003,
           "relevance": 152
         },
@@ -1246,13 +1320,14 @@
           "reviewAverage": 4.62,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10016016",
+          "availability": 1,
           "score": 244.14,
           "relevance": 154
         },
         {
           "name": "5年保存 12食 非常食",
           "titleShort": "5年保存 12食 非常食",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
+          "titleRaw": "非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
           "price": 5780,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10009491-01r.jpg",
           "summary": "【週間ランキング1位獲得！】白米・わかめ・青菜・梅じゃこ・五目・ドライカレー・野菜ピラフ・チャーハン・根菜ご飯＆パスタ3種類の全12種類セット",
@@ -1261,6 +1336,7 @@
           "reviewAverage": 4.67,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10009491",
+          "availability": 1,
           "score": 266.39,
           "relevance": 126
         },
@@ -1276,13 +1352,14 @@
           "reviewAverage": 4.54,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000012",
+          "availability": 1,
           "score": 221.68,
           "relevance": 134
         },
         {
           "name": "4個 防寒用品",
           "titleShort": "4個 防寒用品",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
+          "titleRaw": "【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
           "price": 467,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001144-01r.jpg",
           "summary": "【週間ランキング1位獲得！】楽天最安値に挑戦！軽量・コンパクトな携帯寝袋。大人1人楽々寝られる大きさです。小さくたためて便利",
@@ -1291,6 +1368,7 @@
           "reviewAverage": 4.58,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10001144",
+          "availability": 1,
           "score": 229.96,
           "relevance": 118
         },
@@ -1306,6 +1384,7 @@
           "reviewAverage": 4.31,
           "shopName": "happyshop",
           "itemCode": "happyshop:10040168",
+          "availability": 1,
           "score": 156.76999999999998,
           "relevance": 182
         },
@@ -1321,6 +1400,7 @@
           "reviewAverage": 4.78,
           "shopName": "防災屋ライフ",
           "itemCode": "bousaiya-life:10000222",
+          "availability": 1,
           "score": 158.11,
           "relevance": 178
         },
@@ -1336,6 +1416,7 @@
           "reviewAverage": 4.71,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000084",
+          "availability": 1,
           "score": 152.52,
           "relevance": 174
         },
@@ -1351,6 +1432,7 @@
           "reviewAverage": 4.69,
           "shopName": "防災屋ライフ",
           "itemCode": "bousaiya-life:10000096",
+          "availability": 1,
           "score": 147.58,
           "relevance": 178
         },
@@ -1366,6 +1448,7 @@
           "reviewAverage": 4.79,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000229",
+          "availability": 1,
           "score": 150.23,
           "relevance": 174
         },
@@ -1381,6 +1464,7 @@
           "reviewAverage": 4.76,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000009",
+          "availability": 1,
           "score": 149.57,
           "relevance": 174
         }
@@ -1413,13 +1497,14 @@
           "reviewAverage": 4.74,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000146",
+          "availability": 1,
           "score": 539.28,
           "relevance": 144
         },
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で69,484円 7/18 00:00から】Jackery ポータブル電源 1000 New 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
+          "titleRaw": "【クーポン利用で69,484円 7/26 23:59まで】Jackery ポータブル電源 1000 New 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
           "price": 119800,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg",
           "summary": "最速60分満充電 コンパクト 軽量 持ち運びやすい 発電機 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
@@ -1428,51 +1513,55 @@
           "reviewAverage": 4.72,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000025",
+          "availability": 1,
           "score": 538.8399999999999,
           "relevance": 144
         },
         {
           "name": "Jackery 256Wh 256W ポータブル電源",
           "titleShort": "Jackery 256Wh 256W ポータブル電源",
-          "titleRaw": "【クーポン利用で26,240円 7/18 00:00から】Jackery ポータブル電源 240 New 256Wh リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
+          "titleRaw": "【クーポン利用で26,240円 7/26 23:59まで】Jackery ポータブル電源 240 New 256Wh リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
           "price": 32800,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13250019/13265065/imgrc0115958958.jpg",
           "summary": "60分満充電 小型 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-240200-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000004%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 1779,
+          "reviewCount": 1780,
           "reviewAverage": 4.66,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000004",
+          "availability": 1,
           "score": 537.52,
           "relevance": 144
         },
         {
           "name": "Jackery 256Wh 256W ポータブル電源",
           "titleShort": "Jackery 256Wh 256W ポータブル電源",
-          "titleRaw": "【クーポン利用で37,425円 7/18 00:00から】Jackery Solar Generator 240 New 40Mini 256Wh + 40W ソーラーパネルセット リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 太陽光発電 ジャクリ ポータブル電源",
+          "titleRaw": "【クーポン利用で37,425円 7/26 23:59まで】Jackery Solar Generator 240 New 40Mini 256Wh + 40W ソーラーパネルセット リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 太陽光発電 ジャクリ ポータブル電源",
           "price": 49900,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725805.jpg",
           "summary": "太陽光発電セット 60分満充電 小型 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2F60-0304-jpb1a1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000120%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 1006,
+          "reviewCount": 1007,
           "reviewAverage": 4.65,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000120",
+          "availability": 1,
           "score": 537.3,
           "relevance": 144
         },
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で86,576円 7/18 00:00から】Jackery Solar Generator 1000 New 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 長寿命 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 車中泊 UPS機能 太陽光発電 ジャクリ",
+          "titleRaw": "【クーポン利用で86,576円 7/26 23:59まで】Jackery Solar Generator 1000 New 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 長寿命 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 車中泊 UPS機能 太陽光発電 ジャクリ",
           "price": 154600,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725814.jpg",
           "summary": "太陽光発電セット 最速60分満充電 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 発電機 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 2614,
+          "reviewCount": 2615,
           "reviewAverage": 4.64,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000033",
+          "availability": 1,
           "score": 537.0799999999999,
           "relevance": 144
         },
@@ -1484,10 +1573,11 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/ecoflow/cabinet/13590390/13590392/d3c160.jpg",
           "summary": "太陽光発電セット 急速充電 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 発電機 停電対策 台風対策 節電対策 防災対策 安心保証 エコフロー",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fdelta-3-160%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000264%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 930,
+          "reviewCount": 932,
           "reviewAverage": 4.65,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000264",
+          "availability": 1,
           "score": 537.3,
           "relevance": 132
         },
@@ -1503,6 +1593,7 @@
           "reviewAverage": 4.69,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000003",
+          "availability": 1,
           "score": 538.1800000000001,
           "relevance": 120
         },
@@ -1518,6 +1609,7 @@
           "reviewAverage": 4.67,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000132",
+          "availability": 1,
           "score": 537.74,
           "relevance": 120
         },
@@ -1533,6 +1625,7 @@
           "reviewAverage": 4.69,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000145",
+          "availability": 1,
           "score": 418.48,
           "relevance": 144
         },
@@ -1548,6 +1641,7 @@
           "reviewAverage": 4.19,
           "shopName": "マックスシェアー maxshare",
           "itemCode": "maxshare:10057441",
+          "availability": 1,
           "score": 421.43,
           "relevance": 140
         },
@@ -1563,6 +1657,7 @@
           "reviewAverage": 4.55,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000267",
+          "availability": 1,
           "score": 342.05,
           "relevance": 144
         },
@@ -1578,6 +1673,7 @@
           "reviewAverage": 4.65,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000197",
+          "availability": 1,
           "score": 357.95000000000005,
           "relevance": 120
         }
@@ -1610,13 +1706,14 @@
           "reviewAverage": 4.74,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000146",
+          "availability": 1,
           "score": 539.28,
           "relevance": 152
         },
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で69,484円 7/18 00:00から】Jackery ポータブル電源 1000 New 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
+          "titleRaw": "【クーポン利用で69,484円 7/26 23:59まで】Jackery ポータブル電源 1000 New 1070Wh リン酸鉄 十年長寿命 定格1500W 最速1時間満充電 バッテリー コンパクト 防災 家庭用 アウトドア用 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
           "price": 119800,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg",
           "summary": "最速60分満充電 コンパクト 軽量 持ち運びやすい 発電機 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
@@ -1625,51 +1722,55 @@
           "reviewAverage": 4.72,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000025",
+          "availability": 1,
           "score": 538.8399999999999,
           "relevance": 144
         },
         {
           "name": "Jackery 256Wh 256W ポータブル電源",
           "titleShort": "Jackery 256Wh 256W ポータブル電源",
-          "titleRaw": "【クーポン利用で26,240円 7/18 00:00から】Jackery ポータブル電源 240 New 256Wh リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
+          "titleRaw": "【クーポン利用で26,240円 7/26 23:59まで】Jackery ポータブル電源 240 New 256Wh リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 純正弦波 ジャクリ",
           "price": 32800,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13250019/13265065/imgrc0115958958.jpg",
           "summary": "60分満充電 小型 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-240200-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000004%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 1779,
+          "reviewCount": 1780,
           "reviewAverage": 4.66,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000004",
+          "availability": 1,
           "score": 537.52,
           "relevance": 144
         },
         {
           "name": "Jackery 256Wh 256W ポータブル電源",
           "titleShort": "Jackery 256Wh 256W ポータブル電源",
-          "titleRaw": "【クーポン利用で37,425円 7/18 00:00から】Jackery Solar Generator 240 New 40Mini 256Wh + 40W ソーラーパネルセット リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 太陽光発電 ジャクリ ポータブル電源",
+          "titleRaw": "【クーポン利用で37,425円 7/26 23:59まで】Jackery Solar Generator 240 New 40Mini 256Wh + 40W ソーラーパネルセット リン酸鉄 長寿命 定格300W コンパクト 軽量 急速充電 家庭用 アウトドア用 防災 車中泊 UPS機能 アプリ遠隔操作 太陽光発電 ジャクリ ポータブル電源",
           "price": 49900,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725805.jpg",
           "summary": "太陽光発電セット 60分満充電 小型 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2F60-0304-jpb1a1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000120%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 1006,
+          "reviewCount": 1007,
           "reviewAverage": 4.65,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000120",
+          "availability": 1,
           "score": 537.3,
           "relevance": 144
         },
         {
           "name": "Jackery 1070Wh 1070W ポータブル電源",
           "titleShort": "Jackery 1070Wh 1070W ポータブル電源",
-          "titleRaw": "【クーポン利用で86,576円 7/18 00:00から】Jackery Solar Generator 1000 New 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 長寿命 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 車中泊 UPS機能 太陽光発電 ジャクリ",
+          "titleRaw": "【クーポン利用で86,576円 7/26 23:59まで】Jackery Solar Generator 1000 New 1070Wh 100W ポータブル電源 ソーラーパネル セット リン酸鉄 長寿命 バッテリー 定格1500W コンパクト 急速充電 アウトドア 防災 車中泊 UPS機能 太陽光発電 ジャクリ",
           "price": 154600,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725814.jpg",
           "summary": "太陽光発電セット 最速60分満充電 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 発電機 停電対策 台風対策 節電対策 防災対策 無料回収サービス 最大5年保証",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 2614,
+          "reviewCount": 2615,
           "reviewAverage": 4.64,
           "shopName": "Jackery Japan 楽天市場店",
           "itemCode": "jackery-japan:10000033",
+          "availability": 1,
           "score": 537.0799999999999,
           "relevance": 144
         },
@@ -1681,10 +1782,11 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/ecoflow/cabinet/13590390/13590392/d3c160.jpg",
           "summary": "太陽光発電セット 急速充電 コンパクト 軽量 持ち運びやすい 家庭用 蓄電池 発電機 停電対策 台風対策 節電対策 防災対策 安心保証 エコフロー",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fdelta-3-160%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000264%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 930,
+          "reviewCount": 932,
           "reviewAverage": 4.65,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000264",
+          "availability": 1,
           "score": 537.3,
           "relevance": 140
         },
@@ -1696,10 +1798,11 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/yumenomori/cabinet/09676799/x146zt_260109.jpg",
           "summary": "【一年間保証 PSE認証】本体に充電用のケーブル付属 LED懐中灯 停電対策 旅行/通勤通学/出張 回路保護 ストラップ付 USB充電 電気毛布 電熱ベスト 首掛け扇風機 ipad/iphone/andoroid対応",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tdsyn.oroxz8f1.g00tdsyn.oroy0708/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyumenomori%2Fp1dx14600%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyumenomori%2Fi%2F10000194%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 14879,
+          "reviewCount": 14903,
           "reviewAverage": 4.44,
           "shopName": "夢の森",
           "itemCode": "yumenomori:10000194",
+          "availability": 1,
           "score": 532.6800000000001,
           "relevance": 142
         },
@@ -1715,22 +1818,8 @@
           "reviewAverage": 4.67,
           "shopName": "EcoFlow公式楽天市場店",
           "itemCode": "ecoflow:10000132",
+          "availability": 1,
           "score": 537.74,
-          "relevance": 136
-        },
-        {
-          "name": "27w 防寒用品",
-          "titleShort": "27w 防寒用品",
-          "titleRaw": "モバイルバッテリー 【クーポンで3,170円●楽天1位●Max27w急速充電】 60000mAh 大容量 モバイルバッテリー 大容量 小型 SCP22.5W 高速充電 3台同時 LED残量表示 懐中電灯 携帯充電器 安全回路保護 持ち運び便利 PSE認証 電熱ベスト/電気毛布用 地震対策 父の日",
-          "price": 4380,
-          "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/beneru/cabinet/s22/s22_main-a.jpg",
-          "summary": "モバイルバッテリー 軽量 60000mAh超大容量 Max27w急速充電 バッテリー 大容量 SCP 22.5W 高速充電 USB充電 防災グッズ 停電対策 旅行 出張 アウトドア 停電 防災グッズ 父の日 ギフト",
-          "url": "https://hb.afl.rakuten.co.jp/hgc/g00unctn.oroxz6ee.g00unctn.oroy09ec/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbeneru%2Fs22%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbeneru%2Fi%2F10000014%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 2532,
-          "reviewAverage": 4.54,
-          "shopName": "BeniLeaf",
-          "itemCode": "beneru:10000014",
-          "score": 534.88,
           "relevance": 136
         },
         {
@@ -1741,10 +1830,11 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/yumenomori/cabinet/09856724/t05yh2180.jpg",
           "summary": "【一年間保証 PSE認証】 モバイルバッテリー 持運び 通勤 通学 出張 空調ウェア 首掛け扇風機 電気毛布 電熱ベスト ネッククラー 4.5ALED懐中灯 iPhone/ iPadmini /andoroid対応",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00tdsyn.oroxz8f1.g00tdsyn.oroy0708/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyumenomori%2Fp1t05cdbhe%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyumenomori%2Fi%2F10000055%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 7043,
+          "reviewCount": 7048,
           "reviewAverage": 4.34,
           "shopName": "夢の森",
           "itemCode": "yumenomori:10000055",
+          "availability": 1,
           "score": 530.48,
           "relevance": 138
         },
@@ -1760,6 +1850,7 @@
           "reviewAverage": 4.23,
           "shopName": "ARTPIECE",
           "itemCode": "artpiece:10000904",
+          "availability": 1,
           "score": 528.06,
           "relevance": 138
         },
@@ -1775,8 +1866,25 @@
           "reviewAverage": 4.57,
           "shopName": "アンカー・ダイレクト楽天市場店",
           "itemCode": "anker:10001745",
+          "availability": 1,
           "score": 520.69,
           "relevance": 144
+        },
+        {
+          "name": "27w 防寒用品",
+          "titleShort": "27w 防寒用品",
+          "titleRaw": "モバイルバッテリー 【48Hセール！2,980円●楽天1位●Max27w急速充電】 60000mAh 大容量 モバイルバッテリー 大容量 小型 SCP22.5W 高速充電 3台同時 LED残量表示 懐中電灯 携帯充電器 安全回路保護 持ち運び便利 PSE認証 電熱ベスト/電気毛布用 地震対策 父の日",
+          "price": 4380,
+          "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/beneru/cabinet/ts/s22_2980-m2.jpg",
+          "summary": "モバイルバッテリー 軽量 60000mAh超大容量 Max27w急速充電 バッテリー 大容量 SCP 22.5W 高速充電 USB充電 防災グッズ 停電対策 旅行 出張 アウトドア 停電 防災グッズ 父の日 ギフト",
+          "url": "https://hb.afl.rakuten.co.jp/hgc/g00unctn.oroxz6ee.g00unctn.oroy09ec/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbeneru%2Fs22%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbeneru%2Fi%2F10000014%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
+          "reviewCount": 2535,
+          "reviewAverage": 4.54,
+          "shopName": "BeniLeaf",
+          "itemCode": "beneru:10000014",
+          "availability": 1,
+          "score": 534.88,
+          "relevance": 124
         }
       ]
     },
@@ -1807,6 +1915,7 @@
           "reviewAverage": 4.5,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000008",
+          "availability": 1,
           "score": 534,
           "relevance": 156
         },
@@ -1818,10 +1927,11 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0112807065.jpg",
           "summary": "10年 純水 長期保存水 10年保存 ペットボトル ミネラルウォーター 備蓄用 備蓄水 保存用 まとめ買い 断水 地震 防災キット 7年 以上 5年 以上 アコール",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 1220,
+          "reviewCount": 1222,
           "reviewAverage": 4.74,
           "shopName": "海洋深層水のアコール",
           "itemCode": "akol:10000484",
+          "availability": 1,
           "score": 539.28,
           "relevance": 135
         },
@@ -1837,6 +1947,7 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000522",
+          "availability": 1,
           "score": 402.34000000000003,
           "relevance": 160
         },
@@ -1852,6 +1963,7 @@
           "reviewAverage": 4.76,
           "shopName": "海洋深層水のアコール",
           "itemCode": "akol:10000693",
+          "availability": 1,
           "score": 345.52,
           "relevance": 135
         },
@@ -1867,6 +1979,7 @@
           "reviewAverage": 4.59,
           "shopName": "ふくしまの防災 HIH ヒカリネット",
           "itemCode": "nayami-kaiketu:10021116",
+          "availability": 1,
           "score": 324.48,
           "relevance": 130
         },
@@ -1882,6 +1995,7 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000260",
+          "availability": 1,
           "score": 251.14000000000001,
           "relevance": 192
         },
@@ -1897,6 +2011,7 @@
           "reviewAverage": 4.71,
           "shopName": "ICSselection-イクスセレクション-",
           "itemCode": "ix-ix:10001270",
+          "availability": 1,
           "score": 222.92000000000002,
           "relevance": 158
         },
@@ -1912,6 +2027,7 @@
           "reviewAverage": 4.75,
           "shopName": "海洋深層水のアコール",
           "itemCode": "akol:10001104",
+          "availability": 1,
           "score": 242.95,
           "relevance": 135
         },
@@ -1927,6 +2043,7 @@
           "reviewAverage": 4.63,
           "shopName": "ふくしまの防災 HIH ヒカリネット",
           "itemCode": "nayami-kaiketu:10021146",
+          "availability": 1,
           "score": 245.26,
           "relevance": 126
         },
@@ -1942,6 +2059,7 @@
           "reviewAverage": 4.51,
           "shopName": "住まいと暮らしの110番",
           "itemCode": "lock110:10121967",
+          "availability": 1,
           "score": 180.97,
           "relevance": 178
         },
@@ -1957,6 +2075,7 @@
           "reviewAverage": 4.69,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10001325",
+          "availability": 1,
           "score": 222.28000000000003,
           "relevance": 133
         },
@@ -1972,6 +2091,7 @@
           "reviewAverage": 4.86,
           "shopName": "海洋深層水のアコール",
           "itemCode": "akol:10000703",
+          "availability": 1,
           "score": 214.77,
           "relevance": 135
         }
@@ -2004,6 +2124,7 @@
           "reviewAverage": 4.5,
           "shopName": "防災ダイレクト 楽天市場店",
           "itemCode": "pro-bousai:10000008",
+          "availability": 1,
           "score": 534,
           "relevance": 132
         },
@@ -2019,6 +2140,7 @@
           "reviewAverage": 4.57,
           "shopName": "防災備蓄の倉庫番!災害対策本舗",
           "itemCode": "saigaitaisakuhonpo:10000522",
+          "availability": 1,
           "score": 402.34000000000003,
           "relevance": 144
         },
@@ -2030,11 +2152,12 @@
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/bos-shop/cabinet/09120421/khj_4set_100.jpg",
           "summary": "ご家庭や会社の備蓄に（4人で約5日分）",
           "url": "https://hb.afl.rakuten.co.jp/hgc/g00sok0n.oroxz10d.g00sok0n.oroy0718/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbos-shop%2Fbos-1353%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbos-shop%2Fi%2F10000148%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 506,
+          "reviewCount": 508,
           "reviewAverage": 4.71,
           "shopName": "BOS-SHOP",
           "itemCode": "bos-shop:10000148",
-          "score": 361.32000000000005,
+          "availability": 1,
+          "score": 362.22,
           "relevance": 162
         },
         {
@@ -2049,6 +2172,7 @@
           "reviewAverage": 4.59,
           "shopName": "ふくしまの防災 HIH ヒカリネット",
           "itemCode": "nayami-kaiketu:10021116",
+          "availability": 1,
           "score": 324.48,
           "relevance": 138
         },
@@ -2064,6 +2188,7 @@
           "reviewAverage": 4.68,
           "shopName": "BOS-SHOP",
           "itemCode": "bos-shop:10000067",
+          "availability": 1,
           "score": 267.51,
           "relevance": 162
         },
@@ -2079,6 +2204,7 @@
           "reviewAverage": 4.64,
           "shopName": "ふくしまの防災 HIH ヒカリネット",
           "itemCode": "nayami-kaiketu:10021175",
+          "availability": 1,
           "score": 279.23,
           "relevance": 138
         },
@@ -2094,13 +2220,14 @@
           "reviewAverage": 4.62,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10016016",
+          "availability": 1,
           "score": 244.14,
           "relevance": 170
         },
         {
           "name": "5年保存 12食 非常食",
           "titleShort": "5年保存 12食 非常食",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
+          "titleRaw": "非常食セット 5年保存 アルファ米 4日分 12種類 12食セット マジックライス パスタ アルファー米 お米 ご飯 保存食セット 防災食セット 防災グッズ 防災セット 備蓄品 長期保存食 帰宅困難者対策 高齢者 登山 海外旅行",
           "price": 5780,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10009491-01r.jpg",
           "summary": "【週間ランキング1位獲得！】白米・わかめ・青菜・梅じゃこ・五目・ドライカレー・野菜ピラフ・チャーハン・根菜ご飯＆パスタ3種類の全12種類セット",
@@ -2109,6 +2236,7 @@
           "reviewAverage": 4.67,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10009491",
+          "availability": 1,
           "score": 266.39,
           "relevance": 142
         },
@@ -2124,6 +2252,7 @@
           "reviewAverage": 4.71,
           "shopName": "BOS-SHOP",
           "itemCode": "bos-shop:10000070",
+          "availability": 1,
           "score": 234.42000000000002,
           "relevance": 162
         },
@@ -2139,6 +2268,7 @@
           "reviewAverage": 4.66,
           "shopName": "BOS-SHOP",
           "itemCode": "bos-shop:10000144",
+          "availability": 1,
           "score": 225.67000000000002,
           "relevance": 162
         },
@@ -2154,13 +2284,14 @@
           "reviewAverage": 4.55,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10020901",
+          "availability": 1,
           "score": 246.4,
           "relevance": 125
         },
         {
           "name": "4個 防寒用品",
           "titleShort": "4個 防寒用品",
-          "titleRaw": "【 7/20限定 確率1/2 最大100％P還元 】 【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
+          "titleRaw": "【メール便OK（4個まで）】防寒・防風アルミ寝袋 防災 アルミシート サバイバルシート 防寒 簡易毛布 ブランケット 寝袋 防災グッズ 防災セット 非常時 緊急時 災害時 帰宅困難者対策 レスキュー 備蓄品 睡眠",
           "price": 467,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001144-01r.jpg",
           "summary": "【週間ランキング1位獲得！】楽天最安値に挑戦！軽量・コンパクトな携帯寝袋。大人1人楽々寝られる大きさです。小さくたためて便利",
@@ -2169,6 +2300,7 @@
           "reviewAverage": 4.58,
           "shopName": "防災用品・災害対策 ピースアップ",
           "itemCode": "peaceup:10001144",
+          "availability": 1,
           "score": 229.96,
           "relevance": 134
         }
