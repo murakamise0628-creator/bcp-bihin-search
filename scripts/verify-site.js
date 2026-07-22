@@ -233,7 +233,11 @@ if (paidProductEnabled) {
     const requiredMarkers = [
       'data-paid-kit-page',
       "trackEvent('paid_kit_offer_view'",
+      "trackEvent('paid_kit_qualified_view'",
       "trackEvent('paid_kit_checkout_click'",
+      'data-paid-kit-section="paid-kit-screens"',
+      'data-paid-kit-section="paid-kit-conditions"',
+      "document.visibilityState!=='visible'",
       'assets/paid-kit/basic-input.png',
       'assets/paid-kit/inventory-gap.png',
       'kit-example',
