@@ -1064,6 +1064,8 @@ function clientScript() {
           product_id: cleanText(anchor.dataset.productId || anchor.dataset.productName),
           product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
           product_price: Number(anchor.dataset.productPrice || 0),
+          affiliate_rate: Number(anchor.dataset.affiliateRate || 0),
+          estimated_commission_before_caps: Number(anchor.dataset.estimatedCommission || 0),
           product_category: anchor.dataset.productCategory || '',
           product_position: Number(anchor.dataset.productPosition || 0),
           cta_location: ctaLocation(anchor),
@@ -1364,7 +1366,8 @@ function clientScript() {
 }
 
 function productTrackingAttrs(product, category = '', position = '') {
-  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}" data-product-position="${esc(position)}" data-variable-price="${hasAmbiguousToiletQuantity(product) ? 'true' : 'false'}"`;
+  const estimatedCommission = Number(product.price || 0) * Number(product.affiliateRate || 0) / 100;
+  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-affiliate-rate="${esc(product.affiliateRate || '')}" data-estimated-commission="${esc(Math.round(estimatedCommission))}" data-product-category="${esc(category)}" data-product-position="${esc(position)}" data-variable-price="${hasAmbiguousToiletQuantity(product) ? 'true' : 'false'}"`;
 }
 
 function displayPrice(product) {
