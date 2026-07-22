@@ -267,7 +267,7 @@
 
     /* subpage: product cards */
     .product-list{display:grid;gap:14px}
-    .product{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:start}
+    .product{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;align-items:start}
     .product-img{width:150px;height:150px;object-fit:contain;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:8px}
     .product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:var(--paper)}
     .product h2{font-size:19px;font-family:var(--font-body);font-weight:900;overflow-wrap:anywhere;margin-bottom:6px}
@@ -382,10 +382,11 @@
       .kit-steps li:nth-child(n+3){border-top:1px solid var(--rule)}
     }
     @media(max-width:760px){
-      main{padding:14px 14px 48px;max-width:100%}
+      main{width:100%;min-width:0;padding:14px 14px 48px;max-width:100%}
       body::before{height:4px}
       .site-head{align-items:flex-start;flex-direction:column;gap:8px}
-      .nav{gap:12px}
+      .site-head,.nav,.hero,.hero>*,.hero-meta,.jump-nav{width:100%;min-width:0;max-width:100%}
+      .nav{gap:12px;flex-wrap:wrap}
       .nav a,.button,.small-button{white-space:nowrap}
       .home-hero{grid-template-columns:1fr}
       .hero-main{padding:30px 2px 28px}
@@ -425,19 +426,21 @@
       .section-title{display:block}
       .decision-strip.flow{grid-template-columns:1fr}
       .share-bar{flex-direction:column;align-items:flex-start;gap:10px}
-      .jump-nav{gap:6px}
+      .jump-nav{gap:6px;overflow:visible}
+      .hero-meta .pill,.jump-nav .chip{max-width:100%;white-space:normal;overflow-wrap:anywhere}
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
       .hero{padding:26px 2px 20px}
-      .hero h1{font-size:clamp(26px,7.6vw,34px)}
+      .hero h1{width:100%;font-size:clamp(25px,7.1vw,32px);max-width:100%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
       .lead{font-size:16px}
       .scenario-card{grid-template-columns:72px 1fr}
       .scenario-card img{width:72px;height:72px}
       .lane-card{grid-template-columns:82px 1fr}
       .lane-card img{width:82px;height:82px}
-      .product{grid-template-columns:104px 1fr;gap:12px}
-      .product-img{width:104px;height:104px}
+      .product{grid-template-columns:88px minmax(0,1fr);gap:10px}
+      .product-img{width:88px;height:88px}
+      .product .button{width:100%;padding-inline:10px;white-space:normal;text-align:center;line-height:1.45}
       .product h2{font-size:17px}
       .card{padding:18px}
       .kit-hero{grid-template-columns:1fr;gap:20px;padding:34px 0 28px}
@@ -461,7 +464,7 @@
 </section>
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"運営情報・広告掲載・プライバシー","description":"事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-07-22T21:16:36.402Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="https://jigyousho-bousai.com/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer><script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"運営情報・広告掲載・プライバシー","description":"事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-07-22T21:37:25.222Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="https://jigyousho-bousai.com/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;

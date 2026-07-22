@@ -267,7 +267,7 @@
 
     /* subpage: product cards */
     .product-list{display:grid;gap:14px}
-    .product{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:start}
+    .product{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;align-items:start}
     .product-img{width:150px;height:150px;object-fit:contain;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:8px}
     .product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:var(--paper)}
     .product h2{font-size:19px;font-family:var(--font-body);font-weight:900;overflow-wrap:anywhere;margin-bottom:6px}
@@ -382,10 +382,11 @@
       .kit-steps li:nth-child(n+3){border-top:1px solid var(--rule)}
     }
     @media(max-width:760px){
-      main{padding:14px 14px 48px;max-width:100%}
+      main{width:100%;min-width:0;padding:14px 14px 48px;max-width:100%}
       body::before{height:4px}
       .site-head{align-items:flex-start;flex-direction:column;gap:8px}
-      .nav{gap:12px}
+      .site-head,.nav,.hero,.hero>*,.hero-meta,.jump-nav{width:100%;min-width:0;max-width:100%}
+      .nav{gap:12px;flex-wrap:wrap}
       .nav a,.button,.small-button{white-space:nowrap}
       .home-hero{grid-template-columns:1fr}
       .hero-main{padding:30px 2px 28px}
@@ -425,19 +426,21 @@
       .section-title{display:block}
       .decision-strip.flow{grid-template-columns:1fr}
       .share-bar{flex-direction:column;align-items:flex-start;gap:10px}
-      .jump-nav{gap:6px}
+      .jump-nav{gap:6px;overflow:visible}
+      .hero-meta .pill,.jump-nav .chip{max-width:100%;white-space:normal;overflow-wrap:anywhere}
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
       .hero{padding:26px 2px 20px}
-      .hero h1{font-size:clamp(26px,7.6vw,34px)}
+      .hero h1{width:100%;font-size:clamp(25px,7.1vw,32px);max-width:100%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
       .lead{font-size:16px}
       .scenario-card{grid-template-columns:72px 1fr}
       .scenario-card img{width:72px;height:72px}
       .lane-card{grid-template-columns:82px 1fr}
       .lane-card img{width:82px;height:82px}
-      .product{grid-template-columns:104px 1fr;gap:12px}
-      .product-img{width:104px;height:104px}
+      .product{grid-template-columns:88px minmax(0,1fr);gap:10px}
+      .product-img{width:88px;height:88px}
+      .product .button{width:100%;padding-inline:10px;white-space:normal;text-align:center;line-height:1.45}
       .product h2{font-size:17px}
       .card{padding:18px}
       .kit-hero{grid-template-columns:1fr;gap:20px;padding:34px 0 28px}
@@ -518,7 +521,7 @@
   <section class="section"><div class="section-title"><div><p class="eyebrow">揃え漏れチェック</p><h2>あわせて確認したい備蓄</h2></div><p class="notice">水・食料・トイレ・電源・防寒に漏れがないかを確認</p></div><div class="link-list fill-list"><a href="https://jigyousho-bousai.com/pages/toilet-office.html"><strong>簡易トイレ</strong><span class="sub">1人1日5回 × 人数 × 日数で確認</span></a><a href="https://jigyousho-bousai.com/pages/water-food-stock.html"><strong>保存水・非常食</strong><span class="sub">水3L・3食 × 人数 × 日数で確認</span></a><a href="https://jigyousho-bousai.com/pages/blackout-power.html"><strong>停電対策・電源</strong><span class="sub">使う機器の出力と時間から逆算</span></a><a href="https://jigyousho-bousai.com/pages/kitaku-konnansha.html"><strong>防寒・待機用品</strong><span class="sub">毛布・保温シートは1人1枚が目安</span></a><a href="https://jigyousho-bousai.com/pages/restaurant-dansui.html"><strong>衛生・断水対策</strong><span class="sub">手指衛生と片付け用の水を分ける</span></a></div></section>
   <section class="section faq" id="faq"><h2>FAQ</h2><details><summary>ポータブル電源は容量だけ見ればいいですか？</summary><p>容量Whに加えて、使う機器に必要な出力W数、充電方法、保管時の管理も確認します。</p></details><details><summary>停電対策で忘れやすいものは？</summary><p>充電ケーブル、延長コード、ライト、乾電池、通信手段の確認が抜けやすいです。</p></details><details><summary>会社の防災備蓄は何日分必要ですか？</summary><p>まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。</p></details><details><summary>事業所の簡易トイレは何回分必要ですか？</summary><p>目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。</p></details><details><summary>台風対策と地震対策で備えるものは違いますか？</summary><p>共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。</p></details></section>
   <section class="section card"><h2>注意点</h2><p>価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p><p>このページは災害別の入口です。実際の商品比較は、関連する比較ページで価格、レビュー、容量、回数、保存年数を確認してください。</p></section>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"事業所の停電対策｜必要な電源と備蓄","description":"事業所の停電対策｜必要な電源と備蓄。停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。 事業所の人数と待機日数から、水、食料、簡易トイレ、停電対策用品の必要量と関連する比較ページを確認できます。","url":"https://jigyousho-bousai.com/topics/power-outage.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-22T21:16:36.402Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"事業所の停電対策｜必要な電源と備蓄","item":"https://jigyousho-bousai.com/topics/power-outage.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"ポータブル電源は容量だけ見ればいいですか？","acceptedAnswer":{"@type":"Answer","text":"容量Whに加えて、使う機器に必要な出力W数、充電方法、保管時の管理も確認します。"}},{"@type":"Question","name":"停電対策で忘れやすいものは？","acceptedAnswer":{"@type":"Answer","text":"充電ケーブル、延長コード、ライト、乾電池、通信手段の確認が抜けやすいです。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><section class="share-bar" aria-label="このページを共有">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"事業所の停電対策｜必要な電源と備蓄","description":"事業所の停電対策｜必要な電源と備蓄。停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。 事業所の人数と待機日数から、水、食料、簡易トイレ、停電対策用品の必要量と関連する比較ページを確認できます。","url":"https://jigyousho-bousai.com/topics/power-outage.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-22T21:37:25.222Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"事業所の停電対策｜必要な電源と備蓄","item":"https://jigyousho-bousai.com/topics/power-outage.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"ポータブル電源は容量だけ見ればいいですか？","acceptedAnswer":{"@type":"Answer","text":"容量Whに加えて、使う機器に必要な出力W数、充電方法、保管時の管理も確認します。"}},{"@type":"Question","name":"停電対策で忘れやすいものは？","acceptedAnswer":{"@type":"Answer","text":"充電ケーブル、延長コード、ライト、乾電池、通信手段の確認が抜けやすいです。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><section class="share-bar" aria-label="このページを共有">
     <div><strong>このページを共有</strong><span class="notice">備蓄の相談や社内での検討にそのまま使えます</span></div>
     <div class="share-buttons">
       <a href="https://twitter.com/intent/tweet?text=%E4%BA%8B%E6%A5%AD%E6%89%80%E3%81%AE%E5%81%9C%E9%9B%BB%E5%AF%BE%E7%AD%96%EF%BD%9C%E5%BF%85%E8%A6%81%E3%81%AA%E9%9B%BB%E6%BA%90%E3%81%A8%E5%82%99%E8%93%84%20%7C%20%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E3%83%8A%E3%83%93&amp;url=https%3A%2F%2Fjigyousho-bousai.com%2Ftopics%2Fpower-outage.html" target="_blank" rel="noopener" data-share="x">Xで共有</a>
