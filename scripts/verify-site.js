@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { detectProductType, titleShort } = require('./fetch-products');
+const { detectProductType, titleShort, hasAmbiguousToiletQuantity } = require('./fetch-products');
 
 const projectRoot = path.resolve(__dirname, '..');
 const root = path.join(projectRoot, 'dist');
@@ -45,6 +45,30 @@ if (modelTitle.includes('2L') || !modelTitle.includes('非常用トイレ')) {
 if (detectProductType('長期保存天然水 500ml') !== 'water') {
   issues.push('product title classification failed: long-life natural water');
 }
+if (!hasAmbiguousToiletQuantity('簡易トイレ 20回分 60回分 120回分')) {
+  issues.push('product variant detection failed: multiple toilet quantities');
+}
+if (!hasAmbiguousToiletQuantity('簡易トイレ 10/100回分')) {
+  issues.push('product variant detection failed: slash-separated toilet quantities');
+}
+if (hasAmbiguousToiletQuantity('携帯トイレ 4回分×3袋セット')) {
+  issues.push('product variant detection failed: fixed pack quantity must remain eligible');
+}
+if (hasAmbiguousToiletQuantity('簡易トイレ 100回分（1回分×100袋）')) {
+  issues.push('product variant detection failed: fixed 100-pack must remain eligible');
+}
+if (hasAmbiguousToiletQuantity('簡易トイレ 100回分 1回分ずつ個包装')) {
+  issues.push('product variant detection failed: fixed individually wrapped pack must remain eligible');
+}
+if (!hasAmbiguousToiletQuantity('選べる3サイズ 最大120回分 簡易トイレ')) {
+  issues.push('product variant detection failed: selectable maximum quantity');
+}
+if (!hasAmbiguousToiletQuantity('防災セット 選べる3サイズ 最大120回分 簡易トイレ')) {
+  issues.push('product variant detection failed: toilet variant must not depend on product-type order');
+}
+if (!titleShort('トイレ凝固剤 100回分 10年保存').includes('トイレ用凝固剤')) {
+  issues.push('product title classification failed: coagulant-only product label');
+}
 
 for (const file of files) {
   const html = fs.readFileSync(file, 'utf8');
@@ -56,6 +80,11 @@ for (const file of files) {
   if (!html.includes("trackEvent('view_item_list'")) issues.push(`${relative}: GA4 item-list tracking missing`);
   if (!html.includes('index: params.product_position ? params.product_position - 1')) issues.push(`${relative}: GA4 item index must be zero-based`);
   const rakutenAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]*hb\.afl\.rakuten\.co\.jp[^"]*"[^>]*>/g)].map((match) => match[0]);
+  for (const anchor of rakutenAnchors) {
+    if (!/data-variable-price="(?:true|false)"/.test(anchor)) {
+      issues.push(`${relative}: Rakuten link missing variable-price disclosure marker`);
+    }
+  }
   for (const anchor of rakutenAnchors) {
     const position = Number(anchor.match(/data-product-position="(\d+)"/)?.[1] || 0);
     if (!position) issues.push(`${relative}: Rakuten link missing a positive product position`);
@@ -136,7 +165,23 @@ if (!validateProductRecord('water-food-stock', invalidSchemaFixture).some((item)
   issues.push('schemaVersion 2 validator accepted an invalid fixture');
 }
 for (const page of data.pages || []) {
-  if ((page.products || []).length < 8) issues.push(`${page.slug}: fewer than 8 products`);
+  const requiredCount = ['toilet-office', 'blackout-power', 'water-food-stock'].includes(page.slug) ? 12 : 8;
+  if ((page.products || []).length < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} products`);
+  const pageFile = path.join(root, 'pages', `${page.slug}.html`);
+  const pageHtml = fs.existsSync(pageFile) ? fs.readFileSync(pageFile, 'utf8') : '';
+  const displayedIds = new Set([...pageHtml.matchAll(/data-product-id="([^"]+)"/g)].map((match) => match[1]));
+  if (displayedIds.size < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} displayed product candidates`);
+  for (const product of page.products || []) {
+    if (hasAmbiguousToiletQuantity(product) && displayedIds.has(product.itemCode)) {
+      const marker = `data-product-id="${product.itemCode}"`;
+      const start = pageHtml.indexOf(marker);
+      const end = start >= 0 ? pageHtml.indexOf('>', start) : -1;
+      const attrs = start >= 0 && end >= 0 ? pageHtml.slice(start, end) : '';
+      if (!attrs.includes('data-variable-price="true"')) {
+        issues.push(`${page.slug}: ambiguous toilet quantity lacks variable-price marker (${product.itemCode})`);
+      }
+    }
+  }
   if (Number(data.schemaVersion || 0) >= 2) {
     for (const product of page.products || []) {
       for (const issue of validateProductRecord(page.slug, product)) {
