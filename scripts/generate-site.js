@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
-const { hasAmbiguousToiletQuantity, titleShort, prioritizeProductVariety } = require('./fetch-products');
+const { hasAmbiguousToiletQuantity, toiletUseCount, titleShort, prioritizeProductVariety } = require('./fetch-products');
 
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
@@ -387,10 +387,10 @@ function extractSpec(product) {
   if (hasAmbiguousToiletQuantity(product)) return '販売ページで回数を選択';
   const name = String(rawTitle(product));
   const years = name.match(/(\d{1,2})年保存/);
-  const toiletCount = name.match(/(\d{1,4})回分/);
+  const toiletCount = toiletUseCount(product);
   const wh = name.match(/(\d{3,5})Wh/i);
   const liters = name.match(/(\d+(?:\.\d+)?)L/);
-  if (toiletCount) return `${toiletCount[1]}回分`;
+  if (toiletCount) return `${toiletCount}回分`;
   if (wh) return `${wh[1]}Wh`;
   if (liters) return `${liters[1]}L`;
   if (years) return `${years[1]}年保存`;
@@ -451,8 +451,8 @@ function recommendationBasis(product) {
 function targetPeople(product) {
   if (hasAmbiguousToiletQuantity(product)) return '販売ページで回数を選択';
   const name = String(rawTitle(product));
-  const toilet = name.match(/(\d{2,5})回分/);
-  if (toilet) return `約${Math.max(1, Math.floor(Number(toilet[1]) / 5))}人1日分の目安`;
+  const toilet = toiletUseCount(product);
+  if (toilet) return `約${Math.max(1, Math.floor(toilet / 5))}人1日分の目安`;
   const people = name.match(/(\d{1,3})人用/);
   if (people) return `${people[1]}人用表記`;
   const meals = name.match(/(\d{1,4})食/);
@@ -780,7 +780,7 @@ ${socialImage}
 
     /* subpage: product cards */
     .product-list{display:grid;gap:14px}
-    .product{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:start}
+    .product{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;align-items:start}
     .product-img{width:150px;height:150px;object-fit:contain;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:8px}
     .product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:var(--paper)}
     .product h2{font-size:19px;font-family:var(--font-body);font-weight:900;overflow-wrap:anywhere;margin-bottom:6px}
@@ -895,10 +895,11 @@ ${socialImage}
       .kit-steps li:nth-child(n+3){border-top:1px solid var(--rule)}
     }
     @media(max-width:760px){
-      main{padding:14px 14px 48px;max-width:100%}
+      main{width:100%;min-width:0;padding:14px 14px 48px;max-width:100%}
       body::before{height:4px}
       .site-head{align-items:flex-start;flex-direction:column;gap:8px}
-      .nav{gap:12px}
+      .site-head,.nav,.hero,.hero>*,.hero-meta,.jump-nav{width:100%;min-width:0;max-width:100%}
+      .nav{gap:12px;flex-wrap:wrap}
       .nav a,.button,.small-button{white-space:nowrap}
       .home-hero{grid-template-columns:1fr}
       .hero-main{padding:30px 2px 28px}
@@ -938,19 +939,21 @@ ${socialImage}
       .section-title{display:block}
       .decision-strip.flow{grid-template-columns:1fr}
       .share-bar{flex-direction:column;align-items:flex-start;gap:10px}
-      .jump-nav{gap:6px}
+      .jump-nav{gap:6px;overflow:visible}
+      .hero-meta .pill,.jump-nav .chip{max-width:100%;white-space:normal;overflow-wrap:anywhere}
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
       .hero{padding:26px 2px 20px}
-      .hero h1{font-size:clamp(26px,7.6vw,34px)}
+      .hero h1{width:100%;font-size:clamp(25px,7.1vw,32px);max-width:100%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
       .lead{font-size:16px}
       .scenario-card{grid-template-columns:72px 1fr}
       .scenario-card img{width:72px;height:72px}
       .lane-card{grid-template-columns:82px 1fr}
       .lane-card img{width:82px;height:82px}
-      .product{grid-template-columns:104px 1fr;gap:12px}
-      .product-img{width:104px;height:104px}
+      .product{grid-template-columns:88px minmax(0,1fr);gap:10px}
+      .product-img{width:88px;height:88px}
+      .product .button{width:100%;padding-inline:10px;white-space:normal;text-align:center;line-height:1.45}
       .product h2{font-size:17px}
       .card{padding:18px}
       .kit-hero{grid-template-columns:1fr;gap:20px;padding:34px 0 28px}
@@ -1612,6 +1615,18 @@ function pageDescription(page, note) {
   return `${page.title}。${note.conclusion} ${note.problem} 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。`;
 }
 
+function pageSeoTitle(page) {
+  const titles = {
+    'office-bichiku': '会社の防災備蓄セット比較｜人数・3日分で選ぶ',
+    'toilet-office': '事業所の簡易トイレは何回分？100回・200回を比較',
+    'blackout-power': '会社の停電対策用品比較｜ポータブル電源・ライト',
+    'water-food-stock': '会社の保存水・非常食は何日分？備蓄量と商品比較',
+    'portable-power-kaigo': '介護施設向けポータブル電源比較｜容量・出力で選ぶ',
+    'restaurant-dansui': '飲食店の断水対策用品比較｜給水・衛生・簡易トイレ'
+  };
+  return titles[page.slug] || page.title;
+}
+
 function pageHtml(page) {
   const baseNote = pageNotes[page.slug] || {
     audience: '事業所',
@@ -1680,7 +1695,7 @@ function pageHtml(page) {
     itemListJsonLd(products, canonical),
     productJsonLd(products)
   )}`;
-  return layout(page.title, body, description, canonical, { crumbs: [page.title], ogImage: products.find((product) => product.image)?.image || '' });
+  return layout(pageSeoTitle(page), body, description, canonical, { crumbs: [page.title], ogImage: products.find((product) => product.image)?.image || '' });
 }
 
 function topicHtml(topic) {
