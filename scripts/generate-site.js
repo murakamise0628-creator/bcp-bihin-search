@@ -1066,6 +1066,7 @@ function clientScript() {
           product_price: Number(anchor.dataset.productPrice || 0),
           affiliate_rate: Number(anchor.dataset.affiliateRate || 0),
           estimated_commission_before_caps: Number(anchor.dataset.estimatedCommission || 0),
+          variable_price: anchor.dataset.variablePrice || 'false',
           product_category: anchor.dataset.productCategory || '',
           product_position: Number(anchor.dataset.productPosition || 0),
           cta_location: ctaLocation(anchor),
@@ -1173,11 +1174,15 @@ function clientScript() {
           stock_plan_people:paidPlan.people,
           stock_plan_days:paidPlan.days
         });
-        var paidKitEngagement={ activeSeconds:0, elapsed:false, screens:false, conditions:false, tracked:false };
+        var paidKitQualifiedKey='paid_kit_qualified_view:'+location.pathname;
+        var paidKitAlreadyQualified=false;
+        try{ paidKitAlreadyQualified=sessionStorage.getItem(paidKitQualifiedKey)==='1'; }catch(error){}
+        var paidKitEngagement={ activeSeconds:0, elapsed:false, screens:false, conditions:false, tracked:paidKitAlreadyQualified };
         function trackQualifiedPaidKitView(){
           if(paidKitEngagement.tracked || !paidKitEngagement.elapsed || !paidKitEngagement.conditions) return;
           if(!paidPlan.active && !paidKitEngagement.screens) return;
           paidKitEngagement.tracked=true;
+          try{ sessionStorage.setItem(paidKitQualifiedKey,'1'); }catch(error){}
           trackEvent('paid_kit_qualified_view',{
             product_name:cleanText(paidKitPage.dataset.productName),
             value:Number(paidKitPage.dataset.productPrice || 0),

@@ -285,8 +285,11 @@ for (const page of data.pages || []) {
 }
 
 const generatedClientScript = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-if (!generatedClientScript.includes('estimated_commission_before_caps') || !generatedClientScript.includes('affiliate_rate')) {
+if (!generatedClientScript.includes('estimated_commission_before_caps') || !generatedClientScript.includes('affiliate_rate') || !generatedClientScript.includes('variable_price')) {
   issues.push('GA4 affiliate value event parameters missing');
+}
+if (!generatedClientScript.includes("sessionStorage.setItem(paidKitQualifiedKey,'1')")) {
+  issues.push('paid-kit qualified view session deduplication missing');
 }
 
 if (paidProductEnabled) {
