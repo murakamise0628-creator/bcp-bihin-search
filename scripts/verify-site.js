@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { detectProductType, titleShort } = require('./fetch-products');
 
 const projectRoot = path.resolve(__dirname, '..');
 const root = path.join(projectRoot, 'dist');
@@ -21,6 +22,32 @@ const files = [
 const knownFiles = new Set(files.map((file) => path.resolve(file)));
 const forbidden = /編集方針|参考サイトから反映|反映した入口|TOPの上部|商品取得を改善|取得条件|プロンプト|作業メモ|AI臭|UI上|次工程/;
 const issues = [];
+
+const productTitleFixtures = [
+  ['防災セット 2人用 保存水 簡易トイレ 防災リュック', 'disaster-set', '防災セット'],
+  ['折りたたみ ウォータータンク 15L 給水袋 保存水', 'water-container', '給水用品'],
+  ['簡易トイレ 100回分 15年保存 防災セット', 'toilet', '非常用トイレ'],
+  ['モバイルバッテリー 60000mAh Max27W 電気毛布用', 'mobile-power', 'モバイルバッテリー'],
+  ['保存水 2L 6本 5年保存', 'water', '保存水']
+];
+for (const [raw, expectedType, expectedLabel] of productTitleFixtures) {
+  const actualType = detectProductType(raw);
+  const actualTitle = titleShort(raw);
+  if (actualType !== expectedType || !actualTitle.includes(expectedLabel)) {
+    issues.push(`product title classification failed: ${raw}`);
+  }
+}
+const powerTitle = titleShort('Jackery ポータブル電源 1070Wh 定格1500W');
+if (!powerTitle.includes('1070Wh') || !powerTitle.includes('1500W') || powerTitle.includes('1070W ')) {
+  issues.push('product title classification failed: Wh must not be duplicated as W');
+}
+const modelTitle = titleShort('簡単トイレ OKT02L 100回分');
+if (modelTitle.includes('2L') || !modelTitle.includes('非常用トイレ')) {
+  issues.push('product title classification failed: model number must not become capacity');
+}
+if (detectProductType('長期保存天然水 500ml') !== 'water') {
+  issues.push('product title classification failed: long-life natural water');
+}
 
 for (const file of files) {
   const html = fs.readFileSync(file, 'utf8');
@@ -68,8 +95,45 @@ for (const file of files) {
 }
 
 const data = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'products.json'), 'utf8'));
+const expectedTypes = {
+  'toilet-office': new Set(['toilet']),
+  'water-food-stock': new Set(['water', 'food']),
+  'blackout-power': new Set(['power', 'mobile-power', 'lighting'])
+};
+function validateProductRecord(pageSlug, product) {
+  const recordIssues = [];
+  const required = ['productType', 'genreId', 'fetchedAt', 'sourceKeyword'];
+  for (const field of required) {
+    if (!product[field]) recordIssues.push(`missing ${field}`);
+  }
+  if (!Object.prototype.hasOwnProperty.call(product, 'affiliateRate')) recordIssues.push('missing affiliateRate');
+  const inferredType = detectProductType(product.titleRaw || product.name);
+  if (product.productType !== inferredType) recordIssues.push(`stored type ${product.productType} differs from ${inferredType}`);
+  const allowed = expectedTypes[pageSlug];
+  if (allowed && !allowed.has(inferredType)) recordIssues.push(`mismatched type ${inferredType}`);
+  return recordIssues;
+}
+
+const validSchemaFixture = {
+  productType: 'water', genreId: '100316', fetchedAt: '2026-07-23T00:00:00.000Z',
+  sourceKeyword: '長期保存水 事業所', affiliateRate: 4, titleRaw: '5年保存 天然水 2L'
+};
+const invalidSchemaFixture = { ...validSchemaFixture, productType: 'water', titleRaw: '給水タンク 10L' };
+if (validateProductRecord('water-food-stock', validSchemaFixture).length) {
+  issues.push('schemaVersion 2 validator rejected a valid fixture');
+}
+if (!validateProductRecord('water-food-stock', invalidSchemaFixture).some((item) => item.includes('mismatched type'))) {
+  issues.push('schemaVersion 2 validator accepted an invalid fixture');
+}
 for (const page of data.pages || []) {
   if ((page.products || []).length < 8) issues.push(`${page.slug}: fewer than 8 products`);
+  if (Number(data.schemaVersion || 0) >= 2) {
+    for (const product of page.products || []) {
+      for (const issue of validateProductRecord(page.slug, product)) {
+        issues.push(`${page.slug}: ${product.itemCode || product.name} ${issue}`);
+      }
+    }
+  }
 }
 
 const robots = fs.readFileSync(path.join(root, 'robots.txt'), 'utf8');
