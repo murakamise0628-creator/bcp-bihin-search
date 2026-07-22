@@ -217,6 +217,7 @@ function normalizeProducts(items) {
       reviewAverage: item.reviewAverage || 0,
       shopName: item.shopName || '',
       itemCode: item.itemCode || '',
+      availability: item.availability === 0 ? 0 : 1,
       score: score(item)
     }));
 }

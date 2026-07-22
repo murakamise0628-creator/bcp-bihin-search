@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const root = path.resolve(__dirname, '..');
+const projectRoot = path.resolve(__dirname, '..');
+const root = path.join(projectRoot, 'dist');
 
 function walkHtml(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -26,6 +27,9 @@ for (const file of files) {
   const relative = path.relative(root, file);
   if ((html.match(/<h1[\s>]/g) || []).length !== 1) issues.push(`${relative}: H1 must appear once`);
   if (!html.includes('G-LN824MSD7X')) issues.push(`${relative}: GA4 tag missing`);
+  if (!html.includes("trackEvent('rakuten_click'")) issues.push(`${relative}: Rakuten click tracking missing`);
+  if (!html.includes("trackEvent('select_item'")) issues.push(`${relative}: GA4 select_item tracking missing`);
+  if (!html.includes("trackEvent('view_item_list'")) issues.push(`${relative}: GA4 item-list tracking missing`);
   if (!/<title>[^<]+<\/title>/.test(html)) issues.push(`${relative}: title missing`);
   if (!/<meta name="description" content="[^"]+">/.test(html)) issues.push(`${relative}: description missing`);
   const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1] || '';
@@ -42,7 +46,15 @@ for (const file of files) {
   if (!html.includes('"citation":[')) issues.push(`${relative}: WebPage citation metadata missing`);
 
   for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
-    try { JSON.parse(match[1]); } catch { issues.push(`${relative}: invalid JSON-LD`); }
+    try {
+      const data = JSON.parse(match[1]);
+      const nodes = data['@graph'] || [data];
+      for (const node of nodes) {
+        if (node['@type'] === 'Product' && node.offers && !node.offers.availability) {
+          issues.push(`${relative}: Product offer availability missing`);
+        }
+      }
+    } catch { issues.push(`${relative}: invalid JSON-LD`); }
   }
 
   for (const match of html.matchAll(/href="([^"]+)"/g)) {
@@ -55,7 +67,7 @@ for (const file of files) {
   }
 }
 
-const data = JSON.parse(fs.readFileSync(path.join(root, 'data', 'products.json'), 'utf8'));
+const data = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'products.json'), 'utf8'));
 for (const page of data.pages || []) {
   if ((page.products || []).length < 8) issues.push(`${page.slug}: fewer than 8 products`);
 }
