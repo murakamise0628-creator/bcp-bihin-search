@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
-const { hasAmbiguousToiletQuantity, titleShort } = require('./fetch-products');
+const { hasAmbiguousToiletQuantity, titleShort, prioritizeProductVariety } = require('./fetch-products');
 
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
@@ -463,7 +463,7 @@ function targetPeople(product) {
 function effectiveProducts(page, note, minCount = 8) {
   const own = (page.products || [])
     .map((product) => ({ ...product, relatedCandidate: false }));
-  if (own.length >= minCount) return own;
+  if (own.length >= minCount) return prioritizeProductVariety(own);
 
   const seen = new Set(own.map((product) => product.itemCode || product.url || rawTitle(product)));
   const related = [];
@@ -478,7 +478,7 @@ function effectiveProducts(page, note, minCount = 8) {
     }
     if (own.length + related.length >= minCount) break;
   }
-  return [...own, ...related];
+  return prioritizeProductVariety([...own, ...related]);
 }
 
 function quantityEstimateSection() {

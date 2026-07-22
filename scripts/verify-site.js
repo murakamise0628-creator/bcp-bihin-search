@@ -2,7 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
-const { detectProductType, titleShort, hasAmbiguousToiletQuantity } = require('./fetch-products');
+const {
+  detectProductType,
+  titleShort,
+  hasAmbiguousToiletQuantity,
+  prioritizeProductVariety
+} = require('./fetch-products');
 
 const projectRoot = path.resolve(__dirname, '..');
 const root = path.join(projectRoot, 'dist');
@@ -69,6 +74,37 @@ if (modelTitle.includes('2L') || !modelTitle.includes('非常用トイレ')) {
 }
 if (detectProductType('長期保存天然水 500ml') !== 'water') {
   issues.push('product title classification failed: long-life natural water');
+}
+if (detectProductType('大雨対策 吸水バッグ 20枚') !== 'flood-control') {
+  issues.push('product title classification failed: absorbent flood bag must be flood-control');
+}
+if (detectProductType('業務用 ウェットティッシュ 防災備蓄') !== 'hygiene') {
+  issues.push('product title classification failed: emergency wipes must be hygiene');
+}
+if (!titleShort('業務用 ウェットティッシュ 20枚 防災備蓄').includes('除菌ウェットティッシュ')) {
+  issues.push('product title shortening failed: hygiene item must keep its practical use');
+}
+for (const compoundSetTitle of ['ヘルメット付き 防災セット 2人用', '防災セット 2人用 ヘルメット付き', '2人用 防災セット リュック シュラフ ラジオ 非常用トイレ 20回分']) {
+  if (detectProductType(compoundSetTitle) !== 'disaster-set') {
+    issues.push('product title classification failed: bundled disaster set must not depend on word order');
+  }
+}
+if (detectProductType('防災ヘルメット 単品') !== 'safety') {
+  issues.push('product title classification failed: standalone helmet must be safety');
+}
+for (const toiletSetTitle of ['ヘルメット付き 簡易トイレ 100回分 防災セット', '非常用トイレ 100回分 15年保存 防災セット']) {
+  if (detectProductType(toiletSetTitle) !== 'toilet') {
+    issues.push('product title classification failed: toilet-specific quantity must not depend on word order');
+  }
+}
+const varietyFixture = prioritizeProductVariety([
+  { itemCode: 'a1', titleShort: '同一商品 100回分', productType: 'toilet' },
+  { itemCode: 'a2', titleShort: '同一商品 100回分', productType: 'toilet' },
+  { itemCode: 'a3', titleShort: '別商品 50回分', productType: 'toilet' },
+  { itemCode: 'b1', titleShort: '保存水 2L', productType: 'water' }
+]);
+if (varietyFixture.map((item) => item.itemCode).join(',') !== 'a1,b1,a3,a2') {
+  issues.push('product variety ordering failed: types and semantic duplicates are not prioritized correctly');
 }
 if (!hasAmbiguousToiletQuantity('簡易トイレ 20回分 60回分 120回分')) {
   issues.push('product variant detection failed: multiple toilet quantities');
