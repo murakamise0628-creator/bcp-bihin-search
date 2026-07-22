@@ -1,9 +1,23 @@
 const fs = require('fs');
 const path = require('path');
+const net = require('net');
 const { detectProductType, titleShort, hasAmbiguousToiletQuantity } = require('./fetch-products');
 
 const projectRoot = path.resolve(__dirname, '..');
 const root = path.join(projectRoot, 'dist');
+const paidProduct = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'paid-product.json'), 'utf8'));
+const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
+const paidProductEnabled = paidProduct.published || paidProductPreview;
+const paidProductCheckoutUrl = process.env.PAID_KIT_CHECKOUT_URL || paidProduct.checkoutUrl || '';
+const paidProductAllowedHosts = (process.env.PAID_KIT_ALLOWED_HOSTS || '')
+  .split(',').map((host) => host.trim().toLowerCase()).filter(Boolean)
+  .concat(Array.isArray(paidProduct.allowedCheckoutHosts) ? paidProduct.allowedCheckoutHosts.map((host) => String(host).toLowerCase()) : []);
+const paidProductRelative = path.join('pages', `${paidProduct.slug}.html`);
+const paidProductPath = path.join(root, paidProductRelative);
+function isPlaceholderCheckoutHost(hostname) {
+  const host = String(hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
+  return /(^|\.)(example(?:\.(?:com|net|org))?|localhost|invalid|test)$/.test(host) || net.isIP(host) !== 0;
+}
 
 function walkHtml(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -19,6 +33,12 @@ const files = allHtmlFiles.filter((file) => !path.basename(file).startsWith('goo
 const knownFiles = new Set(allHtmlFiles.map((file) => path.resolve(file)));
 const forbidden = /編集方針|参考サイトから反映|反映した入口|TOPの上部|商品取得を改善|取得条件|プロンプト|作業メモ|AI臭|UI上|次工程/;
 const issues = [];
+if (typeof paidProduct.published !== 'boolean') issues.push('paid-product.json: published must be a boolean');
+if (typeof paidProduct.name !== 'string' || !paidProduct.name.trim()) issues.push('paid-product.json: name is required');
+if (!Number.isInteger(paidProduct.price) || paidProduct.price <= 0) issues.push('paid-product.json: price must be a positive integer');
+for (const host of ['example.com', 'example.test', 'localhost', '127.0.0.1', '::1']) {
+  if (!isPlaceholderCheckoutHost(host)) issues.push(`checkout host guard failed: ${host}`);
+}
 
 const productTitleFixtures = [
   ['防災セット 2人用 保存水 簡易トイレ 防災リュック', 'disaster-set', '防災セット'],
@@ -205,9 +225,65 @@ for (const page of data.pages || []) {
   }
 }
 
+if (paidProductEnabled) {
+  if (!fs.existsSync(paidProductPath)) {
+    issues.push(`${paidProductRelative}: enabled paid-kit page was not generated`);
+  } else {
+    const html = fs.readFileSync(paidProductPath, 'utf8');
+    const requiredMarkers = [
+      'data-paid-kit-page',
+      "trackEvent('paid_kit_offer_view'",
+      "trackEvent('paid_kit_checkout_click'",
+      'assets/paid-kit/basic-input.png',
+      'assets/paid-kit/inventory-gap.png',
+      'kit-example',
+      '55,000円',
+      'Microsoft Excel 2021',
+      '動作保証外',
+      '返品・不具合時の対応',
+      `${Number(paidProduct.price || 0).toLocaleString('ja-JP')}円`
+    ];
+    for (const marker of requiredMarkers) {
+      if (!html.includes(marker)) issues.push(`${paidProductRelative}: missing ${marker}`);
+    }
+    if (!/data-paid-kit-checkout="true"[^>]+href=|href="[^"]+"[^>]+data-paid-kit-checkout="true"/.test(html)) {
+      issues.push(`${paidProductRelative}: checkout CTA missing`);
+    }
+    try {
+      const checkout = new URL(paidProductCheckoutUrl);
+      if (checkout.protocol !== 'https:') issues.push(`${paidProductRelative}: checkout URL must use HTTPS`);
+      if (!paidProductAllowedHosts.includes(checkout.hostname.toLowerCase())) issues.push(`${paidProductRelative}: checkout host is not allowed`);
+      if (paidProduct.published && isPlaceholderCheckoutHost(checkout.hostname)) {
+        issues.push(`${paidProductRelative}: published checkout URL uses a placeholder host`);
+      }
+    } catch { issues.push(`${paidProductRelative}: checkout URL is invalid`); }
+    if (paidProduct.published && /<meta name="robots" content="noindex/.test(html)) {
+      issues.push(`${paidProductRelative}: published page must be indexable`);
+    }
+    if (!paidProduct.published && !/<meta name="robots" content="noindex,nofollow">/.test(html)) {
+      issues.push(`${paidProductRelative}: preview page must be noindex`);
+    }
+  }
+} else if (fs.existsSync(paidProductPath)) {
+  issues.push(`${paidProductRelative}: unpublished paid-kit page must not be generated`);
+}
+
+for (const name of ['basic-input.png', 'inventory-gap.png']) {
+  const asset = path.join(root, 'assets', 'paid-kit', name);
+  if (!fs.existsSync(asset) || fs.statSync(asset).size < 10000) issues.push(`assets/paid-kit/${name}: missing or unexpectedly small`);
+}
+const homeHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const homeHasPaidKit = homeHtml.includes('data-paid-kit-offer="true"');
+if (paidProduct.published && !homeHasPaidKit) issues.push('index.html: published paid-kit link missing');
+if (!paidProduct.published && homeHasPaidKit) issues.push('index.html: unpublished paid-kit link must be absent');
+
 const robots = fs.readFileSync(path.join(root, 'robots.txt'), 'utf8');
 if (!/User-agent: OAI-SearchBot\s+Allow: \//.test(robots)) issues.push('robots.txt: OAI-SearchBot is not explicitly allowed');
 if (!robots.includes(`Sitemap: https://jigyousho-bousai.com/sitemap.xml`)) issues.push('robots.txt: sitemap declaration missing');
+const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
+const paidProductCanonical = `https://jigyousho-bousai.com/pages/${paidProduct.slug}.html`;
+if (paidProduct.published && !sitemap.includes(paidProductCanonical)) issues.push('sitemap.xml: published paid-kit page missing');
+if (!paidProduct.published && sitemap.includes(paidProductCanonical)) issues.push('sitemap.xml: unpublished paid-kit page must be absent');
 
 if (issues.length) {
   console.error(issues.join('\n'));

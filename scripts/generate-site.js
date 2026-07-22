@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const net = require('net');
 const { hasAmbiguousToiletQuantity, titleShort } = require('./fetch-products');
 
 const root = path.resolve(__dirname, '..');
@@ -8,10 +9,43 @@ const siteUrl = (process.env.SITE_URL || 'https://jigyousho-bousai.com').replace
 const gaMeasurementId = 'G-LN824MSD7X';
 const dataPath = path.join(root, 'data', 'products.json');
 const keywordsPath = path.join(root, 'data', 'keywords.csv');
+const paidProductPath = path.join(root, 'data', 'paid-product.json');
 
 const data = fs.existsSync(dataPath)
   ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
   : { generatedAt: new Date().toISOString(), pages: [] };
+const paidProduct = fs.existsSync(paidProductPath)
+  ? JSON.parse(fs.readFileSync(paidProductPath, 'utf8'))
+  : { published: false, slug: 'stockpile-management-kit', name: '', price: 0, checkoutUrl: '' };
+const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
+const paidProductEnabled = paidProduct.published || paidProductPreview;
+const paidProductCheckoutUrl = process.env.PAID_KIT_CHECKOUT_URL || paidProduct.checkoutUrl || '';
+const paidProductAllowedHosts = (process.env.PAID_KIT_ALLOWED_HOSTS || '')
+  .split(',')
+  .map((host) => host.trim().toLowerCase())
+  .filter(Boolean)
+  .concat(Array.isArray(paidProduct.allowedCheckoutHosts) ? paidProduct.allowedCheckoutHosts.map((host) => String(host).toLowerCase()) : []);
+function isPlaceholderCheckoutHost(hostname) {
+  const host = String(hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
+  return /(^|\.)(example(?:\.(?:com|net|org))?|localhost|invalid|test)$/.test(host) || net.isIP(host) !== 0;
+}
+if (typeof paidProduct.published !== 'boolean') throw new Error('Paid kit published must be a boolean.');
+if (typeof paidProduct.name !== 'string' || !paidProduct.name.trim()) throw new Error('Paid kit name is required.');
+if (!Number.isInteger(paidProduct.price) || paidProduct.price <= 0) throw new Error('Paid kit price must be a positive integer.');
+if (!/^[a-z0-9-]+$/.test(paidProduct.slug || '')) {
+  throw new Error('Paid kit slug must contain only lowercase letters, numbers, and hyphens.');
+}
+if (paidProductEnabled) {
+  let checkout;
+  try { checkout = new URL(paidProductCheckoutUrl); } catch { throw new Error('Paid kit checkout URL is invalid.'); }
+  if (checkout.protocol !== 'https:') throw new Error('Paid kit checkout URL must use HTTPS.');
+  if (!paidProductAllowedHosts.length || !paidProductAllowedHosts.includes(checkout.hostname.toLowerCase())) {
+    throw new Error('Paid kit checkout host is not explicitly allowed.');
+  }
+  if (paidProduct.published && isPlaceholderCheckoutHost(checkout.hostname)) {
+    throw new Error('Paid kit checkout URL cannot use a placeholder host when published.');
+  }
+}
 
 function parseCsv(text) {
   const [headerLine, ...lines] = text.trim().split(/\r?\n/);
@@ -292,6 +326,10 @@ const topicPages = [
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
+const assetsDir = path.join(root, 'assets');
+if (fs.existsSync(assetsDir)) {
+  fs.cpSync(assetsDir, path.join(dist, 'assets'), { recursive: true });
+}
 
 function esc(value) {
   return String(value || '').replace(/[&<>"]/g, (char) => ({
@@ -467,6 +505,7 @@ function layout(title, body, description, canonical, options = {}) {
   const breadcrumb = crumbs.length ? `<nav class="breadcrumb" aria-label="パンくず"><a href="${siteUrl}/">ホーム</a>${crumbs.map((item) => `<span>/</span><span>${esc(item)}</span>`).join('')}</nav>` : '';
   const affiliateDisclosure = options.hideAffiliateDisclosure ? '' : '<p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p>';
   const sharing = options.hideShare ? '' : shareSection(title, canonical);
+  const robots = options.robots ? `<meta name="robots" content="${esc(options.robots)}">` : '';
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -474,6 +513,7 @@ function layout(title, body, description, canonical, options = {}) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${esc(title)} | 事業所防災ナビ</title>
   <meta name="description" content="${esc(description)}">
+  ${robots}
   <link rel="canonical" href="${esc(canonical)}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="事業所防災ナビ">
@@ -486,6 +526,7 @@ ${socialImage}
   <meta name="twitter:title" content="${esc(title)} | 事業所防災ナビ">
   <meta name="twitter:description" content="${esc(description)}">
   <meta name="theme-color" content="#0e3d49">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230e3d49'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='36' fill='white'%3E%E5%82%99%3C/text%3E%3C/svg%3E">
   ${analyticsHead()}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -777,6 +818,46 @@ ${socialImage}
     .source-list span{margin-top:4px;color:var(--muted);font-size:12px}
     .source-list small{margin-top:7px;color:var(--ink-2);font-size:13px;line-height:1.65}
 
+    /* paid stockpile kit */
+    .kit-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:42px;align-items:center;padding:54px 0 38px;border-bottom:1px solid var(--rule)}
+    .kit-hero>*{min-width:0}
+    .kit-hero h1{font-size:clamp(34px,4.7vw,56px);max-width:780px}
+    .kit-hero .lead{max-width:720px}
+    .kit-price{display:flex;align-items:baseline;gap:10px;margin:24px 0 16px;color:var(--main)}
+    .kit-price strong{font-family:var(--font-display);font-size:36px;line-height:1}
+    .kit-price span{font-size:13px;color:var(--muted)}
+    .kit-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .kit-visual{margin:0;background:#fff;border:1px solid var(--rule-2);padding:10px;box-shadow:var(--shadow);transform:rotate(.35deg)}
+    .kit-visual img{display:block;width:100%;height:auto;border:1px solid #e9e6dc}
+    .kit-visual figcaption{padding:9px 4px 2px;font-size:12px;color:var(--muted)}
+    .kit-outcomes{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .kit-outcome{padding:18px;border-left:1px solid var(--rule)}
+    .kit-outcome:first-child{border-left:0}
+    .kit-outcome strong{display:block;color:var(--main);font-size:16px;margin-bottom:4px}
+    .kit-outcome span{display:block;color:var(--muted);font-size:13px;line-height:1.6}
+    .kit-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .kit-shot{margin:0;background:var(--card);border:1px solid var(--rule);padding:8px}
+    .kit-shot img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;background:#fff;border:1px solid #e9e6dc}
+    .kit-shot figcaption{padding:10px 4px 4px;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .kit-example{background:var(--main);color:#fff;border:1px solid var(--main);padding:20px}
+    .kit-example .eyebrow{color:#f2b679}
+    .kit-example h3{font-family:var(--font-display);font-size:24px;margin-bottom:14px}
+    .kit-example dl{display:grid;grid-template-columns:1fr auto;gap:7px 16px;margin:0;padding-top:12px;border-top:1px solid rgba(255,255,255,.25)}
+    .kit-example dt{font-size:13px;color:#dbe5e3}
+    .kit-example dd{margin:0;font-weight:700}
+    .kit-example .sample-total{font-size:21px;color:#f5b36d}
+    .kit-example small{display:block;margin-top:12px;color:#dbe5e3;line-height:1.55}
+    .kit-steps{counter-reset:kit-step;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+    .kit-steps li{list-style:none;counter-increment:kit-step;padding:20px 16px;border-left:1px solid var(--rule);font-size:14px}
+    .kit-steps li:first-child{border-left:0}
+    .kit-steps li::before{content:"0" counter(kit-step);display:block;color:var(--accent-deep);font-family:var(--font-display);font-size:20px;font-weight:700;margin-bottom:6px}
+    .kit-terms{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .kit-terms ul{margin:8px 0 0;padding-left:1.25em}
+    .kit-terms li{margin:.35em 0}
+    .kit-final{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;background:var(--main);color:#fdfbf4;border-color:var(--main)}
+    .kit-final h2,.kit-final p{color:inherit}
+    .kit-final .button{background:var(--accent);border-color:var(--accent);color:#fff}
+
     /* entrance */
     @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
     .hero-main>*,.hero>*{animation:rise .55s ease both}
@@ -794,6 +875,13 @@ ${socialImage}
       .hero-shopping{border-left:0;border-top:1px solid var(--rule)}
       .route-board,.split-proof{grid-template-columns:1fr;gap:20px}
       .hero-main h1{max-width:680px}
+      .kit-hero{grid-template-columns:1fr;gap:24px}
+      .kit-outcomes{grid-template-columns:1fr 1fr}
+      .kit-outcome:nth-child(odd){border-left:0}
+      .kit-outcome:nth-child(n+3){border-top:1px solid var(--rule)}
+      .kit-steps{grid-template-columns:1fr 1fr}
+      .kit-steps li:nth-child(odd){border-left:0}
+      .kit-steps li:nth-child(n+3){border-top:1px solid var(--rule)}
     }
     @media(max-width:760px){
       main{padding:14px 14px 48px;max-width:100%}
@@ -854,6 +942,16 @@ ${socialImage}
       .product-img{width:104px;height:104px}
       .product h2{font-size:17px}
       .card{padding:18px}
+      .kit-hero{grid-template-columns:1fr;gap:20px;padding:34px 0 28px}
+      .kit-hero h1{font-size:clamp(30px,8.2vw,38px)}
+      .kit-cta{display:grid;justify-items:start}
+      .kit-cta .notice{display:block}
+      .kit-visual{transform:none}
+      .kit-outcomes,.kit-gallery,.kit-steps,.kit-terms{grid-template-columns:1fr}
+      .kit-outcome,.kit-outcome:first-child,.kit-steps li,.kit-steps li:first-child{border-left:0}
+      .kit-outcome+.kit-outcome,.kit-steps li+li{border-top:1px solid var(--rule)}
+      .kit-final{grid-template-columns:1fr}
+      .kit-final .button{width:100%}
     }
   </style>
 </head>
@@ -1035,6 +1133,18 @@ function clientScript() {
         var initialPlan=stockPlanValues();
         trackEvent('stock_plan_view',{ people_count:initialPlan.people,days_count:initialPlan.days,water_liters:initialPlan.water,food_servings:initialPlan.food,toilet_uses:initialPlan.toilet });
       }
+      var paidKitPage=document.querySelector('[data-paid-kit-page]');
+      if(paidKitPage){
+        var paidPlan=stockPlanValues();
+        trackEvent('paid_kit_offer_view',{
+          product_name:cleanText(paidKitPage.dataset.productName),
+          value:Number(paidKitPage.dataset.productPrice || 0),
+          currency:'JPY',
+          stock_plan_active:paidPlan.active ? 'true' : 'false',
+          stock_plan_people:paidPlan.people,
+          stock_plan_days:paidPlan.days
+        });
+      }
       var quantityTracked=false;
       ['staffCount','daysCount','visitorCount'].forEach(function(id){
         var el=document.getElementById(id);
@@ -1125,6 +1235,24 @@ function clientScript() {
         if(anchor.dataset && anchor.dataset.stockPlan){
           var plan=stockPlanValues();
           trackEvent('stock_plan_compare_click',{ plan_type:anchor.dataset.stockPlan,people_count:plan.people,days_count:plan.days,water_liters:plan.water,food_servings:plan.food,toilet_uses:plan.toilet,destination:url });
+          return;
+        }
+        if(anchor.dataset && anchor.dataset.paidKitCheckout){
+          var checkoutPlan=stockPlanValues();
+          trackEvent('paid_kit_checkout_click',{
+            product_name:cleanText(anchor.dataset.productName),
+            value:Number(anchor.dataset.productPrice || 0),
+            currency:'JPY',
+            link_text:anchorText(anchor),
+            destination:url,
+            stock_plan_active:checkoutPlan.active ? 'true' : 'false',
+            stock_plan_people:checkoutPlan.people,
+            stock_plan_days:checkoutPlan.days
+          });
+          return;
+        }
+        if(anchor.dataset && anchor.dataset.paidKitOffer){
+          trackEvent('paid_kit_offer_click',{ link_text:anchorText(anchor),destination:url });
           return;
         }
         if(anchor.dataset && anchor.dataset.share){
@@ -1638,6 +1766,75 @@ const homeFaq = [
 
 const homeFaqHtml = `<section class="section faq home-faq"><h2>事業所の防災備蓄でよくある質問</h2>${homeFaq.map((item) => `<details><summary>${esc(item.question)}</summary><p>${esc(item.answer)}</p></details>`).join('')}</section>`;
 
+const paidKitCanonical = `${siteUrl}/pages/${paidProduct.slug}.html`;
+const paidKitPrice = Number(paidProduct.price || 0).toLocaleString('ja-JP');
+const paidKitCheckoutAttrs = `data-paid-kit-checkout="true" data-product-name="${esc(paidProduct.name)}" data-product-price="${esc(paidProduct.price)}"`;
+const paidKitFaq = [
+  ['Excelが苦手でも使えますか？', '黄色の入力欄を中心に、事業所名、人数、備蓄日数、現在庫、候補商品の単価を順番に入力します。付属のPDFガイドで最初の操作を確認できます。'],
+  ['数量の基準は変更できますか？', '水、食料、簡易トイレ、保温用品の初期値は計画づくりの目安です。施設の条件や自治体の方針に合わせて調整できます。'],
+  ['自社で選んだ商品を登録できますか？', '商品名、規格、候補数量、単価、販売先URLを入力できます。価格、在庫、仕様は購入前に各販売ページで確認してください。'],
+  ['どの環境で使えますか？', 'Microsoft Excel 2021またはMicrosoft 365のWindows版を推奨します。Googleスプレッドシート、Mac版Excel、スマートフォンでの動作は保証対象外です。'],
+  ['複数拠点で使えますか？', '1事業者・1拠点の内部利用を想定しています。複数拠点での運用や再配布については、購入ページの利用条件を確認してください。']
+];
+
+function paidKitPageBody() {
+  return `<div data-paid-kit-page data-product-name="${esc(paidProduct.name)}" data-product-price="${esc(paidProduct.price)}">
+  <section class="kit-hero">
+    <div>
+      <p class="eyebrow">防災担当者向け Excelテンプレート</p>
+      <h1>備蓄の不足数を、<br>購入予算まで整理。</h1>
+      <p class="lead">人数・備蓄日数・現在庫を入力すると、保存水、非常食、簡易トイレ、保温用品の不足数と購入箱数を整理できます。商品候補と単価を入れれば、概算予算と購入申請の下書きまで同じ数字で確認できます。</p>
+      <div class="kit-price"><strong>${paidKitPrice}円</strong><span>税込・買い切り</span></div>
+      <div class="kit-cta"><a class="button orange" href="${esc(paidProductCheckoutUrl)}" target="_blank" rel="noopener" ${paidKitCheckoutAttrs}>内容を確認して購入する</a><span class="notice">Excelファイル + PDF使い方ガイド</span></div>
+      <p class="notice">推奨環境: Microsoft Excel 2021 / Microsoft 365 Windows版。数量は計画づくりの目安として調整してください。</p>
+    </div>
+    <figure class="kit-visual"><img src="${siteUrl}/assets/paid-kit/inventory-gap.png" alt="備蓄の必要量、有効在庫、不足量、必要箱数を並べたExcel画面"><figcaption>必要量と現在庫の差から、不足量と購入箱数を確認</figcaption></figure>
+  </section>
+  <section class="section" aria-labelledby="kit-results"><div class="section-title"><div><p class="eyebrow">入力後に分かること</p><h2 id="kit-results">発注前の数字を、ひとつのファイルにまとめる</h2></div></div>
+    <div class="kit-outcomes">
+      <div class="kit-outcome"><strong>不足数</strong><span>必要量と期限内在庫の差を確認</span></div>
+      <div class="kit-outcome"><strong>購入箱数</strong><span>1箱あたり数量から発注単位を計算</span></div>
+      <div class="kit-outcome"><strong>概算予算</strong><span>候補商品の数量と単価から集計</span></div>
+      <div class="kit-outcome"><strong>申請の下書き</strong><span>人数・日数・不足分類・費用を文章化</span></div>
+    </div>
+  </section>
+  <section class="section" aria-labelledby="kit-screens"><div class="section-title"><div><p class="eyebrow">実際の画面</p><h2 id="kit-screens">入力する場所と、確認する場所</h2></div></div>
+    <div class="kit-gallery">
+      <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/basic-input.png" alt="人数、備蓄日数、想定災害を入力する基本入力シート" loading="lazy"><figcaption>1. 人数・備蓄日数・想定災害を入力</figcaption></figure>
+      <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/inventory-gap.png" alt="必要量と有効在庫から不足量を表示する在庫ギャップシート" loading="lazy"><figcaption>2. 不足量と必要箱数を確認</figcaption></figure>
+      <article class="kit-example"><p class="eyebrow">記入例: 20人・3日分</p><h3>仮単価まで入れた結果</h3><dl><dt>不足分類</dt><dd>4分類</dd><dt>購入箱数</dt><dd>18箱</dd><dt>概算合計</dt><dd class="sample-total">55,000円</dd></dl><small>記入例の仮単価で計算した金額です。実際の商品価格ではありません。</small></article>
+    </div>
+    <p class="notice">画面内の数値は入力例を含みます。商品価格はキットに含まれず、利用者が販売ページを確認して入力します。</p>
+  </section>
+  <section class="section" aria-labelledby="kit-flow"><div class="section-title"><div><p class="eyebrow">使う順番</p><h2 id="kit-flow">発注候補を決めるまでの5段階</h2></div></div>
+    <ol class="kit-steps"><li>事業所名、人数、備蓄日数を入力</li><li>現在庫、箱数、期限、保管場所を入力</li><li>不足数と必要箱数を確認</li><li>候補商品、単価、販売先を入力</li><li>概算費用と申請文を確認</li></ol>
+  </section>
+  <section class="section two" aria-labelledby="kit-contents">
+    <article class="card"><p class="eyebrow">納品内容</p><h2 id="kit-contents">ダウンロードできるファイル</h2><ul><li>備蓄算定・稟議キット（Excel形式）</li><li>使い方ガイド（PDF・4ページ）</li><li>20人・3日分の記入例</li><li>保存期限と保管場所の管理シート</li><li>公的資料の参照先一覧</li></ul></article>
+    <article class="card"><p class="eyebrow">向いている担当者</p><h2>こんなときに使えます</h2><ul><li>備蓄品の不足数を確認したい</li><li>購入予算を上司へ説明したい</li><li>保管場所と保存期限を引き継ぎたい</li><li>商品候補を比較ページから選びたい</li></ul></article>
+  </section>
+  <section class="section kit-terms" aria-labelledby="kit-conditions">
+    <article class="card"><p class="eyebrow">購入前の確認</p><h2 id="kit-conditions">対応環境と利用範囲</h2><ul><li>Microsoft Excel 2021 / Microsoft 365 Windows版を推奨</li><li>マクロは使用していません</li><li>1事業者・1拠点での内部利用を想定</li><li>Googleスプレッドシート、Mac版Excel、スマートフォンは動作保証外</li></ul></article>
+    <article class="card"><p class="eyebrow">対象外</p><h2>別途確認が必要な内容</h2><ul><li>法令や行政基準への適合判定</li><li>医療機器・介護機器の電源設計</li><li>食品アレルギーや施設固有の運用判断</li><li>多拠点を一括管理するシステム</li></ul><p class="notice">デジタル商品の受け取り方法、返品・不具合時の対応、利用条件は購入ページで確認してください。</p></article>
+  </section>
+  <section class="section faq"><h2>購入前によくある質問</h2>${paidKitFaq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
+  ${sourceSection('office-bichiku')}
+  <section class="section card kit-final"><div><p class="eyebrow">販売価格 ${paidKitPrice}円（税込）</p><h2>不足数と購入予算を、同じ数字で確認する。</h2><p>ExcelファイルとPDF使い方ガイドを、決済完了後にダウンロードできます。</p></div><a class="button" href="${esc(paidProductCheckoutUrl)}" target="_blank" rel="noopener" ${paidKitCheckoutAttrs}>Excelキットを購入する</a></section>
+  ${structuredData(
+    webPageJsonLd(
+      '会社の防災備蓄を算定するExcelテンプレート',
+      '会社や施設の人数、備蓄日数、現在庫から、保存水、非常食、簡易トイレ、保温用品の不足数、購入箱数、概算予算、購入申請の下書きを整理できるExcelテンプレートです。',
+      paidKitCanonical,
+      sourceUrlsFor('office-bichiku')
+    ),
+    breadcrumbJsonLd([{ name: paidProduct.name, url: paidKitCanonical }]),
+    faqJsonLd(paidKitFaq)
+  )}
+</div>`;
+}
+
+const paidKitHomePromo = paidProduct.published ? `<section class="section card kit-final"><div><p class="eyebrow">Excelで備蓄数を整理</p><h2>不足数・購入箱数・概算予算をまとめる</h2><p>人数と現在庫を入力し、発注前の数字を一つのファイルで確認できます。</p></div><a class="button" href="${paidKitCanonical}" data-paid-kit-offer="true">Excelキットを見る</a></section>` : '';
+
 const indexBody = `<section class="home-hero">
   <div class="hero-main">
     <p class="hero-kicker">会社・店舗・施設の防災担当者へ</p>
@@ -1706,6 +1903,7 @@ const indexBody = `<section class="home-hero">
   <div><strong>介護施設</strong><span>停電時の照明、通信、電源、利用者対応を確認。</span></div>
 </section>
 ${quantityEstimateSection()}
+${paidKitHomePromo}
 ${sourceSection('home')}
 <section class="section" id="disasters">
   <h2>災害別に見る</h2>
@@ -1765,6 +1963,20 @@ fs.mkdirSync(path.join(dist, 'pages'), { recursive: true });
 for (const page of data.pages) {
   fs.writeFileSync(path.join(dist, 'pages', page.slug + '.html'), pageHtml(page));
 }
+if (paidProductEnabled) {
+  fs.writeFileSync(path.join(dist, 'pages', `${paidProduct.slug}.html`), layout(
+    '会社の防災備蓄を算定するExcelテンプレート',
+    paidKitPageBody(),
+    '会社や施設の人数、備蓄日数、現在庫から、保存水、非常食、簡易トイレ、保温用品の不足数、購入箱数、概算予算、購入申請の下書きを整理できるExcelテンプレートです。',
+    paidKitCanonical,
+    {
+      crumbs: [paidProduct.name],
+      hideAffiliateDisclosure: true,
+      ogImage: `${siteUrl}/assets/paid-kit/inventory-gap.png`,
+      robots: paidProduct.published ? '' : 'noindex,nofollow'
+    }
+  ));
+}
 fs.mkdirSync(path.join(dist, 'topics'), { recursive: true });
 for (const topic of topicPages) {
   fs.writeFileSync(path.join(dist, 'topics', topic.slug + '.html'), topicHtml(topic));
@@ -1773,6 +1985,7 @@ const urls = [
   `${siteUrl}/`,
   policyCanonical,
   ...data.pages.map((page) => `${siteUrl}/pages/${page.slug}.html`),
+  ...(paidProduct.published ? [paidKitCanonical] : []),
   ...topicPages.map((topic) => `${siteUrl}/topics/${topic.slug}.html`)
 ];
 const sitemapLastmod = (data.generatedAt || new Date().toISOString()).slice(0, 10);
