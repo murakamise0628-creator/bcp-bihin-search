@@ -23,11 +23,11 @@
 
 ## 災害別
 
-- [地震対策の事業所防災用品比較](https://jigyousho-bousai.com/topics/earthquake.html): 地震後に会社や店舗で待機する前提で、水、簡易トイレ、食料、防寒、ライトを優先して確認します。
-- [台風・大雨対策の事業所防災用品比較](https://jigyousho-bousai.com/topics/typhoon.html): 台風や大雨では、停電、交通停止、浸水前の待機に備え、電源、ライト、水、衛生用品を確認します。
-- [停電対策の事業所防災用品比較](https://jigyousho-bousai.com/topics/power-outage.html): 停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。
-- [断水対策の事業所防災用品比較](https://jigyousho-bousai.com/topics/water-outage.html): 断水時は飲料水だけでなく、トイレ、手指衛生、清掃用水、給水容器を分けて確認します。
-- [帰宅困難者対策の事業所防災用品比較](https://jigyousho-bousai.com/topics/commuter-stranding.html): 交通停止で従業員や来客が施設内に残る前提で、水、トイレ、防寒、スマホ充電を確認します。
+- [事業所の地震対策｜備蓄品と初動確認](https://jigyousho-bousai.com/topics/earthquake.html): 地震後に会社や店舗で待機する前提で、水、簡易トイレ、食料、防寒、ライトを優先して確認します。
+- [会社の台風・大雨対策｜停電・浸水への備え](https://jigyousho-bousai.com/topics/typhoon.html): 台風や大雨では、停電、交通停止、浸水前の待機に備え、電源、ライト、水、衛生用品を確認します。
+- [事業所の停電対策｜必要な電源と備蓄](https://jigyousho-bousai.com/topics/power-outage.html): 停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。
+- [事業所の断水対策｜飲料水・トイレ・衛生](https://jigyousho-bousai.com/topics/water-outage.html): 断水時は飲料水だけでなく、トイレ、手指衛生、清掃用水、給水容器を分けて確認します。
+- [会社の帰宅困難者対策｜3日分の備蓄と待機](https://jigyousho-bousai.com/topics/commuter-stranding.html): 交通停止で従業員や来客が施設内に残る前提で、水、トイレ、防寒、スマホ充電を確認します。
 
 ## 数量の目安
 
