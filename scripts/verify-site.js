@@ -14,12 +14,9 @@ function walkHtml(dir) {
   });
 }
 
-const files = [
-  path.join(root, 'index.html'),
-  ...walkHtml(path.join(root, 'pages')),
-  ...walkHtml(path.join(root, 'topics'))
-];
-const knownFiles = new Set(files.map((file) => path.resolve(file)));
+const allHtmlFiles = walkHtml(root);
+const files = allHtmlFiles.filter((file) => !path.basename(file).startsWith('google'));
+const knownFiles = new Set(allHtmlFiles.map((file) => path.resolve(file)));
 const forbidden = /編集方針|参考サイトから反映|反映した入口|TOPの上部|商品取得を改善|取得条件|プロンプト|作業メモ|AI臭|UI上|次工程/;
 const issues = [];
 
@@ -57,6 +54,17 @@ for (const file of files) {
   if (!html.includes("trackEvent('rakuten_click'")) issues.push(`${relative}: Rakuten click tracking missing`);
   if (!html.includes("trackEvent('select_item'")) issues.push(`${relative}: GA4 select_item tracking missing`);
   if (!html.includes("trackEvent('view_item_list'")) issues.push(`${relative}: GA4 item-list tracking missing`);
+  if (!html.includes('index: params.product_position ? params.product_position - 1')) issues.push(`${relative}: GA4 item index must be zero-based`);
+  const rakutenAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]*hb\.afl\.rakuten\.co\.jp[^"]*"[^>]*>/g)].map((match) => match[0]);
+  for (const anchor of rakutenAnchors) {
+    const position = Number(anchor.match(/data-product-position="(\d+)"/)?.[1] || 0);
+    if (!position) issues.push(`${relative}: Rakuten link missing a positive product position`);
+  }
+  if (rakutenAnchors.length) {
+    const disclosureIndex = html.indexOf('このサイトにはアフィリエイト広告を含みます。');
+    const firstRakutenIndex = html.indexOf(rakutenAnchors[0]);
+    if (disclosureIndex < 0 || disclosureIndex > firstRakutenIndex) issues.push(`${relative}: affiliate disclosure missing before product links`);
+  }
   if (!/<title>[^<]+<\/title>/.test(html)) issues.push(`${relative}: title missing`);
   if (!/<meta name="description" content="[^"]+">/.test(html)) issues.push(`${relative}: description missing`);
   const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1] || '';
@@ -68,9 +76,11 @@ for (const file of files) {
   if (!/<meta name="twitter:card" content="[^"]+">/.test(html)) issues.push(`${relative}: Twitter Card missing`);
   if (forbidden.test(html)) issues.push(`${relative}: production-side wording found`);
   if (/<<<<<<<|=======|>>>>>>>/.test(html)) issues.push(`${relative}: conflict marker found`);
-  if (!html.includes('source-references')) issues.push(`${relative}: public source section missing`);
-  if (!html.includes('www.bousai.go.jp')) issues.push(`${relative}: Cabinet Office citation missing`);
-  if (!html.includes('"citation":[')) issues.push(`${relative}: WebPage citation metadata missing`);
+  if (relative !== 'site-policy.html') {
+    if (!html.includes('source-references')) issues.push(`${relative}: public source section missing`);
+    if (!html.includes('www.bousai.go.jp')) issues.push(`${relative}: Cabinet Office citation missing`);
+    if (!html.includes('"citation":[')) issues.push(`${relative}: WebPage citation metadata missing`);
+  }
 
   for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try {
