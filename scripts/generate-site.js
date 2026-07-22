@@ -907,13 +907,31 @@ function clientScript() {
       }
       function cleanText(value){ return String(value || '').replace(/\\s+/g,' ').trim().slice(0,120); }
       function anchorText(anchor){ return cleanText(anchor.getAttribute('aria-label') || anchor.textContent || anchor.href); }
+      function ctaLocation(anchor){
+        if(anchor.closest('.comparison-wrap')) return 'comparison_table';
+        if(anchor.closest('.product')) return 'product_card';
+        if(anchor.classList.contains('hero-product')) return 'hero_product';
+        if(anchor.classList.contains('showcase-card')) return 'showcase_card';
+        return 'affiliate_link';
+      }
       function productParams(anchor){
         return {
+          product_id: cleanText(anchor.dataset.productId || anchor.dataset.productName),
           product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
-          product_price: anchor.dataset.productPrice || '',
+          product_price: Number(anchor.dataset.productPrice || 0),
           product_category: anchor.dataset.productCategory || '',
+          cta_location: ctaLocation(anchor),
           link_text: anchorText(anchor),
           destination: anchor.href
+        };
+      }
+      function ecommerceItem(params){
+        return {
+          item_id: params.product_id || params.product_name,
+          item_name: params.product_name,
+          item_category: params.product_category,
+          item_list_name: params.cta_location,
+          price: params.product_price || undefined
         };
       }
       function numberValue(id, fallback){ var el=document.getElementById(id); var value=el ? Number(el.value) : fallback; return Number.isFinite(value) && value >= 0 ? value : fallback; }
@@ -967,6 +985,22 @@ function clientScript() {
         try { initialTerm = new URLSearchParams(window.location.search).get('q') || ''; } catch(e) {}
         if(initialTerm){ search.value=initialTerm; filterCards(initialTerm); }
       }
+      var listedProducts=[];
+      var listedProductIds={};
+      document.querySelectorAll('a[href*="hb.afl.rakuten.co.jp"][data-product-name]').forEach(function(anchor){
+        var params=productParams(anchor);
+        var key=params.product_id || params.product_name;
+        if(!key || listedProductIds[key]) return;
+        listedProductIds[key]=true;
+        listedProducts.push(ecommerceItem(params));
+      });
+      if(listedProducts.length){
+        trackEvent('view_item_list', {
+          currency: 'JPY',
+          item_list_name: document.title,
+          items: listedProducts.slice(0, 20)
+        });
+      }
       document.querySelectorAll('[data-copy-url]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var url=btn.getAttribute('data-copy-url');
@@ -1008,7 +1042,11 @@ function clientScript() {
         }
         if(url.indexOf('hb.afl.rakuten.co.jp') !== -1){
           var params = productParams(anchor);
-          trackEvent('product_card_click', params);
+          trackEvent('select_item', {
+            currency: 'JPY',
+            item_list_name: params.cta_location,
+            items: [ecommerceItem(params)]
+          });
           trackEvent('rakuten_click', params);
           return;
         }
@@ -1029,7 +1067,7 @@ function clientScript() {
 }
 
 function productTrackingAttrs(product, category = '') {
-  return `data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}"`;
+  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}"`;
 }
 
 function productJsonLd(products) {
@@ -1042,7 +1080,8 @@ function productJsonLd(products) {
       '@type': 'Offer',
       priceCurrency: 'JPY',
       price: product.price || undefined,
-      url: product.url
+      url: product.url,
+      availability: product.availability === 0 ? undefined : 'https://schema.org/InStock'
     },
     aggregateRating: product.reviewCount ? {
       '@type': 'AggregateRating',
