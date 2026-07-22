@@ -402,9 +402,26 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
   const tempPath = `${outPath}.tmp`;
-  fs.writeFileSync(tempPath, JSON.stringify({ schemaVersion: 2, generatedAt: new Date().toISOString(), pages: results }, null, 2));
-  fs.renameSync(tempPath, outPath);
-  console.log('wrote', outPath);
+  const next = createProductDataset(previous, results);
+  const serialized = `${JSON.stringify(next, null, 2)}\n`;
+  const current = fs.existsSync(outPath) ? fs.readFileSync(outPath, 'utf8') : '';
+  if (current === serialized) {
+    console.log('product data unchanged');
+  } else {
+    fs.writeFileSync(tempPath, serialized);
+    fs.renameSync(tempPath, outPath);
+    console.log('wrote', outPath);
+  }
+}
+
+function createProductDataset(previous, results, now = new Date()) {
+  const comparable = (value) => JSON.stringify(value, (key, item) => key === 'fetchedAt' ? undefined : item);
+  const unchanged = comparable(previous.pages || []) === comparable(results);
+  return {
+    schemaVersion: 2,
+    generatedAt: unchanged && previous.generatedAt ? previous.generatedAt : now.toISOString(),
+    pages: unchanged ? previous.pages : results
+  };
 }
 
 if (require.main === module) {
@@ -414,4 +431,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detectProductType, titleShort, hasAmbiguousToiletQuantity };
+module.exports = { detectProductType, titleShort, hasAmbiguousToiletQuantity, createProductDataset };
