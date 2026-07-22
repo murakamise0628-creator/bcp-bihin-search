@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { hasAmbiguousToiletQuantity, titleShort } = require('./fetch-products');
 
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
@@ -325,7 +326,7 @@ function shortName(name, maxLength = 54) {
 }
 
 function displayTitle(product, maxLength = 58) {
-  const raw = product.titleShort || product.name || product.titleRaw || '';
+  const raw = product.titleRaw ? titleShort(product.titleRaw, maxLength) : (product.titleShort || product.name || '');
   return shortName(raw, maxLength);
 }
 
@@ -334,6 +335,7 @@ function rawTitle(product) {
 }
 
 function extractSpec(product) {
+  if (hasAmbiguousToiletQuantity(product)) return '販売ページで回数を選択';
   const name = String(rawTitle(product));
   const years = name.match(/(\d{1,2})年保存/);
   const toiletCount = name.match(/(\d{1,4})回分/);
@@ -375,6 +377,7 @@ function suitedFacility(product, note) {
 }
 
 function cautionForProduct(product) {
+  if (hasAmbiguousToiletQuantity(product)) return '回数と価格は選択肢により変動';
   const name = String(rawTitle(product));
   if (!Number(product.reviewCount || 0)) return 'レビューが少ないため仕様確認';
   if (/送料別途|外直送|見積り/.test(name)) return '送料・納期を確認';
@@ -397,6 +400,7 @@ function recommendationBasis(product) {
 }
 
 function targetPeople(product) {
+  if (hasAmbiguousToiletQuantity(product)) return '販売ページで回数を選択';
   const name = String(rawTitle(product));
   const toilet = name.match(/(\d{2,5})回分/);
   if (toilet) return `約${Math.max(1, Math.floor(Number(toilet[1]) / 5))}人1日分の目安`;
@@ -408,14 +412,15 @@ function targetPeople(product) {
 }
 
 function effectiveProducts(page, note, minCount = 8) {
-  const own = (page.products || []).map((product) => ({ ...product, relatedCandidate: false }));
+  const own = (page.products || [])
+    .map((product) => ({ ...product, relatedCandidate: false }));
   if (own.length >= minCount) return own;
 
   const seen = new Set(own.map((product) => product.itemCode || product.url || rawTitle(product)));
   const related = [];
   for (const slug of note.related || []) {
     const relatedPage = pageBySlug(slug);
-    for (const product of relatedPage?.products || []) {
+    for (const product of (relatedPage?.products || [])) {
       const key = product.itemCode || product.url || rawTitle(product);
       if (!key || seen.has(key)) continue;
       seen.add(key);
@@ -1074,11 +1079,21 @@ function clientScript() {
 }
 
 function productTrackingAttrs(product, category = '', position = '') {
-  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}" data-product-position="${esc(position)}"`;
+  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}" data-product-position="${esc(position)}" data-variable-price="${hasAmbiguousToiletQuantity(product) ? 'true' : 'false'}"`;
+}
+
+function displayPrice(product) {
+  const price = yen(product.price);
+  return hasAmbiguousToiletQuantity(product)
+    ? `${price}〜（選択肢で変動）`
+    : price;
 }
 
 function productJsonLd(products) {
-  const graph = products.filter((product) => product.name && product.url).slice(0, 12).map((product) => ({
+  const graph = products
+    .filter((product) => product.name && product.url && !hasAmbiguousToiletQuantity(product))
+    .slice(0, 12)
+    .map((product) => ({
     '@type': 'Product',
     name: displayTitle(product),
     description: product.summary || undefined,
@@ -1184,7 +1199,7 @@ function comparisonRows(products, note) {
   return products.map((product, index) => `<tr>
     <td class="table-product">${esc(displayTitle(product, 46))}</td>
     <td>${esc(product.relatedCandidate ? '関連候補' : recommendedType(product, note))}</td>
-    <td>${esc(yen(product.price))}</td>
+    <td>${esc(displayPrice(product))}</td>
     <td>${esc(product.reviewAverage || '-')}</td>
     <td>${esc(product.reviewCount || 0)}</td>
     <td>${esc(storageYears(product))}</td>
@@ -1197,26 +1212,29 @@ function comparisonRows(products, note) {
 
 function quickPicks(products, note) {
   if (!products.length) return '';
+  const clearProducts = products.filter((product) => !hasAmbiguousToiletQuantity(product));
+  if (!clearProducts.length) return '';
+  const quickPool = clearProducts;
   const selected = [];
   const seenTypes = new Set();
-  for (const product of products) {
+  for (const product of quickPool) {
     const type = product.productType || recommendedType(product, note);
     if (seenTypes.has(type)) continue;
     selected.push(product);
     seenTypes.add(type);
     if (selected.length === 3) break;
   }
-  for (const product of products) {
+  for (const product of quickPool) {
     if (selected.length === 3) break;
     if (!selected.includes(product)) selected.push(product);
   }
   const cards = selected.map((product, index) => `<article class="card product">
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : ''}
     <div><p class="pill navy">${esc(recommendedType(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
-    <p class="price">${yen(product.price)}</p><p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
+    <p class="price">${esc(displayPrice(product))}</p><p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
     <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で価格・在庫を確認する</a></div>
   </article>`).join('');
-  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る3候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
+  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る${selected.length}候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
 }
 
 function webPageJsonLd(title, description, canonical, citationUrls = []) {
@@ -1265,7 +1283,7 @@ function productCards(products, note) {
       <h2>${esc(displayTitle(product))}</h2>
       ${product.relatedCandidate ? `<p class="notice">この商品は「${esc(product.relatedFrom || '関連ページ')}」から補完した関連候補です。用途の一致度は販売ページで確認してください。</p>` : ''}
       ${product.summary ? `<p class="summary">${esc(product.summary)}</p>` : ''}
-      <p class="price">${yen(product.price)}</p>
+      <p class="price">${esc(displayPrice(product))}</p>
       <div class="facts">
         <span class="fact">レビュー ${esc(product.reviewAverage || '-')}</span>
         <span class="fact">件数 ${esc(product.reviewCount || 0)}</span>

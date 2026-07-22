@@ -164,6 +164,19 @@ function matchesPageType(product, row) {
   return !allowedTypes || allowedTypes.includes(productType);
 }
 
+function hasAmbiguousToiletQuantity(product) {
+  const source = String(product?.titleRaw || product?.name || product || '')
+    .replace(/1回あたり[^／/\s]*/g, '');
+  if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/.test(source)) return false;
+  if (/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) return true;
+  const counts = new Set([...source.matchAll(/(\d{1,4})\s*回(?:分)?/g)].map((match) => Number(match[1])));
+  const fixedPack = source.match(/1\s*回分\s*[×xX]\s*(\d{1,4})\s*(?:袋|個)/);
+  if (fixedPack && counts.size === 2 && counts.has(1) && counts.has(Number(fixedPack[1]))) return false;
+  if (counts.size === 2 && counts.has(1) && /1\s*回分ずつ(?:個包装|包装|小分け)/.test(source)) return false;
+  if (counts.size > 1) return true;
+  return counts.size === 1 && /選べる|選択式|各種|最大\s*\d{1,4}\s*回|\d+\s*サイズ/.test(source);
+}
+
 function detectProductType(raw) {
   const source = String(raw || '');
   const candidates = [
@@ -208,11 +221,12 @@ function titleShort(raw, maxLength = 58) {
   if (brand) parts.push(brand[1]);
 
   const productType = detectProductType(source);
+  const variableQuantity = hasAmbiguousToiletQuantity(source);
   const specs = [
     source.match(/\d{2,5}Wh/i)?.[0],
     source.match(/\d+(?:\.\d+)?W(?!h)/i)?.[0],
     source.match(/\d{4,6}mAh/i)?.[0],
-    source.match(/\d{1,4}回分/)?.[0],
+    variableQuantity ? '' : source.match(/\d{1,4}回分/)?.[0],
     source.match(/\d{1,3}人用/)?.[0],
     source.match(/\d{1,2}年保存/)?.[0],
     standaloneSpec(source, '\\d+(?:\\.\\d+)?L'),
@@ -221,6 +235,7 @@ function titleShort(raw, maxLength = 58) {
     boundedCount(source, '個', 1000)
   ].filter(Boolean);
   parts.push(...specs);
+  if (variableQuantity) parts.push('回数選択式');
 
   const typeLabels = {
     'disaster-set': '防災セット',
@@ -233,7 +248,10 @@ function titleShort(raw, maxLength = 58) {
     food: '非常食',
     blanket: '防寒用品'
   };
-  if (typeLabels[productType]) parts.push(typeLabels[productType]);
+  const toiletLabel = productType === 'toilet' && /凝固剤/.test(source) && !/(汚物袋|排便袋|防臭袋).{0,8}(?:付|入り|セット)/.test(source)
+    ? 'トイレ用凝固剤'
+    : typeLabels[productType];
+  if (toiletLabel) parts.push(toiletLabel);
 
   const meaningful = uniqParts(parts);
   const fallback = source.split(/\s+/).slice(0, 5).join(' ');
@@ -273,6 +291,7 @@ function normalizeProducts(items, sourceKeyword = '') {
       fetchedAt,
       sourceKeyword,
       availability: item.availability === 0 ? 0 : 1,
+      priceIsFromVariant: hasAmbiguousToiletQuantity(item.itemName),
       score: score(item)
     }));
 }
@@ -346,28 +365,30 @@ async function main() {
   const rows = parseCsv(fs.readFileSync(keywordsPath, 'utf8'));
   const previous = fs.existsSync(outPath) ? JSON.parse(fs.readFileSync(outPath, 'utf8')) : { pages: [] };
   const previousBySlug = new Map((previous.pages || []).map((page) => [page.slug, page]));
+  const minimumFreshCount = (row) => ['toilet-office', 'blackout-power', 'water-food-stock'].includes(row.slug) ? 12 : 8;
   const usableFallback = (row) => {
     const fallback = previousBySlug.get(row.slug);
-    const products = fallback?.products || [];
+    const products = (fallback?.products || []).filter((product) => matchesPageType(product, row));
     const hasMetadata = products.every((product) =>
       product.productType && product.genreId && product.fetchedAt && product.sourceKeyword &&
       Object.prototype.hasOwnProperty.call(product, 'affiliateRate') &&
       product.productType === detectProductType(product.titleRaw || product.name)
     );
-    return products.length >= 8 && hasMetadata && products.every((product) => matchesPageType(product, row)) ? fallback : null;
+    return products.length >= minimumFreshCount(row) && hasMetadata ? { ...fallback, products } : null;
   };
   const results = [];
   for (const row of rows) {
     console.log('fetch:', keywordsForRow(row).join(' | '));
     try {
       const fetched = await fetchForKeyword(row);
-      if ((fetched.products || []).length < 8) {
+      const minimumCount = minimumFreshCount(row);
+      if ((fetched.products || []).length < minimumCount) {
         const fallback = usableFallback(row);
         if (fallback) {
           console.warn(`retain previous data: ${row.slug} (${fetched.products.length} fresh products)`);
           results.push({ ...fallback, staleReason: `fresh candidates: ${fetched.products.length}` });
         } else {
-          throw new Error(`${row.slug}: fewer than 8 relevant products`);
+          throw new Error(`${row.slug}: fewer than ${minimumCount} relevant products`);
         }
       } else {
         results.push(fetched);
@@ -393,4 +414,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detectProductType, titleShort };
+module.exports = { detectProductType, titleShort, hasAmbiguousToiletQuantity };
