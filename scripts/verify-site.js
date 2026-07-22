@@ -133,12 +133,24 @@ for (const file of files) {
   if (!/<meta property="og:description" content="[^"]+">/.test(html)) issues.push(`${relative}: OGP description missing`);
   if (!/<meta property="og:url" content="[^"]+">/.test(html)) issues.push(`${relative}: OGP URL missing`);
   if (!/<meta name="twitter:card" content="[^"]+">/.test(html)) issues.push(`${relative}: Twitter Card missing`);
+  if (relative.replace(/\\/g, '/').startsWith('topics/')) {
+    const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1]?.replace(/<[^>]+>/g, '').trim() || '';
+    if (h1.endsWith('比較')) issues.push(`${relative}: topic H1 must answer an informational intent rather than duplicate a comparison page`);
+  }
   if (forbidden.test(html)) issues.push(`${relative}: production-side wording found`);
   if (/<<<<<<<|=======|>>>>>>>/.test(html)) issues.push(`${relative}: conflict marker found`);
   if (relative !== 'site-policy.html') {
     if (!html.includes('source-references')) issues.push(`${relative}: public source section missing`);
     if (!html.includes('www.bousai.go.jp')) issues.push(`${relative}: Cabinet Office citation missing`);
     if (!html.includes('"citation":[')) issues.push(`${relative}: WebPage citation metadata missing`);
+  }
+  if (relative.replace(/\\/g, '/') === 'pages/toilet-office.html') {
+    if (!html.includes('https://www.meti.go.jp/policy/mono_info_service/mono/jyutaku/toirebichiku.html')) {
+      issues.push(`${relative}: METI toilet stockpile source missing`);
+    }
+    if (!html.includes('1人あたり35回分（7日分）')) {
+      issues.push(`${relative}: METI 35-use seven-day reference missing`);
+    }
   }
 
   for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
@@ -148,6 +160,9 @@ for (const file of files) {
       for (const node of nodes) {
         if (node['@type'] === 'Product' && node.offers && !node.offers.availability) {
           issues.push(`${relative}: Product offer availability missing`);
+        }
+        if (node['@type'] === 'Product' && /ランキング|最安|送料無料|ポイント\s*\d*倍/.test(node.description || '')) {
+          issues.push(`${relative}: Product JSON-LD description contains promotional marketplace copy`);
         }
       }
     } catch { issues.push(`${relative}: invalid JSON-LD`); }
