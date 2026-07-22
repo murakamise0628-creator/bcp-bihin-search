@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>運営情報・広告掲載・プライバシー | 事業所防災ナビ</title>
   <meta name="description" content="事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。">
+  
   <link rel="canonical" href="https://jigyousho-bousai.com/site-policy.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="事業所防災ナビ">
@@ -17,6 +18,7 @@
   <meta name="twitter:title" content="運営情報・広告掲載・プライバシー | 事業所防災ナビ">
   <meta name="twitter:description" content="事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。">
   <meta name="theme-color" content="#0e3d49">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230e3d49'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='36' fill='white'%3E%E5%82%99%3C/text%3E%3C/svg%3E">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LN824MSD7X"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -314,6 +316,46 @@
     .source-list span{margin-top:4px;color:var(--muted);font-size:12px}
     .source-list small{margin-top:7px;color:var(--ink-2);font-size:13px;line-height:1.65}
 
+    /* paid stockpile kit */
+    .kit-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:42px;align-items:center;padding:54px 0 38px;border-bottom:1px solid var(--rule)}
+    .kit-hero>*{min-width:0}
+    .kit-hero h1{font-size:clamp(34px,4.7vw,56px);max-width:780px}
+    .kit-hero .lead{max-width:720px}
+    .kit-price{display:flex;align-items:baseline;gap:10px;margin:24px 0 16px;color:var(--main)}
+    .kit-price strong{font-family:var(--font-display);font-size:36px;line-height:1}
+    .kit-price span{font-size:13px;color:var(--muted)}
+    .kit-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .kit-visual{margin:0;background:#fff;border:1px solid var(--rule-2);padding:10px;box-shadow:var(--shadow);transform:rotate(.35deg)}
+    .kit-visual img{display:block;width:100%;height:auto;border:1px solid #e9e6dc}
+    .kit-visual figcaption{padding:9px 4px 2px;font-size:12px;color:var(--muted)}
+    .kit-outcomes{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .kit-outcome{padding:18px;border-left:1px solid var(--rule)}
+    .kit-outcome:first-child{border-left:0}
+    .kit-outcome strong{display:block;color:var(--main);font-size:16px;margin-bottom:4px}
+    .kit-outcome span{display:block;color:var(--muted);font-size:13px;line-height:1.6}
+    .kit-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .kit-shot{margin:0;background:var(--card);border:1px solid var(--rule);padding:8px}
+    .kit-shot img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;background:#fff;border:1px solid #e9e6dc}
+    .kit-shot figcaption{padding:10px 4px 4px;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .kit-example{background:var(--main);color:#fff;border:1px solid var(--main);padding:20px}
+    .kit-example .eyebrow{color:#f2b679}
+    .kit-example h3{font-family:var(--font-display);font-size:24px;margin-bottom:14px}
+    .kit-example dl{display:grid;grid-template-columns:1fr auto;gap:7px 16px;margin:0;padding-top:12px;border-top:1px solid rgba(255,255,255,.25)}
+    .kit-example dt{font-size:13px;color:#dbe5e3}
+    .kit-example dd{margin:0;font-weight:700}
+    .kit-example .sample-total{font-size:21px;color:#f5b36d}
+    .kit-example small{display:block;margin-top:12px;color:#dbe5e3;line-height:1.55}
+    .kit-steps{counter-reset:kit-step;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+    .kit-steps li{list-style:none;counter-increment:kit-step;padding:20px 16px;border-left:1px solid var(--rule);font-size:14px}
+    .kit-steps li:first-child{border-left:0}
+    .kit-steps li::before{content:"0" counter(kit-step);display:block;color:var(--accent-deep);font-family:var(--font-display);font-size:20px;font-weight:700;margin-bottom:6px}
+    .kit-terms{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .kit-terms ul{margin:8px 0 0;padding-left:1.25em}
+    .kit-terms li{margin:.35em 0}
+    .kit-final{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;background:var(--main);color:#fdfbf4;border-color:var(--main)}
+    .kit-final h2,.kit-final p{color:inherit}
+    .kit-final .button{background:var(--accent);border-color:var(--accent);color:#fff}
+
     /* entrance */
     @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
     .hero-main>*,.hero>*{animation:rise .55s ease both}
@@ -331,6 +373,13 @@
       .hero-shopping{border-left:0;border-top:1px solid var(--rule)}
       .route-board,.split-proof{grid-template-columns:1fr;gap:20px}
       .hero-main h1{max-width:680px}
+      .kit-hero{grid-template-columns:1fr;gap:24px}
+      .kit-outcomes{grid-template-columns:1fr 1fr}
+      .kit-outcome:nth-child(odd){border-left:0}
+      .kit-outcome:nth-child(n+3){border-top:1px solid var(--rule)}
+      .kit-steps{grid-template-columns:1fr 1fr}
+      .kit-steps li:nth-child(odd){border-left:0}
+      .kit-steps li:nth-child(n+3){border-top:1px solid var(--rule)}
     }
     @media(max-width:760px){
       main{padding:14px 14px 48px;max-width:100%}
@@ -391,6 +440,16 @@
       .product-img{width:104px;height:104px}
       .product h2{font-size:17px}
       .card{padding:18px}
+      .kit-hero{grid-template-columns:1fr;gap:20px;padding:34px 0 28px}
+      .kit-hero h1{font-size:clamp(30px,8.2vw,38px)}
+      .kit-cta{display:grid;justify-items:start}
+      .kit-cta .notice{display:block}
+      .kit-visual{transform:none}
+      .kit-outcomes,.kit-gallery,.kit-steps,.kit-terms{grid-template-columns:1fr}
+      .kit-outcome,.kit-outcome:first-child,.kit-steps li,.kit-steps li:first-child{border-left:0}
+      .kit-outcome+.kit-outcome,.kit-steps li+li{border-top:1px solid var(--rule)}
+      .kit-final{grid-template-columns:1fr}
+      .kit-final .button{width:100%}
     }
   </style>
 </head>
@@ -402,7 +461,7 @@
 </section>
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"運営情報・広告掲載・プライバシー","description":"事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-07-22T17:35:59.649Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="https://jigyousho-bousai.com/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer><script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"運営情報・広告掲載・プライバシー","description":"事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-07-22T18:56:43.022Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="https://jigyousho-bousai.com/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;
@@ -508,6 +567,18 @@
         var initialPlan=stockPlanValues();
         trackEvent('stock_plan_view',{ people_count:initialPlan.people,days_count:initialPlan.days,water_liters:initialPlan.water,food_servings:initialPlan.food,toilet_uses:initialPlan.toilet });
       }
+      var paidKitPage=document.querySelector('[data-paid-kit-page]');
+      if(paidKitPage){
+        var paidPlan=stockPlanValues();
+        trackEvent('paid_kit_offer_view',{
+          product_name:cleanText(paidKitPage.dataset.productName),
+          value:Number(paidKitPage.dataset.productPrice || 0),
+          currency:'JPY',
+          stock_plan_active:paidPlan.active ? 'true' : 'false',
+          stock_plan_people:paidPlan.people,
+          stock_plan_days:paidPlan.days
+        });
+      }
       var quantityTracked=false;
       ['staffCount','daysCount','visitorCount'].forEach(function(id){
         var el=document.getElementById(id);
@@ -598,6 +669,24 @@
         if(anchor.dataset && anchor.dataset.stockPlan){
           var plan=stockPlanValues();
           trackEvent('stock_plan_compare_click',{ plan_type:anchor.dataset.stockPlan,people_count:plan.people,days_count:plan.days,water_liters:plan.water,food_servings:plan.food,toilet_uses:plan.toilet,destination:url });
+          return;
+        }
+        if(anchor.dataset && anchor.dataset.paidKitCheckout){
+          var checkoutPlan=stockPlanValues();
+          trackEvent('paid_kit_checkout_click',{
+            product_name:cleanText(anchor.dataset.productName),
+            value:Number(anchor.dataset.productPrice || 0),
+            currency:'JPY',
+            link_text:anchorText(anchor),
+            destination:url,
+            stock_plan_active:checkoutPlan.active ? 'true' : 'false',
+            stock_plan_people:checkoutPlan.people,
+            stock_plan_days:checkoutPlan.days
+          });
+          return;
+        }
+        if(anchor.dataset && anchor.dataset.paidKitOffer){
+          trackEvent('paid_kit_offer_click',{ link_text:anchorText(anchor),destination:url });
           return;
         }
         if(anchor.dataset && anchor.dataset.share){
