@@ -452,6 +452,8 @@ function layout(title, body, description, canonical, options = {}) {
   const crumbs = options.crumbs || [];
   const socialImage = options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}"><meta name="twitter:image" content="${esc(options.ogImage)}">` : '';
   const breadcrumb = crumbs.length ? `<nav class="breadcrumb" aria-label="パンくず"><a href="${siteUrl}/">ホーム</a>${crumbs.map((item) => `<span>/</span><span>${esc(item)}</span>`).join('')}</nav>` : '';
+  const affiliateDisclosure = options.hideAffiliateDisclosure ? '' : '<p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p>';
+  const sharing = options.hideShare ? '' : shareSection(title, canonical);
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -521,6 +523,8 @@ ${socialImage}
     .breadcrumb a:hover{color:var(--main)}
     .site-footer{border-top:1px solid var(--rule);margin-top:52px;padding:18px 0 0;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
     .site-footer a{color:var(--muted);text-decoration:none}
+    .site-footer nav{display:flex;gap:14px;flex-wrap:wrap}
+    .affiliate-disclosure{margin:10px 0 0;color:var(--muted);font-size:12px}
 
     /* primitives */
     .button{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:12px 20px;background:var(--main);color:#fdfbf4;border-radius:4px;text-decoration:none;font-weight:700;letter-spacing:.03em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.22);transition:transform .18s ease,filter .18s ease}
@@ -824,7 +828,7 @@ ${socialImage}
     }
   </style>
 </head>
-<body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">よく使う比較</a></nav></header>${breadcrumb}${body}${shareSection(title, canonical)}${siteFooter()}${clientScript()}</main></body>
+<body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">よく使う比較</a></nav></header>${affiliateDisclosure}${breadcrumb}${body}${sharing}${siteFooter()}${clientScript()}</main></body>
 </html>`;
 }
 
@@ -839,7 +843,7 @@ function analyticsHead() {
 }
 
 function siteFooter() {
-  return `<footer class="site-footer"><span>© 2026 事業所防災ナビ</span><span>運営: 事業所防災ナビ編集部 / 楽天アフィリエイト等のリンクを含む場合があります</span></footer>`;
+  return `<footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="${siteUrl}/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer>`;
 }
 
 function shareSection(title, canonical) {
@@ -908,7 +912,8 @@ function clientScript() {
       function cleanText(value){ return String(value || '').replace(/\\s+/g,' ').trim().slice(0,120); }
       function anchorText(anchor){ return cleanText(anchor.getAttribute('aria-label') || anchor.textContent || anchor.href); }
       function ctaLocation(anchor){
-        if(anchor.closest('.comparison-wrap')) return 'comparison_table';
+        if(anchor.closest('.compare-scroll')) return 'comparison_table';
+        if(anchor.closest('.quick-picks')) return 'quick_pick';
         if(anchor.closest('.product')) return 'product_card';
         if(anchor.classList.contains('hero-product')) return 'hero_product';
         if(anchor.classList.contains('showcase-card')) return 'showcase_card';
@@ -920,6 +925,7 @@ function clientScript() {
           product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
           product_price: Number(anchor.dataset.productPrice || 0),
           product_category: anchor.dataset.productCategory || '',
+          product_position: Number(anchor.dataset.productPosition || 0),
           cta_location: ctaLocation(anchor),
           link_text: anchorText(anchor),
           destination: anchor.href
@@ -931,6 +937,7 @@ function clientScript() {
           item_name: params.product_name,
           item_category: params.product_category,
           item_list_name: params.cta_location,
+          index: params.product_position ? params.product_position - 1 : undefined,
           price: params.product_price || undefined
         };
       }
@@ -1066,8 +1073,8 @@ function clientScript() {
   </script>`;
 }
 
-function productTrackingAttrs(product, category = '') {
-  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}"`;
+function productTrackingAttrs(product, category = '', position = '') {
+  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}" data-product-position="${esc(position)}"`;
 }
 
 function productJsonLd(products) {
@@ -1174,7 +1181,7 @@ function comparisonRows(products, note) {
   if (!products.length) {
     return `<tr><td colspan="10"><strong>条件に合う候補を確認中です。</strong><br>人数、用途、保管場所、必要回数を先に確認し、関連する備蓄品もあわせて見てください。</td></tr>`;
   }
-  return products.map((product) => `<tr>
+  return products.map((product, index) => `<tr>
     <td class="table-product">${esc(displayTitle(product, 46))}</td>
     <td>${esc(product.relatedCandidate ? '関連候補' : recommendedType(product, note))}</td>
     <td>${esc(yen(product.price))}</td>
@@ -1184,8 +1191,32 @@ function comparisonRows(products, note) {
     <td>${esc(extractSpec(product))}</td>
     <td>${esc(targetPeople(product))}</td>
     <td>${esc(suitedFacility(product, note))}</td>
-    <td>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title)}>詳細</a></td>
+    <td>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で価格・在庫を確認</a></td>
   </tr>`).join('');
+}
+
+function quickPicks(products, note) {
+  if (!products.length) return '';
+  const selected = [];
+  const seenTypes = new Set();
+  for (const product of products) {
+    const type = product.productType || recommendedType(product, note);
+    if (seenTypes.has(type)) continue;
+    selected.push(product);
+    seenTypes.add(type);
+    if (selected.length === 3) break;
+  }
+  for (const product of products) {
+    if (selected.length === 3) break;
+    if (!selected.includes(product)) selected.push(product);
+  }
+  const cards = selected.map((product, index) => `<article class="card product">
+    ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : ''}
+    <div><p class="pill navy">${esc(recommendedType(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
+    <p class="price">${yen(product.price)}</p><p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
+    <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で価格・在庫を確認する</a></div>
+  </article>`).join('');
+  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る3候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
 }
 
 function webPageJsonLd(title, description, canonical, citationUrls = []) {
@@ -1201,8 +1232,8 @@ function webPageJsonLd(title, description, canonical, citationUrls = []) {
       url: `${siteUrl}/`
     },
     publisher: {
-      '@type': 'Organization',
-      name: '事業所防災ナビ',
+      '@type': 'Person',
+      name: '村上 誠治',
       url: `${siteUrl}/`
     },
     citation: citationUrls,
@@ -1246,7 +1277,7 @@ function productCards(products, note) {
         <div><span>注意点</span><strong>${esc(cautionForProduct(product))}</strong></div>
         <div><span>向いている施設</span><strong>${esc(suitedFacility(product, note))}</strong></div>
       </div>
-      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title)}>楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で価格・在庫を確認する</a>
     </div>
   </article>`).join('');
 }
@@ -1322,6 +1353,7 @@ function pageHtml(page) {
   </section>
   ${quantityEstimateSection()}
   ${sourceSection(page.slug)}
+  ${['toilet-office', 'blackout-power', 'water-food-stock'].includes(page.slug) ? quickPicks(products, note) : ''}
   ${comparisonTable(products, note)}
   <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>候補ごとの向き・注意点を見る</h2></div><p class="notice">価格・在庫・レビューは変動します</p></div><div class="product-list">${productCards(products, note)}</div></section>
   ${stockCheckSection(page.slug)}
@@ -1423,7 +1455,7 @@ const heroProducts = [
   firstProduct('water-food-stock', /保存水|非常食|アルファ米/)
 ].filter(Boolean);
 
-const heroProductCards = heroProducts.map((product) => `<a class="hero-product" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, 'トップ')}>
+const heroProductCards = heroProducts.map((product, index) => `<a class="hero-product" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, 'トップ', index + 1)}>
   <img src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">
   <span>${esc(displayTitle(product, 34))}</span>
 </a>`).join('');
@@ -1434,7 +1466,7 @@ const showcaseProducts = [
   firstProduct('blackout-power', /電源|Wh|ライト|ランタン/)
 ].filter(Boolean);
 
-const showcaseCards = showcaseProducts.map((product) => `<a class="showcase-card" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, 'トップ')}>
+const showcaseCards = showcaseProducts.map((product, index) => `<a class="showcase-card" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, 'トップ', index + 1)}>
   <img src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">
   <span>${esc(displayTitle(product, 38))}</span>
   <em>楽天で価格を見る</em>
@@ -1603,12 +1635,30 @@ ${structuredData(
   faqJsonLd(homeFaq.map((item) => [item.question, item.answer]))
 )}`;
 
+const policyCanonical = `${siteUrl}/site-policy.html`;
+const policyBody = `<nav class="breadcrumbs" aria-label="パンくず"><a href="${siteUrl}/">ホーム</a><span>›</span><span>運営情報・広告掲載・プライバシー</span></nav>
+<section class="hero"><p class="eyebrow">サイトについて</p><h1>運営情報・広告掲載・プライバシー</h1><p class="lead">事業所防災ナビの運営者、広告リンク、アクセス解析で取り扱う情報を記載します。</p></section>
+<section class="section two">
+  <article class="card"><h2>運営情報</h2><dl class="spec-grid"><div><span>サイト名</span><strong>事業所防災ナビ</strong></div><div><span>運営者</span><strong>村上 誠治</strong></div><div><span>サイトURL</span><strong>${siteUrl}/</strong></div><div><span>更新日</span><strong>2026年7月23日</strong></div></dl></article>
+  <article class="card"><h2>掲載情報について</h2><p>当サイトは、事業所向け防災用品を比較しやすくするための情報サイトです。価格、在庫、レビュー、商品仕様は変動する場合があります。購入前に必ず販売ページで最新情報を確認してください。</p><p>医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄については、メーカー、専門業者、施設管理者に確認してください。</p></article>
+</section>
+<section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
+<section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
+${structuredData(webPageJsonLd('運営情報・広告掲載・プライバシー', '事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。', policyCanonical))}`;
+
 fs.writeFileSync(path.join(dist, 'index.html'), layout(
   '事業所の防災備蓄は何を何日分？会社・店舗向け用品比較',
   indexBody,
   '会社、店舗、保育園、介護施設、飲食店の防災備蓄を、人数と待機日数から確認。地震、台風、停電、断水に備える簡易トイレ、保存水、非常食、ポータブル電源を比較できます。',
   `${siteUrl}/`,
   { ogImage: showcaseProducts.find((product) => product.image)?.image || '' }
+));
+fs.writeFileSync(path.join(dist, 'site-policy.html'), layout(
+  '運営情報・広告掲載・プライバシー',
+  policyBody,
+  '事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。',
+  policyCanonical,
+  { hideAffiliateDisclosure: true, hideShare: true }
 ));
 fs.writeFileSync(path.join(dist, 'CNAME'), 'jigyousho-bousai.com\n');
 fs.writeFileSync(path.join(dist, 'google2ec9ab5d0fbf2c67.html'), 'google-site-verification: google2ec9ab5d0fbf2c67.html\n');
@@ -1622,6 +1672,7 @@ for (const topic of topicPages) {
 }
 const urls = [
   `${siteUrl}/`,
+  policyCanonical,
   ...data.pages.map((page) => `${siteUrl}/pages/${page.slug}.html`),
   ...topicPages.map((topic) => `${siteUrl}/topics/${topic.slug}.html`)
 ];
