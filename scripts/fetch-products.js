@@ -218,11 +218,34 @@ function hasAmbiguousToiletQuantity(product) {
   if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/.test(source)) return false;
   if (/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) return true;
   const counts = new Set([...source.matchAll(/(\d{1,4})\s*回(?:分)?/g)].map((match) => Number(match[1])));
-  const fixedPack = source.match(/1\s*回分\s*[×xX]\s*(\d{1,4})\s*(?:袋|個)/);
-  if (fixedPack && counts.size === 2 && counts.has(1) && counts.has(Number(fixedPack[1]))) return false;
+  const fixedPack = source.match(/(\d{1,4})\s*回分?\s*[×xX]\s*(\d{1,4})\s*(?:袋|個|パック|箱|セット)/);
+  if (fixedPack) {
+    const perPack = Number(fixedPack[1]);
+    const packCount = Number(fixedPack[2]);
+    const allowedCounts = new Set([1, perPack, packCount, perPack * packCount]);
+    if ([...counts].every((count) => allowedCounts.has(count))) return false;
+  }
   if (counts.size === 2 && counts.has(1) && /1\s*回分ずつ(?:個包装|包装|小分け)/.test(source)) return false;
   if (counts.size > 1) return true;
   return counts.size === 1 && /選べる|選択式|各種|最大\s*\d{1,4}\s*回|\d+\s*サイズ/.test(source);
+}
+
+function toiletUseCount(product) {
+  const source = String(product?.titleRaw || product?.name || product || '')
+    .replace(/1回あたり[^／/\s]*/g, '');
+  if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤|汚物処理袋/.test(source)) return null;
+  const fixedPack = source.match(/(\d{1,4})\s*回分?\s*[×xX]\s*(\d{1,4})\s*(?:袋|個|パック|箱|セット)/);
+  if (fixedPack && !/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) {
+    const perPack = Number(fixedPack[1]);
+    const packCount = Number(fixedPack[2]);
+    const total = perPack * packCount;
+    const statedCounts = [...source.matchAll(/(\d{1,4})\s*回(?:分)?/g)].map((match) => Number(match[1]));
+    const allowedCounts = new Set([1, perPack, packCount, total]);
+    if (statedCounts.every((count) => allowedCounts.has(count))) return total;
+  }
+  if (hasAmbiguousToiletQuantity(source)) return null;
+  const count = source.match(/(\d{1,4})\s*回分?/);
+  return count ? Number(count[1]) : null;
 }
 
 function detectProductType(raw) {
@@ -283,11 +306,12 @@ function titleShort(raw, maxLength = 58) {
 
   const productType = detectProductType(source);
   const variableQuantity = hasAmbiguousToiletQuantity(source);
+  const toiletCount = toiletUseCount(source);
   const specs = [
     source.match(/\d{2,5}Wh/i)?.[0],
     source.match(/\d+(?:\.\d+)?W(?!h)/i)?.[0],
     source.match(/\d{4,6}mAh/i)?.[0],
-    variableQuantity ? '' : source.match(/\d{1,4}回分/)?.[0],
+    toiletCount ? `${toiletCount}回分` : '',
     source.match(/\d{1,3}人用/)?.[0],
     source.match(/\d{1,2}年保存/)?.[0],
     standaloneSpec(source, '\\d+(?:\\.\\d+)?L'),
@@ -511,6 +535,7 @@ module.exports = {
   detectProductType,
   titleShort,
   hasAmbiguousToiletQuantity,
+  toiletUseCount,
   prioritizeProductVariety,
   createProductDataset
 };

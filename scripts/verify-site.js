@@ -6,6 +6,7 @@ const {
   detectProductType,
   titleShort,
   hasAmbiguousToiletQuantity,
+  toiletUseCount,
   prioritizeProductVariety
 } = require('./fetch-products');
 
@@ -114,6 +115,21 @@ if (!hasAmbiguousToiletQuantity('簡易トイレ 10/100回分')) {
 }
 if (hasAmbiguousToiletQuantity('携帯トイレ 4回分×3袋セット')) {
   issues.push('product variant detection failed: fixed pack quantity must remain eligible');
+}
+if (toiletUseCount('携帯トイレ 4回分×3袋セット') !== 12) {
+  issues.push('product quantity parsing failed: fixed pack total must be multiplied');
+}
+if (toiletUseCount('携帯トイレ 4回分×3袋セット 合計12回分') !== 12) {
+  issues.push('product quantity parsing failed: stated fixed pack total must remain eligible');
+}
+if (hasAmbiguousToiletQuantity('携帯トイレ 4回分×3袋セット 合計12回分')) {
+  issues.push('product variant detection failed: stated fixed pack total must not look selectable');
+}
+if (titleShort('携帯トイレ 4回分×3袋セット 合計12回分').includes('回数選択式')) {
+  issues.push('product title failed: fixed pack must not be labelled selectable');
+}
+if (toiletUseCount('簡易トイレ 20回分 60回分 120回分') !== null) {
+  issues.push('product quantity parsing failed: selectable quantities must stay unknown');
 }
 if (hasAmbiguousToiletQuantity('簡易トイレ 100回分（1回分×100袋）')) {
   issues.push('product variant detection failed: fixed 100-pack must remain eligible');
@@ -290,6 +306,21 @@ if (!generatedClientScript.includes('estimated_commission_before_caps') || !gene
 }
 if (!generatedClientScript.includes("sessionStorage.setItem(paidKitQualifiedKey,'1')")) {
   issues.push('paid-kit qualified view session deduplication missing');
+}
+
+const expectedSearchTitles = {
+  'pages/office-bichiku.html': '会社の防災備蓄セット比較｜人数・3日分で選ぶ',
+  'pages/toilet-office.html': '事業所の簡易トイレは何回分？100回・200回を比較',
+  'pages/blackout-power.html': '会社の停電対策用品比較｜ポータブル電源・ライト',
+  'pages/water-food-stock.html': '会社の保存水・非常食は何日分？備蓄量と商品比較',
+  'pages/portable-power-kaigo.html': '介護施設向けポータブル電源比較｜容量・出力で選ぶ',
+  'pages/restaurant-dansui.html': '飲食店の断水対策用品比較｜給水・衛生・簡易トイレ'
+};
+for (const [relative, expectedTitle] of Object.entries(expectedSearchTitles)) {
+  const html = fs.readFileSync(path.join(root, relative), 'utf8');
+  if (!html.includes(`<title>${expectedTitle} | 事業所防災ナビ</title>`)) {
+    issues.push(`${relative}: search-intent title missing`);
+  }
 }
 
 if (paidProductEnabled) {
