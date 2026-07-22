@@ -261,6 +261,9 @@ for (const page of data.pages || []) {
   }
   const displayedIds = new Set([...pageHtml.matchAll(/data-product-id="([^"]+)"/g)].map((match) => match[1]));
   if (displayedIds.size < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} displayed product candidates`);
+  if (!pageHtml.includes('data-affiliate-rate=') || !pageHtml.includes('data-estimated-commission=')) {
+    issues.push(`${page.slug}: affiliate value tracking attributes missing`);
+  }
   for (const product of page.products || []) {
     if (hasAmbiguousToiletQuantity(product) && displayedIds.has(product.itemCode)) {
       const marker = `data-product-id="${product.itemCode}"`;
@@ -279,6 +282,11 @@ for (const page of data.pages || []) {
       }
     }
   }
+}
+
+const generatedClientScript = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+if (!generatedClientScript.includes('estimated_commission_before_caps') || !generatedClientScript.includes('affiliate_rate')) {
+  issues.push('GA4 affiliate value event parameters missing');
 }
 
 if (paidProductEnabled) {
