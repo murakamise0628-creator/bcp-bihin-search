@@ -80,6 +80,12 @@ const publicSources = {
     url: 'https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf',
     note: '携帯・簡易トイレの備蓄日数や、使用・管理時に確認する項目を確認できます。'
   },
+  toiletStockpileGuide: {
+    title: 'トイレ備蓄 忘れていませんか',
+    publisher: '経済産業省',
+    url: 'https://www.meti.go.jp/policy/mono_info_service/mono/jyutaku/toirebichiku.html',
+    note: '災害時用トイレについて、1人あたり35回分（7日分）の備蓄例を確認できます。'
+  },
   stockpilePortal: {
     title: '東京都防災 備蓄ナビ',
     publisher: '東京都',
@@ -183,7 +189,7 @@ const pageNotes = {
     avoid: '地震対策は防災セット名だけで選ばず、断水・停電・帰宅困難者を分けて備えます。',
     related: ['office-bichiku', 'toilet-office', 'kitaku-konnansha', 'water-food-stock'],
     faq: [
-      ['会社の防災備蓄は何日分必要ですか？', 'まずは1日分から不足がないか確認し、地域リスクや帰宅困難者の発生可能性に応じて複数日分を検討します。'],
+      ['会社の防災備蓄は何日分必要ですか？', 'まず3日分を出発点に、水、食料、簡易トイレ、毛布を人数分で確認します。地域リスクや物流の復旧見込みに応じて日数を増やします。'],
       ['地震対策で最初に揃えるものは？', '保存水、簡易トイレ、非常食、ライト、防寒用品を人数と日数で確認します。'],
       ['台風対策と地震対策で備えるものは違いますか？', '共通する備蓄もありますが、地震では断水・トイレ・帰宅困難者、台風では停電・浸水前の待機を特に見ます。']
     ]
@@ -228,7 +234,7 @@ const pageNotes = {
     avoid: '食料だけを先に揃えず、水、簡易トイレ、防寒も合わせて確認します。',
     related: ['office-bichiku', 'earthquake-office', 'kitaku-konnansha', 'hoikuen-bousai'],
     faq: [
-      ['会社の防災備蓄は何日分必要ですか？', 'まずは従業員と来客が待機する時間を想定し、1日分から不足がないか確認します。地域や建物条件で増やします。'],
+      ['会社の防災備蓄は何日分必要ですか？', 'まず3日分を出発点に、従業員と来客の人数から必要量を確認します。地域や建物、物流の条件に応じて日数を増やします。'],
       ['保存水はどれくらい必要ですか？', '目安として1人1日3Lで計算します。来客や利用者がいる場合は上乗せします。'],
       ['非常食で注意することは？', '保存年数、アレルギー表示、配布しやすさ、食べるために水や加熱が必要かを確認します。']
     ]
@@ -269,7 +275,7 @@ const categoryDefinitions = [
 const topicPages = [
   {
     slug: 'earthquake',
-    title: '地震対策の事業所防災用品比較',
+    title: '事業所の地震対策｜備蓄品と初動確認',
     lead: '地震後に会社や店舗で待機する前提で、水、簡易トイレ、食料、防寒、ライトを優先して確認します。',
     chips: ['地震', '水', '簡易トイレ', '帰宅困難者'],
     links: ['earthquake-office', 'office-bichiku', 'toilet-office', 'kitaku-konnansha', 'hoikuen-bousai'],
@@ -281,7 +287,7 @@ const topicPages = [
   },
   {
     slug: 'typhoon',
-    title: '台風・大雨対策の事業所防災用品比較',
+    title: '会社の台風・大雨対策｜停電・浸水への備え',
     lead: '台風や大雨では、停電、交通停止、浸水前の待機に備え、電源、ライト、水、衛生用品を確認します。',
     chips: ['台風', '大雨', '停電', '待機'],
     links: ['typhoon-office', 'blackout-power', 'portable-power-kaigo', 'office-bichiku', 'kitaku-konnansha', 'restaurant-dansui'],
@@ -293,7 +299,7 @@ const topicPages = [
   },
   {
     slug: 'power-outage',
-    title: '停電対策の事業所防災用品比較',
+    title: '事業所の停電対策｜必要な電源と備蓄',
     lead: '停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。',
     chips: ['停電', 'ポータブル電源', '照明', '通信'],
     links: ['blackout-power', 'portable-power-kaigo', 'office-bichiku', 'hoikuen-bousai'],
@@ -305,7 +311,7 @@ const topicPages = [
   },
   {
     slug: 'water-outage',
-    title: '断水対策の事業所防災用品比較',
+    title: '事業所の断水対策｜飲料水・トイレ・衛生',
     lead: '断水時は飲料水だけでなく、トイレ、手指衛生、清掃用水、給水容器を分けて確認します。',
     chips: ['断水', 'トイレ', '衛生', '給水'],
     links: ['restaurant-dansui', 'toilet-office', 'water-food-stock', 'office-bichiku'],
@@ -317,7 +323,7 @@ const topicPages = [
   },
   {
     slug: 'commuter-stranding',
-    title: '帰宅困難者対策の事業所防災用品比較',
+    title: '会社の帰宅困難者対策｜3日分の備蓄と待機',
     lead: '交通停止で従業員や来客が施設内に残る前提で、水、トイレ、防寒、スマホ充電を確認します。',
     chips: ['帰宅困難者', '待機', '防寒', '水'],
     links: ['kitaku-konnansha', 'office-bichiku', 'toilet-office', 'blackout-power', 'bcp-stockpile-checklist'],
@@ -1010,7 +1016,8 @@ function stockCheckSection(currentSlug) {
 }
 
 function sourceKeysFor(slug = '') {
-  if (/toilet|dansui|water-outage/.test(slug)) return ['toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
+  if (/toilet/.test(slug)) return ['toiletStockpileGuide', 'toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
+  if (/dansui|water-outage/.test(slug)) return ['toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
   if (/portable-power|blackout|power-outage|typhoon/.test(slug)) return ['workplaceGuideline', 'stockpilePortal'];
   return ['workplaceGuideline', 'toiletGuideline', 'stockpilePortal'];
 }
@@ -1374,7 +1381,7 @@ function productJsonLd(products) {
     .map((product) => ({
     '@type': 'Product',
     name: displayTitle(product),
-    description: product.summary || undefined,
+    description: `${displayTitle(product)}。${extractSpec(product)}。価格、在庫、仕様は販売ページで最新情報を確認してください。`,
     image: product.image || undefined,
     offers: {
       '@type': 'Offer',
@@ -1421,7 +1428,7 @@ function faqJsonLd(faq) {
 
 function faqItems(note) {
   const common = [
-    ['会社の防災備蓄は何日分必要ですか？', 'まずは人数と待機日数を決め、水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に不足を確認します。'],
+    ['会社の防災備蓄は何日分必要ですか？', 'まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。'],
     ['事業所の簡易トイレは何回分必要ですか？', '目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。'],
     ['台風対策と地震対策で備えるものは違いますか？', '共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。']
   ];
