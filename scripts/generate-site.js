@@ -2056,5 +2056,45 @@ const urls = [
 ];
 const sitemapLastmod = (data.generatedAt || new Date().toISOString()).slice(0, 10);
 fs.writeFileSync(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((url) => `<url><loc>${url}</loc><lastmod>${sitemapLastmod}</lastmod></url>`).join('')}</urlset>\n`);
-fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
+const llmsText = [
+  '# 事業所防災ナビ',
+  '',
+  '> 会社、店舗、保育園、介護施設などの防災担当者が、地震、台風、停電、断水、帰宅困難者対策の備蓄品を人数・日数・用途別に比較するための情報サイトです。',
+  '',
+  '## 最初に見るページ',
+  '',
+  `- [事業所防災ナビ](${siteUrl}/): 必要数量の目安、災害別導線、主要比較ページの入口`,
+  `- [事業所防災備蓄チェックリスト](${siteUrl}/pages/bcp-stockpile-checklist.html): 水、食料、簡易トイレ、電源、衛生、防寒の確認項目`,
+  '',
+  '## 商品比較',
+  '',
+  ...data.pages.map((page) => `- [${page.title}](${siteUrl}/pages/${page.slug}.html)`),
+  ...(paidProduct.published ? [`- [${paidProduct.name}](${paidKitCanonical}): 人数、備蓄日数、現在庫から不足数、購入箱数、概算予算を整理するExcelキット`] : []),
+  '',
+  '## 災害別',
+  '',
+  ...topicPages.map((topic) => `- [${topic.title}](${siteUrl}/topics/${topic.slug}.html): ${topic.lead}`),
+  '',
+  '## 数量の目安',
+  '',
+  '- 保存水: 1人1日3Lを計画時の目安として表示',
+  '- 食料: 1人1日3食を計画時の目安として表示',
+  '- 簡易トイレ: 1人1日5回を計画時の目安として表示',
+  '- 保温シートまたは毛布: 1人1枚を計画時の目安として表示',
+  '- 実際の必要量は、施設条件、地域リスク、利用者構成、自治体や業界の方針に合わせて調整してください。',
+  '',
+  '## 商品情報について',
+  '',
+  '- 商品比較には、商品名、画像、価格、レビュー、容量・回数、保存年数、用途など、ページ上に表示している情報だけを使用しています。',
+  '- 価格、在庫、レビュー、商品仕様は変動します。購入前に販売ページで最新情報を確認してください。',
+  '- 医療機器、介護機器、食品アレルギー、施設運用に関わる判断は、メーカー、専門業者、施設管理者へ確認してください。',
+  '',
+  '## 運営情報',
+  '',
+  `- [運営情報・広告掲載・プライバシー](${siteUrl}/site-policy.html)`,
+  `- [XMLサイトマップ](${siteUrl}/sitemap.xml)`,
+  ''
+].join('\n');
+fs.writeFileSync(path.join(dist, 'llms.txt'), llmsText);
+fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
 console.log('built', dist);
