@@ -1,2 +1,5 @@
 dist/
 docs/profit-200k-plan.md
+output/
+artifacts/
+.omc/
