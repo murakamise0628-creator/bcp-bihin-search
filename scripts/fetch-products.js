@@ -51,7 +51,8 @@ const pageRules = {
   },
   'toilet-office': {
     boost: /簡易トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固|汚物|排泄|防臭/i,
-    weak: /非常食|保存水|電源/
+    weak: /非常食|保存水|電源/,
+    productTypes: ['toilet']
   },
   'earthquake-office': {
     boost: /地震|防災セット|備蓄|保存水|非常食|簡易トイレ|ライト|帰宅困難/i,
@@ -63,11 +64,13 @@ const pageRules = {
   },
   'blackout-power': {
     boost: /停電|ポータブル電源|蓄電|バッテリー|Wh|リン酸鉄|LED|ランタン|充電/i,
-    weak: /トイレ|非常食|保存水/
+    weak: /トイレ|非常食|保存水/,
+    productTypes: ['power', 'mobile-power', 'lighting']
   },
   'water-food-stock': {
     boost: /保存水|非常食|アルファ米|備蓄|長期保存|5年|7年|会社|法人|企業/i,
-    weak: /ペット|アウトドア|キャンプ/
+    weak: /ペット|アウトドア|キャンプ/,
+    productTypes: ['water', 'food']
   },
   'bcp-stockpile-checklist': {
     boost: /防災セット|備蓄|保存水|非常食|簡易トイレ|ライト|帰宅困難|企業|法人|会社/i,
@@ -75,7 +78,7 @@ const pageRules = {
   }
 };
 
-const excludePattern = /中古|訳あり|ジャンク|ふるさと納税|レンタル|本体のみ|ケースのみ|カバーのみ|交換用|部品|アクセサリのみ|釣り|登山専用|ペット専用|犬用|猫用/i;
+const excludePattern = /中古|訳あり|ジャンク|ふるさと納税|レンタル|本体のみ|ケースのみ|カバーのみ|交換用|部品|アクセサリのみ|リュック単体|中身はない|バッグのみ|釣り|登山専用|ペット専用|犬用|猫用/i;
 const hypePattern = /最強|絶対|完全|万能|奇跡|爆売れ|神|ランキング.{0,8}1位|ポイント\d+倍|セール|送料無料|最安|激安|受賞/i;
 const homeyPattern = /家庭用|一人用|1人用|個人用|ソロ|キャンプ|アウトドア/i;
 
@@ -155,6 +158,43 @@ function uniqParts(parts) {
   });
 }
 
+function matchesPageType(product, row) {
+  const allowedTypes = pageRules[row.slug]?.productTypes;
+  const productType = detectProductType(product.titleRaw || product.name);
+  return !allowedTypes || allowedTypes.includes(productType);
+}
+
+function detectProductType(raw) {
+  const source = String(raw || '');
+  const candidates = [
+    ['disaster-set', /防災セット|避難セット|防災リュック/],
+    ['water-container', /給水タンク|給水袋|ポリタンク|ウォータータンク|ウォーターバッグ/],
+    ['toilet', /簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/],
+    ['mobile-power', /モバイルバッテリー|携帯充電器/],
+    ['power', /ポータブル電源|蓄電池|非常用電源/],
+    ['lighting', /LEDランタン|充電式ランタン|懐中電灯/],
+    ['water', /保存水|長期保存水|長期保存.{0,4}(?:天然水|飲料水)|保存用.{0,4}(?:天然水|飲料水)|(?:5年|7年|10年)保存.{0,4}(?:天然水|飲料水)/],
+    ['food', /非常食|保存食|アルファ米|備蓄食/],
+    ['blanket', /ブランケット|毛布|防寒シート/]
+  ];
+  return candidates
+    .map(([type, pattern], priority) => ({ type, priority, index: source.search(pattern) }))
+    .filter((candidate) => candidate.index >= 0)
+    .sort((a, b) => a.index - b.index || a.priority - b.priority)[0]?.type || 'other';
+}
+
+function boundedCount(source, suffix, max) {
+  const match = source.match(new RegExp(`(\\d{1,6})${suffix}`));
+  if (!match) return '';
+  const value = Number(match[1]);
+  return value > 0 && value <= max ? match[0] : '';
+}
+
+function standaloneSpec(source, pattern) {
+  const match = source.match(new RegExp(`(?:^|[^A-Za-z0-9])(${pattern})(?![A-Za-z])`, 'i'));
+  return match?.[1] || '';
+}
+
 function titleShort(raw, maxLength = 58) {
   const source = String(raw || '')
     .replace(/[【】\[\]■◆★☆◎〇○●◇<>＜＞]/g, ' ')
@@ -167,26 +207,33 @@ function titleShort(raw, maxLength = 58) {
   const brand = source.match(/\b(Anker|EcoFlow|Jackery|BLUETTI|BOS|アイリスオーヤマ|サンワサプライ|尾西|アルファ米)\b/i);
   if (brand) parts.push(brand[1]);
 
+  const productType = detectProductType(source);
   const specs = [
     source.match(/\d{2,5}Wh/i)?.[0],
-    source.match(/\d{2,5}W/i)?.[0],
+    source.match(/\d+(?:\.\d+)?W(?!h)/i)?.[0],
+    source.match(/\d{4,6}mAh/i)?.[0],
     source.match(/\d{1,4}回分/)?.[0],
     source.match(/\d{1,3}人用/)?.[0],
     source.match(/\d{1,2}年保存/)?.[0],
-    source.match(/\d+(?:\.\d+)?L/)?.[0],
-    source.match(/\d+食/)?.[0],
-    source.match(/\d+枚/)?.[0],
-    source.match(/\d+個/)?.[0]
+    standaloneSpec(source, '\\d+(?:\\.\\d+)?L'),
+    boundedCount(source, '食', 1000),
+    boundedCount(source, '枚', 1000),
+    boundedCount(source, '個', 1000)
   ].filter(Boolean);
   parts.push(...specs);
 
-  if (/ポータブル電源|蓄電池|非常用電源/.test(source)) parts.push('ポータブル電源');
-  else if (/簡易トイレ|非常用トイレ|携帯トイレ|災害用トイレ/.test(source)) parts.push('非常用トイレ');
-  else if (/保存水|長期保存水|水/.test(source)) parts.push('保存水');
-  else if (/非常食|保存食|アルファ米|パン/.test(source)) parts.push('非常食');
-  else if (/給水タンク|給水袋|ポリタンク/.test(source)) parts.push('給水用品');
-  else if (/ブランケット|毛布|防寒/.test(source)) parts.push('防寒用品');
-  else if (/防災セット|防災リュック/.test(source)) parts.push('防災セット');
+  const typeLabels = {
+    'disaster-set': '防災セット',
+    'water-container': '給水用品',
+    toilet: '非常用トイレ',
+    'mobile-power': 'モバイルバッテリー',
+    power: 'ポータブル電源',
+    lighting: '非常用ライト',
+    water: '保存水',
+    food: '非常食',
+    blanket: '防寒用品'
+  };
+  if (typeLabels[productType]) parts.push(typeLabels[productType]);
 
   const meaningful = uniqParts(parts);
   const fallback = source.split(/\s+/).slice(0, 5).join(' ');
@@ -202,7 +249,8 @@ function keywordsForRow(row) {
   return [...new Set(values)];
 }
 
-function normalizeProducts(items) {
+function normalizeProducts(items, sourceKeyword = '') {
+  const fetchedAt = new Date().toISOString();
   return (items || [])
     .map((entry) => entry.Item || entry.item || entry)
     .map((item) => ({
@@ -217,6 +265,13 @@ function normalizeProducts(items) {
       reviewAverage: item.reviewAverage || 0,
       shopName: item.shopName || '',
       itemCode: item.itemCode || '',
+      productType: detectProductType(item.itemName),
+      affiliateRate: Number(item.affiliateRate || 0),
+      genreId: item.genreId || '',
+      saleStartAt: item.startTime || '',
+      saleEndAt: item.endTime || '',
+      fetchedAt,
+      sourceKeyword,
       availability: item.availability === 0 ? 0 : 1,
       score: score(item)
     }));
@@ -245,15 +300,11 @@ async function requestKeyword(keyword) {
   });
   if (!res.ok) throw new Error('Rakuten API failed: ' + res.status + ' ' + await res.text());
   const json = await res.json();
-  return normalizeProducts(json.Items || json.items || []);
+  return normalizeProducts(json.Items || json.items || [], keyword);
 }
 
 async function fetchForKeyword(row) {
   const searchedKeywords = keywordsForRow(row);
-  if (!appId || !accessKey || !affiliateId) {
-    return { ...row, searchedKeywords, products: sampleProducts(row) };
-  }
-
   const products = [];
   const errors = [];
   for (const keyword of searchedKeywords) {
@@ -268,6 +319,7 @@ async function fetchForKeyword(row) {
   const seen = new Set();
   const deduped = products
     .filter((product) => !isExcluded(product))
+    .filter((product) => matchesPageType(product, row))
     .filter((product) => {
       const key = product.itemCode || product.url || product.name;
       if (!key || seen.has(key)) return false;
@@ -278,31 +330,67 @@ async function fetchForKeyword(row) {
     .sort((a, b) => (b.relevance + b.score) - (a.relevance + a.score))
     .slice(0, 12);
 
-  return { ...row, searchedKeywords, products: deduped, error: deduped.length ? undefined : errors.join(' / ') };
-}
-
-function sampleProducts(row) {
-  return [];
+  return {
+    ...row,
+    searchedKeywords,
+    products: deduped,
+    fetchErrors: errors.length ? errors : undefined,
+    error: deduped.length ? undefined : errors.join(' / ')
+  };
 }
 
 async function main() {
+  if (!appId || !accessKey || !affiliateId) {
+    throw new Error('Rakuten API credentials are required; existing product data was not changed');
+  }
   const rows = parseCsv(fs.readFileSync(keywordsPath, 'utf8'));
+  const previous = fs.existsSync(outPath) ? JSON.parse(fs.readFileSync(outPath, 'utf8')) : { pages: [] };
+  const previousBySlug = new Map((previous.pages || []).map((page) => [page.slug, page]));
+  const usableFallback = (row) => {
+    const fallback = previousBySlug.get(row.slug);
+    const products = fallback?.products || [];
+    const hasMetadata = products.every((product) =>
+      product.productType && product.genreId && product.fetchedAt && product.sourceKeyword &&
+      Object.prototype.hasOwnProperty.call(product, 'affiliateRate') &&
+      product.productType === detectProductType(product.titleRaw || product.name)
+    );
+    return products.length >= 8 && hasMetadata && products.every((product) => matchesPageType(product, row)) ? fallback : null;
+  };
   const results = [];
   for (const row of rows) {
     console.log('fetch:', keywordsForRow(row).join(' | '));
     try {
-      results.push(await fetchForKeyword(row));
+      const fetched = await fetchForKeyword(row);
+      if ((fetched.products || []).length < 8) {
+        const fallback = usableFallback(row);
+        if (fallback) {
+          console.warn(`retain previous data: ${row.slug} (${fetched.products.length} fresh products)`);
+          results.push({ ...fallback, staleReason: `fresh candidates: ${fetched.products.length}` });
+        } else {
+          throw new Error(`${row.slug}: fewer than 8 relevant products`);
+        }
+      } else {
+        results.push(fetched);
+      }
     } catch (err) {
       console.warn('skip:', row.keyword, err.message);
-      results.push({ ...row, products: [], error: err.message });
+      const fallback = usableFallback(row);
+      if (!fallback) throw err;
+      results.push({ ...fallback, staleReason: err.message });
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  fs.writeFileSync(outPath, JSON.stringify({ generatedAt: new Date().toISOString(), pages: results }, null, 2));
+  const tempPath = `${outPath}.tmp`;
+  fs.writeFileSync(tempPath, JSON.stringify({ schemaVersion: 2, generatedAt: new Date().toISOString(), pages: results }, null, 2));
+  fs.renameSync(tempPath, outPath);
   console.log('wrote', outPath);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = { detectProductType, titleShort };
