@@ -446,6 +446,14 @@ function quantityEstimateSection() {
       <div><span>簡易トイレ</span><strong id="toiletEstimate">50回分</strong><small>1人1日5回の目安</small></div>
       <div><span>保温シート・毛布</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small></div>
     </div>
+    <div class="stock-plan-actions" aria-labelledby="stock-plan-title">
+      <div><p class="eyebrow">この条件で比較</p><h3 id="stock-plan-title">必要量を持ったまま、商品候補を見る</h3></div>
+      <div class="stock-plan-grid">
+        <a class="stock-plan-link" data-stock-plan="toilet" data-plan-path="${siteUrl}/pages/toilet-office.html" href="${siteUrl}/pages/toilet-office.html#comparison"><span>簡易トイレ</span><strong id="toiletPlanLabel">50回分を比較</strong><small>回数・保存年数・袋の構成を見る</small></a>
+        <a class="stock-plan-link" data-stock-plan="water_food" data-plan-path="${siteUrl}/pages/water-food-stock.html" href="${siteUrl}/pages/water-food-stock.html#comparison"><span>保存水・非常食</span><strong id="waterFoodPlanLabel">10人・1日分を比較</strong><small>水量・食数・保存年数を見る</small></a>
+        <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="${siteUrl}/pages/office-bichiku.html" href="${siteUrl}/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
+      </div>
+    </div>
   </section>`;
 }
 
@@ -663,6 +671,20 @@ ${socialImage}
     .estimate-grid span{font-size:12.5px;font-weight:700;letter-spacing:.08em}
     .estimate-grid strong{display:block;font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.3;color:var(--main)}
     .estimate-grid small{font-size:11.5px}
+    .stock-plan-actions{display:grid;gap:14px;margin-top:20px;padding-top:20px;border-top:2px solid var(--main)}
+    .stock-plan-actions h3{font-family:var(--font-display);font-size:22px}
+    .stock-plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .stock-plan-link{display:grid;gap:5px;min-height:132px;padding:16px;border:1px solid var(--rule-2);border-radius:4px;background:#fff;color:var(--ink);text-decoration:none;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+    .stock-plan-link:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 20px rgba(26,43,48,.08)}
+    .stock-plan-link span,.stock-plan-link small{color:var(--muted)}
+    .stock-plan-link span{font-size:12px;font-weight:800;letter-spacing:.08em}
+    .stock-plan-link strong{font-family:var(--font-display);font-size:18px;color:var(--main)}
+    .stock-plan-link small{font-size:12px;line-height:1.55}
+    .plan-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;border-left:4px solid var(--accent);background:#fff;border-top:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+    .plan-summary[hidden]{display:none}
+    .plan-summary span{font-size:12px;font-weight:800;color:var(--accent-deep);letter-spacing:.08em}
+    .plan-summary strong{font-family:var(--font-display);color:var(--main)}
+    .plan-summary small{color:var(--muted)}
 
     /* faq */
     .faq details{border-bottom:1px solid var(--rule);padding:15px 2px}
@@ -789,6 +811,8 @@ ${socialImage}
       .hero-stats{gap:14px}
       .search-box{grid-template-columns:1fr}
       .hero-shopping{padding:22px 4px;border-left:0;border-top:1px solid var(--rule)}
+      .stock-plan-grid{grid-template-columns:1fr}
+      .stock-plan-link{min-height:0}
       .shopping-head{display:grid;gap:2px}
       .showcase-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto}
       .showcase-card{grid-template-columns:1fr;grid-template-rows:112px auto auto;align-items:start;padding:0;border-bottom:0}
@@ -925,6 +949,7 @@ function clientScript() {
         return 'affiliate_link';
       }
       function productParams(anchor){
+        var plan=stockPlanValues();
         return {
           product_id: cleanText(anchor.dataset.productId || anchor.dataset.productName),
           product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
@@ -933,7 +958,11 @@ function clientScript() {
           product_position: Number(anchor.dataset.productPosition || 0),
           cta_location: ctaLocation(anchor),
           link_text: anchorText(anchor),
-          destination: anchor.href
+          destination: anchor.href,
+          stock_plan_active: plan.active ? 'true' : 'false',
+          stock_plan_people: plan.people,
+          stock_plan_days: plan.days,
+          stock_plan_toilet_uses: plan.toilet
         };
       }
       function ecommerceItem(params){
@@ -946,27 +975,72 @@ function clientScript() {
           price: params.product_price || undefined
         };
       }
+      var stockPlanActive=false;
       function numberValue(id, fallback){ var el=document.getElementById(id); var value=el ? Number(el.value) : fallback; return Number.isFinite(value) && value >= 0 ? value : fallback; }
-      function updateEstimate(){
+      function stockPlanValues(){
         var staff=numberValue('staffCount',10);
-        var days=Math.max(1, numberValue('daysCount',1));
+        var days=Math.max(1,numberValue('daysCount',1));
         var visitors=numberValue('visitorCount',0);
         var people=staff+visitors;
+        return { active:stockPlanActive, staff:staff, visitors:visitors, people:people, days:days, water:people*days*3, food:people*days*3, toilet:people*days*5, blankets:people };
+      }
+      function setPlanInputsFromUrl(){
+        var params;
+        try { params=new URLSearchParams(window.location.search); } catch(e) { return; }
+        var found=false;
+        [['staff','staffCount',100000],['days','daysCount',30],['visitors','visitorCount',100000]].forEach(function(item){
+          if(!params.has(item[0])) return;
+          var value=Number(params.get(item[0]));
+          var input=document.getElementById(item[1]);
+          var minimum=item[0]==='days' ? 1 : 0;
+          if(input && Number.isFinite(value) && value >= minimum && value <= item[2]){ input.value=String(value); found=true; }
+        });
+        stockPlanActive=found;
+      }
+      function updateEstimate(){
+        var plan=stockPlanValues();
         var water=document.getElementById('waterEstimate');
         var food=document.getElementById('foodEstimate');
         var toilet=document.getElementById('toiletEstimate');
         var blanket=document.getElementById('blanketEstimate');
-        if(water) water.textContent=(people*days*3).toLocaleString('ja-JP')+'L';
-        if(food) food.textContent=(people*days*3).toLocaleString('ja-JP')+'食';
-        if(toilet) toilet.textContent=(people*days*5).toLocaleString('ja-JP')+'回分';
-        if(blanket) blanket.textContent=people.toLocaleString('ja-JP')+'枚';
+        if(water) water.textContent=plan.water.toLocaleString('ja-JP')+'L';
+        if(food) food.textContent=plan.food.toLocaleString('ja-JP')+'食';
+        if(toilet) toilet.textContent=plan.toilet.toLocaleString('ja-JP')+'回分';
+        if(blanket) blanket.textContent=plan.blankets.toLocaleString('ja-JP')+'枚';
+        var toiletLabel=document.getElementById('toiletPlanLabel');
+        var waterFoodLabel=document.getElementById('waterFoodPlanLabel');
+        var officeLabel=document.getElementById('officePlanLabel');
+        if(toiletLabel) toiletLabel.textContent=plan.toilet.toLocaleString('ja-JP')+'回分を比較';
+        if(waterFoodLabel) waterFoodLabel.textContent=plan.people.toLocaleString('ja-JP')+'人・'+plan.days.toLocaleString('ja-JP')+'日分を比較';
+        if(officeLabel) officeLabel.textContent=plan.people.toLocaleString('ja-JP')+'人分の備蓄を見る';
+        document.querySelectorAll('[data-stock-plan][data-plan-path]').forEach(function(link){
+          var target=new URL(link.dataset.planPath,window.location.origin);
+          target.searchParams.set('staff',String(plan.staff));
+          target.searchParams.set('days',String(plan.days));
+          target.searchParams.set('visitors',String(plan.visitors));
+          target.hash='comparison';
+          link.href=target.toString();
+        });
+        var summary=document.getElementById('planSummary');
+        var summaryText=document.getElementById('planSummaryText');
+        if(summary && summaryText && stockPlanActive){
+          summary.hidden=false;
+          summaryText.textContent=plan.people.toLocaleString('ja-JP')+'人 × '+plan.days.toLocaleString('ja-JP')+'日：水 '+plan.water.toLocaleString('ja-JP')+'L、食料 '+plan.food.toLocaleString('ja-JP')+'食、簡易トイレ '+plan.toilet.toLocaleString('ja-JP')+'回分';
+        }
       }
+      setPlanInputsFromUrl();
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
       updateEstimate();
+      if(stockPlanActive){
+        var initialPlan=stockPlanValues();
+        trackEvent('stock_plan_view',{ people_count:initialPlan.people,days_count:initialPlan.days,water_liters:initialPlan.water,food_servings:initialPlan.food,toilet_uses:initialPlan.toilet });
+      }
       var quantityTracked=false;
       ['staffCount','daysCount','visitorCount'].forEach(function(id){
         var el=document.getElementById(id);
         if(el) el.addEventListener('change', function(){
+          stockPlanActive=true;
+          updateEstimate();
           if(quantityTracked) return;
           quantityTracked=true;
           trackEvent('quantity_calculator_use', {
@@ -1048,6 +1122,11 @@ function clientScript() {
         var anchor=event.target.closest && event.target.closest('a');
         if(!anchor || !anchor.href) return;
         var url=anchor.href;
+        if(anchor.dataset && anchor.dataset.stockPlan){
+          var plan=stockPlanValues();
+          trackEvent('stock_plan_compare_click',{ plan_type:anchor.dataset.stockPlan,people_count:plan.people,days_count:plan.days,water_liters:plan.water,food_servings:plan.food,toilet_uses:plan.toilet,destination:url });
+          return;
+        }
         if(anchor.dataset && anchor.dataset.share){
           trackEvent('share_click', { share_method: anchor.dataset.share, destination: url });
           return;
@@ -1263,6 +1342,7 @@ function webPageJsonLd(title, description, canonical, citationUrls = []) {
 function comparisonTable(products, note) {
   return `<section class="section" id="comparison">
     <div class="section-title"><div><p class="eyebrow">比較表</p><h2>価格・レビュー・用途を横並びで確認</h2></div><p class="notice">スマホでは横にスクロールできます</p></div>
+    <div class="plan-summary" id="planSummary" hidden><span>今回の目安</span><strong id="planSummaryText"></strong><small>商品ごとの容量・回数と照らして確認してください。</small></div>
     <div class="compare-scroll">
       <table class="compare-table">
         <thead><tr><th>商品</th><th>おすすめ分類</th><th>価格</th><th>レビュー点数</th><th>レビュー件数</th><th>保存年数</th><th>容量または回数</th><th>対象人数の目安</th><th>向いている施設</th><th>注意点 / 詳細</th></tr></thead>
@@ -1319,7 +1399,7 @@ function pageDescription(page, note) {
 }
 
 function pageHtml(page) {
-  const note = pageNotes[page.slug] || {
+  const baseNote = pageNotes[page.slug] || {
     audience: '事業所',
     disasters: ['地震', '台風'],
     conclusion: `${page.title}は、用途と人数を先に決めてから商品候補を比較します。`,
@@ -1329,6 +1409,7 @@ function pageHtml(page) {
     avoid: '商品名だけで選ばず、用途に合うかを確認します。',
     related: ['office-bichiku']
   };
+  const note = { ...baseNote, title: page.title };
   const ownProducts = page.products || [];
   const products = effectiveProducts(page, note, 8);
   const canonical = `${siteUrl}/pages/${page.slug}.html`;
