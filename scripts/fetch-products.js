@@ -164,6 +164,54 @@ function matchesPageType(product, row) {
   return !allowedTypes || allowedTypes.includes(productType);
 }
 
+function semanticProductKey(product) {
+  return String(product.titleShort || titleShort(product.titleRaw || product.name || ''))
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[\s\-_/・,，.。()（）【】\[\]]+/g, '');
+}
+
+function prioritizeProductVariety(products) {
+  const unique = [];
+  const repeated = [];
+  const seenProducts = new Set();
+  for (const product of products) {
+    const key = semanticProductKey(product);
+    if (key && seenProducts.has(key)) repeated.push(product);
+    else {
+      if (key) seenProducts.add(key);
+      unique.push(product);
+    }
+  }
+
+  const firstByType = [];
+  const remaining = [];
+  const seenTypes = new Set();
+  const typeCounts = new Map();
+  for (const product of unique) {
+    const type = product.productType || detectProductType(product.titleRaw || product.name);
+    if (type && type !== 'other' && !seenTypes.has(type)) {
+      seenTypes.add(type);
+      typeCounts.set(type, 1);
+      firstByType.push(product);
+    } else {
+      remaining.push(product);
+    }
+  }
+  const balanced = [];
+  const overflow = [];
+  for (const product of remaining) {
+    const type = product.productType || detectProductType(product.titleRaw || product.name);
+    const count = typeCounts.get(type) || 0;
+    if (seenTypes.size > 1 && type !== 'other' && count >= 6) overflow.push(product);
+    else {
+      balanced.push(product);
+      typeCounts.set(type, count + 1);
+    }
+  }
+  return [...firstByType, ...balanced, ...overflow, ...repeated];
+}
+
 function hasAmbiguousToiletQuantity(product) {
   const source = String(product?.titleRaw || product?.name || product || '')
     .replace(/1回あたり[^／/\s]*/g, '');
@@ -179,6 +227,15 @@ function hasAmbiguousToiletQuantity(product) {
 
 function detectProductType(raw) {
   const source = String(raw || '');
+  const setIndex = source.search(/防災セット|避難セット|防災リュック/);
+  const toiletIndex = source.search(/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/);
+  const leadingProductText = setIndex >= 0 ? source.slice(0, setIndex) : '';
+  if (toiletIndex >= 0 && toiletIndex < setIndex && /\d{1,4}\s*回(?:分)?|凝固剤|汚物袋|排便袋|防臭袋|排泄/.test(leadingProductText)) {
+    return 'toilet';
+  }
+  if (setIndex >= 0 && /防災ヘルメット|ヘルメット|転倒防止|家具固定|飛散防止/.test(source)) {
+    return 'disaster-set';
+  }
   const candidates = [
     ['disaster-set', /防災セット|避難セット|防災リュック/],
     ['water-container', /給水タンク|給水袋|ポリタンク|ウォータータンク|ウォーターバッグ/],
@@ -186,6 +243,10 @@ function detectProductType(raw) {
     ['mobile-power', /モバイルバッテリー|携帯充電器/],
     ['power', /ポータブル電源|蓄電池|非常用電源/],
     ['lighting', /LEDランタン|充電式ランタン|懐中電灯/],
+    ['flood-control', /土のう|水のう|防水シート|止水板|吸水バッグ/],
+    ['hygiene', /手指消毒|除菌|ウェットティッシュ|使い捨て手袋|衛生用品|ドライシャンプー/],
+    ['safety', /防災ヘルメット|ヘルメット|転倒防止|家具固定|飛散防止/],
+    ['communication', /防災ラジオ|手回しラジオ|非常用ラジオ/],
     ['water', /保存水|長期保存水|長期保存.{0,4}(?:天然水|飲料水)|保存用.{0,4}(?:天然水|飲料水)|(?:5年|7年|10年)保存.{0,4}(?:天然水|飲料水)/],
     ['food', /非常食|保存食|アルファ米|備蓄食/],
     ['blanket', /ブランケット|毛布|防寒シート/]
@@ -244,14 +305,29 @@ function titleShort(raw, maxLength = 58) {
     'mobile-power': 'モバイルバッテリー',
     power: 'ポータブル電源',
     lighting: '非常用ライト',
+    'flood-control': '浸水対策用品',
+    hygiene: '衛生用品',
+    safety: '安全対策用品',
+    communication: '防災ラジオ',
     water: '保存水',
     food: '非常食',
     blanket: '防寒用品'
   };
-  const toiletLabel = productType === 'toilet' && /凝固剤/.test(source) && !/(汚物袋|排便袋|防臭袋).{0,8}(?:付|入り|セット)/.test(source)
-    ? 'トイレ用凝固剤'
-    : typeLabels[productType];
-  if (toiletLabel) parts.push(toiletLabel);
+  let productLabel = typeLabels[productType];
+  if (productType === 'toilet' && /凝固剤/.test(source) && !/(汚物袋|排便袋|防臭袋).{0,8}(?:付|入り|セット)/.test(source)) {
+    productLabel = 'トイレ用凝固剤';
+  } else if (productType === 'hygiene') {
+    if (/ウェットティッシュ/.test(source)) productLabel = '除菌ウェットティッシュ';
+    else if (/手指消毒|消毒液/.test(source)) productLabel = '手指消毒用品';
+    else if (/手袋/.test(source)) productLabel = '使い捨て手袋';
+  } else if (productType === 'flood-control') {
+    if (/吸水バッグ/.test(source)) productLabel = '吸水バッグ';
+    else if (/土のう|水のう/.test(source)) productLabel = '土のう・水のう';
+    else if (/止水板/.test(source)) productLabel = '止水板';
+  } else if (productType === 'safety' && /ヘルメット/.test(source)) {
+    productLabel = '防災ヘルメット';
+  }
+  if (productLabel) parts.push(productLabel);
 
   const meaningful = uniqParts(parts);
   const fallback = source.split(/\s+/).slice(0, 5).join(' ');
@@ -336,7 +412,7 @@ async function fetchForKeyword(row) {
   }
 
   const seen = new Set();
-  const deduped = products
+  const ranked = products
     .filter((product) => !isExcluded(product))
     .filter((product) => matchesPageType(product, row))
     .filter((product) => {
@@ -346,8 +422,8 @@ async function fetchForKeyword(row) {
       return true;
     })
     .map((product) => ({ ...product, relevance: relevanceScore(product, row) }))
-    .sort((a, b) => (b.relevance + b.score) - (a.relevance + a.score))
-    .slice(0, 12);
+    .sort((a, b) => (b.relevance + b.score) - (a.relevance + a.score));
+  const deduped = prioritizeProductVariety(ranked).slice(0, 12);
 
   return {
     ...row,
@@ -431,4 +507,10 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detectProductType, titleShort, hasAmbiguousToiletQuantity, createProductDataset };
+module.exports = {
+  detectProductType,
+  titleShort,
+  hasAmbiguousToiletQuantity,
+  prioritizeProductVariety,
+  createProductDataset
+};
