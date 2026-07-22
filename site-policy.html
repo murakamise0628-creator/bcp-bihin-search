@@ -461,7 +461,7 @@
 </section>
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"運営情報・広告掲載・プライバシー","description":"事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-07-22T18:56:43.022Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="https://jigyousho-bousai.com/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer><script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"運営情報・広告掲載・プライバシー","description":"事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-07-22T19:26:21.162Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="https://jigyousho-bousai.com/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;
@@ -508,11 +508,13 @@
         };
       }
       var stockPlanActive=false;
+      var stockPlanState={ staff:10, days:1, visitors:0 };
       function numberValue(id, fallback){ var el=document.getElementById(id); var value=el ? Number(el.value) : fallback; return Number.isFinite(value) && value >= 0 ? value : fallback; }
       function stockPlanValues(){
-        var staff=numberValue('staffCount',10);
-        var days=Math.max(1,numberValue('daysCount',1));
-        var visitors=numberValue('visitorCount',0);
+        var staff=numberValue('staffCount',stockPlanState.staff);
+        var days=Math.max(1,numberValue('daysCount',stockPlanState.days));
+        var visitors=numberValue('visitorCount',stockPlanState.visitors);
+        stockPlanState={ staff:staff, days:days, visitors:visitors };
         var people=staff+visitors;
         return { active:stockPlanActive, staff:staff, visitors:visitors, people:people, days:days, water:people*days*3, food:people*days*3, toilet:people*days*5, blankets:people };
       }
@@ -525,7 +527,11 @@
           var value=Number(params.get(item[0]));
           var input=document.getElementById(item[1]);
           var minimum=item[0]==='days' ? 1 : 0;
-          if(input && Number.isFinite(value) && value >= minimum && value <= item[2]){ input.value=String(value); found=true; }
+          if(Number.isFinite(value) && value >= minimum && value <= item[2]){
+            stockPlanState[item[0]]=value;
+            if(input) input.value=String(value);
+            found=true;
+          }
         });
         stockPlanActive=found;
       }
@@ -553,6 +559,15 @@
           target.hash='comparison';
           link.href=target.toString();
         });
+        document.querySelectorAll('[data-paid-kit-offer][data-plan-path]').forEach(function(link){
+          var target=new URL(link.dataset.planPath,window.location.origin);
+          if(plan.active){
+            target.searchParams.set('staff',String(plan.staff));
+            target.searchParams.set('days',String(plan.days));
+            target.searchParams.set('visitors',String(plan.visitors));
+          }
+          link.href=target.toString();
+        });
         var summary=document.getElementById('planSummary');
         var summaryText=document.getElementById('planSummaryText');
         if(summary && summaryText && stockPlanActive){
@@ -578,6 +593,43 @@
           stock_plan_people:paidPlan.people,
           stock_plan_days:paidPlan.days
         });
+        var paidKitEngagement={ activeSeconds:0, elapsed:false, screens:false, conditions:false, tracked:false };
+        function trackQualifiedPaidKitView(){
+          if(paidKitEngagement.tracked || !paidKitEngagement.elapsed || !paidKitEngagement.conditions) return;
+          if(!paidPlan.active && !paidKitEngagement.screens) return;
+          paidKitEngagement.tracked=true;
+          trackEvent('paid_kit_qualified_view',{
+            product_name:cleanText(paidKitPage.dataset.productName),
+            value:Number(paidKitPage.dataset.productPrice || 0),
+            currency:'JPY',
+            qualification_basis:paidPlan.active ? 'stock_plan_and_conditions' : 'product_review_and_conditions',
+            stock_plan_people:paidPlan.people,
+            stock_plan_days:paidPlan.days
+          });
+        }
+        function markPaidKitSection(id){
+          if(id==='paid-kit-screens') paidKitEngagement.screens=true;
+          if(id==='paid-kit-conditions') paidKitEngagement.conditions=true;
+          trackQualifiedPaidKitView();
+        }
+        function checkPaidKitSections(){
+          document.querySelectorAll('[data-paid-kit-section]').forEach(function(el){
+            var rect=el.getBoundingClientRect();
+            if(rect.bottom >= window.innerHeight*0.25 && rect.top <= window.innerHeight*0.75) markPaidKitSection(el.dataset.paidKitSection);
+          });
+        }
+        var paidKitActiveTimer=window.setInterval(function(){
+          if(document.visibilityState!=='visible') return;
+          checkPaidKitSections();
+          paidKitEngagement.activeSeconds+=1;
+          if(paidKitEngagement.activeSeconds < 20) return;
+          paidKitEngagement.elapsed=true;
+          window.clearInterval(paidKitActiveTimer);
+          trackQualifiedPaidKitView();
+        },1000);
+        window.addEventListener('scroll',checkPaidKitSections,{ passive:true });
+        window.addEventListener('resize',checkPaidKitSections);
+        checkPaidKitSections();
       }
       var quantityTracked=false;
       ['staffCount','daysCount','visitorCount'].forEach(function(id){
@@ -686,7 +738,21 @@
           return;
         }
         if(anchor.dataset && anchor.dataset.paidKitOffer){
-          trackEvent('paid_kit_offer_click',{ link_text:anchorText(anchor),destination:url });
+          var offerPlan=stockPlanValues();
+          var offerTarget=new URL(url,window.location.origin);
+          if(offerPlan.active){
+            offerTarget.searchParams.set('staff',String(offerPlan.staff));
+            offerTarget.searchParams.set('days',String(offerPlan.days));
+            offerTarget.searchParams.set('visitors',String(offerPlan.visitors));
+            anchor.href=offerTarget.toString();
+          }
+          trackEvent('paid_kit_offer_click',{
+            link_text:anchorText(anchor),
+            destination:offerTarget.toString(),
+            stock_plan_active:offerPlan.active ? 'true' : 'false',
+            stock_plan_people:offerPlan.people,
+            stock_plan_days:offerPlan.days
+          });
           return;
         }
         if(anchor.dataset && anchor.dataset.share){
