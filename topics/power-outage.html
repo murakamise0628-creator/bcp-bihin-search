@@ -208,6 +208,20 @@
     .estimate-grid span{font-size:12.5px;font-weight:700;letter-spacing:.08em}
     .estimate-grid strong{display:block;font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.3;color:var(--main)}
     .estimate-grid small{font-size:11.5px}
+    .stock-plan-actions{display:grid;gap:14px;margin-top:20px;padding-top:20px;border-top:2px solid var(--main)}
+    .stock-plan-actions h3{font-family:var(--font-display);font-size:22px}
+    .stock-plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .stock-plan-link{display:grid;gap:5px;min-height:132px;padding:16px;border:1px solid var(--rule-2);border-radius:4px;background:#fff;color:var(--ink);text-decoration:none;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+    .stock-plan-link:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 20px rgba(26,43,48,.08)}
+    .stock-plan-link span,.stock-plan-link small{color:var(--muted)}
+    .stock-plan-link span{font-size:12px;font-weight:800;letter-spacing:.08em}
+    .stock-plan-link strong{font-family:var(--font-display);font-size:18px;color:var(--main)}
+    .stock-plan-link small{font-size:12px;line-height:1.55}
+    .plan-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;border-left:4px solid var(--accent);background:#fff;border-top:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+    .plan-summary[hidden]{display:none}
+    .plan-summary span{font-size:12px;font-weight:800;color:var(--accent-deep);letter-spacing:.08em}
+    .plan-summary strong{font-family:var(--font-display);color:var(--main)}
+    .plan-summary small{color:var(--muted)}
 
     /* faq */
     .faq details{border-bottom:1px solid var(--rule);padding:15px 2px}
@@ -334,6 +348,8 @@
       .hero-stats{gap:14px}
       .search-box{grid-template-columns:1fr}
       .hero-shopping{padding:22px 4px;border-left:0;border-top:1px solid var(--rule)}
+      .stock-plan-grid{grid-template-columns:1fr}
+      .stock-plan-link{min-height:0}
       .shopping-head{display:grid;gap:2px}
       .showcase-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto}
       .showcase-card{grid-template-columns:1fr;grid-template-rows:112px auto auto;align-items:start;padding:0;border-bottom:0}
@@ -405,6 +421,14 @@
       <div><span>簡易トイレ</span><strong id="toiletEstimate">50回分</strong><small>1人1日5回の目安</small></div>
       <div><span>保温シート・毛布</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small></div>
     </div>
+    <div class="stock-plan-actions" aria-labelledby="stock-plan-title">
+      <div><p class="eyebrow">この条件で比較</p><h3 id="stock-plan-title">必要量を持ったまま、商品候補を見る</h3></div>
+      <div class="stock-plan-grid">
+        <a class="stock-plan-link" data-stock-plan="toilet" data-plan-path="https://jigyousho-bousai.com/pages/toilet-office.html" href="https://jigyousho-bousai.com/pages/toilet-office.html#comparison"><span>簡易トイレ</span><strong id="toiletPlanLabel">50回分を比較</strong><small>回数・保存年数・袋の構成を見る</small></a>
+        <a class="stock-plan-link" data-stock-plan="water_food" data-plan-path="https://jigyousho-bousai.com/pages/water-food-stock.html" href="https://jigyousho-bousai.com/pages/water-food-stock.html#comparison"><span>保存水・非常食</span><strong id="waterFoodPlanLabel">10人・1日分を比較</strong><small>水量・食数・保存年数を見る</small></a>
+        <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="https://jigyousho-bousai.com/pages/office-bichiku.html" href="https://jigyousho-bousai.com/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
+      </div>
+    </div>
   </section>
   <section class="section source-references" aria-labelledby="public-sources-title">
     <div class="section-title"><div><p class="eyebrow">公的資料</p><h2 id="public-sources-title">数量・備蓄期間を決めるときの根拠</h2></div></div>
@@ -435,7 +459,7 @@
   <section class="section"><div class="section-title"><div><p class="eyebrow">揃え漏れチェック</p><h2>あわせて確認したい備蓄</h2></div><p class="notice">水・食料・トイレ・電源・防寒に漏れがないかを確認</p></div><div class="link-list fill-list"><a href="https://jigyousho-bousai.com/pages/toilet-office.html"><strong>簡易トイレ</strong><span class="sub">1人1日5回 × 人数 × 日数で確認</span></a><a href="https://jigyousho-bousai.com/pages/water-food-stock.html"><strong>保存水・非常食</strong><span class="sub">水3L・3食 × 人数 × 日数で確認</span></a><a href="https://jigyousho-bousai.com/pages/blackout-power.html"><strong>停電対策・電源</strong><span class="sub">使う機器の出力と時間から逆算</span></a><a href="https://jigyousho-bousai.com/pages/kitaku-konnansha.html"><strong>防寒・待機用品</strong><span class="sub">毛布・保温シートは1人1枚が目安</span></a><a href="https://jigyousho-bousai.com/pages/restaurant-dansui.html"><strong>衛生・断水対策</strong><span class="sub">手指衛生と片付け用の水を分ける</span></a></div></section>
   <section class="section faq" id="faq"><h2>FAQ</h2><details><summary>ポータブル電源は容量だけ見ればいいですか？</summary><p>容量Whに加えて、使う機器に必要な出力W数、充電方法、保管時の管理も確認します。</p></details><details><summary>停電対策で忘れやすいものは？</summary><p>充電ケーブル、延長コード、ライト、乾電池、通信手段の確認が抜けやすいです。</p></details><details><summary>会社の防災備蓄は何日分必要ですか？</summary><p>まずは人数と待機日数を決め、水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に不足を確認します。</p></details><details><summary>事業所の簡易トイレは何回分必要ですか？</summary><p>目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。</p></details><details><summary>台風対策と地震対策で備えるものは違いますか？</summary><p>共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。</p></details></section>
   <section class="section card"><h2>注意点</h2><p>価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p><p>このページは災害別の入口です。実際の商品比較は、関連する比較ページで価格、レビュー、容量、回数、保存年数を確認してください。</p></section>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"停電対策の事業所防災用品比較","description":"停電対策の事業所防災用品比較。停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。 事業所の人数と待機日数から、水、食料、簡易トイレ、停電対策用品の必要量と関連する比較ページを確認できます。","url":"https://jigyousho-bousai.com/topics/power-outage.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-22T17:05:46.079Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"停電対策の事業所防災用品比較","item":"https://jigyousho-bousai.com/topics/power-outage.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"ポータブル電源は容量だけ見ればいいですか？","acceptedAnswer":{"@type":"Answer","text":"容量Whに加えて、使う機器に必要な出力W数、充電方法、保管時の管理も確認します。"}},{"@type":"Question","name":"停電対策で忘れやすいものは？","acceptedAnswer":{"@type":"Answer","text":"充電ケーブル、延長コード、ライト、乾電池、通信手段の確認が抜けやすいです。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まずは人数と待機日数を決め、水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に不足を確認します。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><section class="share-bar" aria-label="このページを共有">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"停電対策の事業所防災用品比較","description":"停電対策の事業所防災用品比較。停電時にスマホ、照明、通信機器、見守り機器を動かすため、容量と出力が分かる電源用品を比較します。 事業所の人数と待機日数から、水、食料、簡易トイレ、停電対策用品の必要量と関連する比較ページを確認できます。","url":"https://jigyousho-bousai.com/topics/power-outage.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-22T17:35:59.649Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"停電対策の事業所防災用品比較","item":"https://jigyousho-bousai.com/topics/power-outage.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"ポータブル電源は容量だけ見ればいいですか？","acceptedAnswer":{"@type":"Answer","text":"容量Whに加えて、使う機器に必要な出力W数、充電方法、保管時の管理も確認します。"}},{"@type":"Question","name":"停電対策で忘れやすいものは？","acceptedAnswer":{"@type":"Answer","text":"充電ケーブル、延長コード、ライト、乾電池、通信手段の確認が抜けやすいです。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まずは人数と待機日数を決め、水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に不足を確認します。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><section class="share-bar" aria-label="このページを共有">
     <div><strong>このページを共有</strong><span class="notice">備蓄の相談や社内での検討にそのまま使えます</span></div>
     <div class="share-buttons">
       <a href="https://twitter.com/intent/tweet?text=%E5%81%9C%E9%9B%BB%E5%AF%BE%E7%AD%96%E3%81%AE%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E7%94%A8%E5%93%81%E6%AF%94%E8%BC%83%20%7C%20%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E3%83%8A%E3%83%93&amp;url=https%3A%2F%2Fjigyousho-bousai.com%2Ftopics%2Fpower-outage.html" target="_blank" rel="noopener" data-share="x">Xで共有</a>
@@ -463,6 +487,7 @@
         return 'affiliate_link';
       }
       function productParams(anchor){
+        var plan=stockPlanValues();
         return {
           product_id: cleanText(anchor.dataset.productId || anchor.dataset.productName),
           product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
@@ -471,7 +496,11 @@
           product_position: Number(anchor.dataset.productPosition || 0),
           cta_location: ctaLocation(anchor),
           link_text: anchorText(anchor),
-          destination: anchor.href
+          destination: anchor.href,
+          stock_plan_active: plan.active ? 'true' : 'false',
+          stock_plan_people: plan.people,
+          stock_plan_days: plan.days,
+          stock_plan_toilet_uses: plan.toilet
         };
       }
       function ecommerceItem(params){
@@ -484,27 +513,72 @@
           price: params.product_price || undefined
         };
       }
+      var stockPlanActive=false;
       function numberValue(id, fallback){ var el=document.getElementById(id); var value=el ? Number(el.value) : fallback; return Number.isFinite(value) && value >= 0 ? value : fallback; }
-      function updateEstimate(){
+      function stockPlanValues(){
         var staff=numberValue('staffCount',10);
-        var days=Math.max(1, numberValue('daysCount',1));
+        var days=Math.max(1,numberValue('daysCount',1));
         var visitors=numberValue('visitorCount',0);
         var people=staff+visitors;
+        return { active:stockPlanActive, staff:staff, visitors:visitors, people:people, days:days, water:people*days*3, food:people*days*3, toilet:people*days*5, blankets:people };
+      }
+      function setPlanInputsFromUrl(){
+        var params;
+        try { params=new URLSearchParams(window.location.search); } catch(e) { return; }
+        var found=false;
+        [['staff','staffCount',100000],['days','daysCount',30],['visitors','visitorCount',100000]].forEach(function(item){
+          if(!params.has(item[0])) return;
+          var value=Number(params.get(item[0]));
+          var input=document.getElementById(item[1]);
+          var minimum=item[0]==='days' ? 1 : 0;
+          if(input && Number.isFinite(value) && value >= minimum && value <= item[2]){ input.value=String(value); found=true; }
+        });
+        stockPlanActive=found;
+      }
+      function updateEstimate(){
+        var plan=stockPlanValues();
         var water=document.getElementById('waterEstimate');
         var food=document.getElementById('foodEstimate');
         var toilet=document.getElementById('toiletEstimate');
         var blanket=document.getElementById('blanketEstimate');
-        if(water) water.textContent=(people*days*3).toLocaleString('ja-JP')+'L';
-        if(food) food.textContent=(people*days*3).toLocaleString('ja-JP')+'食';
-        if(toilet) toilet.textContent=(people*days*5).toLocaleString('ja-JP')+'回分';
-        if(blanket) blanket.textContent=people.toLocaleString('ja-JP')+'枚';
+        if(water) water.textContent=plan.water.toLocaleString('ja-JP')+'L';
+        if(food) food.textContent=plan.food.toLocaleString('ja-JP')+'食';
+        if(toilet) toilet.textContent=plan.toilet.toLocaleString('ja-JP')+'回分';
+        if(blanket) blanket.textContent=plan.blankets.toLocaleString('ja-JP')+'枚';
+        var toiletLabel=document.getElementById('toiletPlanLabel');
+        var waterFoodLabel=document.getElementById('waterFoodPlanLabel');
+        var officeLabel=document.getElementById('officePlanLabel');
+        if(toiletLabel) toiletLabel.textContent=plan.toilet.toLocaleString('ja-JP')+'回分を比較';
+        if(waterFoodLabel) waterFoodLabel.textContent=plan.people.toLocaleString('ja-JP')+'人・'+plan.days.toLocaleString('ja-JP')+'日分を比較';
+        if(officeLabel) officeLabel.textContent=plan.people.toLocaleString('ja-JP')+'人分の備蓄を見る';
+        document.querySelectorAll('[data-stock-plan][data-plan-path]').forEach(function(link){
+          var target=new URL(link.dataset.planPath,window.location.origin);
+          target.searchParams.set('staff',String(plan.staff));
+          target.searchParams.set('days',String(plan.days));
+          target.searchParams.set('visitors',String(plan.visitors));
+          target.hash='comparison';
+          link.href=target.toString();
+        });
+        var summary=document.getElementById('planSummary');
+        var summaryText=document.getElementById('planSummaryText');
+        if(summary && summaryText && stockPlanActive){
+          summary.hidden=false;
+          summaryText.textContent=plan.people.toLocaleString('ja-JP')+'人 × '+plan.days.toLocaleString('ja-JP')+'日：水 '+plan.water.toLocaleString('ja-JP')+'L、食料 '+plan.food.toLocaleString('ja-JP')+'食、簡易トイレ '+plan.toilet.toLocaleString('ja-JP')+'回分';
+        }
       }
+      setPlanInputsFromUrl();
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
       updateEstimate();
+      if(stockPlanActive){
+        var initialPlan=stockPlanValues();
+        trackEvent('stock_plan_view',{ people_count:initialPlan.people,days_count:initialPlan.days,water_liters:initialPlan.water,food_servings:initialPlan.food,toilet_uses:initialPlan.toilet });
+      }
       var quantityTracked=false;
       ['staffCount','daysCount','visitorCount'].forEach(function(id){
         var el=document.getElementById(id);
         if(el) el.addEventListener('change', function(){
+          stockPlanActive=true;
+          updateEstimate();
           if(quantityTracked) return;
           quantityTracked=true;
           trackEvent('quantity_calculator_use', {
@@ -586,6 +660,11 @@
         var anchor=event.target.closest && event.target.closest('a');
         if(!anchor || !anchor.href) return;
         var url=anchor.href;
+        if(anchor.dataset && anchor.dataset.stockPlan){
+          var plan=stockPlanValues();
+          trackEvent('stock_plan_compare_click',{ plan_type:anchor.dataset.stockPlan,people_count:plan.people,days_count:plan.days,water_liters:plan.water,food_servings:plan.food,toilet_uses:plan.toilet,destination:url });
+          return;
+        }
         if(anchor.dataset && anchor.dataset.share){
           trackEvent('share_click', { share_method: anchor.dataset.share, destination: url });
           return;
