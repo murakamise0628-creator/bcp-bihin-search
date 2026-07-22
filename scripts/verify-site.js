@@ -283,11 +283,25 @@ if (!paidProduct.published && homeHasPaidKit) issues.push('index.html: unpublish
 
 const robots = fs.readFileSync(path.join(root, 'robots.txt'), 'utf8');
 if (!/User-agent: OAI-SearchBot\s+Allow: \//.test(robots)) issues.push('robots.txt: OAI-SearchBot is not explicitly allowed');
+if (!/User-agent: ChatGPT-User\s+Allow: \//.test(robots)) issues.push('robots.txt: ChatGPT-User is not explicitly allowed');
 if (!robots.includes(`Sitemap: https://jigyousho-bousai.com/sitemap.xml`)) issues.push('robots.txt: sitemap declaration missing');
 const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
 const paidProductCanonical = `https://jigyousho-bousai.com/pages/${paidProduct.slug}.html`;
 if (paidProduct.published && !sitemap.includes(paidProductCanonical)) issues.push('sitemap.xml: published paid-kit page missing');
 if (!paidProduct.published && sitemap.includes(paidProductCanonical)) issues.push('sitemap.xml: unpublished paid-kit page must be absent');
+const llmsPath = path.join(root, 'llms.txt');
+if (!fs.existsSync(llmsPath)) {
+  issues.push('llms.txt: missing');
+} else {
+  const llms = fs.readFileSync(llmsPath, 'utf8');
+  if (!llms.startsWith('# 事業所防災ナビ\n')) issues.push('llms.txt: title or format is invalid');
+  if (/<\?xml|<urlset/i.test(llms)) issues.push('llms.txt: must not contain sitemap XML');
+  const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+  for (const url of sitemapUrls) {
+    if (!llms.includes(url)) issues.push(`llms.txt: missing ${url}`);
+  }
+  if (!llms.includes('価格、在庫、レビュー、商品仕様は変動します')) issues.push('llms.txt: product information caution missing');
+}
 
 if (issues.length) {
   console.error(issues.join('\n'));
