@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const net = require('net');
+const crypto = require('crypto');
 const { hasAmbiguousToiletQuantity, titleShort } = require('./fetch-products');
 
 const root = path.resolve(__dirname, '..');
@@ -10,6 +11,7 @@ const gaMeasurementId = 'G-LN824MSD7X';
 const dataPath = path.join(root, 'data', 'products.json');
 const keywordsPath = path.join(root, 'data', 'keywords.csv');
 const paidProductPath = path.join(root, 'data', 'paid-product.json');
+const indexNowPath = path.join(root, 'data', 'indexnow.json');
 
 const data = fs.existsSync(dataPath)
   ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
@@ -17,6 +19,9 @@ const data = fs.existsSync(dataPath)
 const paidProduct = fs.existsSync(paidProductPath)
   ? JSON.parse(fs.readFileSync(paidProductPath, 'utf8'))
   : { published: false, slug: 'stockpile-management-kit', name: '', price: 0, checkoutUrl: '' };
+const indexNow = JSON.parse(fs.readFileSync(indexNowPath, 'utf8'));
+if (!/^[A-Za-z0-9-]{8,128}$/.test(indexNow.key || '')) throw new Error('IndexNow key format is invalid.');
+if (indexNow.host !== new URL(siteUrl).hostname) throw new Error('IndexNow host must match SITE_URL.');
 const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
 const paidProductEnabled = paidProduct.published || paidProductPreview;
 const paidProductCheckoutUrl = process.env.PAID_KIT_CHECKOUT_URL || paidProduct.checkoutUrl || '';
@@ -2055,7 +2060,8 @@ const urls = [
   ...topicPages.map((topic) => `${siteUrl}/topics/${topic.slug}.html`)
 ];
 const sitemapLastmod = (data.generatedAt || new Date().toISOString()).slice(0, 10);
-fs.writeFileSync(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((url) => `<url><loc>${url}</loc><lastmod>${sitemapLastmod}</lastmod></url>`).join('')}</urlset>\n`);
+const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((url) => `<url><loc>${url}</loc><lastmod>${sitemapLastmod}</lastmod></url>`).join('')}</urlset>\n`;
+fs.writeFileSync(path.join(dist, 'sitemap.xml'), sitemapXml);
 const llmsText = [
   '# 事業所防災ナビ',
   '',
@@ -2096,5 +2102,26 @@ const llmsText = [
   ''
 ].join('\n');
 fs.writeFileSync(path.join(dist, 'llms.txt'), llmsText);
+fs.writeFileSync(path.join(dist, `${indexNow.key}.txt`), `${indexNow.key}\n`);
 fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
+const generatedFiles = [];
+function collectGeneratedFiles(directory) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const absolutePath = path.join(directory, entry.name);
+    if (entry.isDirectory()) collectGeneratedFiles(absolutePath);
+    else if (entry.name !== 'deploy-status.json') generatedFiles.push(absolutePath);
+  }
+}
+collectGeneratedFiles(dist);
+const contentHash = crypto.createHash('sha256');
+for (const file of generatedFiles.sort()) {
+  contentHash.update(path.relative(dist, file).split(path.sep).join('/'));
+  contentHash.update('\0');
+  contentHash.update(fs.readFileSync(file));
+  contentHash.update('\0');
+}
+fs.writeFileSync(path.join(dist, 'deploy-status.json'), `${JSON.stringify({
+  buildId: contentHash.digest('hex'),
+  sitemapSha256: crypto.createHash('sha256').update(sitemapXml).digest('hex')
+}, null, 2)}\n`);
 console.log('built', dist);

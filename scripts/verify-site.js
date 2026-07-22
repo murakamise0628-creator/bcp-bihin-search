@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const net = require('net');
+const crypto = require('crypto');
 const { detectProductType, titleShort, hasAmbiguousToiletQuantity } = require('./fetch-products');
 
 const projectRoot = path.resolve(__dirname, '..');
 const root = path.join(projectRoot, 'dist');
 const paidProduct = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'paid-product.json'), 'utf8'));
+const indexNow = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'indexnow.json'), 'utf8'));
 const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
 const paidProductEnabled = paidProduct.published || paidProductPreview;
 const paidProductCheckoutUrl = process.env.PAID_KIT_CHECKOUT_URL || paidProduct.checkoutUrl || '';
@@ -33,6 +35,9 @@ const files = allHtmlFiles.filter((file) => !path.basename(file).startsWith('goo
 const knownFiles = new Set(allHtmlFiles.map((file) => path.resolve(file)));
 const forbidden = /編集方針|参考サイトから反映|反映した入口|TOPの上部|商品取得を改善|取得条件|プロンプト|作業メモ|AI臭|UI上|次工程/;
 const issues = [];
+if (!/^[A-Za-z0-9-]{8,128}$/.test(indexNow.key || '')) issues.push('indexnow.json: key format is invalid');
+if (indexNow.host !== 'jigyousho-bousai.com') issues.push('indexnow.json: host is invalid');
+if (indexNow.endpoint !== 'https://api.indexnow.org/indexnow') issues.push('indexnow.json: endpoint is invalid');
 if (typeof paidProduct.published !== 'boolean') issues.push('paid-product.json: published must be a boolean');
 if (typeof paidProduct.name !== 'string' || !paidProduct.name.trim()) issues.push('paid-product.json: name is required');
 if (!Number.isInteger(paidProduct.price) || paidProduct.price <= 0) issues.push('paid-product.json: price must be a positive integer');
@@ -285,7 +290,36 @@ const robots = fs.readFileSync(path.join(root, 'robots.txt'), 'utf8');
 if (!/User-agent: OAI-SearchBot\s+Allow: \//.test(robots)) issues.push('robots.txt: OAI-SearchBot is not explicitly allowed');
 if (!/User-agent: ChatGPT-User\s+Allow: \//.test(robots)) issues.push('robots.txt: ChatGPT-User is not explicitly allowed');
 if (!robots.includes(`Sitemap: https://jigyousho-bousai.com/sitemap.xml`)) issues.push('robots.txt: sitemap declaration missing');
+const indexNowKeyPath = path.join(root, `${indexNow.key}.txt`);
+if (!fs.existsSync(indexNowKeyPath) || fs.readFileSync(indexNowKeyPath, 'utf8').trim() !== indexNow.key) {
+  issues.push('IndexNow key file is missing or invalid');
+}
 const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
+const deployStatusPath = path.join(root, 'deploy-status.json');
+if (!fs.existsSync(deployStatusPath)) {
+  issues.push('deploy-status.json: missing');
+} else {
+  const deployStatus = JSON.parse(fs.readFileSync(deployStatusPath, 'utf8'));
+  const expectedSitemapHash = crypto.createHash('sha256').update(sitemap).digest('hex');
+  const generatedFiles = [];
+  function collectGeneratedFiles(directory) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const absolutePath = path.join(directory, entry.name);
+      if (entry.isDirectory()) collectGeneratedFiles(absolutePath);
+      else if (entry.name !== 'deploy-status.json') generatedFiles.push(absolutePath);
+    }
+  }
+  collectGeneratedFiles(root);
+  const contentHash = crypto.createHash('sha256');
+  for (const file of generatedFiles.sort()) {
+    contentHash.update(path.relative(root, file).split(path.sep).join('/'));
+    contentHash.update('\0');
+    contentHash.update(fs.readFileSync(file));
+    contentHash.update('\0');
+  }
+  if (deployStatus.buildId !== contentHash.digest('hex')) issues.push('deploy-status.json: buildId does not match generated files');
+  if (deployStatus.sitemapSha256 !== expectedSitemapHash) issues.push('deploy-status.json: sitemap hash mismatch');
+}
 const paidProductCanonical = `https://jigyousho-bousai.com/pages/${paidProduct.slug}.html`;
 if (paidProduct.published && !sitemap.includes(paidProductCanonical)) issues.push('sitemap.xml: published paid-kit page missing');
 if (!paidProduct.published && sitemap.includes(paidProductCanonical)) issues.push('sitemap.xml: unpublished paid-kit page must be absent');
