@@ -11,6 +11,7 @@ const {
   candidateTier,
   prioritizeProductVariety
 } = require('./fetch-products');
+const { isApprovedBaseProductUrl } = require('./paid-checkout-url.cjs');
 
 const projectRoot = path.resolve(__dirname, '..');
 const root = path.join(projectRoot, 'dist');
@@ -403,6 +404,7 @@ if (paidProductEnabled) {
       const checkout = new URL(paidProductCheckoutUrl);
       if (checkout.protocol !== 'https:') issues.push(`${paidProductRelative}: checkout URL must use HTTPS`);
       if (!paidProductAllowedHosts.includes(checkout.hostname.toLowerCase())) issues.push(`${paidProductRelative}: checkout host is not allowed`);
+      if (!isApprovedBaseProductUrl(checkout)) issues.push(`${paidProductRelative}: checkout URL is not a standard BASE product page URL`);
       if (paidProduct.published && isPlaceholderCheckoutHost(checkout.hostname)) {
         issues.push(`${paidProductRelative}: published checkout URL uses a placeholder host`);
       }
