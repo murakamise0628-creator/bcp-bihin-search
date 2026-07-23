@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
-const { hasAmbiguousToiletQuantity, toiletUseCount, titleShort, prioritizeProductVariety } = require('./fetch-products');
+const { hasAmbiguousToiletQuantity, toiletUseCount, titleShort, matchesPageType, candidateTier, prioritizeProductVariety } = require('./fetch-products');
 
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
@@ -461,15 +461,21 @@ function targetPeople(product) {
 }
 
 function effectiveProducts(page, note, minCount = 8) {
-  const own = (page.products || [])
-    .map((product) => ({ ...product, relatedCandidate: false }));
+  const eligibleOwn = (page.products || []).filter((product) => matchesPageType(product, { slug: page.slug }));
+  const own = [
+    ...eligibleOwn.filter((product) => candidateTier(product, { slug: page.slug }) === 'preferred'),
+    ...eligibleOwn.filter((product) => candidateTier(product, { slug: page.slug }) === 'demoted')
+  ].map((product) => ({ ...product, relatedCandidate: false }));
   if (own.length >= minCount) return prioritizeProductVariety(own);
 
   const seen = new Set(own.map((product) => product.itemCode || product.url || rawTitle(product)));
   const related = [];
   for (const slug of note.related || []) {
     const relatedPage = pageBySlug(slug);
-    for (const product of (relatedPage?.products || [])) {
+    const eligibleRelated = (relatedPage?.products || [])
+      .filter((product) => matchesPageType(product, { slug: page.slug }))
+      .sort((a, b) => (candidateTier(a, { slug: page.slug }) === 'demoted' ? 1 : 0) - (candidateTier(b, { slug: page.slug }) === 'demoted' ? 1 : 0));
+    for (const product of eligibleRelated) {
       const key = product.itemCode || product.url || rawTitle(product);
       if (!key || seen.has(key)) continue;
       seen.add(key);

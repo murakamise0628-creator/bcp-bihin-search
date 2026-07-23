@@ -31,7 +31,8 @@ function score(item) {
 const pageRules = {
   'portable-power-kaigo': {
     boost: /ポータブル電源|蓄電|バッテリー|Wh|リン酸鉄|電源|停電/i,
-    weak: /トイレ|非常食|保存食|水/
+    weak: /トイレ|非常食|保存食|水/,
+    productTypes: ['power']
   },
   'office-bichiku': {
     boost: /防災セット|備蓄|保存水|非常食|ライト|企業|法人|オフィス|10人|5人/i,
@@ -90,6 +91,7 @@ function relevanceScore(product, row) {
   if (rule.weak && rule.weak.test(text)) points -= 35;
   if (hypePattern.test(text)) points -= 12;
   if (homeyPattern.test(text) && !/保育園|子供|こども/.test(text)) points -= 18;
+  if (row.slug === 'office-bichiku' && /(?:^|[^0-9])(?:1|2)人用|一人用|二人用/.test(text)) points -= 140;
   if (Number(product.reviewCount || 0) < 3) points -= 18;
   if (!product.summary || product.summary.length < 20) points -= 8;
   for (const keyword of keywordsForRow(row)) {
@@ -160,8 +162,27 @@ function uniqParts(parts) {
 
 function matchesPageType(product, row) {
   const allowedTypes = pageRules[row.slug]?.productTypes;
-  const productType = detectProductType(product.titleRaw || product.name);
-  return !allowedTypes || allowedTypes.includes(productType);
+  const source = String(product.titleRaw || product.name || '');
+  const productType = detectProductType(source);
+  if (allowedTypes && !allowedTypes.includes(productType)) return false;
+  if (row.slug === 'portable-power-kaigo' && /ソーラーパネル|太陽光パネル|ソーラーチャージャー/.test(source)) {
+    const withoutCompatibility = source.replace(/\d{3,5}\s*Wh\s*(?:対応|用)/gi, '');
+    if (!/\d{3,5}\s*Wh|蓄電池|バッテリー(?:容量)?/.test(withoutCompatibility)) return false;
+  }
+  return true;
+}
+
+function candidateTier(product, row) {
+  if (!matchesPageType(product, row)) return 'exclude';
+  const source = String(product.titleRaw || product.name || '');
+  if (row.slug === 'toilet-office' && hasAmbiguousToiletQuantity(product)) return 'demoted';
+  if (row.slug === 'office-bichiku') {
+    const household = /(?:^|[^0-9])(?:1|2)人用|一人用|二人用|個人用|家庭用|家族用|自宅用|ソロ/.test(source);
+    const business = /法人|企業|会社|オフィス|事業所|施設|団体|自治体|帰宅困難|業務用|(?:[5-9]|[1-9]\d+)人用/.test(source)
+      || /法人\d{2,}社|官公庁/.test(String(product.summary || ''));
+    if (household && !business) return 'demoted';
+  }
+  return 'preferred';
 }
 
 function semanticProductKey(product) {
@@ -299,6 +320,20 @@ function standaloneSpec(source, pattern) {
   return match?.[1] || '';
 }
 
+function powerOutputSpec(source) {
+  const candidates = [
+    ...source.matchAll(/定格(?:出力)?\s*(\d{2,5})\s*W(?!h)/gi),
+    ...source.matchAll(/(\d{2,5})\s*W(?:出力|高出力)/gi)
+  ].sort((a, b) => a.index - b.index);
+  for (const match of candidates) {
+    const context = source.slice(Math.max(0, match.index - 16), match.index);
+    if (/(?:パネル|ソーラー|太陽光)(?:の)?[\s：:（）()・-]*$/.test(context)) continue;
+    return `${match[1]}W`;
+  }
+  if (/ソーラーパネル|太陽光パネル|ソーラーチャージャー/.test(source)) return '';
+  return source.match(/\d+(?:\.\d+)?W(?!h)/i)?.[0] || '';
+}
+
 function titleShort(raw, maxLength = 58) {
   const source = String(raw || '')
     .replace(/[【】\[\]■◆★☆◎〇○●◇<>＜＞]/g, ' ')
@@ -316,7 +351,7 @@ function titleShort(raw, maxLength = 58) {
   const toiletCount = toiletUseCount(source);
   const specs = [
     source.match(/\d{2,5}Wh/i)?.[0],
-    source.match(/\d+(?:\.\d+)?W(?!h)/i)?.[0],
+    powerOutputSpec(source),
     source.match(/\d{4,6}mAh/i)?.[0],
     toiletCount ? `${toiletCount}回分` : '',
     source.match(/\d{1,3}人用/)?.[0],
@@ -327,6 +362,7 @@ function titleShort(raw, maxLength = 58) {
     toiletCount ? '' : boundedCount(source, '個', 1000)
   ].filter(Boolean);
   parts.push(...specs);
+  if (/ソーラーパネル.{0,12}(?:セット|付)|(?:セット|付).{0,12}ソーラーパネル/.test(source)) parts.push('ソーラーパネルセット');
   if (variableQuantity) parts.push('回数選択式');
 
   const typeLabels = {
@@ -454,7 +490,9 @@ async function fetchForKeyword(row) {
     })
     .map((product) => ({ ...product, relevance: relevanceScore(product, row) }))
     .sort((a, b) => (b.relevance + b.score) - (a.relevance + a.score));
-  const deduped = prioritizeProductVariety(ranked).slice(0, 12);
+  const preferred = ranked.filter((product) => candidateTier(product, row) === 'preferred');
+  const demoted = ranked.filter((product) => candidateTier(product, row) === 'demoted');
+  const deduped = prioritizeProductVariety([...preferred, ...demoted]).slice(0, 12);
 
   return {
     ...row,
@@ -543,6 +581,8 @@ module.exports = {
   titleShort,
   hasAmbiguousToiletQuantity,
   toiletUseCount,
+  matchesPageType,
+  candidateTier,
   prioritizeProductVariety,
   createProductDataset
 };
