@@ -114,6 +114,8 @@
     .hero-main h1 span{color:var(--main);background:linear-gradient(transparent 70%,rgba(212,113,28,.26) 70%)}
     .hero-main .hero-sub{font-size:clamp(17px,1.7vw,21px);line-height:1.85;font-weight:500;color:var(--ink-2);max-width:700px;margin:0 0 14px}
     .hero-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:22px}
+    .hero-subroutes{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:15px}
+    .hero-subroutes a{color:var(--main);font-size:14px;font-weight:800;text-underline-offset:4px}
     .search-compact{max-width:700px;margin-top:24px}
     .hero-stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid var(--rule)}
     .hero-stats span{color:var(--muted);font-size:12px}
@@ -267,6 +269,7 @@
     .compare-table tbody tr:nth-child(even){background:rgba(14,61,73,.035)}
     .compare-table tr:last-child td{border-bottom:0}
     .table-product{font-weight:700;max-width:260px;overflow-wrap:anywhere}
+    [hidden]{display:none!important}
 
     /* subpage: product cards */
     .product-list{display:grid;gap:14px}
@@ -275,6 +278,8 @@
     .product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:var(--paper)}
     .product h2{font-size:19px;font-family:var(--font-body);font-weight:900;overflow-wrap:anywhere;margin-bottom:6px}
     .summary{margin:8px 0;color:var(--ink-2);font-size:14.5px}
+    .fit-result{display:block;margin:8px 0;color:var(--accent-deep);font-size:13.5px;line-height:1.55}
+    .product[data-fit-tier="demoted"] .fit-result{color:var(--muted)}
     .price{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--main);margin:8px 0}
     .facts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
     .fact{border:1px solid var(--rule);border-radius:999px;padding:3px 11px;font-size:12.5px;background:var(--card);color:var(--ink-2)}
@@ -393,14 +398,27 @@
       .site-head{align-items:flex-start;flex-direction:column;gap:8px}
       .site-head,.nav,.hero,.hero>*,.hero-meta,.jump-nav{width:100%;min-width:0;max-width:100%}
       .nav{gap:12px;flex-wrap:wrap}
-      .nav a,.button,.small-button{white-space:nowrap}
+      .nav a,.button,.small-button{white-space:normal}
       .home-hero{grid-template-columns:1fr}
       .hero-main{padding:30px 2px 28px}
-      .hero-main h1{font-size:clamp(30px,8.6vw,38px);line-height:1.24;word-break:keep-all;overflow-wrap:anywhere}
+      .hero-main h1{font-size:clamp(30px,8.6vw,38px);line-height:1.24;word-break:normal;overflow-wrap:anywhere}
       .hero-main .hero-sub{font-size:16.5px;line-height:1.75}
-      .hero-actions{margin-top:18px}
-      .hero-actions .button{width:100%}
+      .hero-actions{width:100%;margin-top:18px}
+      .hero-actions .button{width:100%;max-width:100%}
       .hero-actions .button.secondary{width:auto}
+      .compare-scroll{overflow:visible;border:0;background:transparent}
+      .compare-table{display:block;width:100%;min-width:0}
+      .compare-table thead{display:none}
+      .compare-table tbody{display:grid;gap:12px}
+      .compare-table tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:16px;background:#fff;border:1px solid var(--rule-2);border-radius:4px}
+      .compare-table td{display:none;padding:0;border:0;font-size:14px}
+      .compare-table td:nth-child(1),.compare-table td:nth-child(2),.compare-table td:nth-child(3),.compare-table td:nth-child(7),.compare-table td:nth-child(10){display:block}
+      .compare-table td:nth-child(1),.compare-table td:nth-child(10){grid-column:1/-1}
+      .compare-table td:nth-child(1){font-size:16px;max-width:none}
+      .compare-table td:nth-child(2)::before{content:"分類：";font-size:12px;color:var(--ink-3)}
+      .compare-table td:nth-child(3)::before{content:"価格：";font-size:12px;color:var(--ink-3)}
+      .compare-table td:nth-child(7)::before{content:"容量・回数：";font-size:12px;color:var(--ink-3)}
+      .compare-table td:nth-child(10){padding-top:10px;border-top:1px solid var(--rule)}
       .hero-stats{gap:14px}
       .search-box{grid-template-columns:1fr}
       .hero-shopping{padding:22px 4px;border-left:0;border-top:1px solid var(--rule)}
@@ -440,7 +458,7 @@
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
-      .hero h1{width:100%;font-size:clamp(25px,7.1vw,32px);max-width:100%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+      .hero h1{width:100%;font-size:clamp(25px,7.1vw,30px);max-width:100%;white-space:normal;word-break:break-all;line-break:anywhere;overflow-wrap:anywhere}
       .lead{font-size:16px}
       .scenario-card{grid-template-columns:72px 1fr}
       .scenario-card img{width:72px;height:72px}
@@ -462,6 +480,11 @@
       .kit-final{grid-template-columns:1fr}
       .kit-final .button{width:100%}
     }
+    @media(max-width:340px){
+      .hero-main h1{font-size:28px;word-break:normal;overflow-wrap:break-word}
+      .button,.small-button{width:100%;justify-content:center;line-height:1.45}
+      .showcase-card em{white-space:normal}
+    }
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#disasters">災害別</a><a href="https://jigyousho-bousai.com/#categories">カテゴリ</a><a href="https://jigyousho-bousai.com/#quantity">人数別目安</a><a href="https://jigyousho-bousai.com/#popular">よく使う比較</a></nav></header><p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p><nav class="breadcrumb" aria-label="パンくず"><a href="https://jigyousho-bousai.com/">ホーム</a><span>/</span><span>会社・事業所向け保存水・非常食比較</span></nav><section class="hero">
@@ -474,6 +497,10 @@
       <span class="pill orange">比較候補数: 12件</span>
       
       <span class="pill">最終更新: 2026/7/23</span>
+    </div>
+    <div class="hero-actions">
+      <a class="button orange" href="#quantity">人数と日数から必要量を確認する</a>
+      <a class="button secondary" href="#comparison">商品候補を先に見る</a>
     </div>
     <nav class="jump-nav" aria-label="ページ内目次">
       <span>このページの流れ</span>
@@ -526,21 +553,83 @@
     <p class="source-intro">3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。</p>
     <ul class="source-list"><li><a href="https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf" target="_blank" rel="noopener">事業所における帰宅困難者等対策ガイドライン</a><span>内閣府 防災情報のページ</span><small>3日分の備蓄、水1人1日3L、主食1人1日3食、毛布1人1枚などの考え方を確認できます。</small></li><li><a href="https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf" target="_blank" rel="noopener">避難所におけるトイレの確保・管理ガイドライン</a><span>内閣府 防災情報のページ</span><small>携帯・簡易トイレの備蓄日数や、使用・管理時に確認する項目を確認できます。</small></li><li><a href="https://www.bichiku.metro.tokyo.lg.jp/" target="_blank" rel="noopener">東京都防災 備蓄ナビ</a><span>東京都</span><small>人数や条件から備蓄品と数量を考えるための公的な案内です。</small></li></ul>
   </section>
-  <section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る3候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list"><article class="card product">
+  <section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る3候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list"><article class="card product quick-pick-candidate" data-product-fit="true" data-product-key="akol:10000484" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="3860">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0112807065.jpg" alt="10年保存 1.8l 保存水" loading="lazy">
-    <div><p class="pill navy">長期保存向け</p><h2>10年保存 1.8l 保存水</h2>
-    <p class="price">3,860円</p><p class="notice">10年保存 / レビュー 4.74（1223件）</p>
-    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000484" data-product-name="10年保存 1.8l 保存水" data-product-price="3860" data-affiliate-rate="3" data-estimated-commission="116" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="1" data-variable-price="false">楽天で価格・在庫を確認する</a></div>
-  </article><article class="card product">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>10年保存 1.8l 保存水</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">3,860円</p><p class="notice">1.8L / レビュー 4.74（1223件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000484" data-product-name="10年保存 1.8l 保存水" data-product-price="3860" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="1" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="6480">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/00869187/variety10_top_202602.gif" alt="1人用 5年保存 非常食" loading="lazy">
-    <div><p class="pill navy">長期保存向け</p><h2>1人用 5年保存 非常食</h2>
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>1人用 5年保存 非常食</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
     <p class="price">6,480円</p><p class="notice">5年保存 / レビュー 4.57（268件）</p>
-    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-affiliate-rate="3" data-estimated-commission="194" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="2" data-variable-price="false">楽天で価格・在庫を確認する</a></div>
-  </article><article class="card product">
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" data-product-fit="true" data-product-key="akol:10000693" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="2740">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0118232302.jpg" alt="10年保存 保存水" loading="lazy">
-    <div><p class="pill navy">長期保存向け</p><h2>10年保存 保存水</h2>
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>10年保存 保存水</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
     <p class="price">2,740円</p><p class="notice">10年保存 / レビュー 4.76（524件）</p>
-    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000693" data-product-name="10年保存 保存水" data-product-price="2740" data-affiliate-rate="3" data-estimated-commission="82" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="3" data-variable-price="false">楽天で価格・在庫を確認する</a></div>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000693" data-product-name="10年保存 保存水" data-product-price="2740" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="ix-ix:10001270" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="1596">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1.jpg" alt="5年保存 2L 保存水" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>5年保存 2L 保存水</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">1,596円</p><p class="notice">2L / レビュー 4.71（254件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001270" data-product-name="5年保存 2L 保存水" data-product-price="1596" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="saigaitaisakuhonpo:10001325" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="7316">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/7daysbasic/imgrc0137101952.gif" alt="5年保存 21食 非常食" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>5年保存 21食 非常食</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">7,316円</p><p class="notice">5年保存 / レビュー 4.69（198件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10001325" data-product-name="5年保存 21食 非常食" data-product-price="7316" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="5" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000401" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="1" data-power-wh="" data-output-w="" data-unit-price="5080">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/03025050/image.jpg" alt="1.5L 保存水" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>1.5L 保存水</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">5,080円</p><p class="notice">1.5L / レビュー 4.77（86件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000401" data-product-name="1.5L 保存水" data-product-price="5080" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="6" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="bousaiya-life:10000096" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="8380">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-gohan12p/0.jpg" alt="7年保存 12個 非常食" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>7年保存 12個 非常食</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">8,380円</p><p class="notice">7年保存 / レビュー 4.69（32件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000096" data-product-name="7年保存 12個 非常食" data-product-price="8380" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="7" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="peaceup:10010730" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="11329">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10001624-01.jpg" alt="5年保存 非常食" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>5年保存 非常食</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">11,329円</p><p class="notice">5年保存 / レビュー 4.48（75件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010730" data-product-name="5年保存 非常食" data-product-price="11329" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="8" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="bousaiya-life:10000222" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="3180">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/7y-rice-flour-set/00.jpg" alt="7年保存 4食 非常食" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>7年保存 4食 非常食</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">3,180円</p><p class="notice">7年保存 / レビュー 4.78（51件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000222" data-product-name="7年保存 4食 非常食" data-product-price="3180" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="9" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="peaceup:10010366" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="8870">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10008161-01.jpg" alt="8年保存 21食 非常食" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>8年保存 21食 非常食</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">8,870円</p><p class="notice">8年保存 / レビュー 4.58（24件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010366" data-product-name="8年保存 21食 非常食" data-product-price="8870" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="10" data-variable-price="false">楽天で数量・価格を確認する</a></div>
+  </article><article class="card product quick-pick-candidate" hidden data-product-fit="true" data-product-key="ix-ix:10001271" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="2630">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1-1.jpg" alt="5年保存 保存水" loading="lazy">
+    <div><p class="pill navy">条件が読み取りやすい候補</p><h2>5年保存 保存水</h2>
+    <p>容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+    <p class="price">2,630円</p><p class="notice">5年保存 / レビュー 4.73（183件）</p>
+    <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
+    <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001271" data-product-name="5年保存 保存水" data-product-price="2630" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="11" data-variable-price="false">楽天で数量・価格を確認する</a></div>
   </article></div></section>
   <section class="section" id="comparison">
     <div class="section-title"><div><p class="eyebrow">比較表</p><h2>価格・レビュー・用途を横並びで確認</h2></div><p class="notice">スマホでは横にスクロールできます</p></div>
@@ -548,20 +637,20 @@
     <div class="compare-scroll">
       <table class="compare-table">
         <thead><tr><th>商品</th><th>おすすめ分類</th><th>価格</th><th>レビュー点数</th><th>レビュー件数</th><th>保存年数</th><th>容量または回数</th><th>対象人数の目安</th><th>向いている施設</th><th>注意点 / 詳細</th></tr></thead>
-        <tbody><tr>
+        <tbody><tr data-product-fit="true" data-product-key="akol:10000484" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="3860">
     <td class="table-product">10年保存 1.8l 保存水</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>3,860円</td>
     <td>4.74</td>
     <td>1223</td>
     <td>10年</td>
-    <td>10年保存</td>
+    <td>1.8L</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000484" data-product-name="10年保存 1.8l 保存水" data-product-price="3860" data-affiliate-rate="3" data-estimated-commission="116" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="1" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000484" data-product-name="10年保存 1.8l 保存水" data-product-price="3860" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="1" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="6480">
     <td class="table-product">1人用 5年保存 非常食</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>6,480円</td>
     <td>4.57</td>
     <td>268</td>
@@ -569,10 +658,10 @@
     <td>5年保存</td>
     <td>1人用表記</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-affiliate-rate="3" data-estimated-commission="194" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="2" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="akol:10000693" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="2740">
     <td class="table-product">10年保存 保存水</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>2,740円</td>
     <td>4.76</td>
     <td>524</td>
@@ -580,10 +669,10 @@
     <td>10年保存</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000693" data-product-name="10年保存 保存水" data-product-price="2740" data-affiliate-rate="3" data-estimated-commission="82" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="3" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000693" data-product-name="10年保存 保存水" data-product-price="2740" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="ix-ix:10001270" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="1596">
     <td class="table-product">5年保存 2L 保存水</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>1,596円</td>
     <td>4.71</td>
     <td>254</td>
@@ -591,10 +680,10 @@
     <td>2L</td>
     <td>人数入力で確認</td>
     <td>店舗・オフィス</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001270" data-product-name="5年保存 2L 保存水" data-product-price="1596" data-affiliate-rate="3" data-estimated-commission="48" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="4" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001270" data-product-name="5年保存 2L 保存水" data-product-price="1596" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10001325" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="7316">
     <td class="table-product">5年保存 21食 非常食</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>7,316円</td>
     <td>4.69</td>
     <td>198</td>
@@ -602,10 +691,10 @@
     <td>5年保存</td>
     <td>約7人1日分の目安</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10001325" data-product-name="5年保存 21食 非常食" data-product-price="7316" data-affiliate-rate="3" data-estimated-commission="219" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="5" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10001325" data-product-name="5年保存 21食 非常食" data-product-price="7316" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="5" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000401" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="1" data-power-wh="" data-output-w="" data-unit-price="5080">
     <td class="table-product">1.5L 保存水</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>5,080円</td>
     <td>4.77</td>
     <td>86</td>
@@ -613,10 +702,10 @@
     <td>1.5L</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000401" data-product-name="1.5L 保存水" data-product-price="5080" data-affiliate-rate="3" data-estimated-commission="152" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="6" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000401" data-product-name="1.5L 保存水" data-product-price="5080" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="6" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="bousaiya-life:10000096" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="8380">
     <td class="table-product">7年保存 12個 非常食</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>8,380円</td>
     <td>4.69</td>
     <td>32</td>
@@ -624,10 +713,10 @@
     <td>7年保存</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000096" data-product-name="7年保存 12個 非常食" data-product-price="8380" data-affiliate-rate="3" data-estimated-commission="251" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="7" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000096" data-product-name="7年保存 12個 非常食" data-product-price="8380" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="7" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="peaceup:10010730" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="11329">
     <td class="table-product">5年保存 非常食</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>11,329円</td>
     <td>4.48</td>
     <td>75</td>
@@ -635,10 +724,10 @@
     <td>5年保存</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010730" data-product-name="5年保存 非常食" data-product-price="11329" data-affiliate-rate="3" data-estimated-commission="340" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="8" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010730" data-product-name="5年保存 非常食" data-product-price="11329" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="8" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="bousaiya-life:10000222" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="3180">
     <td class="table-product">7年保存 4食 非常食</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>3,180円</td>
     <td>4.78</td>
     <td>51</td>
@@ -646,10 +735,10 @@
     <td>7年保存</td>
     <td>約1人1日分の目安</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000222" data-product-name="7年保存 4食 非常食" data-product-price="3180" data-affiliate-rate="3" data-estimated-commission="95" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="9" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000222" data-product-name="7年保存 4食 非常食" data-product-price="3180" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="9" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="peaceup:10010366" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="8870">
     <td class="table-product">8年保存 21食 非常食</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>8,870円</td>
     <td>4.58</td>
     <td>24</td>
@@ -657,10 +746,10 @@
     <td>8年保存</td>
     <td>約7人1日分の目安</td>
     <td>事業所・施設</td>
-    <td>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010366" data-product-name="8年保存 21食 非常食" data-product-price="8870" data-affiliate-rate="3" data-estimated-commission="266" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="10" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010366" data-product-name="8年保存 21食 非常食" data-product-price="8870" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="10" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="ix-ix:10001271" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="2630">
     <td class="table-product">5年保存 保存水</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>2,630円</td>
     <td>4.73</td>
     <td>183</td>
@@ -668,10 +757,10 @@
     <td>5年保存</td>
     <td>人数入力で確認</td>
     <td>店舗・オフィス</td>
-    <td>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001271" data-product-name="5年保存 保存水" data-product-price="2630" data-affiliate-rate="3" data-estimated-commission="79" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="11" data-variable-price="false">楽天で価格・在庫を確認</a></td>
-  </tr><tr>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001271" data-product-name="5年保存 保存水" data-product-price="2630" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="11" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="terazuya:10021001" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="18738">
     <td class="table-product">2L 保存水</td>
-    <td>長期保存向け</td>
+    <td>条件が読み取りやすい候補</td>
     <td>18,738円</td>
     <td>5</td>
     <td>2</td>
@@ -679,18 +768,19 @@
     <td>2L</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・容量または回数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q7gyn.oroxzbf4.g00q7gyn.oroy0866/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fterazuya%2Fbichiku-sui2c%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fterazuya%2Fi%2F10021001%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="terazuya:10021001" data-product-name="2L 保存水" data-product-price="18738" data-affiliate-rate="3" data-estimated-commission="562" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="12" data-variable-price="false">楽天で価格・在庫を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・容量または回数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q7gyn.oroxzbf4.g00q7gyn.oroy0866/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fterazuya%2Fbichiku-sui2c%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fterazuya%2Fi%2F10021001%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="terazuya:10021001" data-product-name="2L 保存水" data-product-price="18738" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="12" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr></tbody>
       </table>
     </div>
   </section>
-  <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>候補ごとの向き・注意点を見る</h2></div><p class="notice">価格・在庫・レビューは変動します</p></div><div class="product-list"><article class="card product">
+  <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>上位候補の向き・注意点を見る</h2></div><p class="notice">比較表から上位6件を詳しく掲載</p></div><div class="product-list"><article class="card product" data-product-fit="true" data-product-key="akol:10000484" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="3860">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0112807065.jpg" alt="10年保存 1.8l 保存水" loading="lazy">
     <div>
-      <p class="pill navy">長期保存向け</p>
+      <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>10年保存 1.8l 保存水</h2>
       
-      <p class="summary">10年 純水 長期保存水 10年保存 ペットボトル ミネラルウォーター 備蓄用 備蓄水 保存用 まとめ買い 断水 地震 防災キット 7年 以上 5年 以上 アコール</p>
+      <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+      <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">3,860円</p>
       <div class="facts">
         <span class="fact">レビュー 4.74</span>
@@ -698,20 +788,21 @@
         <span class="fact">海洋深層水のアコール</span>
       </div>
       <div class="spec-grid">
-        <div><span>主要スペック</span><strong>10年保存</strong></div>
+        <div><span>主要スペック</span><strong>1.8L</strong></div>
         <div><span>おすすめ度の根拠</span><strong>価格・レビュー点数・レビュー件数・保存年数</strong></div>
         <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
         <div><span>向いている施設</span><strong>事業所・施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000484" data-product-name="10年保存 1.8l 保存水" data-product-price="3860" data-affiliate-rate="3" data-estimated-commission="116" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="1" data-variable-price="false">楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000484" data-product-name="10年保存 1.8l 保存水" data-product-price="3860" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="1" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product">
+  </article><article class="card product" data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="6480">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/00869187/variety10_top_202602.gif" alt="1人用 5年保存 非常食" loading="lazy">
     <div>
-      <p class="pill navy">長期保存向け</p>
+      <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>1人用 5年保存 非常食</h2>
       
-      <p class="summary">備蓄 在宅避難 帰宅困難 まとめ買い 官公庁 学校 採用実績 防災 避難 オフィス 福利厚生 BCP対策 地震 台風 パンデミック 防災セット 長期保存 非常食セット 自宅 在宅避難 職場 備蓄倉庫</p>
+      <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+      <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">6,480円</p>
       <div class="facts">
         <span class="fact">レビュー 4.57</span>
@@ -724,15 +815,16 @@
         <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
         <div><span>向いている施設</span><strong>事業所・施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-affiliate-rate="3" data-estimated-commission="194" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="2" data-variable-price="false">楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product">
+  </article><article class="card product" data-product-fit="true" data-product-key="akol:10000693" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="2740">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0118232302.jpg" alt="10年保存 保存水" loading="lazy">
     <div>
-      <p class="pill navy">長期保存向け</p>
+      <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>10年保存 保存水</h2>
       
-      <p class="summary">10年 400ml 24本 純水 長期保存水 10年保存 ペットボトル 備蓄用 備蓄水 保存用 災害対策 防災週間 断水 アコール 防災キット</p>
+      <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+      <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">2,740円</p>
       <div class="facts">
         <span class="fact">レビュー 4.76</span>
@@ -745,15 +837,16 @@
         <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
         <div><span>向いている施設</span><strong>事業所・施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000693" data-product-name="10年保存 保存水" data-product-price="2740" data-affiliate-rate="3" data-estimated-commission="82" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="3" data-variable-price="false">楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="akol:10000693" data-product-name="10年保存 保存水" data-product-price="2740" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product">
+  </article><article class="card product" data-product-fit="true" data-product-key="ix-ix:10001270" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="1596">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1.jpg" alt="5年保存 2L 保存水" loading="lazy">
     <div>
-      <p class="pill navy">長期保存向け</p>
+      <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>5年保存 2L 保存水</h2>
       
-      <p class="summary">全国送料無料 領収書 適格請求書発行事業者 施設 法人 団体 自治体購入にも disaster water 5 year 非常食 防災用</p>
+      <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+      <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">1,596円</p>
       <div class="facts">
         <span class="fact">レビュー 4.71</span>
@@ -766,15 +859,16 @@
         <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
         <div><span>向いている施設</span><strong>店舗・オフィス</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001270" data-product-name="5年保存 2L 保存水" data-product-price="1596" data-affiliate-rate="3" data-estimated-commission="48" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="4" data-variable-price="false">楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001270" data-product-name="5年保存 2L 保存水" data-product-price="1596" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product">
+  </article><article class="card product" data-product-fit="true" data-product-key="saigaitaisakuhonpo:10001325" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="7316">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/7daysbasic/imgrc0137101952.gif" alt="5年保存 21食 非常食" loading="lazy">
     <div>
-      <p class="pill navy">長期保存向け</p>
+      <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>5年保存 21食 非常食</h2>
       
-      <p class="summary">備蓄食 家族 保存食セット 避難用品 ご飯 パン 官公庁 学校 採用実績 主食のみ 水無し アルファ化米 地震 台風 水害 防災対策 登山 アウトドア 町内会 防災備蓄 賞味期限通知 防災食品</p>
+      <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+      <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">7,316円</p>
       <div class="facts">
         <span class="fact">レビュー 4.69</span>
@@ -787,15 +881,16 @@
         <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
         <div><span>向いている施設</span><strong>事業所・施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10001325" data-product-name="5年保存 21食 非常食" data-product-price="7316" data-affiliate-rate="3" data-estimated-commission="219" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="5" data-variable-price="false">楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10001325" data-product-name="5年保存 21食 非常食" data-product-price="7316" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="5" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product">
+  </article><article class="card product" data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000401" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="1" data-power-wh="" data-output-w="" data-unit-price="5080">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/03025050/image.jpg" alt="1.5L 保存水" loading="lazy">
     <div>
-      <p class="pill navy">長期保存向け</p>
+      <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>1.5L 保存水</h2>
       
-      <p class="summary">100mlあたりカロリー0cal 塩分相当0.0071g5人家族1日分！赤ちゃんにも優しい長期保存アルカリイオン水！</p>
+      <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
+      <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">5,080円</p>
       <div class="facts">
         <span class="fact">レビュー 4.77</span>
@@ -808,140 +903,14 @@
         <div><span>注意点</span><strong>購入前に最新条件を確認</strong></div>
         <div><span>向いている施設</span><strong>事業所・施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000401" data-product-name="1.5L 保存水" data-product-price="5080" data-affiliate-rate="3" data-estimated-commission="152" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="6" data-variable-price="false">楽天で価格・在庫を確認する</a>
-    </div>
-  </article><article class="card product">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-gohan12p/0.jpg" alt="7年保存 12個 非常食" loading="lazy">
-    <div>
-      <p class="pill navy">長期保存向け</p>
-      <h2>7年保存 12個 非常食</h2>
-      
-      <p class="summary">アルファ米を超えた！ 28品目アレルギー対応の7年保存 長期保存ごはん 3日分セット！ 自主防災組織・会社・病院・保育園・幼稚園・町会様などの防災備蓄に！</p>
-      <p class="price">8,380円</p>
-      <div class="facts">
-        <span class="fact">レビュー 4.69</span>
-        <span class="fact">件数 32</span>
-        <span class="fact">防災屋ライフ</span>
-      </div>
-      <div class="spec-grid">
-        <div><span>主要スペック</span><strong>7年保存</strong></div>
-        <div><span>おすすめ度の根拠</span><strong>価格・レビュー点数・レビュー件数・保存年数</strong></div>
-        <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
-        <div><span>向いている施設</span><strong>事業所・施設</strong></div>
-      </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000096" data-product-name="7年保存 12個 非常食" data-product-price="8380" data-affiliate-rate="3" data-estimated-commission="251" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="7" data-variable-price="false">楽天で価格・在庫を確認する</a>
-    </div>
-  </article><article class="card product">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10001624-01.jpg" alt="5年保存 非常食" loading="lazy">
-    <div>
-      <p class="pill navy">長期保存向け</p>
-      <h2>5年保存 非常食</h2>
-      
-      <p class="summary">ハンバーグ シチュー カレー 魚の煮付 筑前煮 肉じゃが かぼちゃ 鶏と野菜煮 豚汁 牛丼 ミートボール おでん等、常温で食べられる長期保存食</p>
-      <p class="price">11,329円</p>
-      <div class="facts">
-        <span class="fact">レビュー 4.48</span>
-        <span class="fact">件数 75</span>
-        <span class="fact">防災用品・災害対策 ピースアップ</span>
-      </div>
-      <div class="spec-grid">
-        <div><span>主要スペック</span><strong>5年保存</strong></div>
-        <div><span>おすすめ度の根拠</span><strong>価格・レビュー点数・レビュー件数・保存年数</strong></div>
-        <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
-        <div><span>向いている施設</span><strong>事業所・施設</strong></div>
-      </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010730" data-product-name="5年保存 非常食" data-product-price="11329" data-affiliate-rate="3" data-estimated-commission="340" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="8" data-variable-price="false">楽天で価格・在庫を確認する</a>
-    </div>
-  </article><article class="card product">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/7y-rice-flour-set/00.jpg" alt="7年保存 4食 非常食" loading="lazy">
-    <div>
-      <p class="pill navy">長期保存向け</p>
-      <h2>7年保存 4食 非常食</h2>
-      
-      <p class="summary">7年保存の美味しい米粉の保存食！ アレルギー28品目+貝類不使用でどなた様にも安心！ こどもの保存用おやつとして最適な長期保存米粉パン・クッキーのセットです！</p>
-      <p class="price">3,180円</p>
-      <div class="facts">
-        <span class="fact">レビュー 4.78</span>
-        <span class="fact">件数 51</span>
-        <span class="fact">防災屋ライフ</span>
-      </div>
-      <div class="spec-grid">
-        <div><span>主要スペック</span><strong>7年保存</strong></div>
-        <div><span>おすすめ度の根拠</span><strong>価格・レビュー点数・レビュー件数・保存年数</strong></div>
-        <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
-        <div><span>向いている施設</span><strong>事業所・施設</strong></div>
-      </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000222" data-product-name="7年保存 4食 非常食" data-product-price="3180" data-affiliate-rate="3" data-estimated-commission="95" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="9" data-variable-price="false">楽天で価格・在庫を確認する</a>
-    </div>
-  </article><article class="card product">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10008161-01.jpg" alt="8年保存 21食 非常食" loading="lazy">
-    <div>
-      <p class="pill navy">長期保存向け</p>
-      <h2>8年保存 21食 非常食</h2>
-      
-      <p class="summary">お湯やお水を注ぐだけで、いつでもどこでも簡単に、美味しい炊きたて風味のごはんが食べられるアルファ化米。</p>
-      <p class="price">8,870円</p>
-      <div class="facts">
-        <span class="fact">レビュー 4.58</span>
-        <span class="fact">件数 24</span>
-        <span class="fact">防災用品・災害対策 ピースアップ</span>
-      </div>
-      <div class="spec-grid">
-        <div><span>主要スペック</span><strong>8年保存</strong></div>
-        <div><span>おすすめ度の根拠</span><strong>価格・レビュー点数・レビュー件数・保存年数</strong></div>
-        <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
-        <div><span>向いている施設</span><strong>事業所・施設</strong></div>
-      </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010366" data-product-name="8年保存 21食 非常食" data-product-price="8870" data-affiliate-rate="3" data-estimated-commission="266" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="10" data-variable-price="false">楽天で価格・在庫を確認する</a>
-    </div>
-  </article><article class="card product">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1-1.jpg" alt="5年保存 保存水" loading="lazy">
-    <div>
-      <p class="pill navy">長期保存向け</p>
-      <h2>5年保存 保存水</h2>
-      
-      <p class="summary">全国送料無料 領収書 適格請求書発行事業者 施設 法人 団体 自治体購入にも disaster water 5 year 非常食 防災用</p>
-      <p class="price">2,630円</p>
-      <div class="facts">
-        <span class="fact">レビュー 4.73</span>
-        <span class="fact">件数 183</span>
-        <span class="fact">ICSselection-イクスセレクション-</span>
-      </div>
-      <div class="spec-grid">
-        <div><span>主要スペック</span><strong>5年保存</strong></div>
-        <div><span>おすすめ度の根拠</span><strong>価格・レビュー点数・レビュー件数・保存年数</strong></div>
-        <div><span>注意点</span><strong>購入前に最新条件を確認</strong></div>
-        <div><span>向いている施設</span><strong>店舗・オフィス</strong></div>
-      </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ix-ix:10001271" data-product-name="5年保存 保存水" data-product-price="2630" data-affiliate-rate="3" data-estimated-commission="79" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="11" data-variable-price="false">楽天で価格・在庫を確認する</a>
-    </div>
-  </article><article class="card product">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/terazuya/cabinet/05889194/hozon2000b_03.jpg" alt="2L 保存水" loading="lazy">
-    <div>
-      <p class="pill navy">長期保存向け</p>
-      <h2>2L 保存水</h2>
-      
-      <p class="summary">メーカーの在庫状況にも依りますが、受注後1週間くらいで発送致します。（受発注商品・お取り寄せ）企業・自治体・町内会向け[配送日時指定・ 代金引換精算、対応可]</p>
-      <p class="price">18,738円</p>
-      <div class="facts">
-        <span class="fact">レビュー 5</span>
-        <span class="fact">件数 2</span>
-        <span class="fact">酒食処 寺津屋</span>
-      </div>
-      <div class="spec-grid">
-        <div><span>主要スペック</span><strong>2L</strong></div>
-        <div><span>おすすめ度の根拠</span><strong>価格・レビュー点数・容量または回数・事業所用途との一致度</strong></div>
-        <div><span>注意点</span><strong>購入前に最新条件を確認</strong></div>
-        <div><span>向いている施設</span><strong>事業所・施設</strong></div>
-      </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q7gyn.oroxzbf4.g00q7gyn.oroy0866/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fterazuya%2Fbichiku-sui2c%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fterazuya%2Fi%2F10021001%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="terazuya:10021001" data-product-name="2L 保存水" data-product-price="18738" data-affiliate-rate="3" data-estimated-commission="562" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="12" data-variable-price="false">楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000401" data-product-name="1.5L 保存水" data-product-price="5080" data-product-category="会社・事業所向け保存水・非常食比較" data-product-position="6" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
   </article></div></section>
   <section class="section"><div class="section-title"><div><p class="eyebrow">揃え漏れチェック</p><h2>あわせて確認したい備蓄</h2></div><p class="notice">水・食料・トイレ・電源・防寒に漏れがないかを確認</p></div><div class="link-list fill-list"><a href="https://jigyousho-bousai.com/pages/toilet-office.html"><strong>簡易トイレ</strong><span class="sub">1人1日5回 × 人数 × 日数で確認</span></a><a href="https://jigyousho-bousai.com/pages/blackout-power.html"><strong>停電対策・電源</strong><span class="sub">使う機器の出力と時間から逆算</span></a><a href="https://jigyousho-bousai.com/pages/kitaku-konnansha.html"><strong>防寒・待機用品</strong><span class="sub">毛布・保温シートは1人1枚が目安</span></a><a href="https://jigyousho-bousai.com/pages/restaurant-dansui.html"><strong>衛生・断水対策</strong><span class="sub">手指衛生と片付け用の水を分ける</span></a></div></section>
   <section class="section card"><h2>注意点</h2><p>価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
   <section class="section faq" id="faq"><h2>FAQ</h2><details><summary>会社の防災備蓄は何日分必要ですか？</summary><p>まず3日分を出発点に、従業員と来客の人数から必要量を確認します。地域や建物、物流の条件に応じて日数を増やします。</p></details><details><summary>保存水はどれくらい必要ですか？</summary><p>目安として1人1日3Lで計算します。来客や利用者がいる場合は上乗せします。</p></details><details><summary>非常食で注意することは？</summary><p>保存年数、アレルギー表示、配布しやすさ、食べるために水や加熱が必要かを確認します。</p></details><details><summary>事業所の簡易トイレは何回分必要ですか？</summary><p>目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。</p></details><details><summary>台風対策と地震対策で備えるものは違いますか？</summary><p>共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。</p></details></section>
   <section class="section"><div class="section-title"><h2>関連ページ</h2><p class="notice">災害別・施設別に続けて確認</p></div><div class="link-list"><a href="https://jigyousho-bousai.com/pages/office-bichiku.html">小規模オフィス向け防災備蓄セット比較</a><a href="https://jigyousho-bousai.com/pages/earthquake-office.html">事業所向け地震対策用品比較</a><a href="https://jigyousho-bousai.com/pages/kitaku-konnansha.html">帰宅困難者対策の備蓄品比較</a><a href="https://jigyousho-bousai.com/pages/hoikuen-bousai.html">保育園向け防災備蓄セット比較</a></div></section>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"会社・事業所向け保存水・非常食比較","description":"会社・事業所向け保存水・非常食比較。保存水・非常食は、人数と待機日数から水は1人1日3L、食料は1人1日3食を目安に確認します。 会社や事業所で従業員・来客が待機する場面に備え、保存水と非常食を比較するページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/water-food-stock.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"publisher":{"@type":"Person","name":"村上 誠治","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-23T01:26:56.336Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"会社・事業所向け保存水・非常食比較","item":"https://jigyousho-bousai.com/pages/water-food-stock.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点に、従業員と来客の人数から必要量を確認します。地域や建物、物流の条件に応じて日数を増やします。"}},{"@type":"Question","name":"保存水はどれくらい必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日3Lで計算します。来客や利用者がいる場合は上乗せします。"}},{"@type":"Question","name":"非常食で注意することは？","acceptedAnswer":{"@type":"Answer","text":"保存年数、アレルギー表示、配布しやすさ、食べるために水や加熱が必要かを確認します。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/water-food-stock.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10年保存 1.8l 保存水"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 5年保存 非常食"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10年保存 保存水"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 2L 保存水"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 21食 非常食"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1.5L 保存水"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"7年保存 12個 非常食"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 非常食"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"7年保存 4食 非常食"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"8年保存 21食 非常食"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 保存水"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q7gyn.oroxzbf4.g00q7gyn.oroy0866/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fterazuya%2Fbichiku-sui2c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fterazuya%2Fi%2F10021001%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"2L 保存水"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"10年保存 1.8l 保存水","description":"10年保存 1.8l 保存水。10年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0112807065.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3860,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.74,"reviewCount":1223}},{"@type":"Product","name":"1人用 5年保存 非常食","description":"1人用 5年保存 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/00869187/variety10_top_202602.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":6480,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.57,"reviewCount":268}},{"@type":"Product","name":"10年保存 保存水","description":"10年保存 保存水。10年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0118232302.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":2740,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.76,"reviewCount":524}},{"@type":"Product","name":"5年保存 2L 保存水","description":"5年保存 2L 保存水。2L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1596,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.71,"reviewCount":254}},{"@type":"Product","name":"5年保存 21食 非常食","description":"5年保存 21食 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/7daysbasic/imgrc0137101952.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":7316,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.69,"reviewCount":198}},{"@type":"Product","name":"1.5L 保存水","description":"1.5L 保存水。1.5L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/03025050/image.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":5080,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.77,"reviewCount":86}},{"@type":"Product","name":"7年保存 12個 非常食","description":"7年保存 12個 非常食。7年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-gohan12p/0.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":8380,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.69,"reviewCount":32}},{"@type":"Product","name":"5年保存 非常食","description":"5年保存 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10001624-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":11329,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.48,"reviewCount":75}},{"@type":"Product","name":"7年保存 4食 非常食","description":"7年保存 4食 非常食。7年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/7y-rice-flour-set/00.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3180,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.78,"reviewCount":51}},{"@type":"Product","name":"8年保存 21食 非常食","description":"8年保存 21食 非常食。8年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10008161-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":8870,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":24}},{"@type":"Product","name":"5年保存 保存水","description":"5年保存 保存水。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1-1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":2630,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.73,"reviewCount":183}},{"@type":"Product","name":"2L 保存水","description":"2L 保存水。2L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/terazuya/cabinet/05889194/hozon2000b_03.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":18738,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q7gyn.oroxzbf4.g00q7gyn.oroy0866/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fterazuya%2Fbichiku-sui2c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fterazuya%2Fi%2F10021001%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":2}}]}</script><section class="share-bar" aria-label="このページを共有">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"会社・事業所向け保存水・非常食比較","description":"会社・事業所向け保存水・非常食比較。保存水・非常食は、人数と待機日数から水は1人1日3L、食料は1人1日3食を目安に確認します。 会社や事業所で従業員・来客が待機する場面に備え、保存水と非常食を比較するページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/water-food-stock.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-23T01:26:56.336Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"会社・事業所向け保存水・非常食比較","item":"https://jigyousho-bousai.com/pages/water-food-stock.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点に、従業員と来客の人数から必要量を確認します。地域や建物、物流の条件に応じて日数を増やします。"}},{"@type":"Question","name":"保存水はどれくらい必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日3Lで計算します。来客や利用者がいる場合は上乗せします。"}},{"@type":"Question","name":"非常食で注意することは？","acceptedAnswer":{"@type":"Answer","text":"保存年数、アレルギー表示、配布しやすさ、食べるために水や加熱が必要かを確認します。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/water-food-stock.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10年保存 1.8l 保存水"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 5年保存 非常食"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10年保存 保存水"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 2L 保存水"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 21食 非常食"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1.5L 保存水"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"7年保存 12個 非常食"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 非常食"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"7年保存 4食 非常食"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"8年保存 21食 非常食"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 保存水"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q7gyn.oroxzbf4.g00q7gyn.oroy0866/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fterazuya%2Fbichiku-sui2c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fterazuya%2Fi%2F10021001%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"2L 保存水"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"10年保存 1.8l 保存水","description":"10年保存 1.8l 保存水。1.8L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0112807065.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3860,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F1011801%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.74,"reviewCount":1223}},{"@type":"Product","name":"1人用 5年保存 非常食","description":"1人用 5年保存 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/00869187/variety10_top_202602.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":6480,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.57,"reviewCount":268}},{"@type":"Product","name":"10年保存 保存水","description":"10年保存 保存水。10年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/akol/cabinet/06635893/07531328/imgrc0118232302.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":2740,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6urn.oroxzb95.g00q6urn.oroy093f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fakol%2F10115%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fakol%2Fi%2F10000693%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.76,"reviewCount":524}},{"@type":"Product","name":"5年保存 2L 保存水","description":"5年保存 2L 保存水。2L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1596,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432466%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001270%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.71,"reviewCount":254}},{"@type":"Product","name":"5年保存 21食 非常食","description":"5年保存 21食 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/7daysbasic/imgrc0137101952.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":7316,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.69,"reviewCount":198}},{"@type":"Product","name":"1.5L 保存水","description":"1.5L 保存水。1.5L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/03025050/image.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":5080,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F06-04-006%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000401%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.77,"reviewCount":86}},{"@type":"Product","name":"7年保存 12個 非常食","description":"7年保存 12個 非常食。7年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/retort-gohan12p/0.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":8380,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2Fretort-gohan12p%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000096%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.69,"reviewCount":32}},{"@type":"Product","name":"5年保存 非常食","description":"5年保存 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10001624-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":11329,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001624%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010730%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.48,"reviewCount":75}},{"@type":"Product","name":"7年保存 4食 非常食","description":"7年保存 4食 非常食。7年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/p/7y-rice-flour-set/00.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3180,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F7y-rice-flour-set%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000222%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.78,"reviewCount":51}},{"@type":"Product","name":"8年保存 21食 非常食","description":"8年保存 21食 非常食。8年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10008161-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":8870,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":24}},{"@type":"Product","name":"5年保存 保存水","description":"5年保存 保存水。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ix-ix/cabinet/06773152/08296930/12450826/yn1-1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":2630,"url":"https://hb.afl.rakuten.co.jp/hgc/g00r4uwn.oroxz7fa.g00r4uwn.oroy000b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fix-ix%2Fsa4580424432473%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fix-ix%2Fi%2F10001271%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.73,"reviewCount":183}},{"@type":"Product","name":"2L 保存水","description":"2L 保存水。2L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/terazuya/cabinet/05889194/hozon2000b_03.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":18738,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q7gyn.oroxzbf4.g00q7gyn.oroy0866/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fterazuya%2Fbichiku-sui2c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fterazuya%2Fi%2F10021001%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":2}}]}</script><section class="share-bar" aria-label="このページを共有">
     <div><strong>このページを共有</strong><span class="notice">備蓄の相談や社内での検討にそのまま使えます</span></div>
     <div class="share-buttons">
       <a href="https://twitter.com/intent/tweet?text=%E4%BC%9A%E7%A4%BE%E3%81%AE%E4%BF%9D%E5%AD%98%E6%B0%B4%E3%83%BB%E9%9D%9E%E5%B8%B8%E9%A3%9F%E3%81%AF%E4%BD%95%E6%97%A5%E5%88%86%EF%BC%9F%E5%82%99%E8%93%84%E9%87%8F%E3%81%A8%E5%95%86%E5%93%81%E6%AF%94%E8%BC%83%20%7C%20%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E3%83%8A%E3%83%93&amp;url=https%3A%2F%2Fjigyousho-bousai.com%2Fpages%2Fwater-food-stock.html" target="_blank" rel="noopener" data-share="x">Xで共有</a>
@@ -949,7 +918,7 @@
       <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fjigyousho-bousai.com%2Fpages%2Fwater-food-stock.html" target="_blank" rel="noopener" data-share="facebook">Facebookで共有</a>
       <button type="button" data-copy-url="https://jigyousho-bousai.com/pages/water-food-stock.html">リンクをコピー</button>
     </div>
-  </section><footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="https://jigyousho-bousai.com/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer><script>
+  </section><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;
@@ -974,8 +943,6 @@
           product_id: cleanText(anchor.dataset.productId || anchor.dataset.productName),
           product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
           product_price: Number(anchor.dataset.productPrice || 0),
-          affiliate_rate: Number(anchor.dataset.affiliateRate || 0),
-          estimated_commission_before_caps: Number(anchor.dataset.estimatedCommission || 0),
           variable_price: anchor.dataset.variablePrice || 'false',
           product_category: anchor.dataset.productCategory || '',
           product_position: Number(anchor.dataset.productPosition || 0),
@@ -1008,6 +975,112 @@
         stockPlanState={ staff:staff, days:days, visitors:visitors };
         var people=staff+visitors;
         return { active:stockPlanActive, staff:staff, visitors:visitors, people:people, days:days, water:people*days*3, food:people*days*3, toilet:people*days*5, blankets:people };
+      }
+      var productFitTracked=false;
+      function currentPageSlug(){
+        var match=window.location.pathname.match(/\/pages\/([^/]+)\.html$/);
+        return match ? match[1] : '';
+      }
+      function yen(value){
+        return Number(value || 0).toLocaleString('ja-JP')+'円';
+      }
+      function productFitFor(element, plan, slug){
+        var tier=element.dataset.fitTier || 'demoted';
+        var tierRank=tier==='preferred' ? 0 : tier==='supplementary' ? 1 : 2;
+        var price=Number(element.dataset.unitPrice || 0);
+        var text=tier==='preferred' ? '条件が読み取りやすい候補' : tier==='supplementary' ? '単品補充・組み合わせ候補' : '仕様を販売ページで要確認';
+        var score=tierRank*1000000000;
+        var matched=false;
+        if(slug==='toilet-office'){
+          var uses=Number(element.dataset.toiletUses || 0);
+          if(plan.people<=0){
+            text='従業員・職員または来客・利用者を1人以上入力';
+            score+=900000000;
+          }else if(uses>0){
+            var units=Math.max(1,Math.ceil(plan.toilet/uses));
+            var supplied=units*uses;
+            var estimated=price>0 ? units*price : 0;
+            text=plan.toilet.toLocaleString('ja-JP')+'回分の目安：'+uses.toLocaleString('ja-JP')+'回分を'+units.toLocaleString('ja-JP')+'点';
+            if(supplied!==plan.toilet) text+='（合計'+supplied.toLocaleString('ja-JP')+'回分）';
+            if(estimated>0) text+='・概算'+yen(estimated);
+            score+=estimated>0 ? estimated : 500000000;
+            score+=(supplied-plan.toilet)*10;
+            matched=tier==='preferred';
+          }else{
+            text='必要な'+plan.toilet.toLocaleString('ja-JP')+'回分と、販売ページの入数を照合';
+            score+=900000000;
+          }
+        }else if(slug==='office-bichiku'){
+          var capacity=Number(element.dataset.peopleCapacity || 0);
+          var stockDays=Number(element.dataset.stockDays || 0);
+          if(plan.people<=0){
+            text='従業員・職員または来客・利用者を1人以上入力';
+            score+=900000000;
+          }else if(capacity>0 && stockDays>0){
+            var peopleUnits=Math.max(1,Math.ceil(plan.people/capacity));
+            var dayUnits=Math.max(1,Math.ceil(plan.days/stockDays));
+            var setUnits=peopleUnits*dayUnits;
+            var covered=setUnits*capacity;
+            var setTotal=price>0 ? setUnits*price : 0;
+            text=plan.people.toLocaleString('ja-JP')+'人・'+plan.days.toLocaleString('ja-JP')+'日分の目安：'+capacity.toLocaleString('ja-JP')+'人・'+stockDays.toLocaleString('ja-JP')+'日用を'+setUnits.toLocaleString('ja-JP')+'セット';
+            if(setTotal>0) text+='・概算'+yen(setTotal);
+            score+=setTotal>0 ? setTotal : 500000000;
+            score+=(covered-(plan.people*dayUnits))*100;
+            matched=tier==='preferred';
+          }else if(capacity>0){
+            var minimumSets=Math.max(1,Math.ceil(plan.people/capacity));
+            text=plan.people.toLocaleString('ja-JP')+'人分なら'+capacity.toLocaleString('ja-JP')+'人用を'+minimumSets.toLocaleString('ja-JP')+'セット以上。何日分かは販売ページで確認';
+            score+=800000000;
+          }else{
+            text='セットの対象人数・備蓄日数を販売ページで確認';
+            score+=900000000;
+          }
+        }
+        return { text:text, score:score, matched:matched };
+      }
+      function sortProductChildren(parent){
+        var children=Array.prototype.filter.call(parent.children,function(child){ return child.matches('[data-product-fit]'); });
+        children.forEach(function(child,index){
+          if(!child.dataset.initialOrder) child.dataset.initialOrder=String(index);
+        });
+        if(children.length>1){
+          children.sort(function(a,b){
+            return Number(a.dataset.fitScore || 0)-Number(b.dataset.fitScore || 0)
+              || Number(a.dataset.initialOrder || 0)-Number(b.dataset.initialOrder || 0);
+          });
+        }
+        var isQuickPicks=Boolean(parent.closest('.quick-picks'));
+        children.forEach(function(child,index){
+          parent.appendChild(child);
+          child.hidden=isQuickPicks && index>=3;
+          child.querySelectorAll('a[data-product-position]').forEach(function(anchor){
+            anchor.dataset.productPosition=String(index+1);
+          });
+        });
+      }
+      function updateProductFit(plan){
+        var slug=currentPageSlug();
+        if(!plan.active || !['toilet-office','office-bichiku'].includes(slug)) return;
+        var matchedProducts=new Set();
+        document.querySelectorAll('[data-product-fit]').forEach(function(element){
+          var result=productFitFor(element,plan,slug);
+          element.dataset.fitScore=String(result.score);
+          var label=element.querySelector('[data-fit-result]');
+          if(label) label.textContent=result.text;
+          if(result.matched) matchedProducts.add(element.dataset.productKey || element.textContent);
+        });
+        document.querySelectorAll('.compare-table tbody,.product-list').forEach(sortProductChildren);
+        var matchedCount=matchedProducts.size;
+        if(!productFitTracked && matchedCount>0){
+          productFitTracked=true;
+          trackEvent('matched_candidate_view',{
+            comparison_slug:slug,
+            matched_candidate_count:matchedCount,
+            people_count:plan.people,
+            days_count:plan.days,
+            required_toilet_uses:plan.toilet
+          });
+        }
       }
       function setPlanInputsFromUrl(){
         var params;
@@ -1065,6 +1138,7 @@
           summary.hidden=false;
           summaryText.textContent=plan.people.toLocaleString('ja-JP')+'人 × '+plan.days.toLocaleString('ja-JP')+'日：水 '+plan.water.toLocaleString('ja-JP')+'L、食料 '+plan.food.toLocaleString('ja-JP')+'食、簡易トイレ '+plan.toilet.toLocaleString('ja-JP')+'回分';
         }
+        updateProductFit(plan);
       }
       setPlanInputsFromUrl();
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
@@ -1252,6 +1326,14 @@
         }
         if(anchor.dataset && anchor.dataset.share){
           trackEvent('share_click', { share_method: anchor.dataset.share, destination: url });
+          return;
+        }
+        if(anchor.closest('.hero-actions,.hero-subroutes')){
+          trackEvent('hero_path_select', {
+            link_text: anchorText(anchor),
+            destination: url,
+            page_section: anchor.closest('.hero-subroutes') ? 'disaster_subroute' : 'primary_action'
+          });
           return;
         }
         if(url.indexOf('hb.afl.rakuten.co.jp') !== -1){

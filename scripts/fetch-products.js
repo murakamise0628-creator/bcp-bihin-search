@@ -175,12 +175,22 @@ function matchesPageType(product, row) {
 function candidateTier(product, row) {
   if (!matchesPageType(product, row)) return 'exclude';
   const source = String(product.titleRaw || product.name || '');
-  if (row.slug === 'toilet-office' && hasAmbiguousToiletQuantity(product)) return 'demoted';
+  const facts = decisionFacts(product);
+  if (row.slug === 'toilet-office') {
+    if (hasAmbiguousToiletQuantity(product) || !facts.toiletUses || facts.toiletUses < 30) return 'demoted';
+    if (facts.toiletSupplyType === 'complete-kit') return 'preferred';
+    return 'supplementary';
+  }
+  if (['portable-power-kaigo', 'blackout-power'].includes(row.slug)) {
+    return facts.powerWh && facts.outputW ? 'preferred' : 'demoted';
+  }
   if (row.slug === 'office-bichiku') {
     const household = /(?:^|[^0-9])(?:1|2)人用|一人用|二人用|個人用|家庭用|家族用|自宅用|ソロ/.test(source);
     const business = /法人|企業|会社|オフィス|事業所|施設|団体|自治体|帰宅困難|業務用|(?:[5-9]|[1-9]\d+)人用/.test(source)
       || /法人\d{2,}社|官公庁/.test(String(product.summary || ''));
+    if (facts.productType !== 'disaster-set') return 'supplementary';
     if (household && !business) return 'demoted';
+    if (!facts.peopleCapacity || !facts.stockDays) return 'supplementary';
   }
   return 'preferred';
 }
@@ -247,6 +257,7 @@ function hasAmbiguousToiletQuantity(product) {
   const source = String(product?.titleRaw || product?.name || product || '')
     .replace(/1回あたり[^／/\s]*/g, '');
   if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/.test(source)) return false;
+  if (/\d{1,3}\s*P.{0,20}\d{1,4}\s*個セット/i.test(source)) return true;
   if (/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) return true;
   const counts = new Set([...source.matchAll(/(\d{1,4})\s*回(?:分)?/g)].map((match) => Number(match[1])));
   const fixedPack = fixedToiletPack(source);
@@ -263,7 +274,7 @@ function hasAmbiguousToiletQuantity(product) {
 function toiletUseCount(product) {
   const source = String(product?.titleRaw || product?.name || product || '')
     .replace(/1回あたり[^／/\s]*/g, '');
-  if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤|汚物処理袋/.test(source)) return null;
+  if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤|汚物処理袋|サニタクリーン/.test(source)) return null;
   const fixedPack = fixedToiletPack(source);
   if (fixedPack && !/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) {
     const { perPack, packCount, total } = fixedPack;
@@ -273,12 +284,14 @@ function toiletUseCount(product) {
   }
   if (hasAmbiguousToiletQuantity(source)) return null;
   const count = source.match(/(\d{1,4})\s*回分?/);
-  return count ? Number(count[1]) : null;
+  if (count) return Number(count[1]);
+  const packedCount = source.match(/(\d{1,4})\s*(?:個|枚)(?:組|セット)/);
+  return packedCount ? Number(packedCount[1]) : null;
 }
 
 function detectProductType(raw) {
   const source = String(raw || '');
-  const setIndex = source.search(/防災セット|避難セット|防災リュック/);
+  const setIndex = source.search(/防災(?:備蓄)?セット|避難セット|防災リュック/);
   const toiletIndex = source.search(/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/);
   const leadingProductText = setIndex >= 0 ? source.slice(0, setIndex) : '';
   if (toiletIndex >= 0 && toiletIndex < setIndex && /\d{1,4}\s*回(?:分)?|凝固剤|汚物袋|排便袋|防臭袋|排泄/.test(leadingProductText)) {
@@ -288,7 +301,7 @@ function detectProductType(raw) {
     return 'disaster-set';
   }
   const candidates = [
-    ['disaster-set', /防災セット|避難セット|防災リュック/],
+    ['disaster-set', /防災(?:備蓄)?セット|避難セット|防災リュック/],
     ['water-container', /給水タンク|給水袋|ポリタンク|ウォータータンク|ウォーターバッグ/],
     ['toilet', /簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/],
     ['mobile-power', /モバイルバッテリー|携帯充電器/],
@@ -323,15 +336,95 @@ function standaloneSpec(source, pattern) {
 function powerOutputSpec(source) {
   const candidates = [
     ...source.matchAll(/定格(?:出力)?\s*(\d{2,5})\s*W(?!h)/gi),
-    ...source.matchAll(/(\d{2,5})\s*W(?:出力|高出力)/gi)
+    ...source.matchAll(/(\d{2,5})\s*W(?:出力|高出力)/gi),
+    ...source.matchAll(/(?:高出力|出力)\s*(\d{2,5})\s*W(?!h)/gi)
   ].sort((a, b) => a.index - b.index);
   for (const match of candidates) {
     const context = source.slice(Math.max(0, match.index - 16), match.index);
-    if (/(?:パネル|ソーラー|太陽光)(?:の)?[\s：:（）()・-]*$/.test(context)) continue;
+    if (/(?:パネル|ソーラー|太陽光)(?:の)?[\s：:（）()・-]*(?:定格)?$/.test(context)) continue;
     return `${match[1]}W`;
   }
   if (/ソーラーパネル|太陽光パネル|ソーラーチャージャー/.test(source)) return '';
   return source.match(/\d+(?:\.\d+)?W(?!h)/i)?.[0] || '';
+}
+
+function decisionFacts(product) {
+  const source = String(product?.titleRaw || product?.name || product || '').normalize('NFKC');
+  const productType = product?.productType || detectProductType(source);
+  const toiletUses = toiletUseCount(source);
+  const hasCoagulant = /凝固剤|固形剤|吸水ポリマー/.test(source);
+  const hasWasteBag = /汚物袋|排便袋|処理袋|防臭袋|臭わない袋|においバイバイ袋|BOS/.test(source);
+  let toiletSupplyType = '';
+  if (productType === 'toilet') {
+    if (hasCoagulant && hasWasteBag) toiletSupplyType = 'complete-kit';
+    else if (hasCoagulant) toiletSupplyType = 'coagulant-only';
+    else if (hasWasteBag || /汚物処理袋/.test(source)) toiletSupplyType = 'bag-only';
+    else toiletSupplyType = 'contents-unclear';
+  }
+
+  const people = source.match(/(\d{1,3})\s*人用/);
+  const days = source.match(/(\d{1,2})\s*日分/);
+  const wh = source.match(/(\d{3,5})\s*Wh/i);
+  const output = powerOutputSpec(source).match(/(\d{2,5})\s*W/i);
+  const includedCategories = [];
+  if (/保存水|長期保存水|飲料水/.test(source)) includedCategories.push('water');
+  if (/非常食|保存食|アルファ米|備蓄食/.test(source)) includedCategories.push('food');
+  if (/簡易トイレ|非常用トイレ|携帯トイレ|凝固剤/.test(source)) includedCategories.push('toilet');
+  if (/ライト|ランタン|懐中電灯/.test(source)) includedCategories.push('lighting');
+  if (/ブランケット|毛布|防寒シート/.test(source)) includedCategories.push('blanket');
+
+  return {
+    productType,
+    toiletUses,
+    toiletSupplyType,
+    hasCoagulant,
+    hasWasteBag,
+    peopleCapacity: people ? Number(people[1]) : null,
+    stockDays: days ? Number(days[1]) : null,
+    powerWh: wh ? Number(wh[1]) : null,
+    outputW: output ? Number(output[1]) : null,
+    storageYears: Number(source.match(/(\d{1,2})\s*年保存/)?.[1] || 0) || null,
+    includedCategories
+  };
+}
+
+function decisionSummary(product, row = {}) {
+  const facts = decisionFacts(product);
+  if (facts.productType === 'toilet') {
+    const quantity = facts.toiletUses ? `${facts.toiletUses}回分` : '回数は販売ページで確認';
+    if (facts.toiletSupplyType === 'complete-kit') {
+      return `${quantity}。凝固剤と処理袋の同梱表記があります。防臭袋の有無も確認してください。`;
+    }
+    if (facts.toiletSupplyType === 'coagulant-only') {
+      return `${quantity}の凝固剤です。処理袋・防臭袋は別途必要か確認してください。`;
+    }
+    if (facts.toiletSupplyType === 'bag-only') {
+      return `${quantity}相当の袋用品です。凝固剤が別途必要か確認してください。`;
+    }
+    return `${quantity}。凝固剤・処理袋・防臭袋の内訳を確認してください。`;
+  }
+  if (facts.productType === 'power') {
+    const capacity = facts.powerWh ? `${facts.powerWh}Wh` : '容量Whは要確認';
+    const output = facts.outputW ? `定格出力${facts.outputW}W` : '定格出力Wは要確認';
+    return `${capacity}・${output}。使用機器の定格消費電力と起動電力を販売ページで確認してください。`;
+  }
+  if (facts.productType === 'disaster-set') {
+    const audience = facts.peopleCapacity ? `${facts.peopleCapacity}人用表記` : '対象人数は要確認';
+    const duration = facts.stockDays ? `${facts.stockDays}日分表記` : '備蓄日数は要確認';
+    const categories = facts.includedCategories.map((type) => ({
+      water: '保存水',
+      food: '非常食',
+      toilet: '簡易トイレ',
+      lighting: 'ライト',
+      blanket: '防寒用品'
+    }[type])).filter(Boolean);
+    const included = categories.length ? `${categories.join('・')}を含む表記` : 'セット内訳は要確認';
+    return `${audience}・${duration}。${included}です。人数と待機日数に対する数量を確認してください。`;
+  }
+  if (row.slug === 'office-bichiku') {
+    return '防災セットの補充候補です。必要数量と、セット本体に含まれている数を照合してください。';
+  }
+  return '容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。';
 }
 
 function titleShort(raw, maxLength = 58) {
@@ -414,29 +507,36 @@ function normalizeProducts(items, sourceKeyword = '') {
   const fetchedAt = new Date().toISOString();
   return (items || [])
     .map((entry) => entry.Item || entry.item || entry)
-    .map((item) => ({
-      name: titleShort(item.itemName),
-      titleShort: titleShort(item.itemName),
-      titleRaw: item.itemName,
-      price: item.itemPrice,
-      image: firstImage(item),
-      summary: compactText(item.catchcopy || item.itemCaption || ''),
-      url: item.affiliateUrl || item.itemUrl,
-      reviewCount: item.reviewCount || 0,
-      reviewAverage: item.reviewAverage || 0,
-      shopName: item.shopName || '',
-      itemCode: item.itemCode || '',
-      productType: detectProductType(item.itemName),
-      affiliateRate: Number(item.affiliateRate || 0),
-      genreId: item.genreId || '',
-      saleStartAt: item.startTime || '',
-      saleEndAt: item.endTime || '',
-      fetchedAt,
-      sourceKeyword,
-      availability: item.availability === 0 ? 0 : 1,
-      priceIsFromVariant: hasAmbiguousToiletQuantity(item.itemName),
-      score: score(item)
-    }));
+    .map((item) => {
+      const product = {
+        name: titleShort(item.itemName),
+        titleShort: titleShort(item.itemName),
+        titleRaw: item.itemName,
+        price: item.itemPrice,
+        image: firstImage(item),
+        summary: compactText(item.catchcopy || item.itemCaption || ''),
+        url: item.affiliateUrl || item.itemUrl,
+        reviewCount: item.reviewCount || 0,
+        reviewAverage: item.reviewAverage || 0,
+        shopName: item.shopName || '',
+        itemCode: item.itemCode || '',
+        productType: detectProductType(item.itemName),
+        affiliateRate: Number(item.affiliateRate || 0),
+        genreId: item.genreId || '',
+        saleStartAt: item.startTime || '',
+        saleEndAt: item.endTime || '',
+        fetchedAt,
+        sourceKeyword,
+        availability: item.availability === 0 ? 0 : 1,
+        priceIsFromVariant: hasAmbiguousToiletQuantity(item.itemName),
+        score: score(item)
+      };
+      return {
+        ...product,
+        decisionFacts: decisionFacts(product),
+        decisionSummary: decisionSummary(product)
+      };
+    });
 }
 
 async function requestKeyword(keyword) {
@@ -491,8 +591,9 @@ async function fetchForKeyword(row) {
     .map((product) => ({ ...product, relevance: relevanceScore(product, row) }))
     .sort((a, b) => (b.relevance + b.score) - (a.relevance + a.score));
   const preferred = ranked.filter((product) => candidateTier(product, row) === 'preferred');
+  const supplementary = ranked.filter((product) => candidateTier(product, row) === 'supplementary');
   const demoted = ranked.filter((product) => candidateTier(product, row) === 'demoted');
-  const deduped = prioritizeProductVariety([...preferred, ...demoted]).slice(0, 12);
+  const deduped = prioritizeProductVariety([...preferred, ...supplementary, ...demoted]).slice(0, 12);
 
   return {
     ...row,
@@ -584,5 +685,7 @@ module.exports = {
   matchesPageType,
   candidateTier,
   prioritizeProductVariety,
+  decisionFacts,
+  decisionSummary,
   createProductDataset
 };

@@ -2,7 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
-const { hasAmbiguousToiletQuantity, toiletUseCount, titleShort, matchesPageType, candidateTier, prioritizeProductVariety } = require('./fetch-products');
+const {
+  hasAmbiguousToiletQuantity,
+  toiletUseCount,
+  titleShort,
+  matchesPageType,
+  candidateTier,
+  prioritizeProductVariety,
+  decisionFacts,
+  decisionSummary
+} = require('./fetch-products');
 const { isApprovedBaseProductUrl } = require('./paid-checkout-url.cjs');
 
 const root = path.resolve(__dirname, '..');
@@ -387,15 +396,24 @@ function rawTitle(product) {
   return product.titleRaw || product.name || product.titleShort || '';
 }
 
+function productDecisionFacts(product) {
+  return product.decisionFacts || decisionFacts(product);
+}
+
+function productDecisionSummary(product, note = {}) {
+  return decisionSummary(product, { slug: note.slug || '' });
+}
+
 function extractSpec(product) {
-  if (hasAmbiguousToiletQuantity(product)) return '販売ページで回数を選択';
+  const facts = productDecisionFacts(product);
+  if (hasAmbiguousToiletQuantity(product)) return '販売ページで数量を確認';
   const name = String(rawTitle(product));
   const years = name.match(/(\d{1,2})年保存/);
-  const toiletCount = toiletUseCount(product);
-  const wh = name.match(/(\d{3,5})Wh/i);
-  const liters = name.match(/(\d+(?:\.\d+)?)L/);
+  const toiletCount = facts.toiletUses;
+  const wh = facts.powerWh;
+  const liters = name.match(/(?:^|[^0-9])((?:0\.\d+)|(?:[1-9]\d*(?:\.\d+)?))\s*L(?:[^A-Za-z]|$)/i);
   if (toiletCount) return `${toiletCount}回分`;
-  if (wh) return `${wh[1]}Wh`;
+  if (wh) return facts.outputW ? `${wh}Wh / ${facts.outputW}W` : `${wh}Wh`;
   if (liters) return `${liters[1]}L`;
   if (years) return `${years[1]}年保存`;
   return '商品ページで確認';
@@ -431,10 +449,13 @@ function suitedFacility(product, note) {
 
 function cautionForProduct(product) {
   if (hasAmbiguousToiletQuantity(product)) return '回数と価格は選択肢により変動';
+  const facts = productDecisionFacts(product);
   const name = String(rawTitle(product));
   if (!Number(product.reviewCount || 0)) return 'レビューが少ないため仕様確認';
   if (/送料別途|外直送|見積り/.test(name)) return '送料・納期を確認';
-  if (/トイレ|凝固/.test(name)) return '袋・凝固剤の数を確認';
+  if (facts.toiletSupplyType === 'coagulant-only') return '処理袋・防臭袋が別途必要';
+  if (facts.toiletSupplyType === 'bag-only') return '凝固剤が別途必要';
+  if (/トイレ|凝固/.test(name)) return '凝固剤・処理袋・防臭袋の数を確認';
   if (/電源|Wh|バッテリー/.test(name)) return '出力W数と充電管理を確認';
   if (/食|パン|ご飯|保存食/.test(name)) return 'アレルギーと期限を確認';
   return '購入前に最新条件を確認';
@@ -454,11 +475,11 @@ function recommendationBasis(product) {
 
 function targetPeople(product) {
   if (hasAmbiguousToiletQuantity(product)) return '販売ページで回数を選択';
+  const facts = productDecisionFacts(product);
   const name = String(rawTitle(product));
-  const toilet = toiletUseCount(product);
+  const toilet = facts.toiletUses;
   if (toilet) return `約${Math.max(1, Math.floor(toilet / 5))}人1日分の目安`;
-  const people = name.match(/(\d{1,3})人用/);
-  if (people) return `${people[1]}人用表記`;
+  if (facts.peopleCapacity) return `${facts.peopleCapacity}人用表記`;
   const meals = name.match(/(\d{1,4})食/);
   if (meals) return `約${Math.max(1, Math.floor(Number(meals[1]) / 3))}人1日分の目安`;
   return '人数入力で確認';
@@ -468,6 +489,7 @@ function effectiveProducts(page, note, minCount = 8) {
   const eligibleOwn = (page.products || []).filter((product) => matchesPageType(product, { slug: page.slug }));
   const own = [
     ...eligibleOwn.filter((product) => candidateTier(product, { slug: page.slug }) === 'preferred'),
+    ...eligibleOwn.filter((product) => candidateTier(product, { slug: page.slug }) === 'supplementary'),
     ...eligibleOwn.filter((product) => candidateTier(product, { slug: page.slug }) === 'demoted')
   ].map((product) => ({ ...product, relatedCandidate: false }));
   if (own.length >= minCount) return prioritizeProductVariety(own);
@@ -478,7 +500,10 @@ function effectiveProducts(page, note, minCount = 8) {
     const relatedPage = pageBySlug(slug);
     const eligibleRelated = (relatedPage?.products || [])
       .filter((product) => matchesPageType(product, { slug: page.slug }))
-      .sort((a, b) => (candidateTier(a, { slug: page.slug }) === 'demoted' ? 1 : 0) - (candidateTier(b, { slug: page.slug }) === 'demoted' ? 1 : 0));
+      .sort((a, b) => {
+        const order = { preferred: 0, supplementary: 1, demoted: 2 };
+        return order[candidateTier(a, { slug: page.slug })] - order[candidateTier(b, { slug: page.slug })];
+      });
     for (const product of eligibleRelated) {
       const key = product.itemCode || product.url || rawTitle(product);
       if (!key || seen.has(key)) continue;
@@ -638,6 +663,8 @@ ${socialImage}
     .hero-main h1 span{color:var(--main);background:linear-gradient(transparent 70%,rgba(212,113,28,.26) 70%)}
     .hero-main .hero-sub{font-size:clamp(17px,1.7vw,21px);line-height:1.85;font-weight:500;color:var(--ink-2);max-width:700px;margin:0 0 14px}
     .hero-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:22px}
+    .hero-subroutes{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:15px}
+    .hero-subroutes a{color:var(--main);font-size:14px;font-weight:800;text-underline-offset:4px}
     .search-compact{max-width:700px;margin-top:24px}
     .hero-stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid var(--rule)}
     .hero-stats span{color:var(--muted);font-size:12px}
@@ -791,6 +818,7 @@ ${socialImage}
     .compare-table tbody tr:nth-child(even){background:rgba(14,61,73,.035)}
     .compare-table tr:last-child td{border-bottom:0}
     .table-product{font-weight:700;max-width:260px;overflow-wrap:anywhere}
+    [hidden]{display:none!important}
 
     /* subpage: product cards */
     .product-list{display:grid;gap:14px}
@@ -799,6 +827,8 @@ ${socialImage}
     .product-img.placeholder{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:var(--paper)}
     .product h2{font-size:19px;font-family:var(--font-body);font-weight:900;overflow-wrap:anywhere;margin-bottom:6px}
     .summary{margin:8px 0;color:var(--ink-2);font-size:14.5px}
+    .fit-result{display:block;margin:8px 0;color:var(--accent-deep);font-size:13.5px;line-height:1.55}
+    .product[data-fit-tier="demoted"] .fit-result{color:var(--muted)}
     .price{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--main);margin:8px 0}
     .facts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
     .fact{border:1px solid var(--rule);border-radius:999px;padding:3px 11px;font-size:12.5px;background:var(--card);color:var(--ink-2)}
@@ -917,14 +947,27 @@ ${socialImage}
       .site-head{align-items:flex-start;flex-direction:column;gap:8px}
       .site-head,.nav,.hero,.hero>*,.hero-meta,.jump-nav{width:100%;min-width:0;max-width:100%}
       .nav{gap:12px;flex-wrap:wrap}
-      .nav a,.button,.small-button{white-space:nowrap}
+      .nav a,.button,.small-button{white-space:normal}
       .home-hero{grid-template-columns:1fr}
       .hero-main{padding:30px 2px 28px}
-      .hero-main h1{font-size:clamp(30px,8.6vw,38px);line-height:1.24;word-break:keep-all;overflow-wrap:anywhere}
+      .hero-main h1{font-size:clamp(30px,8.6vw,38px);line-height:1.24;word-break:normal;overflow-wrap:anywhere}
       .hero-main .hero-sub{font-size:16.5px;line-height:1.75}
-      .hero-actions{margin-top:18px}
-      .hero-actions .button{width:100%}
+      .hero-actions{width:100%;margin-top:18px}
+      .hero-actions .button{width:100%;max-width:100%}
       .hero-actions .button.secondary{width:auto}
+      .compare-scroll{overflow:visible;border:0;background:transparent}
+      .compare-table{display:block;width:100%;min-width:0}
+      .compare-table thead{display:none}
+      .compare-table tbody{display:grid;gap:12px}
+      .compare-table tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:16px;background:#fff;border:1px solid var(--rule-2);border-radius:4px}
+      .compare-table td{display:none;padding:0;border:0;font-size:14px}
+      .compare-table td:nth-child(1),.compare-table td:nth-child(2),.compare-table td:nth-child(3),.compare-table td:nth-child(7),.compare-table td:nth-child(10){display:block}
+      .compare-table td:nth-child(1),.compare-table td:nth-child(10){grid-column:1/-1}
+      .compare-table td:nth-child(1){font-size:16px;max-width:none}
+      .compare-table td:nth-child(2)::before{content:"分類：";font-size:12px;color:var(--ink-3)}
+      .compare-table td:nth-child(3)::before{content:"価格：";font-size:12px;color:var(--ink-3)}
+      .compare-table td:nth-child(7)::before{content:"容量・回数：";font-size:12px;color:var(--ink-3)}
+      .compare-table td:nth-child(10){padding-top:10px;border-top:1px solid var(--rule)}
       .hero-stats{gap:14px}
       .search-box{grid-template-columns:1fr}
       .hero-shopping{padding:22px 4px;border-left:0;border-top:1px solid var(--rule)}
@@ -964,7 +1007,7 @@ ${socialImage}
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
-      .hero h1{width:100%;font-size:clamp(25px,7.1vw,32px);max-width:100%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+      .hero h1{width:100%;font-size:clamp(25px,7.1vw,30px);max-width:100%;white-space:normal;word-break:break-all;line-break:anywhere;overflow-wrap:anywhere}
       .lead{font-size:16px}
       .scenario-card{grid-template-columns:72px 1fr}
       .scenario-card img{width:72px;height:72px}
@@ -986,6 +1029,11 @@ ${socialImage}
       .kit-final{grid-template-columns:1fr}
       .kit-final .button{width:100%}
     }
+    @media(max-width:340px){
+      .hero-main h1{font-size:28px;word-break:normal;overflow-wrap:break-word}
+      .button,.small-button{width:100%;justify-content:center;line-height:1.45}
+      .showcase-card em{white-space:normal}
+    }
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">よく使う比較</a></nav></header>${affiliateDisclosure}${breadcrumb}${body}${sharing}${siteFooter()}${clientScript()}</main></body>
@@ -1003,7 +1051,7 @@ function analyticsHead() {
 }
 
 function siteFooter() {
-  return `<footer class="site-footer"><span>© 2026 事業所防災ナビ / 運営者: 村上 誠治</span><nav aria-label="運営情報"><a href="${siteUrl}/site-policy.html">運営情報・広告掲載・プライバシー</a></nav></footer>`;
+  return `<footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="${siteUrl}/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer>`;
 }
 
 function shareSection(title, canonical) {
@@ -1086,8 +1134,6 @@ function clientScript() {
           product_id: cleanText(anchor.dataset.productId || anchor.dataset.productName),
           product_name: cleanText(anchor.dataset.productName || anchor.closest('.product,.showcase-card,.hero-product')?.textContent || anchorText(anchor)),
           product_price: Number(anchor.dataset.productPrice || 0),
-          affiliate_rate: Number(anchor.dataset.affiliateRate || 0),
-          estimated_commission_before_caps: Number(anchor.dataset.estimatedCommission || 0),
           variable_price: anchor.dataset.variablePrice || 'false',
           product_category: anchor.dataset.productCategory || '',
           product_position: Number(anchor.dataset.productPosition || 0),
@@ -1120,6 +1166,112 @@ function clientScript() {
         stockPlanState={ staff:staff, days:days, visitors:visitors };
         var people=staff+visitors;
         return { active:stockPlanActive, staff:staff, visitors:visitors, people:people, days:days, water:people*days*3, food:people*days*3, toilet:people*days*5, blankets:people };
+      }
+      var productFitTracked=false;
+      function currentPageSlug(){
+        var match=window.location.pathname.match(/\\/pages\\/([^/]+)\\.html$/);
+        return match ? match[1] : '';
+      }
+      function yen(value){
+        return Number(value || 0).toLocaleString('ja-JP')+'円';
+      }
+      function productFitFor(element, plan, slug){
+        var tier=element.dataset.fitTier || 'demoted';
+        var tierRank=tier==='preferred' ? 0 : tier==='supplementary' ? 1 : 2;
+        var price=Number(element.dataset.unitPrice || 0);
+        var text=tier==='preferred' ? '条件が読み取りやすい候補' : tier==='supplementary' ? '単品補充・組み合わせ候補' : '仕様を販売ページで要確認';
+        var score=tierRank*1000000000;
+        var matched=false;
+        if(slug==='toilet-office'){
+          var uses=Number(element.dataset.toiletUses || 0);
+          if(plan.people<=0){
+            text='従業員・職員または来客・利用者を1人以上入力';
+            score+=900000000;
+          }else if(uses>0){
+            var units=Math.max(1,Math.ceil(plan.toilet/uses));
+            var supplied=units*uses;
+            var estimated=price>0 ? units*price : 0;
+            text=plan.toilet.toLocaleString('ja-JP')+'回分の目安：'+uses.toLocaleString('ja-JP')+'回分を'+units.toLocaleString('ja-JP')+'点';
+            if(supplied!==plan.toilet) text+='（合計'+supplied.toLocaleString('ja-JP')+'回分）';
+            if(estimated>0) text+='・概算'+yen(estimated);
+            score+=estimated>0 ? estimated : 500000000;
+            score+=(supplied-plan.toilet)*10;
+            matched=tier==='preferred';
+          }else{
+            text='必要な'+plan.toilet.toLocaleString('ja-JP')+'回分と、販売ページの入数を照合';
+            score+=900000000;
+          }
+        }else if(slug==='office-bichiku'){
+          var capacity=Number(element.dataset.peopleCapacity || 0);
+          var stockDays=Number(element.dataset.stockDays || 0);
+          if(plan.people<=0){
+            text='従業員・職員または来客・利用者を1人以上入力';
+            score+=900000000;
+          }else if(capacity>0 && stockDays>0){
+            var peopleUnits=Math.max(1,Math.ceil(plan.people/capacity));
+            var dayUnits=Math.max(1,Math.ceil(plan.days/stockDays));
+            var setUnits=peopleUnits*dayUnits;
+            var covered=setUnits*capacity;
+            var setTotal=price>0 ? setUnits*price : 0;
+            text=plan.people.toLocaleString('ja-JP')+'人・'+plan.days.toLocaleString('ja-JP')+'日分の目安：'+capacity.toLocaleString('ja-JP')+'人・'+stockDays.toLocaleString('ja-JP')+'日用を'+setUnits.toLocaleString('ja-JP')+'セット';
+            if(setTotal>0) text+='・概算'+yen(setTotal);
+            score+=setTotal>0 ? setTotal : 500000000;
+            score+=(covered-(plan.people*dayUnits))*100;
+            matched=tier==='preferred';
+          }else if(capacity>0){
+            var minimumSets=Math.max(1,Math.ceil(plan.people/capacity));
+            text=plan.people.toLocaleString('ja-JP')+'人分なら'+capacity.toLocaleString('ja-JP')+'人用を'+minimumSets.toLocaleString('ja-JP')+'セット以上。何日分かは販売ページで確認';
+            score+=800000000;
+          }else{
+            text='セットの対象人数・備蓄日数を販売ページで確認';
+            score+=900000000;
+          }
+        }
+        return { text:text, score:score, matched:matched };
+      }
+      function sortProductChildren(parent){
+        var children=Array.prototype.filter.call(parent.children,function(child){ return child.matches('[data-product-fit]'); });
+        children.forEach(function(child,index){
+          if(!child.dataset.initialOrder) child.dataset.initialOrder=String(index);
+        });
+        if(children.length>1){
+          children.sort(function(a,b){
+            return Number(a.dataset.fitScore || 0)-Number(b.dataset.fitScore || 0)
+              || Number(a.dataset.initialOrder || 0)-Number(b.dataset.initialOrder || 0);
+          });
+        }
+        var isQuickPicks=Boolean(parent.closest('.quick-picks'));
+        children.forEach(function(child,index){
+          parent.appendChild(child);
+          child.hidden=isQuickPicks && index>=3;
+          child.querySelectorAll('a[data-product-position]').forEach(function(anchor){
+            anchor.dataset.productPosition=String(index+1);
+          });
+        });
+      }
+      function updateProductFit(plan){
+        var slug=currentPageSlug();
+        if(!plan.active || !['toilet-office','office-bichiku'].includes(slug)) return;
+        var matchedProducts=new Set();
+        document.querySelectorAll('[data-product-fit]').forEach(function(element){
+          var result=productFitFor(element,plan,slug);
+          element.dataset.fitScore=String(result.score);
+          var label=element.querySelector('[data-fit-result]');
+          if(label) label.textContent=result.text;
+          if(result.matched) matchedProducts.add(element.dataset.productKey || element.textContent);
+        });
+        document.querySelectorAll('.compare-table tbody,.product-list').forEach(sortProductChildren);
+        var matchedCount=matchedProducts.size;
+        if(!productFitTracked && matchedCount>0){
+          productFitTracked=true;
+          trackEvent('matched_candidate_view',{
+            comparison_slug:slug,
+            matched_candidate_count:matchedCount,
+            people_count:plan.people,
+            days_count:plan.days,
+            required_toilet_uses:plan.toilet
+          });
+        }
       }
       function setPlanInputsFromUrl(){
         var params;
@@ -1177,6 +1329,7 @@ function clientScript() {
           summary.hidden=false;
           summaryText.textContent=plan.people.toLocaleString('ja-JP')+'人 × '+plan.days.toLocaleString('ja-JP')+'日：水 '+plan.water.toLocaleString('ja-JP')+'L、食料 '+plan.food.toLocaleString('ja-JP')+'食、簡易トイレ '+plan.toilet.toLocaleString('ja-JP')+'回分';
         }
+        updateProductFit(plan);
       }
       setPlanInputsFromUrl();
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
@@ -1366,6 +1519,14 @@ function clientScript() {
           trackEvent('share_click', { share_method: anchor.dataset.share, destination: url });
           return;
         }
+        if(anchor.closest('.hero-actions,.hero-subroutes')){
+          trackEvent('hero_path_select', {
+            link_text: anchorText(anchor),
+            destination: url,
+            page_section: anchor.closest('.hero-subroutes') ? 'disaster_subroute' : 'primary_action'
+          });
+          return;
+        }
         if(url.indexOf('hb.afl.rakuten.co.jp') !== -1){
           var params = productParams(anchor);
           trackEvent('select_item', {
@@ -1393,8 +1554,7 @@ function clientScript() {
 }
 
 function productTrackingAttrs(product, category = '', position = '') {
-  const estimatedCommission = Number(product.price || 0) * Number(product.affiliateRate || 0) / 100;
-  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-affiliate-rate="${esc(product.affiliateRate || '')}" data-estimated-commission="${esc(Math.round(estimatedCommission))}" data-product-category="${esc(category)}" data-product-position="${esc(position)}" data-variable-price="${hasAmbiguousToiletQuantity(product) ? 'true' : 'false'}"`;
+  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}" data-product-position="${esc(position)}" data-variable-price="${hasAmbiguousToiletQuantity(product) ? 'true' : 'false'}"`;
 }
 
 function displayPrice(product) {
@@ -1465,8 +1625,15 @@ function faqItems(note) {
   const merged = [...(note.faq || []), ...common];
   const seen = new Set();
   return merged.filter(([q]) => {
-    if (seen.has(q)) return false;
-    seen.add(q);
+    const key = /簡易トイレ.*回/.test(q)
+      ? 'toilet-count'
+      : /防災備蓄.*何日分/.test(q)
+        ? 'stock-days'
+        : /台風.*地震/.test(q)
+          ? 'disaster-difference'
+          : q;
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   }).slice(0, 5);
 }
@@ -1507,13 +1674,36 @@ function structuredData(...items) {
   return items.filter(Boolean).join('');
 }
 
+function productFitAttrs(product, note = {}) {
+  const facts = productDecisionFacts(product);
+  const tier = candidateTier(product, { slug: note.slug || '' });
+  return [
+    'data-product-fit="true"',
+    `data-product-key="${esc(product.itemCode || product.url || rawTitle(product))}"`,
+    `data-fit-tier="${esc(tier)}"`,
+    `data-toilet-uses="${esc(facts.toiletUses || '')}"`,
+    `data-people-capacity="${esc(facts.peopleCapacity || '')}"`,
+    `data-stock-days="${esc(facts.stockDays || '')}"`,
+    `data-power-wh="${esc(facts.powerWh || '')}"`,
+    `data-output-w="${esc(facts.outputW || '')}"`,
+    `data-unit-price="${esc(product.price || '')}"`
+  ].join(' ');
+}
+
+function fitTierLabel(product, note = {}) {
+  const tier = candidateTier(product, { slug: note.slug || '' });
+  if (tier === 'preferred') return '条件が読み取りやすい候補';
+  if (tier === 'supplementary') return '単品補充・組み合わせ候補';
+  return '仕様を販売ページで要確認';
+}
+
 function comparisonRows(products, note) {
   if (!products.length) {
     return `<tr><td colspan="10"><strong>条件に合う候補を確認中です。</strong><br>人数、用途、保管場所、必要回数を先に確認し、関連する備蓄品もあわせて見てください。</td></tr>`;
   }
-  return products.map((product, index) => `<tr>
+  return products.map((product, index) => `<tr ${productFitAttrs(product, note)}>
     <td class="table-product">${esc(displayTitle(product, 46))}</td>
-    <td>${esc(product.relatedCandidate ? '関連候補' : recommendedType(product, note))}</td>
+    <td>${esc(product.relatedCandidate ? '関連候補' : fitTierLabel(product, note))}</td>
     <td>${esc(displayPrice(product))}</td>
     <td>${esc(product.reviewAverage || '-')}</td>
     <td>${esc(product.reviewCount || 0)}</td>
@@ -1521,13 +1711,25 @@ function comparisonRows(products, note) {
     <td>${esc(extractSpec(product))}</td>
     <td>${esc(targetPeople(product))}</td>
     <td>${esc(suitedFacility(product, note))}</td>
-    <td>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で価格・在庫を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong><br>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認</a></td>
   </tr>`).join('');
 }
 
 function quickPicks(products, note) {
   if (!products.length) return '';
-  const clearProducts = products.filter((product) => !hasAmbiguousToiletQuantity(product));
+  const clearProducts = products.filter((product) =>
+    !hasAmbiguousToiletQuantity(product) &&
+    candidateTier(product, { slug: note.slug || '' }) === 'preferred' &&
+    Number(product.reviewCount || 0) >= 5 &&
+    (
+      note.slug !== 'toilet-office' ||
+      (
+        Number(product.price || 0) > 0 &&
+        Number(productDecisionFacts(product).toiletUses || 0) > 0 &&
+        Number(product.price || 0) / Number(productDecisionFacts(product).toiletUses || 1) <= 1000
+      )
+    )
+  );
   if (!clearProducts.length) return '';
   const quickPool = clearProducts;
   const selected = [];
@@ -1543,13 +1745,17 @@ function quickPicks(products, note) {
     if (selected.length === 3) break;
     if (!selected.includes(product)) selected.push(product);
   }
-  const cards = selected.map((product, index) => `<article class="card product">
+  const ordered = [...selected, ...clearProducts.filter((product) => !selected.includes(product))];
+  const visibleCount = Math.min(3, ordered.length);
+  const cards = ordered.map((product, index) => `<article class="card product quick-pick-candidate" ${index >= visibleCount ? 'hidden ' : ''}${productFitAttrs(product, note)}>
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : ''}
-    <div><p class="pill navy">${esc(recommendedType(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
+    <div><p class="pill navy">${esc(fitTierLabel(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
+    <p>${esc(productDecisionSummary(product, note))}</p>
     <p class="price">${esc(displayPrice(product))}</p><p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
-    <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で価格・在庫を確認する</a></div>
+    <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>
+    <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a></div>
   </article>`).join('');
-  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る${selected.length}候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
+  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る${visibleCount}候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
 }
 
 function webPageJsonLd(title, description, canonical, citationUrls = []) {
@@ -1562,11 +1768,6 @@ function webPageJsonLd(title, description, canonical, citationUrls = []) {
     isPartOf: {
       '@type': 'WebSite',
       name: '事業所防災ナビ',
-      url: `${siteUrl}/`
-    },
-    publisher: {
-      '@type': 'Person',
-      name: '村上 誠治',
       url: `${siteUrl}/`
     },
     citation: citationUrls,
@@ -1592,13 +1793,14 @@ function productCards(products, note) {
   if (!products.length) {
     return `<article class="card empty"><p class="pill orange">候補を確認中</p><h2>条件を広げて確認してください</h2><p>人数、用途、保管場所、必要回数を先に確認し、関連する備蓄品もあわせて見てください。</p></article>`;
   }
-  return products.map((product, index) => `<article class="card product">
+  return products.map((product, index) => `<article class="card product" ${productFitAttrs(product, note)}>
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">商品画像<br>取得待ち</div>'}
     <div>
-      <p class="pill navy">${esc(product.relatedCandidate ? '関連候補' : recommendedType(product, note))}</p>
+      <p class="pill navy">${esc(product.relatedCandidate ? '関連候補' : fitTierLabel(product, note))}</p>
       <h2>${esc(displayTitle(product))}</h2>
       ${product.relatedCandidate ? `<p class="notice">この商品は「${esc(product.relatedFrom || '関連ページ')}」から補完した関連候補です。用途の一致度は販売ページで確認してください。</p>` : ''}
-      ${product.summary ? `<p class="summary">${esc(product.summary)}</p>` : ''}
+      <p class="summary">${esc(productDecisionSummary(product, note))}</p>
+      <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>
       <p class="price">${esc(displayPrice(product))}</p>
       <div class="facts">
         <span class="fact">レビュー ${esc(product.reviewAverage || '-')}</span>
@@ -1611,7 +1813,7 @@ function productCards(products, note) {
         <div><span>注意点</span><strong>${esc(cautionForProduct(product))}</strong></div>
         <div><span>向いている施設</span><strong>${esc(suitedFacility(product, note))}</strong></div>
       </div>
-      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で価格・在庫を確認する</a>
+      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a>
     </div>
   </article>`).join('');
 }
@@ -1657,11 +1859,19 @@ function pageHtml(page) {
     avoid: '商品名だけで選ばず、用途に合うかを確認します。',
     related: ['office-bichiku']
   };
-  const note = { ...baseNote, title: page.title };
+  const note = { ...baseNote, title: page.title, slug: page.slug };
   const ownProducts = page.products || [];
   const products = effectiveProducts(page, note, 8);
   const canonical = `${siteUrl}/pages/${page.slug}.html`;
   const description = pageDescription(page, note);
+  const quantityFirst = ['toilet-office', 'office-bichiku', 'water-food-stock'].includes(page.slug);
+  const primaryAction = page.slug === 'toilet-office'
+    ? '必要回数を計算する'
+    : page.slug === 'office-bichiku'
+      ? '人数から必要数を確認する'
+      : page.slug === 'water-food-stock'
+        ? '人数と日数から必要量を確認する'
+        : '比較候補を見る';
   const checks = note.checks.map((item) => `<li>${esc(item)}</li>`).join('');
   const mustHave = note.mustHave.map((item) => `<span class="pill orange">${esc(item)}</span>`).join('');
   const body = `<section class="hero">
@@ -1674,6 +1884,10 @@ function pageHtml(page) {
       <span class="pill orange">比較候補数: ${products.length}件</span>
       ${ownProducts.length < 8 ? '<span class="pill">関連候補を含む</span>' : ''}
       <span class="pill">最終更新: ${esc(updatedDate())}</span>
+    </div>
+    <div class="hero-actions">
+      <a class="button orange" href="${quantityFirst ? '#quantity' : '#comparison'}">${esc(primaryAction)}</a>
+      <a class="button secondary" href="${quantityFirst ? '#comparison' : '#conclusion'}">${quantityFirst ? '商品候補を先に見る' : '選び方を確認する'}</a>
     </div>
     <nav class="jump-nav" aria-label="ページ内目次">
       <span>このページの流れ</span>
@@ -1702,7 +1916,7 @@ function pageHtml(page) {
   ${sourceSection(page.slug)}
   ${['toilet-office', 'blackout-power', 'water-food-stock'].includes(page.slug) ? quickPicks(products, note) : ''}
   ${comparisonTable(products, note)}
-  <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>候補ごとの向き・注意点を見る</h2></div><p class="notice">価格・在庫・レビューは変動します</p></div><div class="product-list">${productCards(products, note)}</div></section>
+  <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>上位候補の向き・注意点を見る</h2></div><p class="notice">比較表から上位6件を詳しく掲載</p></div><div class="product-list">${productCards(products.slice(0, 6), note)}</div></section>
   ${stockCheckSection(page.slug)}
   <section class="section card"><h2>注意点</h2><p>${esc(requiredNotice)}</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
   ${faqSection(note)}
@@ -1968,11 +2182,14 @@ const indexBody = `<section class="home-hero">
     <h1>事業所の防災備蓄、<br><span>何を何日分そろえる？</span></h1>
     <p class="hero-sub">地震・台風・停電・断水に備える用品を、人数、待機日数、施設の使い方から比較できます。</p>
     <div class="hero-actions">
-      <a class="button orange" href="${siteUrl}/pages/earthquake-office.html">地震対策を見る</a>
-      <a class="button" href="${siteUrl}/pages/blackout-power.html">台風・停電対策を見る</a>
+      <a class="button orange" href="#quantity">人数と日数から必要量を確認する</a>
       <a class="button secondary" href="${siteUrl}/pages/toilet-office.html">簡易トイレを比較する</a>
-      <a class="button secondary" href="#quantity">人数別の備蓄目安を見る</a>
     </div>
+    <nav class="hero-subroutes" aria-label="災害別の比較">
+      <a href="${siteUrl}/pages/earthquake-office.html">地震対策</a>
+      <a href="${siteUrl}/pages/blackout-power.html">台風・停電対策</a>
+      <a href="${siteUrl}/pages/restaurant-dansui.html">店舗の断水対策</a>
+    </nav>
     <div class="search-box search-compact"><input id="siteSearch" type="search" placeholder="地震、断水、停電、保育園、トイレなどで検索"><a class="button" href="#categories">探す</a></div>
     <div class="hero-stats" aria-label="掲載情報">
       <span><strong>${data.pages.length}</strong>比較ページ</span>
@@ -2060,15 +2277,16 @@ ${structuredData(
 )}`;
 
 const policyCanonical = `${siteUrl}/site-policy.html`;
-const policyBody = `<nav class="breadcrumbs" aria-label="パンくず"><a href="${siteUrl}/">ホーム</a><span>›</span><span>運営情報・広告掲載・プライバシー</span></nav>
-<section class="hero"><p class="eyebrow">サイトについて</p><h1>運営情報・広告掲載・プライバシー</h1><p class="lead">事業所防災ナビの運営者、広告リンク、アクセス解析で取り扱う情報を記載します。</p></section>
+const policyBody = `<nav class="breadcrumbs" aria-label="パンくず"><a href="${siteUrl}/">ホーム</a><span>›</span><span>サイト情報・広告掲載・プライバシー</span></nav>
+<section class="hero"><p class="eyebrow">サイトについて</p><h1>サイト情報・広告掲載・プライバシー</h1><p class="lead">事業所防災ナビの掲載内容、広告リンク、アクセス解析で取り扱う情報を記載します。</p></section>
 <section class="section two">
-  <article class="card"><h2>運営情報</h2><dl class="spec-grid"><div><span>サイト名</span><strong>事業所防災ナビ</strong></div><div><span>運営者</span><strong>村上 誠治</strong></div><div><span>サイトURL</span><strong>${siteUrl}/</strong></div><div><span>更新日</span><strong>2026年7月23日</strong></div></dl></article>
+  <article class="card"><h2>サイト情報</h2><dl class="spec-grid"><div><span>サイト名</span><strong>事業所防災ナビ</strong></div><div><span>編集主体</span><strong>事業所防災ナビ編集部</strong></div><div><span>サイトURL</span><strong>${siteUrl}/</strong></div><div><span>更新日</span><strong>2026年7月23日</strong></div></dl></article>
   <article class="card"><h2>掲載情報について</h2><p>当サイトは、事業所向け防災用品を比較しやすくするための情報サイトです。価格、在庫、レビュー、商品仕様は変動する場合があります。購入前に必ず販売ページで最新情報を確認してください。</p><p>医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄については、メーカー、専門業者、施設管理者に確認してください。</p></article>
 </section>
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
+<section class="section card"><h2>選定と更新</h2><p>商品名、価格、レビュー、容量、回数、保存年数など、販売ページから確認できる情報を比較項目として整理しています。対象人数や備蓄日数を読み取れない商品は、上位候補として扱わず、確認が必要な候補として分けます。商品情報は定期取得時に更新し、表示条件に合わない商品は掲載順を見直します。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-${structuredData(webPageJsonLd('運営情報・広告掲載・プライバシー', '事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。', policyCanonical))}`;
+${structuredData(webPageJsonLd('サイト情報・広告掲載・プライバシー', '事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。', policyCanonical))}`;
 
 fs.writeFileSync(path.join(dist, 'index.html'), layout(
   '事業所の防災備蓄は何を何日分？会社・店舗向け用品比較',
@@ -2078,9 +2296,9 @@ fs.writeFileSync(path.join(dist, 'index.html'), layout(
   { ogImage: showcaseProducts.find((product) => product.image)?.image || '' }
 ));
 fs.writeFileSync(path.join(dist, 'site-policy.html'), layout(
-  '運営情報・広告掲載・プライバシー',
+  'サイト情報・広告掲載・プライバシー',
   policyBody,
-  '事業所防災ナビの運営者情報、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。',
+  '事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。',
   policyCanonical,
   { hideAffiliateDisclosure: true, hideShare: true }
 ));

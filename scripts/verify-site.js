@@ -164,11 +164,14 @@ if (titleShort('Jackery 1070Wh ポータブル電源 ソーラーパネルセッ
 if (candidateTier({ titleRaw: '防災セット 二人用 家族用' }, { slug: 'office-bichiku' }) !== 'demoted') {
   issues.push('product ranking failed: household two-person kits must be demoted on office pages');
 }
-if (candidateTier({ titleRaw: '防災セット 1人用 法人・企業向け' }, { slug: 'office-bichiku' }) !== 'preferred') {
-  issues.push('product ranking failed: one-person kits with explicit business use must remain eligible');
+if (candidateTier({ titleRaw: '防災セット 1人用 法人・企業向け' }, { slug: 'office-bichiku' }) !== 'supplementary') {
+  issues.push('product ranking failed: one-person business kits without a stated duration must stay supplementary');
 }
-if (candidateTier({ titleRaw: '防災セット 1人用', summary: '官公庁など法人8000社が採用' }, { slug: 'office-bichiku' }) !== 'preferred') {
-  issues.push('product ranking failed: kits with concrete institutional adoption must remain eligible');
+if (candidateTier({ titleRaw: '防災セット 1人用', summary: '官公庁など法人8000社が採用' }, { slug: 'office-bichiku' }) !== 'supplementary') {
+  issues.push('product ranking failed: adoption copy must not replace a stated stock duration');
+}
+if (candidateTier({ titleRaw: '法人向け 防災備蓄セット 10人用 3日分 保存水 非常食 簡易トイレ' }, { slug: 'office-bichiku' }) !== 'preferred') {
+  issues.push('product ranking failed: stated business capacity and duration should be preferred');
 }
 if (candidateTier({ titleRaw: '簡易トイレ 20回分 60回分 120回分' }, { slug: 'toilet-office' }) !== 'demoted') {
   issues.push('product ranking failed: variable-quantity toilets must be demoted');
@@ -202,6 +205,8 @@ for (const file of files) {
   if (!html.includes("trackEvent('view_item_list'")) issues.push(`${relative}: GA4 item-list tracking missing`);
   if (!html.includes("trackEvent('stock_plan_compare_click'")) issues.push(`${relative}: stock-plan comparison tracking missing`);
   if (!html.includes("trackEvent('stock_plan_view'")) issues.push(`${relative}: stock-plan landing tracking missing`);
+  if (!html.includes("trackEvent('hero_path_select'")) issues.push(`${relative}: hero path tracking missing`);
+  if (!html.includes("trackEvent('matched_candidate_view'")) issues.push(`${relative}: matched-candidate tracking missing`);
   if (!html.includes('index: params.product_position ? params.product_position - 1')) issues.push(`${relative}: GA4 item index must be zero-based`);
   const rakutenAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]*hb\.afl\.rakuten\.co\.jp[^"]*"[^>]*>/g)].map((match) => match[0]);
   for (const anchor of rakutenAnchors) {
@@ -235,6 +240,10 @@ for (const file of files) {
     if (h1.endsWith('比較')) issues.push(`${relative}: topic H1 must answer an informational intent rather than duplicate a comparison page`);
   }
   if (forbidden.test(html)) issues.push(`${relative}: production-side wording found`);
+  if (/"@type"\s*:\s*"Person"/.test(html)) issues.push(`${relative}: personal publisher or author structured data is not allowed`);
+  if (/運営者\s*[:：]/.test(html)) issues.push(`${relative}: personal operator label is not allowed`);
+  if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(html)) issues.push(`${relative}: public email address is not allowed`);
+  if (/https?:\/\/[^/"']+\.github\.io(?:\/|["'])/i.test(html)) issues.push(`${relative}: personal GitHub Pages URL is not allowed`);
   if (/<<<<<<<|=======|>>>>>>>/.test(html)) issues.push(`${relative}: conflict marker found`);
   if (relative !== 'site-policy.html') {
     if (!html.includes('source-references')) issues.push(`${relative}: public source section missing`);
@@ -273,6 +282,17 @@ for (const file of files) {
       if (!knownFiles.has(linkedFile)) issues.push(`${relative}: broken internal link ${url.pathname}`);
     } catch { issues.push(`${relative}: invalid link ${match[1]}`); }
   }
+}
+
+for (const file of allHtmlFiles) {
+  const relative = path.relative(root, file);
+  const publicFile = path.join(projectRoot, relative);
+  if (!fs.existsSync(publicFile)) {
+    issues.push(`${relative}: generated file is missing from the public root`);
+    continue;
+  }
+  if (fs.readFileSync(file).equals(fs.readFileSync(publicFile))) continue;
+  issues.push(`${relative}: public root is out of sync with dist`);
 }
 
 const data = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'products.json'), 'utf8'));
@@ -322,8 +342,8 @@ for (const page of data.pages || []) {
   }
   const displayedIds = new Set([...pageHtml.matchAll(/data-product-id="([^"]+)"/g)].map((match) => match[1]));
   if (displayedIds.size < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} displayed product candidates`);
-  if (!pageHtml.includes('data-affiliate-rate=') || !pageHtml.includes('data-estimated-commission=')) {
-    issues.push(`${page.slug}: affiliate value tracking attributes missing`);
+  if (pageHtml.includes('data-affiliate-rate=') || pageHtml.includes('data-estimated-commission=')) {
+    issues.push(`${page.slug}: internal affiliate value data leaked into the public page`);
   }
   for (const product of page.products || []) {
     if (hasAmbiguousToiletQuantity(product) && displayedIds.has(product.itemCode)) {
@@ -346,9 +366,10 @@ for (const page of data.pages || []) {
 }
 
 const generatedClientScript = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-if (!generatedClientScript.includes('estimated_commission_before_caps') || !generatedClientScript.includes('affiliate_rate') || !generatedClientScript.includes('variable_price')) {
-  issues.push('GA4 affiliate value event parameters missing');
+if (generatedClientScript.includes('estimated_commission_before_caps') || generatedClientScript.includes('affiliate_rate')) {
+  issues.push('GA4 events must not expose internal affiliate rates or estimated commission');
 }
+if (!generatedClientScript.includes('variable_price')) issues.push('GA4 variable price event parameter missing');
 if (!generatedClientScript.includes("sessionStorage.setItem(paidKitQualifiedKey,'1')")) {
   issues.push('paid-kit qualified view session deduplication missing');
 }
