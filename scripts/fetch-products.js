@@ -212,17 +212,26 @@ function prioritizeProductVariety(products) {
   return [...firstByType, ...balanced, ...overflow, ...repeated];
 }
 
+function fixedToiletPack(source) {
+  const explicitPack = source.match(/(\d{1,4})\s*回分?\s*[×xX]\s*(\d{1,4})\s*(?:袋|個|パック|箱|セット)/);
+  const bundledPack = source.match(/(\d{1,4})\s*回分\s+(\d{1,4})\s*(?:個|袋|パック)\s*セット/);
+  const match = explicitPack || bundledPack;
+  if (!match) return null;
+  const perPack = Number(match[1]);
+  const packCount = Number(match[2]);
+  return { perPack, packCount, total: perPack * packCount };
+}
+
 function hasAmbiguousToiletQuantity(product) {
   const source = String(product?.titleRaw || product?.name || product || '')
     .replace(/1回あたり[^／/\s]*/g, '');
   if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/.test(source)) return false;
   if (/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) return true;
   const counts = new Set([...source.matchAll(/(\d{1,4})\s*回(?:分)?/g)].map((match) => Number(match[1])));
-  const fixedPack = source.match(/(\d{1,4})\s*回分?\s*[×xX]\s*(\d{1,4})\s*(?:袋|個|パック|箱|セット)/);
+  const fixedPack = fixedToiletPack(source);
   if (fixedPack) {
-    const perPack = Number(fixedPack[1]);
-    const packCount = Number(fixedPack[2]);
-    const allowedCounts = new Set([1, perPack, packCount, perPack * packCount]);
+    const { perPack, packCount, total } = fixedPack;
+    const allowedCounts = new Set([1, perPack, packCount, total]);
     if ([...counts].every((count) => allowedCounts.has(count))) return false;
   }
   if (counts.size === 2 && counts.has(1) && /1\s*回分ずつ(?:個包装|包装|小分け)/.test(source)) return false;
@@ -234,11 +243,9 @@ function toiletUseCount(product) {
   const source = String(product?.titleRaw || product?.name || product || '')
     .replace(/1回あたり[^／/\s]*/g, '');
   if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤|汚物処理袋/.test(source)) return null;
-  const fixedPack = source.match(/(\d{1,4})\s*回分?\s*[×xX]\s*(\d{1,4})\s*(?:袋|個|パック|箱|セット)/);
+  const fixedPack = fixedToiletPack(source);
   if (fixedPack && !/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) {
-    const perPack = Number(fixedPack[1]);
-    const packCount = Number(fixedPack[2]);
-    const total = perPack * packCount;
+    const { perPack, packCount, total } = fixedPack;
     const statedCounts = [...source.matchAll(/(\d{1,4})\s*回(?:分)?/g)].map((match) => Number(match[1]));
     const allowedCounts = new Set([1, perPack, packCount, total]);
     if (statedCounts.every((count) => allowedCounts.has(count))) return total;
@@ -317,7 +324,7 @@ function titleShort(raw, maxLength = 58) {
     standaloneSpec(source, '\\d+(?:\\.\\d+)?L'),
     boundedCount(source, '食', 1000),
     boundedCount(source, '枚', 1000),
-    boundedCount(source, '個', 1000)
+    toiletCount ? '' : boundedCount(source, '個', 1000)
   ].filter(Boolean);
   parts.push(...specs);
   if (variableQuantity) parts.push('回数選択式');

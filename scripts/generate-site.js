@@ -12,6 +12,7 @@ const dataPath = path.join(root, 'data', 'products.json');
 const keywordsPath = path.join(root, 'data', 'keywords.csv');
 const paidProductPath = path.join(root, 'data', 'paid-product.json');
 const indexNowPath = path.join(root, 'data', 'indexnow.json');
+const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
 
 const data = fs.existsSync(dataPath)
   ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
@@ -21,8 +22,7 @@ const paidProduct = fs.existsSync(paidProductPath)
   : { published: false, slug: 'stockpile-management-kit', name: '', price: 0, checkoutUrl: '' };
 const indexNow = JSON.parse(fs.readFileSync(indexNowPath, 'utf8'));
 if (!/^[A-Za-z0-9-]{8,128}$/.test(indexNow.key || '')) throw new Error('IndexNow key format is invalid.');
-if (indexNow.host !== new URL(siteUrl).hostname) throw new Error('IndexNow host must match SITE_URL.');
-const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
+if (!paidProductPreview && indexNow.host !== new URL(siteUrl).hostname) throw new Error('IndexNow host must match SITE_URL.');
 const paidProductEnabled = paidProduct.published || paidProductPreview;
 const paidProductCheckoutUrl = process.env.PAID_KIT_CHECKOUT_URL || paidProduct.checkoutUrl || '';
 const paidProductAllowedHosts = (process.env.PAID_KIT_ALLOWED_HOSTS || '')
@@ -503,6 +503,7 @@ function quantityEstimateSection() {
         <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="${siteUrl}/pages/office-bichiku.html" href="${siteUrl}/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
       </div>
     </div>
+    ${paidProductEnabled ? `<div class="calc-kit-next"><div><p class="eyebrow">現在庫まで整理する</p><h3>必要量と在庫の差を、購入箱数・概算予算までまとめる</h3><p>この計算結果を出発点に、保有数、保存期限、候補商品の単価をExcelで確認できます。</p></div><a class="button orange" href="${siteUrl}/pages/${paidProduct.slug}.html" data-paid-kit-offer="true" data-plan-path="${siteUrl}/pages/${paidProduct.slug}.html">備蓄算定キットの実画面を見る</a></div>` : ''}
   </section>`;
 }
 
@@ -723,6 +724,9 @@ ${socialImage}
     .estimate-grid span{font-size:12.5px;font-weight:700;letter-spacing:.08em}
     .estimate-grid strong{display:block;font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.3;color:var(--main)}
     .estimate-grid small{font-size:11.5px}
+    .calc-kit-next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:center;margin-top:18px;padding:18px 0 0;border-top:1px solid var(--rule-2)}
+    .calc-kit-next h3{font-family:var(--font-display);font-size:20px;margin-bottom:5px}
+    .calc-kit-next p{margin:0;color:var(--ink-2);font-size:14px}
     .stock-plan-actions{display:grid;gap:14px;margin-top:20px;padding-top:20px;border-top:2px solid var(--main)}
     .stock-plan-actions h3{font-family:var(--font-display);font-size:22px}
     .stock-plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -850,6 +854,9 @@ ${socialImage}
     .kit-shot{margin:0;background:var(--card);border:1px solid var(--rule);padding:8px}
     .kit-shot img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;background:#fff;border:1px solid #e9e6dc}
     .kit-shot figcaption{padding:10px 4px 4px;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .kit-sheet-list{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin:16px 0 0;padding:0;list-style:none}
+    .kit-sheet-list li{padding:13px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);font-size:13.5px;background:var(--card)}
+    .kit-sheet-list strong{display:block;color:var(--main);margin-bottom:2px}
     .kit-example{background:var(--main);color:#fff;border:1px solid var(--main);padding:20px}
     .kit-example .eyebrow{color:#f2b679}
     .kit-example h3{font-family:var(--font-display);font-size:24px;margin-bottom:14px}
@@ -944,6 +951,8 @@ ${socialImage}
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
+      .calc-kit-next{grid-template-columns:1fr}
+      .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
       .hero h1{width:100%;font-size:clamp(25px,7.1vw,32px);max-width:100%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
       .lead{font-size:16px}
@@ -961,7 +970,7 @@ ${socialImage}
       .kit-cta{display:grid;justify-items:start}
       .kit-cta .notice{display:block}
       .kit-visual{transform:none}
-      .kit-outcomes,.kit-gallery,.kit-steps,.kit-terms{grid-template-columns:1fr}
+      .kit-outcomes,.kit-gallery,.kit-steps,.kit-terms,.kit-sheet-list{grid-template-columns:1fr}
       .kit-outcome,.kit-outcome:first-child,.kit-steps li,.kit-steps li:first-child{border-left:0}
       .kit-outcome+.kit-outcome,.kit-steps li+li{border-top:1px solid var(--rule)}
       .kit-final{grid-template-columns:1fr}
@@ -1885,6 +1894,7 @@ function paidKitPageBody() {
       <p class="eyebrow">防災担当者向け Excelテンプレート</p>
       <h1>備蓄の不足数を、<br>購入予算まで整理。</h1>
       <p class="lead">人数・備蓄日数・現在庫を入力すると、保存水、非常食、簡易トイレ、保温用品の不足数と購入箱数を整理できます。商品候補と単価を入れれば、概算予算と購入申請の下書きまで同じ数字で確認できます。</p>
+      <div class="plan-summary" id="planSummary" hidden><span>入力した条件</span><strong id="planSummaryText"></strong><small>この必要量を、現在庫と照合するところから始められます。</small></div>
       <div class="kit-price"><strong>${paidKitPrice}円</strong><span>税込・買い切り</span></div>
       <div class="kit-cta"><a class="button orange" href="${esc(paidProductCheckoutUrl)}" target="_blank" rel="noopener" ${paidKitCheckoutAttrs}>内容を確認して購入する</a><span class="notice">Excelファイル + PDF使い方ガイド</span></div>
       <p class="notice">推奨環境: Microsoft Excel 2021 / Microsoft 365 Windows版。数量は計画づくりの目安として調整してください。</p>
@@ -1903,9 +1913,15 @@ function paidKitPageBody() {
     <div class="kit-gallery" data-paid-kit-section="paid-kit-screens">
       <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/basic-input.png" alt="人数、備蓄日数、想定災害を入力する基本入力シート" loading="lazy"><figcaption>1. 人数・備蓄日数・想定災害を入力</figcaption></figure>
       <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/inventory-gap.png" alt="必要量と有効在庫から不足量を表示する在庫ギャップシート" loading="lazy"><figcaption>2. 不足量と必要箱数を確認</figcaption></figure>
-      <article class="kit-example"><p class="eyebrow">記入例: 20人・3日分</p><h3>仮単価まで入れた結果</h3><dl><dt>不足分類</dt><dd>4分類</dd><dt>購入箱数</dt><dd>18箱</dd><dt>概算合計</dt><dd class="sample-total">55,000円</dd></dl><small>記入例の仮単価で計算した金額です。実際の商品価格ではありません。</small></article>
+      <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/inventory-ledger.png" alt="品目、保有箱数、保存期限、保管場所を記録する在庫台帳シート" loading="lazy"><figcaption>3. 現在庫・期限・保管場所を記録</figcaption></figure>
+      <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/order-candidates.png" alt="不足品の候補数量、単価、販売先、採用可否を整理する発注候補シート" loading="lazy"><figcaption>4. 発注候補と確認事項を整理</figcaption></figure>
+      <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/approval-summary.png" alt="想定人数、不足分類、概算費用、購入申請の下書きを表示する稟議要約シート" loading="lazy"><figcaption>5. 概算費用と申請文を確認</figcaption></figure>
+      <figure class="kit-shot"><img src="${siteUrl}/assets/paid-kit/expiry-management.png" alt="品目別の保存期限、残日数、更新目安を管理する期限管理シート" loading="lazy"><figcaption>6. 保存期限と更新時期を管理</figcaption></figure>
     </div>
-    <p class="notice">画面内の数値は入力例を含みます。商品価格はキットに含まれず、利用者が販売ページを確認して入力します。</p>
+    <p class="notice">画面内の候補商品、単価、採用可否は利用者が入力します。商品データや価格はキットに含まれません。</p>
+    <ol class="kit-sheet-list" aria-label="キットに含まれるシート">
+      <li><strong>01 基本入力</strong>人数・日数・想定災害</li><li><strong>02 必要量算定</strong>水・食料・トイレ・保温用品</li><li><strong>03 在庫台帳</strong>箱数・期限・保管場所</li><li><strong>04 在庫ギャップ</strong>不足数・必要箱数</li><li><strong>05 発注候補</strong>単価・販売先・採用可否</li><li><strong>06 概算費用・稟議要約</strong>予算集計・申請文</li><li><strong>07 期限管理</strong>更新目安・残日数</li><li><strong>08 出典と確認</strong>算定根拠・確認先</li>
+    </ol>
   </section>
   <section class="section" aria-labelledby="kit-flow"><div class="section-title"><div><p class="eyebrow">使う順番</p><h2 id="kit-flow">発注候補を決めるまでの5段階</h2></div></div>
     <ol class="kit-steps"><li>事業所名、人数、備蓄日数を入力</li><li>現在庫、箱数、期限、保管場所を入力</li><li>不足数と必要箱数を確認</li><li>候補商品、単価、販売先を入力</li><li>概算費用と申請文を確認</li></ol>
