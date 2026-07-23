@@ -3,6 +3,7 @@ const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
 const { hasAmbiguousToiletQuantity, toiletUseCount, titleShort, matchesPageType, candidateTier, prioritizeProductVariety } = require('./fetch-products');
+const { isApprovedBaseProductUrl } = require('./paid-checkout-url.cjs');
 
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
@@ -46,6 +47,9 @@ if (paidProductEnabled) {
   if (checkout.protocol !== 'https:') throw new Error('Paid kit checkout URL must use HTTPS.');
   if (!paidProductAllowedHosts.length || !paidProductAllowedHosts.includes(checkout.hostname.toLowerCase())) {
     throw new Error('Paid kit checkout host is not explicitly allowed.');
+  }
+  if (!isApprovedBaseProductUrl(checkout)) {
+    throw new Error('Paid kit checkout URL must be a standard BASE product page URL.');
   }
   if (paidProduct.published && isPlaceholderCheckoutHost(checkout.hostname)) {
     throw new Error('Paid kit checkout URL cannot use a placeholder host when published.');
