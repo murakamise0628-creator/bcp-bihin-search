@@ -88,9 +88,24 @@ async function evaluate(send, expression) {
   return result.result.value;
 }
 
+async function navigateFresh(send, url) {
+  await send('Page.navigate', { url: 'about:blank' });
+  await sleep(100);
+  await send('Page.navigate', { url });
+  const deadline = Date.now() + 15_000;
+  while (Date.now() < deadline) {
+    if (await evaluate(send, `document.readyState !== 'loading'`)) {
+      await sleep(100);
+      return;
+    }
+    await sleep(100);
+  }
+  throw new Error(`Timed out while loading ${url}`);
+}
+
 const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet-office.html')).href;
 const homePage = pathToFileURL(path.join(projectRoot, 'dist', 'index.html')).href;
-const { socket, send, browserErrors } = await connectPage(`${toiletPage}?staff=10&days=3&visitors=0`);
+const { socket, send, browserErrors } = await connectPage('about:blank');
 
 try {
   const widthResults = [];
@@ -101,8 +116,7 @@ try {
       deviceScaleFactor: 1,
       mobile: width < 768
     });
-    await send('Page.navigate', { url: `${toiletPage}?staff=10&days=3&visitors=0&audit=${width}` });
-    await sleep(900);
+    await navigateFresh(send, `${toiletPage}?staff=10&days=3&visitors=0&audit=${width}`);
     const result = await evaluate(send, `(() => {
       const rect = (selector) => {
         const node = document.querySelector(selector);
@@ -121,6 +135,7 @@ try {
         quickVisible: quick.filter((node) => !node.hidden).length,
         quickHidden: quick.filter((node) => node.hidden).length,
         productCards: document.querySelectorAll('#products .product').length,
+        toiletEstimate: document.querySelector('#toiletEstimate')?.textContent || '',
         firstFit: document.querySelector('[data-fit-result]')?.textContent || '',
         positions: [...document.querySelectorAll('#products a[data-product-position]')].map((node) => Number(node.dataset.productPosition))
       };
@@ -134,6 +149,7 @@ try {
     }
     assert.ok(result.quickVisible <= 3, `${width}px shows more than three quick picks`);
     assert.ok(result.productCards <= 6, `${width}px repeats more than six detailed cards`);
+    assert.match(result.toiletEstimate, /150回分/);
     assert.match(result.firstFit, /150回分/);
     assert.deepEqual(result.positions, result.positions.map((_, index) => index + 1), `${width}px CTA positions are stale`);
     widthResults.push(result);
@@ -145,8 +161,7 @@ try {
     deviceScaleFactor: 1,
     mobile: true
   });
-  await send('Page.navigate', { url: `${toiletPage}?staff=0&days=3&visitors=0` });
-  await sleep(900);
+  await navigateFresh(send, `${toiletPage}?staff=0&days=3&visitors=0`);
   const zeroPlan = await evaluate(send, `(() => {
     const text = document.querySelector('[data-fit-result]')?.textContent || '';
     return { text, hasUnitRecommendation: /1点|1セット/.test(text) };
@@ -162,8 +177,7 @@ try {
       deviceScaleFactor: 1,
       mobile: width < 768
     });
-    await send('Page.navigate', { url: `${homePage}?audit=${width}` });
-    await sleep(900);
+    await navigateFresh(send, `${homePage}?audit=${width}`);
     const result = await evaluate(send, `(() => {
       const rect = (selector) => {
         const node = document.querySelector(selector);
@@ -197,8 +211,7 @@ try {
     deviceScaleFactor: 1,
     mobile: true
   });
-  await send('Page.navigate', { url: `${homePage}?audit=screenshot` });
-  await sleep(900);
+  await navigateFresh(send, `${homePage}?audit=screenshot`);
   const homeScreenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'home-mobile-cdp.png'), Buffer.from(homeScreenshot.data, 'base64'));
 

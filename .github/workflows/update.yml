@@ -17,27 +17,51 @@ permissions:
   contents: write
   pages: write
 
+concurrency:
+  group: affiliate-site-weekly-update
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm run update
+      - name: Refresh products and verify generated site
+        run: npm run update
         env:
           RAKUTEN_APP_ID: ${{ secrets.RAKUTEN_APP_ID }}
           RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
           RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
           SITE_URL: https://jigyousho-bousai.com
+          REFRESH_MAX_AGE_HOURS: 12
+      - name: Reject unexpected generated changes
+        shell: bash
+        run: |
+          unexpected="$(
+            git status --porcelain | sed -E 's/^.. //' | while IFS= read -r path; do
+              case "$path" in
+                data/products.json|deploy-status.json|index.html|site-policy.html|sitemap.xml|robots.txt|CNAME|404.html|google*.html|pages/*|topics/*|assets/*) ;;
+                *) printf '%s\n' "$path" ;;
+              esac
+            done
+          )"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected files changed:"
+            echo "$unexpected"
+            exit 1
+          fi
       - name: Publish generated files
         id: publish
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          cp -R dist/* .
-          git add .
+          git config user.name "Jigyousho Bousai Navi Editorial"
+          git config user.email "bousai-navi@users.noreply.github.com"
+          git add -A -- data/products.json deploy-status.json index.html site-policy.html sitemap.xml robots.txt CNAME 404.html pages topics assets
           if git diff --cached --quiet; then
             echo "published=false" >> "$GITHUB_OUTPUT"
             echo "No changes"
