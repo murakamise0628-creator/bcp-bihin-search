@@ -61,7 +61,7 @@ jobs:
         run: |
           git config user.name "Jigyousho Bousai Navi Editorial"
           git config user.email "bousai-navi@users.noreply.github.com"
-          git add -A -- data/products.json deploy-status.json index.html site-policy.html sitemap.xml robots.txt CNAME 404.html pages topics assets
+          git add -A -- data/products.json deploy-status.json index.html site-policy.html sitemap.xml robots.txt CNAME pages topics assets
           if git diff --cached --quiet; then
             echo "published=false" >> "$GITHUB_OUTPUT"
             echo "No changes"
