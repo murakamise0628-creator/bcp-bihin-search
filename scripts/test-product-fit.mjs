@@ -6,6 +6,8 @@ const {
   candidateTier,
   decisionFacts,
   decisionSummary,
+  sanitizeProductDataset,
+  titleShort,
   toiletUseCount
 } = productTools;
 
@@ -89,4 +91,29 @@ test('decisionSummary states purchase checks instead of promotional copy', () =>
   assert.match(summary, /50回分/);
   assert.match(summary, /凝固剤/);
   assert.doesNotMatch(summary, /ランキング|送料無料/);
+});
+
+test('BOS toilet sets stay classified as complete toilet kits in public copy', () => {
+  const titleRaw = '50回分 防災グッズ BOS非常用 トイレセット Bセット 凝固剤付き 汚物袋 おむつが臭わない袋 断水 非常時 備蓄 施設 病院 法人';
+
+  assert.equal(titleShort(titleRaw), 'BOS 50回分 非常用トイレ');
+  assert.match(decisionSummary({ titleRaw }, { slug: 'toilet-office' }), /凝固剤・処理袋・防臭袋の同梱表記/);
+});
+
+test('public product data strips internal affiliate value fields', () => {
+  const sanitized = sanitizeProductDataset({
+    schemaVersion: 2,
+    pages: [{
+      slug: 'office-bichiku',
+      products: [{
+        itemCode: 'shop:item',
+        affiliateRate: 4,
+        affiliate_rate: 4,
+        estimatedCommission: 120,
+        estimated_commission_before_caps: 120
+      }]
+    }]
+  });
+
+  assert.deepEqual(sanitized.pages[0].products[0], { itemCode: 'shop:item' });
 });

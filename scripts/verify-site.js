@@ -198,6 +198,7 @@ if (!titleShort('トイレ凝固剤 100回分 10年保存').includes('トイレ�
 for (const file of files) {
   const html = fs.readFileSync(file, 'utf8');
   const relative = path.relative(root, file);
+  if (/[ \t]+$/m.test(html)) issues.push(`${relative}: trailing whitespace found`);
   if ((html.match(/<h1[\s>]/g) || []).length !== 1) issues.push(`${relative}: H1 must appear once`);
   if (!html.includes('G-LN824MSD7X')) issues.push(`${relative}: GA4 tag missing`);
   if (!html.includes("trackEvent('rakuten_click'")) issues.push(`${relative}: Rakuten click tracking missing`);
@@ -295,6 +296,18 @@ for (const file of allHtmlFiles) {
   issues.push(`${relative}: public root is out of sync with dist`);
 }
 
+for (const relative of ['downloads/jigyousho-bousai-checklist.csv']) {
+  const generatedFile = path.join(root, relative);
+  const publicFile = path.join(projectRoot, relative);
+  if (!fs.existsSync(generatedFile)) {
+    issues.push(`${relative}: generated download is missing`);
+  } else if (!fs.existsSync(publicFile)) {
+    issues.push(`${relative}: generated download is missing from the public root`);
+  } else if (!fs.readFileSync(generatedFile).equals(fs.readFileSync(publicFile))) {
+    issues.push(`${relative}: public download is out of sync with dist`);
+  }
+}
+
 const data = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'products.json'), 'utf8'));
 const expectedTypes = {
   'toilet-office': new Set(['toilet']),
@@ -307,7 +320,7 @@ function validateProductRecord(pageSlug, product) {
   for (const field of required) {
     if (!product[field]) recordIssues.push(`missing ${field}`);
   }
-  if (!Object.prototype.hasOwnProperty.call(product, 'affiliateRate')) recordIssues.push('missing affiliateRate');
+  if (Object.prototype.hasOwnProperty.call(product, 'affiliateRate')) recordIssues.push('internal affiliateRate must not be public');
   const inferredType = detectProductType(product.titleRaw || product.name);
   if (product.productType !== inferredType) recordIssues.push(`stored type ${product.productType} differs from ${inferredType}`);
   const allowed = expectedTypes[pageSlug];
@@ -317,7 +330,7 @@ function validateProductRecord(pageSlug, product) {
 
 const validSchemaFixture = {
   productType: 'water', genreId: '100316', fetchedAt: '2026-07-23T00:00:00.000Z',
-  sourceKeyword: '長期保存水 事業所', affiliateRate: 4, titleRaw: '5年保存 天然水 2L'
+  sourceKeyword: '長期保存水 事業所', titleRaw: '5年保存 天然水 2L'
 };
 const invalidSchemaFixture = { ...validSchemaFixture, productType: 'water', titleRaw: '給水タンク 10L' };
 if (validateProductRecord('water-food-stock', validSchemaFixture).length) {
@@ -327,15 +340,23 @@ if (!validateProductRecord('water-food-stock', invalidSchemaFixture).some((item)
   issues.push('schemaVersion 2 validator accepted an invalid fixture');
 }
 for (const page of data.pages || []) {
-  const requiredCount = ['toilet-office', 'blackout-power', 'water-food-stock'].includes(page.slug) ? 12 : 8;
-  if ((page.products || []).length < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} products`);
+  const isChecklistTool = page.slug === 'bcp-stockpile-checklist';
+  const requiredCount = isChecklistTool ? 0 : (['toilet-office', 'blackout-power', 'water-food-stock'].includes(page.slug) ? 12 : 8);
+  if (!isChecklistTool && (page.products || []).length < requiredCount) issues.push(`${page.slug}: fewer than ${requiredCount} products`);
   const pageFile = path.join(root, 'pages', `${page.slug}.html`);
   const pageHtml = fs.existsSync(pageFile) ? fs.readFileSync(pageFile, 'utf8') : '';
-  if (!pageHtml.includes('data-stock-plan="toilet"') || !pageHtml.includes('data-stock-plan="water_food"')) {
-    issues.push(`${page.slug}: stock-plan comparison links missing`);
-  }
-  if (!pageHtml.includes('id="planSummary"') || !pageHtml.includes("target.searchParams.set('staff'")) {
-    issues.push(`${page.slug}: stock-plan URL restoration missing`);
+  if (isChecklistTool) {
+    if (!pageHtml.includes('data-stockpile-tool') || !pageHtml.includes('data-print-checklist') || !pageHtml.includes('data-download-checklist')) {
+      issues.push(`${page.slug}: checklist tool controls missing`);
+    }
+    if (pageHtml.includes('"@type":"Product"')) issues.push(`${page.slug}: product schema must not be used without displayed products`);
+  } else {
+    if (!pageHtml.includes('data-stock-plan="toilet"') || !pageHtml.includes('data-stock-plan="water_food"')) {
+      issues.push(`${page.slug}: stock-plan comparison links missing`);
+    }
+    if (!pageHtml.includes('id="planSummary"') || !pageHtml.includes("target.searchParams.set('staff'")) {
+      issues.push(`${page.slug}: stock-plan URL restoration missing`);
+    }
   }
   if (!pageHtml.includes("var minimum=item[0]==='days' ? 1 : 0")) {
     issues.push(`${page.slug}: stock-plan day validation missing`);

@@ -27,6 +27,11 @@ const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
 const data = fs.existsSync(dataPath)
   ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
   : { generatedAt: new Date().toISOString(), pages: [] };
+const editorialUpdatedAt = '2026-08-03T00:00:00+09:00';
+const contentUpdatedIso = new Date(Math.max(
+  Number.isFinite(Date.parse(data.generatedAt)) ? Date.parse(data.generatedAt) : 0,
+  Date.parse(editorialUpdatedAt)
+)).toISOString();
 const paidProduct = fs.existsSync(paidProductPath)
   ? JSON.parse(fs.readFileSync(paidProductPath, 'utf8'))
   : { published: false, slug: 'stockpile-management-kit', name: '', price: 0, checkoutUrl: '' };
@@ -374,7 +379,7 @@ function pageBySlug(slug) {
 }
 
 function updatedDate() {
-  return data.generatedAt ? new Date(data.generatedAt).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '更新日確認中';
+  return new Date(contentUpdatedIso).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' });
 }
 
 function shortName(name, maxLength = 54) {
@@ -805,6 +810,39 @@ ${socialImage}
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
     .checklist li{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:11px 14px 11px 38px;position:relative;font-size:14.5px}
     .checklist li::before{content:"✓";position:absolute;left:14px;top:10px;color:var(--accent-deep);font-weight:900}
+    .stockpile-tool{padding:0;border:1px solid var(--rule-2);background:var(--card)}
+    .stockpile-tool-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;padding:22px 24px;border-bottom:1px solid var(--rule);background:var(--teal-soft)}
+    .stockpile-tool-head p{margin:0;color:var(--ink-2)}
+    .check-progress{display:grid;gap:4px;min-width:170px;text-align:right}
+    .check-progress strong{font-family:var(--font-display);font-size:25px;color:var(--main)}
+    .check-progress span{font-size:12px;color:var(--muted)}
+    .checklist-groups{display:grid;grid-template-columns:1fr 1fr}
+    .checklist-group{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .checklist-group:nth-child(odd){border-right:1px solid var(--rule)}
+    .checklist-group h2{font-size:21px;margin-bottom:12px}
+    .checklist-group p{margin:0 0 12px;color:var(--muted);font-size:13px}
+    .checklist-rows{display:grid;gap:0;border-top:1px solid var(--rule)}
+    .checklist-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--rule);cursor:pointer}
+    .checklist-row input{width:19px;height:19px;margin:3px 0 0;accent-color:var(--main)}
+    .checklist-row strong,.checklist-row small{display:block}
+    .checklist-row strong{font-size:15px;color:var(--ink)}
+    .checklist-row small{margin-top:2px;color:var(--muted);font-size:12.5px;line-height:1.55}
+    .check-state{margin-top:2px;color:var(--muted);font-size:11.5px;white-space:nowrap}
+    .checklist-row:has(input:checked) strong{text-decoration:line-through;text-decoration-color:var(--rule-2);color:var(--muted)}
+    .checklist-row:has(input:checked) .check-state{color:var(--main);font-weight:700}
+    .facility-checks{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .facility-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,320px);gap:20px;align-items:end;margin-bottom:16px}
+    .facility-picker label{display:grid;gap:6px;font-weight:700}
+    .facility-select{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;background:#fff;color:var(--main);font:700 16px var(--font-body)}
+    .facility-panel{border-top:1px solid var(--rule)}
+    .checklist-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:20px 24px}
+    .checklist-actions .notice{margin:0 0 0 auto;max-width:420px}
+    .checklist-use{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .checklist-use div{padding:18px;border-left:1px solid var(--rule)}
+    .checklist-use div:first-child{border-left:0}
+    .checklist-use strong,.checklist-use span{display:block}
+    .checklist-use strong{color:var(--main);font-size:16px;margin-bottom:4px}
+    .checklist-use span{color:var(--muted);font-size:13px}
     .steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}
     .steps li{counter-increment:step;padding:12px 14px 12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 4px 4px 0;font-size:14.5px}
     .steps li::before{content:counter(step) ".";font-family:var(--font-display);font-weight:700;color:var(--accent-deep);margin-right:8px}
@@ -1004,6 +1042,18 @@ ${socialImage}
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
+      .stockpile-tool-head{grid-template-columns:1fr;align-items:start;padding:18px}
+      .check-progress{text-align:left;min-width:0}
+      .checklist-groups{grid-template-columns:1fr}
+      .checklist-group,.checklist-group:nth-child(odd){padding:18px;border-right:0}
+      .facility-checks{padding:18px}
+      .facility-picker{grid-template-columns:1fr}
+      .checklist-actions{display:grid;padding:18px}
+      .checklist-actions .button{width:100%;justify-content:center;text-align:center}
+      .checklist-actions .notice{margin:0}
+      .checklist-use{grid-template-columns:1fr}
+      .checklist-use div,.checklist-use div:first-child{border-left:0}
+      .checklist-use div+div{border-top:1px solid var(--rule)}
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
@@ -1033,6 +1083,27 @@ ${socialImage}
       .hero-main h1{font-size:28px;word-break:normal;overflow-wrap:break-word}
       .button,.small-button{width:100%;justify-content:center;line-height:1.45}
       .showcase-card em{white-space:normal}
+    }
+    @media print{
+      @page{size:A4;margin:12mm}
+      body{background:#fff;font-size:11pt;line-height:1.55}
+      body::before,body::after,.site-head,.affiliate-disclosure,.breadcrumb,.hero-actions,.jump-nav,.share-bar,.site-footer,.checklist-actions,.print-hide{display:none!important}
+      main{max-width:none;padding:0}
+      .hero{padding:0 0 12px}
+      .hero h1{font-size:23pt}
+      .lead{font-size:11pt}
+      .section{margin-top:16px}
+      .card,.stockpile-tool,.checklist-use{box-shadow:none;background:#fff}
+      .stockpile-tool-head,.checklist-group,.facility-checks{padding:10px 12px}
+      .checklist-groups{grid-template-columns:1fr 1fr}
+      .checklist-group{break-inside:avoid}
+      .checklist-row{padding:7px 0;break-inside:avoid}
+      .checklist-row input{appearance:none;border:1px solid #555;width:14px;height:14px}
+      .checklist-row input:checked::after{content:"✓";display:block;font-size:12px;line-height:12px;text-align:center}
+      .check-state{display:none}
+      .facility-panel[hidden]{display:none!important}
+      .source-references,.faq{break-before:page}
+      a{color:#000;text-decoration:none}
     }
   </style>
 </head>
@@ -1406,6 +1477,68 @@ function clientScript() {
           });
         });
       });
+      var stockpileTool=document.querySelector('[data-stockpile-tool]');
+      if(stockpileTool){
+        var stockpileTracked=false;
+        var stockpileChecks=Array.prototype.slice.call(stockpileTool.querySelectorAll('[data-stockpile-check]'));
+        var stockpileCount=document.getElementById('stockpileCheckedCount');
+        var stockpileTotal=document.getElementById('stockpileTotalCount');
+        function updateStockpileProgress(){
+          var activeChecks=stockpileChecks.filter(function(input){
+            var panel=input.closest('[data-facility-panel]');
+            return !panel || !panel.hidden;
+          });
+          var checked=activeChecks.filter(function(input){ return input.checked; }).length;
+          if(stockpileCount) stockpileCount.textContent=String(checked);
+          if(stockpileTotal) stockpileTotal.textContent=String(activeChecks.length);
+          stockpileChecks.forEach(function(input){
+            var state=input.closest('.checklist-row')?.querySelector('.check-state');
+            if(state) state.textContent=input.checked ? '確認済み' : '未確認';
+          });
+          return checked;
+        }
+        stockpileChecks.forEach(function(input){
+          input.addEventListener('change',function(){
+            var checked=updateStockpileProgress();
+            if(stockpileTracked) return;
+            stockpileTracked=true;
+            trackEvent('stockpile_check_use',{
+              checked_items:checked,
+              total_items:stockpileChecks.length,
+              facility_type:document.getElementById('facilityType')?.value || 'office'
+            });
+          });
+        });
+        var facilityType=document.getElementById('facilityType');
+        function showFacilityPanel(){
+          var selected=facilityType ? facilityType.value : 'office';
+          stockpileTool.querySelectorAll('[data-facility-panel]').forEach(function(panel){
+            panel.hidden=panel.dataset.facilityPanel!==selected;
+          });
+          updateStockpileProgress();
+        }
+        if(facilityType){
+          facilityType.addEventListener('change',function(){
+            showFacilityPanel();
+            trackEvent('stockpile_facility_select',{ facility_type:facilityType.value });
+          });
+        }
+        var printChecklist=stockpileTool.querySelector('[data-print-checklist]');
+        if(printChecklist){
+          printChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_print',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+            window.print();
+          });
+        }
+        var downloadChecklist=stockpileTool.querySelector('[data-download-checklist]');
+        if(downloadChecklist){
+          downloadChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_csv_download',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+          });
+        }
+        showFacilityPanel();
+        updateStockpileProgress();
+      }
       var search=document.getElementById('siteSearch');
       var searchTimer=null;
       function filterCards(value){
@@ -1772,7 +1905,7 @@ function webPageJsonLd(title, description, canonical, citationUrls = []) {
     },
     citation: citationUrls,
     inLanguage: 'ja',
-    dateModified: data.generatedAt || new Date().toISOString()
+    dateModified: contentUpdatedIso
   });
 }
 
@@ -1848,7 +1981,239 @@ function pageSeoTitle(page) {
   return titles[page.slug] || page.title;
 }
 
+const stockpileChecklistGroups = [
+  {
+    title: '前提を決める',
+    intro: '数量を出す前に、誰が何日待機するかを決めます。',
+    items: [
+      ['対象人数', '従業員・職員に、来客・利用者の想定人数を加える'],
+      ['待機日数', 'まず3日分を出発点に、地域と建物の条件で調整する'],
+      ['保管場所', '浸水、転倒、高温を避け、配布しやすい場所を決める']
+    ]
+  },
+  {
+    title: '水・食料',
+    intro: '飲料と食事を人数・日数で確認します。',
+    items: [
+      ['保存水', '1人1日3Lを計画時の目安にする'],
+      ['非常食', '1人1日3食を目安にし、調理水や加熱の要否も見る'],
+      ['食物アレルギー', '原材料表示と利用者・職員への配布方法を確認する']
+    ]
+  },
+  {
+    title: 'トイレ・衛生',
+    intro: '便器があっても断水や排水停止で使えない場合に備えます。',
+    items: [
+      ['簡易トイレ一式', '凝固剤、排便袋、防臭袋が揃っているか確認する'],
+      ['必要回数', '1人1日5回を目安に人数・日数分を計算する'],
+      ['手指衛生', '水を使わない手指衛生用品とウェットタオルを分けて備える']
+    ]
+  },
+  {
+    title: '停電・情報',
+    intro: '照明、連絡、情報収集を止めないための備えです。',
+    items: [
+      ['ライト', '共用ライトに加え、両手を使える照明も検討する'],
+      ['充電手段', 'スマートフォン、通信機器など優先機器を先に決める'],
+      ['情報収集', 'ラジオ、予備電池、連絡先の紙控えを確認する']
+    ]
+  },
+  {
+    title: '防寒・安全',
+    intro: '待機中の体温維持と、けがへの初期対応を確認します。',
+    items: [
+      ['毛布・保温シート', '1人1枚を目安にし、床からの冷えも考える'],
+      ['救急用品', '使用期限、補充担当、設置場所を確認する'],
+      ['移動時の安全', '履物、手袋、ヘルメットなど施設の危険に合わせて選ぶ']
+    ]
+  },
+  {
+    title: '運用・点検',
+    intro: '備蓄は購入後の管理方法まで決めておきます。',
+    items: [
+      ['期限管理', '品目、数量、期限、保管場所を一覧にする'],
+      ['配布・使用担当', '誰が開錠し、配り、在庫を記録するか決める'],
+      ['連絡と見直し', '緊急連絡先と、年1回以上の点検時期を共有する']
+    ]
+  }
+];
+
+const facilityChecklistGroups = {
+  office: {
+    label: '会社・小規模オフィス',
+    items: [
+      ['社内待機場所', '通路を塞がず、座って待機できる場所を決める'],
+      ['帰宅困難者用品', '水、食料、トイレ、防寒を人数分まとめて確認する'],
+      ['充電の優先順位', '連絡用端末、照明、PCなど使用順を決める'],
+      ['取引先との連絡', '電話が使えない場合の連絡手段を決める']
+    ]
+  },
+  restaurant: {
+    label: '飲食店',
+    items: [
+      ['飲料水と作業水', '飲用、手洗い、清掃に使う水を分けて考える'],
+      ['断水時の衛生', '手指、器具、トイレの運用を個別に決める'],
+      ['廃棄物の保管', '厚手袋、消臭袋、ふた付き容器を確認する'],
+      ['営業判断', '断水・停電時に提供を止める条件と連絡手順を決める']
+    ]
+  },
+  nursery: {
+    label: '保育園・幼稚園',
+    items: [
+      ['園児と職員の人数', '年齢別の園児数、職員数、来園者を分けて確認する'],
+      ['食物アレルギー', '個別対応食と誤配を防ぐ表示方法を確認する'],
+      ['乳幼児用品', '必要な場合はミルク、哺乳用品、おむつを年齢別に確認する'],
+      ['引き渡し手順', '保護者への連絡と本人確認の方法を紙でも残す']
+    ]
+  },
+  care: {
+    label: '介護施設',
+    items: [
+      ['利用者と職員の人数', '利用者、夜勤職員、来訪者を時間帯別に確認する'],
+      ['電源が必要な機器', '消費電力と稼働時間を確認し、メーカーや専門業者へ相談する'],
+      ['食事・水分の個別条件', 'アレルギー、食形態、嚥下などの条件を個別に確認する'],
+      ['排泄とプライバシー', 'トイレ回数、介助用品、目隠しや動線を確認する']
+    ]
+  }
+};
+
+function stockpileChecklistRowsHtml(items, scope) {
+  return items.map(([label, detail], index) => `<label class="checklist-row">
+    <input type="checkbox" data-stockpile-check data-check-id="${esc(scope)}-${index + 1}">
+    <span><strong>${esc(label)}</strong><small>${esc(detail)}</small></span>
+    <span class="check-state">未確認</span>
+  </label>`).join('');
+}
+
+function stockpileChecklistCsv() {
+  const rows = [['区分', '施設', '確認項目', '目安・確認内容', '担当', '確認日', '状態', 'メモ']];
+  for (const group of stockpileChecklistGroups) {
+    for (const [label, detail] of group.items) rows.push([group.title, '共通', label, detail, '', '', '未確認', '']);
+  }
+  for (const facility of Object.values(facilityChecklistGroups)) {
+    for (const [label, detail] of facility.items) rows.push(['施設別', facility.label, label, detail, '', '', '未確認', '']);
+  }
+  const csvCell = (value) => `"${String(value).replace(/"/g, '""')}"`;
+  return `\uFEFF${rows.map((row) => row.map(csvCell).join(',')).join('\r\n')}\r\n`;
+}
+
+function checklistQuantitySection() {
+  return `<section class="section card calc-card" id="quantity">
+    <div class="section-title"><div><p class="eyebrow">必要数量の目安</p><h2>人数と待機日数を入力</h2></div><p class="notice">計画を始めるための目安です。施設条件に合わせて調整してください。</p></div>
+    <div class="calc-grid">
+      <label>従業員・職員数<input class="calc-input" id="staffCount" type="number" min="0" value="10"></label>
+      <label>待機日数<input class="calc-input" id="daysCount" type="number" min="1" value="3"></label>
+      <label>来客・利用者数<input class="calc-input" id="visitorCount" type="number" min="0" value="0"></label>
+    </div>
+    <div class="estimate-grid" aria-live="polite">
+      <div><span>保存水</span><strong id="waterEstimate">90L</strong><small>1人1日3Lの目安</small></div>
+      <div><span>食料</span><strong id="foodEstimate">90食</strong><small>1人1日3食の目安</small></div>
+      <div><span>簡易トイレ</span><strong id="toiletEstimate">150回分</strong><small>1人1日5回の目安</small></div>
+      <div><span>毛布・保温シート</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small></div>
+    </div>
+  </section>`;
+}
+
+function checklistPageHtml(page) {
+  const baseNote = pageNotes[page.slug];
+  const note = { ...baseNote, title: page.title, slug: page.slug };
+  const canonical = `${siteUrl}/pages/${page.slug}.html`;
+  const title = '会社の防災備蓄チェックリスト｜人数計算・印刷・CSV';
+  const description = '会社、店舗、保育園、介護施設の防災備蓄を無料で点検。従業員・来客の人数と待機日数から、保存水、非常食、簡易トイレ、毛布の目安を計算し、施設別チェックリストを印刷・PDF保存・CSV取得できます。';
+  const groupHtml = stockpileChecklistGroups.map((group, index) => `<section class="checklist-group">
+    <h2>${esc(group.title)}</h2>
+    <p>${esc(group.intro)}</p>
+    <div class="checklist-rows">${stockpileChecklistRowsHtml(group.items, `base-${index + 1}`)}</div>
+  </section>`).join('');
+  const facilityOptions = Object.entries(facilityChecklistGroups)
+    .map(([value, facility]) => `<option value="${esc(value)}">${esc(facility.label)}</option>`)
+    .join('');
+  const facilityPanels = Object.entries(facilityChecklistGroups)
+    .map(([value, facility]) => `<div class="facility-panel" data-facility-panel="${esc(value)}" ${value === 'office' ? '' : 'hidden'}>
+      <div class="checklist-rows">${stockpileChecklistRowsHtml(facility.items, `facility-${value}`)}</div>
+    </div>`)
+    .join('');
+  const body = `<section class="hero">
+    <p class="eyebrow">無料・登録不要</p>
+    <h1>会社・事業所の防災備蓄チェックリスト</h1>
+    <p class="lead">会社、店舗、保育園、介護施設で、地震・台風・停電・断水・帰宅困難者に備える品目を点検できます。従業員や利用者の人数と待機日数を入れて必要量の目安を出し、保管場所、期限、配布手順まで確認してください。</p>
+    <div class="hero-meta">
+      <span class="pill navy">人数計算</span>
+      <span class="pill navy">施設別項目</span>
+      <span class="pill orange">印刷・PDF保存</span>
+      <span class="pill">CSVテンプレート</span>
+      <span class="pill">最終更新: ${esc(updatedDate())}</span>
+    </div>
+    <div class="hero-actions">
+      <a class="button orange" href="#quantity">必要量を計算する</a>
+      <a class="button secondary" href="#checklist">チェックを始める</a>
+    </div>
+    <nav class="jump-nav" aria-label="ページ内目次">
+      <span>このページの流れ</span>
+      <a class="chip" href="#quantity">人数計算</a>
+      <a class="chip" href="#checklist">共通備蓄</a>
+      <a class="chip" href="#facility">施設別</a>
+      <a class="chip" href="#sources">公的資料</a>
+      <a class="chip" href="#faq">FAQ</a>
+    </nav>
+  </section>
+  <section class="section checklist-use" aria-label="チェックリストの使い方">
+    <div><strong>1. 人数と日数を入力</strong><span>従業員・職員に来客・利用者を加えます。</span></div>
+    <div><strong>2. 現在庫を確認</strong><span>数量だけでなく、期限と保管場所も見ます。</span></div>
+    <div><strong>3. 印刷して共有</strong><span>担当者と確認日を書き込み、定期点検に使います。</span></div>
+  </section>
+  <div data-stockpile-tool>
+    ${checklistQuantitySection()}
+    <section class="section stockpile-tool" id="checklist">
+      <div class="stockpile-tool-head">
+        <div><p class="eyebrow">共通の備蓄・運用</p><h2>購入前に確認する18項目</h2><p>商品を選ぶ前に、必要数と管理方法の抜けを確認します。</p></div>
+        <div class="check-progress" aria-live="polite"><strong><span id="stockpileCheckedCount">0</span> / <span id="stockpileTotalCount">22</span></strong><span>表示中の項目を確認済み</span></div>
+      </div>
+      <div class="checklist-groups">${groupHtml}</div>
+      <section class="facility-checks" id="facility">
+        <div class="facility-picker">
+          <div><p class="eyebrow">施設別の追加確認</p><h2>施設を選ぶ</h2></div>
+          <label>施設の種類<select class="facility-select" id="facilityType">${facilityOptions}</select></label>
+        </div>
+        ${facilityPanels}
+      </section>
+      <div class="checklist-actions">
+        <button class="button orange" type="button" data-print-checklist>印刷・PDF保存</button>
+        <a class="button secondary" href="${siteUrl}/downloads/jigyousho-bousai-checklist.csv" download data-download-checklist>CSVをダウンロード</a>
+        <p class="notice">ブラウザの印刷画面で「PDFに保存」を選べます。入力内容は外部へ送信しません。</p>
+      </div>
+    </section>
+  </div>
+  <section class="section two">
+    <article class="card"><h2>不足が見つかったら</h2><p>不足品は、水・食料、簡易トイレ、停電対策の順に分けると比較しやすくなります。下の関連ページで容量、回数、保存年数、価格を確認してください。</p></article>
+    <article class="card"><h2>チェック後に決めること</h2><p>購入担当、保管担当、期限の点検日、災害時に配る担当を決め、チェックリストを共有場所に保管します。</p></article>
+  </section>
+  <div id="sources">${sourceSection(page.slug)}</div>
+  ${relatedLinks(note.related)}
+  ${faqSection(note)}
+  <section class="section card"><h2>利用上の注意</h2><p>表示する数量は計画を始めるための目安です。建物、地域、季節、勤務形態、利用者の状態、自治体や業界の方針に合わせて調整してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p></section>
+  ${structuredData(
+    webPageJsonLd(title, description, canonical, sourceUrlsFor(page.slug)),
+    breadcrumbJsonLd([{ name: '事業所防災備蓄チェックリスト', url: canonical }]),
+    faqJsonLd(faqItems(note)),
+    jsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: '事業所防災備蓄チェックリスト',
+      description,
+      url: canonical,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web browser',
+      inLanguage: 'ja',
+      offers: { '@type': 'Offer', price: 0, priceCurrency: 'JPY' },
+      featureList: ['人数別の備蓄量計算', '施設別チェックリスト', '印刷・PDF保存', 'CSVテンプレート']
+    })
+  )}`;
+  return layout(title, body, description, canonical, { crumbs: ['事業所防災備蓄チェックリスト'] });
+}
+
 function pageHtml(page) {
+  if (page.slug === 'bcp-stockpile-checklist') return checklistPageHtml(page);
   const baseNote = pageNotes[page.slug] || {
     audience: '事業所',
     disasters: ['地震', '台風'],
@@ -1983,22 +2348,25 @@ const categoryCards = categoryDefinitions.map(([title, slug, desc, chips]) => {
   const page = pageBySlug(slug);
   const note = pageNotes[slug] || {};
   const count = page ? effectiveProducts(page, note, 8).length : 0;
+  const meta = slug === 'bcp-stockpile-checklist' ? '人数計算・印刷・CSV' : `比較候補: ${count}件`;
   return `<article class="card category-card" data-search-card>
     <div class="chip-row">${chips.map((chip) => `<span class="chip">${esc(chip)}</span>`).join('')}</div>
     <h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3>
     <p>${esc(desc)}</p>
-    <p class="count">比較候補: ${count}件</p>
+    <p class="count">${esc(meta)}</p>
   </article>`;
 }).join('');
 
 const popularCards = [
   ['まず見るべき比較', '小規模オフィス向け防災備蓄', 'office-bichiku'],
   ['トイレ不足を防ぐ', '事業所向け簡易トイレ', 'toilet-office'],
-  ['停電に備える', '停電対策用品比較', 'blackout-power']
+  ['停電に備える', '停電対策用品比較', 'blackout-power'],
+  ['備蓄量を点検', '事業所防災備蓄チェックリスト', 'bcp-stockpile-checklist']
 ].map(([label, title, slug]) => {
   const page = pageBySlug(slug);
   const count = page ? effectiveProducts(page, pageNotes[slug] || {}, 8).length : 0;
-  return `<article class="card popular-card"><p class="pill orange">${esc(label)}</p><h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3><p class="notice">比較候補: ${esc(count)}件</p></article>`;
+  const meta = slug === 'bcp-stockpile-checklist' ? '人数計算・印刷・CSV' : `比較候補: ${count}件`;
+  return `<article class="card popular-card"><p class="pill orange">${esc(label)}</p><h3><a href="${siteUrl}/pages/${esc(slug)}.html">${esc(title)}</a></h3><p class="notice">${esc(meta)}</p></article>`;
 }).join('');
 
 function firstProduct(slug, pattern) {
@@ -2288,28 +2656,34 @@ const policyBody = `<nav class="breadcrumbs" aria-label="パンくず"><a href="
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
 ${structuredData(webPageJsonLd('サイト情報・広告掲載・プライバシー', '事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。', policyCanonical))}`;
 
-fs.writeFileSync(path.join(dist, 'index.html'), layout(
+function writeGenerated(file, content) {
+  fs.writeFileSync(file, String(content).replace(/[ \t]+$/gm, ''));
+}
+
+writeGenerated(path.join(dist, 'index.html'), layout(
   '事業所の防災備蓄は何を何日分？会社・店舗向け用品比較',
   indexBody,
   '会社、店舗、保育園、介護施設、飲食店の防災備蓄を、人数と待機日数から確認。地震、台風、停電、断水に備える簡易トイレ、保存水、非常食、ポータブル電源を比較できます。',
   `${siteUrl}/`,
   { ogImage: showcaseProducts.find((product) => product.image)?.image || '' }
 ));
-fs.writeFileSync(path.join(dist, 'site-policy.html'), layout(
+writeGenerated(path.join(dist, 'site-policy.html'), layout(
   'サイト情報・広告掲載・プライバシー',
   policyBody,
   '事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。',
   policyCanonical,
   { hideAffiliateDisclosure: true, hideShare: true }
 ));
-fs.writeFileSync(path.join(dist, 'CNAME'), 'jigyousho-bousai.com\n');
-fs.writeFileSync(path.join(dist, 'google2ec9ab5d0fbf2c67.html'), 'google-site-verification: google2ec9ab5d0fbf2c67.html\n');
+writeGenerated(path.join(dist, 'CNAME'), 'jigyousho-bousai.com\n');
+writeGenerated(path.join(dist, 'google2ec9ab5d0fbf2c67.html'), 'google-site-verification: google2ec9ab5d0fbf2c67.html\n');
 fs.mkdirSync(path.join(dist, 'pages'), { recursive: true });
 for (const page of data.pages) {
-  fs.writeFileSync(path.join(dist, 'pages', page.slug + '.html'), pageHtml(page));
+  writeGenerated(path.join(dist, 'pages', page.slug + '.html'), pageHtml(page));
 }
+fs.mkdirSync(path.join(dist, 'downloads'), { recursive: true });
+writeGenerated(path.join(dist, 'downloads', 'jigyousho-bousai-checklist.csv'), stockpileChecklistCsv());
 if (paidProductEnabled) {
-  fs.writeFileSync(path.join(dist, 'pages', `${paidProduct.slug}.html`), layout(
+  writeGenerated(path.join(dist, 'pages', `${paidProduct.slug}.html`), layout(
     '会社の防災備蓄を算定するExcelテンプレート',
     paidKitPageBody(),
     '会社や施設の人数、備蓄日数、現在庫から、保存水、非常食、簡易トイレ、保温用品の不足数、購入箱数、概算予算、購入申請の下書きを整理できるExcelテンプレートです。',
@@ -2324,7 +2698,7 @@ if (paidProductEnabled) {
 }
 fs.mkdirSync(path.join(dist, 'topics'), { recursive: true });
 for (const topic of topicPages) {
-  fs.writeFileSync(path.join(dist, 'topics', topic.slug + '.html'), topicHtml(topic));
+  writeGenerated(path.join(dist, 'topics', topic.slug + '.html'), topicHtml(topic));
 }
 const urls = [
   `${siteUrl}/`,
@@ -2333,9 +2707,9 @@ const urls = [
   ...(paidProduct.published ? [paidKitCanonical] : []),
   ...topicPages.map((topic) => `${siteUrl}/topics/${topic.slug}.html`)
 ];
-const sitemapLastmod = (data.generatedAt || new Date().toISOString()).slice(0, 10);
+const sitemapLastmod = new Date(contentUpdatedIso).toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
 const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((url) => `<url><loc>${url}</loc><lastmod>${sitemapLastmod}</lastmod></url>`).join('')}</urlset>\n`;
-fs.writeFileSync(path.join(dist, 'sitemap.xml'), sitemapXml);
+writeGenerated(path.join(dist, 'sitemap.xml'), sitemapXml);
 const llmsText = [
   '# 事業所防災ナビ',
   '',
@@ -2375,9 +2749,9 @@ const llmsText = [
   `- [XMLサイトマップ](${siteUrl}/sitemap.xml)`,
   ''
 ].join('\n');
-fs.writeFileSync(path.join(dist, 'llms.txt'), llmsText);
-fs.writeFileSync(path.join(dist, `${indexNow.key}.txt`), `${indexNow.key}\n`);
-fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
+writeGenerated(path.join(dist, 'llms.txt'), llmsText);
+writeGenerated(path.join(dist, `${indexNow.key}.txt`), `${indexNow.key}\n`);
+writeGenerated(path.join(dist, 'robots.txt'), `User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
 const generatedFiles = [];
 function collectGeneratedFiles(directory) {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -2394,7 +2768,7 @@ for (const file of generatedFiles.sort()) {
   contentHash.update(fs.readFileSync(file));
   contentHash.update('\0');
 }
-fs.writeFileSync(path.join(dist, 'deploy-status.json'), `${JSON.stringify({
+writeGenerated(path.join(dist, 'deploy-status.json'), `${JSON.stringify({
   buildId: contentHash.digest('hex'),
   sitemapSha256: crypto.createHash('sha256').update(sitemapXml).digest('hex')
 }, null, 2)}\n`);

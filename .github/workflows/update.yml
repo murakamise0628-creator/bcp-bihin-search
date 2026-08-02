@@ -1,4 +1,4 @@
-﻿name: Update affiliate site
+name: Update affiliate site
 
 on:
   workflow_dispatch:
@@ -40,13 +40,17 @@ jobs:
           RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
           SITE_URL: https://jigyousho-bousai.com
           REFRESH_MAX_AGE_HOURS: 12
+      - name: Verify browser output and generated diff
+        run: |
+          npm run verify:browser
+          git diff --check
       - name: Reject unexpected generated changes
         shell: bash
         run: |
           unexpected="$(
             git status --porcelain | sed -E 's/^.. //' | while IFS= read -r path; do
               case "$path" in
-                data/products.json|deploy-status.json|index.html|site-policy.html|sitemap.xml|robots.txt|CNAME|404.html|google*.html|pages/*|topics/*|assets/*) ;;
+                data/products.json|deploy-status.json|index.html|site-policy.html|sitemap.xml|robots.txt|CNAME|404.html|google*.html|pages/*|topics/*|assets/*|downloads/*) ;;
                 *) printf '%s\n' "$path" ;;
               esac
             done
@@ -61,7 +65,7 @@ jobs:
         run: |
           git config user.name "Jigyousho Bousai Navi Editorial"
           git config user.email "bousai-navi@users.noreply.github.com"
-          git add -A -- data/products.json deploy-status.json index.html site-policy.html sitemap.xml robots.txt CNAME pages topics assets
+          git add -A -- data/products.json deploy-status.json index.html site-policy.html sitemap.xml robots.txt CNAME pages topics assets downloads
           if git diff --cached --quiet; then
             echo "published=false" >> "$GITHUB_OUTPUT"
             echo "No changes"

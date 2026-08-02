@@ -104,6 +104,7 @@ async function navigateFresh(send, url) {
 }
 
 const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet-office.html')).href;
+const checklistPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'bcp-stockpile-checklist.html')).href;
 const homePage = pathToFileURL(path.join(projectRoot, 'dist', 'index.html')).href;
 const { socket, send, browserErrors } = await connectPage('about:blank');
 
@@ -205,6 +206,59 @@ try {
     homeResults.push(result);
   }
 
+  const checklistResults = [];
+  for (const width of [320, 375, 768, 1440]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height: width >= 1024 ? 1000 : 900,
+      deviceScaleFactor: 1,
+      mobile: width < 768
+    });
+    await navigateFresh(send, `${checklistPage}?audit=${width}`);
+    const result = await evaluate(send, `(() => {
+      const firstCheck = document.querySelector('[data-stockpile-check]');
+      firstCheck?.click();
+      const facility = document.querySelector('#facilityType');
+      if (facility) {
+        facility.value = 'restaurant';
+        facility.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      return {
+        width: innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        h1Right: document.querySelector('.hero h1')?.getBoundingClientRect().right || 0,
+        water: document.querySelector('#waterEstimate')?.textContent || '',
+        checked: document.querySelector('#stockpileCheckedCount')?.textContent || '',
+        total: document.querySelector('#stockpileTotalCount')?.textContent || '',
+        visibleFacilities: [...document.querySelectorAll('[data-facility-panel]')].filter((node) => !node.hidden).length,
+        selectedFacility: facility?.value || '',
+        csvHref: document.querySelector('[data-download-checklist]')?.href || '',
+        productSchema: document.documentElement.innerHTML.includes('"@type":"Product"')
+      };
+    })()`);
+    assert.ok(result.scrollWidth <= result.width + 1, `${width}px checklist overflow: ${result.scrollWidth}px`);
+    assert.ok(result.h1Right <= result.width + 1, `${width}px checklist heading is clipped`);
+    assert.equal(result.water, '90L');
+    assert.equal(result.checked, '1');
+    assert.equal(result.total, '22');
+    assert.equal(result.visibleFacilities, 1);
+    assert.equal(result.selectedFacility, 'restaurant');
+    assert.match(result.csvHref, /jigyousho-bousai-checklist\.csv$/);
+    assert.equal(result.productSchema, false);
+    checklistResults.push(result);
+  }
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 375,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: true
+  });
+  await navigateFresh(send, `${checklistPage}?audit=screenshot`);
+  await sleep(700);
+  const checklistScreenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+  fs.writeFileSync(path.join(screenshotDir, 'checklist-mobile-cdp.png'), Buffer.from(checklistScreenshot.data, 'base64'));
+
   await send('Emulation.setDeviceMetricsOverride', {
     width: 375,
     height: 900,
@@ -212,6 +266,7 @@ try {
     mobile: true
   });
   await navigateFresh(send, `${homePage}?audit=screenshot`);
+  await sleep(700);
   const homeScreenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'home-mobile-cdp.png'), Buffer.from(homeScreenshot.data, 'base64'));
 
@@ -219,7 +274,7 @@ try {
 
   const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'toilet-mobile-cdp.png'), Buffer.from(screenshot.data, 'base64'));
-  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, home: homeResults }, null, 2));
+  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, home: homeResults, checklist: checklistResults }, null, 2));
 } finally {
   socket.close();
   chrome.kill();

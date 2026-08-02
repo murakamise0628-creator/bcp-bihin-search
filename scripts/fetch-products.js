@@ -354,6 +354,7 @@ function decisionFacts(product) {
   const toiletUses = toiletUseCount(source);
   const hasCoagulant = /凝固剤|固形剤|吸水ポリマー/.test(source);
   const hasWasteBag = /汚物袋|排便袋|処理袋|防臭袋|臭わない袋|においバイバイ袋|BOS/.test(source);
+  const hasDeodorizingBag = /防臭袋|臭わない袋|においバイバイ袋|BOS/.test(source);
   let toiletSupplyType = '';
   if (productType === 'toilet') {
     if (hasCoagulant && hasWasteBag) toiletSupplyType = 'complete-kit';
@@ -379,6 +380,7 @@ function decisionFacts(product) {
     toiletSupplyType,
     hasCoagulant,
     hasWasteBag,
+    hasDeodorizingBag,
     peopleCapacity: people ? Number(people[1]) : null,
     stockDays: days ? Number(days[1]) : null,
     powerWh: wh ? Number(wh[1]) : null,
@@ -393,6 +395,9 @@ function decisionSummary(product, row = {}) {
   if (facts.productType === 'toilet') {
     const quantity = facts.toiletUses ? `${facts.toiletUses}回分` : '回数は販売ページで確認';
     if (facts.toiletSupplyType === 'complete-kit') {
+      if (facts.hasDeodorizingBag) {
+        return `${quantity}。凝固剤・処理袋・防臭袋の同梱表記があります。`;
+      }
       return `${quantity}。凝固剤と処理袋の同梱表記があります。防臭袋の有無も確認してください。`;
     }
     if (facts.toiletSupplyType === 'coagulant-only') {
@@ -474,8 +479,11 @@ function titleShort(raw, maxLength = 58) {
     blanket: '防寒用品'
   };
   let productLabel = typeLabels[productType];
-  if (productType === 'toilet' && /凝固剤/.test(source) && !/(汚物袋|排便袋|防臭袋).{0,8}(?:付|入り|セット)/.test(source)) {
+  const facts = decisionFacts({ titleRaw: source, productType });
+  if (productType === 'toilet' && facts.toiletSupplyType === 'coagulant-only') {
     productLabel = 'トイレ用凝固剤';
+  } else if (productType === 'toilet' && facts.toiletSupplyType === 'bag-only') {
+    productLabel = 'トイレ用袋';
   } else if (productType === 'hygiene') {
     if (/ウェットティッシュ/.test(source)) productLabel = '除菌ウェットティッシュ';
     else if (/手指消毒|消毒液/.test(source)) productLabel = '手指消毒用品';
@@ -521,7 +529,6 @@ function normalizeProducts(items, sourceKeyword = '') {
         shopName: item.shopName || '',
         itemCode: item.itemCode || '',
         productType: detectProductType(item.itemName),
-        affiliateRate: Number(item.affiliateRate || 0),
         genreId: item.genreId || '',
         saleStartAt: item.startTime || '',
         saleEndAt: item.endTime || '',
@@ -617,7 +624,6 @@ async function main() {
     const products = (fallback?.products || []).filter((product) => matchesPageType(product, row));
     const hasMetadata = products.every((product) =>
       product.productType && product.genreId && product.fetchedAt && product.sourceKeyword &&
-      Object.prototype.hasOwnProperty.call(product, 'affiliateRate') &&
       product.productType === detectProductType(product.titleRaw || product.name)
     );
     return products.length >= minimumFreshCount(row) && hasMetadata ? { ...fallback, products } : null;
@@ -660,14 +666,26 @@ async function main() {
   }
 }
 
+function sanitizeProductDataset(data) {
+  const privateKeys = new Set([
+    'affiliateRate',
+    'affiliate_rate',
+    'estimatedCommission',
+    'estimatedCommissionBeforeCaps',
+    'estimated_commission',
+    'estimated_commission_before_caps'
+  ]);
+  return JSON.parse(JSON.stringify(data, (key, value) => privateKeys.has(key) ? undefined : value));
+}
+
 function createProductDataset(previous, results, now = new Date()) {
   const comparable = (value) => JSON.stringify(value, (key, item) => key === 'fetchedAt' ? undefined : item);
   const unchanged = comparable(previous.pages || []) === comparable(results);
-  return {
+  return sanitizeProductDataset({
     schemaVersion: 2,
     generatedAt: unchanged && previous.generatedAt ? previous.generatedAt : now.toISOString(),
     pages: unchanged ? previous.pages : results
-  };
+  });
 }
 
 if (require.main === module) {
@@ -687,5 +705,6 @@ module.exports = {
   prioritizeProductVariety,
   decisionFacts,
   decisionSummary,
+  sanitizeProductDataset,
   createProductDataset
 };
