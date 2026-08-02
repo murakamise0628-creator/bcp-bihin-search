@@ -6,22 +6,23 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
-const chromePath = process.platform === 'win32'
-  ? path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Google', 'Chrome', 'Application', 'chrome.exe')
-  : 'google-chrome';
+const chromeCandidates = process.platform === 'win32'
+  ? [path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Google', 'Chrome', 'Application', 'chrome.exe')]
+  : [
+      process.env.CHROME_PATH,
+      process.env.CHROME_BIN,
+      '/usr/bin/google-chrome',
+      '/usr/bin/google-chrome-stable',
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser'
+    ].filter(Boolean);
+const chromePath = chromeCandidates.find((candidate) => fs.existsSync(candidate)) || chromeCandidates[0] || 'google-chrome';
 const port = 9337;
 const profilePath = fs.mkdtempSync(path.join(os.tmpdir(), 'bcp-browser-check-'));
 const screenshotDir = path.join(projectRoot, 'artifacts', 'browser-check');
 fs.mkdirSync(screenshotDir, { recursive: true });
 
-const chrome = spawn(chromePath, [
-  '--headless=new',
-  '--disable-gpu',
-  '--no-sandbox',
-  `--remote-debugging-port=${port}`,
-  `--user-data-dir=${profilePath}`,
-  'about:blank'
-], { stdio: 'ignore', windowsHide: true });
+let chrome;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -106,9 +107,23 @@ async function navigateFresh(send, url) {
 const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet-office.html')).href;
 const checklistPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'bcp-stockpile-checklist.html')).href;
 const homePage = pathToFileURL(path.join(projectRoot, 'dist', 'index.html')).href;
-const { socket, send, browserErrors } = await connectPage('about:blank');
+let socket;
+let send;
+let browserErrors = [];
 
 try {
+  chrome = spawn(chromePath, [
+    '--headless=new',
+    '--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--no-sandbox',
+    `--remote-debugging-port=${port}`,
+    `--user-data-dir=${profilePath}`,
+    'about:blank'
+  ], { stdio: 'ignore', windowsHide: true });
+  ({ socket, send, browserErrors } = await connectPage('about:blank'));
   const widthResults = [];
   for (const width of [320, 375, 414, 768]) {
     await send('Emulation.setDeviceMetricsOverride', {
@@ -285,6 +300,6 @@ try {
   }
   throw error;
 } finally {
-  socket.close();
-  chrome.kill();
+  socket?.close();
+  chrome?.kill();
 }
