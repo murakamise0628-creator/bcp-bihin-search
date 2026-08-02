@@ -275,6 +275,15 @@ try {
   const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'toilet-mobile-cdp.png'), Buffer.from(screenshot.data, 'base64'));
   console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, home: homeResults, checklist: checklistResults }, null, 2));
+} catch (error) {
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    const message = String(error?.message || error)
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A');
+    console.error(`::error file=scripts/browser-check.mjs::${message}`);
+  }
+  throw error;
 } finally {
   socket.close();
   chrome.kill();
