@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>サイト情報・広告掲載・プライバシー | 事業所防災ナビ</title>
   <meta name="description" content="事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。">
-  
+
   <link rel="canonical" href="https://jigyousho-bousai.com/site-policy.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="事業所防災ナビ">
@@ -256,6 +256,39 @@
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
     .checklist li{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:11px 14px 11px 38px;position:relative;font-size:14.5px}
     .checklist li::before{content:"✓";position:absolute;left:14px;top:10px;color:var(--accent-deep);font-weight:900}
+    .stockpile-tool{padding:0;border:1px solid var(--rule-2);background:var(--card)}
+    .stockpile-tool-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;padding:22px 24px;border-bottom:1px solid var(--rule);background:var(--teal-soft)}
+    .stockpile-tool-head p{margin:0;color:var(--ink-2)}
+    .check-progress{display:grid;gap:4px;min-width:170px;text-align:right}
+    .check-progress strong{font-family:var(--font-display);font-size:25px;color:var(--main)}
+    .check-progress span{font-size:12px;color:var(--muted)}
+    .checklist-groups{display:grid;grid-template-columns:1fr 1fr}
+    .checklist-group{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .checklist-group:nth-child(odd){border-right:1px solid var(--rule)}
+    .checklist-group h2{font-size:21px;margin-bottom:12px}
+    .checklist-group p{margin:0 0 12px;color:var(--muted);font-size:13px}
+    .checklist-rows{display:grid;gap:0;border-top:1px solid var(--rule)}
+    .checklist-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--rule);cursor:pointer}
+    .checklist-row input{width:19px;height:19px;margin:3px 0 0;accent-color:var(--main)}
+    .checklist-row strong,.checklist-row small{display:block}
+    .checklist-row strong{font-size:15px;color:var(--ink)}
+    .checklist-row small{margin-top:2px;color:var(--muted);font-size:12.5px;line-height:1.55}
+    .check-state{margin-top:2px;color:var(--muted);font-size:11.5px;white-space:nowrap}
+    .checklist-row:has(input:checked) strong{text-decoration:line-through;text-decoration-color:var(--rule-2);color:var(--muted)}
+    .checklist-row:has(input:checked) .check-state{color:var(--main);font-weight:700}
+    .facility-checks{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .facility-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,320px);gap:20px;align-items:end;margin-bottom:16px}
+    .facility-picker label{display:grid;gap:6px;font-weight:700}
+    .facility-select{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;background:#fff;color:var(--main);font:700 16px var(--font-body)}
+    .facility-panel{border-top:1px solid var(--rule)}
+    .checklist-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:20px 24px}
+    .checklist-actions .notice{margin:0 0 0 auto;max-width:420px}
+    .checklist-use{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .checklist-use div{padding:18px;border-left:1px solid var(--rule)}
+    .checklist-use div:first-child{border-left:0}
+    .checklist-use strong,.checklist-use span{display:block}
+    .checklist-use strong{color:var(--main);font-size:16px;margin-bottom:4px}
+    .checklist-use span{color:var(--muted);font-size:13px}
     .steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}
     .steps li{counter-increment:step;padding:12px 14px 12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 4px 4px 0;font-size:14.5px}
     .steps li::before{content:counter(step) ".";font-family:var(--font-display);font-weight:700;color:var(--accent-deep);margin-right:8px}
@@ -455,6 +488,18 @@
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
+      .stockpile-tool-head{grid-template-columns:1fr;align-items:start;padding:18px}
+      .check-progress{text-align:left;min-width:0}
+      .checklist-groups{grid-template-columns:1fr}
+      .checklist-group,.checklist-group:nth-child(odd){padding:18px;border-right:0}
+      .facility-checks{padding:18px}
+      .facility-picker{grid-template-columns:1fr}
+      .checklist-actions{display:grid;padding:18px}
+      .checklist-actions .button{width:100%;justify-content:center;text-align:center}
+      .checklist-actions .notice{margin:0}
+      .checklist-use{grid-template-columns:1fr}
+      .checklist-use div,.checklist-use div:first-child{border-left:0}
+      .checklist-use div+div{border-top:1px solid var(--rule)}
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
@@ -485,6 +530,27 @@
       .button,.small-button{width:100%;justify-content:center;line-height:1.45}
       .showcase-card em{white-space:normal}
     }
+    @media print{
+      @page{size:A4;margin:12mm}
+      body{background:#fff;font-size:11pt;line-height:1.55}
+      body::before,body::after,.site-head,.affiliate-disclosure,.breadcrumb,.hero-actions,.jump-nav,.share-bar,.site-footer,.checklist-actions,.print-hide{display:none!important}
+      main{max-width:none;padding:0}
+      .hero{padding:0 0 12px}
+      .hero h1{font-size:23pt}
+      .lead{font-size:11pt}
+      .section{margin-top:16px}
+      .card,.stockpile-tool,.checklist-use{box-shadow:none;background:#fff}
+      .stockpile-tool-head,.checklist-group,.facility-checks{padding:10px 12px}
+      .checklist-groups{grid-template-columns:1fr 1fr}
+      .checklist-group{break-inside:avoid}
+      .checklist-row{padding:7px 0;break-inside:avoid}
+      .checklist-row input{appearance:none;border:1px solid #555;width:14px;height:14px}
+      .checklist-row input:checked::after{content:"✓";display:block;font-size:12px;line-height:12px;text-align:center}
+      .check-state{display:none}
+      .facility-panel[hidden]{display:none!important}
+      .source-references,.faq{break-before:page}
+      a{color:#000;text-decoration:none}
+    }
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#disasters">災害別</a><a href="https://jigyousho-bousai.com/#categories">カテゴリ</a><a href="https://jigyousho-bousai.com/#quantity">人数別目安</a><a href="https://jigyousho-bousai.com/#popular">よく使う比較</a></nav></header><nav class="breadcrumbs" aria-label="パンくず"><a href="https://jigyousho-bousai.com/">ホーム</a><span>›</span><span>サイト情報・広告掲載・プライバシー</span></nav>
@@ -496,7 +562,7 @@
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
 <section class="section card"><h2>選定と更新</h2><p>商品名、価格、レビュー、容量、回数、保存年数など、販売ページから確認できる情報を比較項目として整理しています。対象人数や備蓄日数を読み取れない商品は、上位候補として扱わず、確認が必要な候補として分けます。商品情報は定期取得時に更新し、表示条件に合わない商品は掲載順を見直します。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-07-26T21:48:02.663Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-08-02T16:47:52.098Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;
@@ -793,6 +859,68 @@
           });
         });
       });
+      var stockpileTool=document.querySelector('[data-stockpile-tool]');
+      if(stockpileTool){
+        var stockpileTracked=false;
+        var stockpileChecks=Array.prototype.slice.call(stockpileTool.querySelectorAll('[data-stockpile-check]'));
+        var stockpileCount=document.getElementById('stockpileCheckedCount');
+        var stockpileTotal=document.getElementById('stockpileTotalCount');
+        function updateStockpileProgress(){
+          var activeChecks=stockpileChecks.filter(function(input){
+            var panel=input.closest('[data-facility-panel]');
+            return !panel || !panel.hidden;
+          });
+          var checked=activeChecks.filter(function(input){ return input.checked; }).length;
+          if(stockpileCount) stockpileCount.textContent=String(checked);
+          if(stockpileTotal) stockpileTotal.textContent=String(activeChecks.length);
+          stockpileChecks.forEach(function(input){
+            var state=input.closest('.checklist-row')?.querySelector('.check-state');
+            if(state) state.textContent=input.checked ? '確認済み' : '未確認';
+          });
+          return checked;
+        }
+        stockpileChecks.forEach(function(input){
+          input.addEventListener('change',function(){
+            var checked=updateStockpileProgress();
+            if(stockpileTracked) return;
+            stockpileTracked=true;
+            trackEvent('stockpile_check_use',{
+              checked_items:checked,
+              total_items:stockpileChecks.length,
+              facility_type:document.getElementById('facilityType')?.value || 'office'
+            });
+          });
+        });
+        var facilityType=document.getElementById('facilityType');
+        function showFacilityPanel(){
+          var selected=facilityType ? facilityType.value : 'office';
+          stockpileTool.querySelectorAll('[data-facility-panel]').forEach(function(panel){
+            panel.hidden=panel.dataset.facilityPanel!==selected;
+          });
+          updateStockpileProgress();
+        }
+        if(facilityType){
+          facilityType.addEventListener('change',function(){
+            showFacilityPanel();
+            trackEvent('stockpile_facility_select',{ facility_type:facilityType.value });
+          });
+        }
+        var printChecklist=stockpileTool.querySelector('[data-print-checklist]');
+        if(printChecklist){
+          printChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_print',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+            window.print();
+          });
+        }
+        var downloadChecklist=stockpileTool.querySelector('[data-download-checklist]');
+        if(downloadChecklist){
+          downloadChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_csv_download',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+          });
+        }
+        showFacilityPanel();
+        updateStockpileProgress();
+      }
       var search=document.getElementById('siteSearch');
       var searchTimer=null;
       function filterCards(value){

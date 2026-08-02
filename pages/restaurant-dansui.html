@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>飲食店の断水対策用品比較｜給水・衛生・簡易トイレ | 事業所防災ナビ</title>
   <meta name="description" content="飲食店向け断水対策用品比較。飲食店の断水対策は、営業継続より先に手指衛生・トイレ・片付け用水を分けて考えるのが現実的です。 断水時の営業判断、衛生確保、トイレ対応に必要な用品を切り分けて考えるページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。">
-  
+
   <link rel="canonical" href="https://jigyousho-bousai.com/pages/restaurant-dansui.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="事業所防災ナビ">
@@ -256,6 +256,39 @@
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
     .checklist li{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:11px 14px 11px 38px;position:relative;font-size:14.5px}
     .checklist li::before{content:"✓";position:absolute;left:14px;top:10px;color:var(--accent-deep);font-weight:900}
+    .stockpile-tool{padding:0;border:1px solid var(--rule-2);background:var(--card)}
+    .stockpile-tool-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;padding:22px 24px;border-bottom:1px solid var(--rule);background:var(--teal-soft)}
+    .stockpile-tool-head p{margin:0;color:var(--ink-2)}
+    .check-progress{display:grid;gap:4px;min-width:170px;text-align:right}
+    .check-progress strong{font-family:var(--font-display);font-size:25px;color:var(--main)}
+    .check-progress span{font-size:12px;color:var(--muted)}
+    .checklist-groups{display:grid;grid-template-columns:1fr 1fr}
+    .checklist-group{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .checklist-group:nth-child(odd){border-right:1px solid var(--rule)}
+    .checklist-group h2{font-size:21px;margin-bottom:12px}
+    .checklist-group p{margin:0 0 12px;color:var(--muted);font-size:13px}
+    .checklist-rows{display:grid;gap:0;border-top:1px solid var(--rule)}
+    .checklist-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--rule);cursor:pointer}
+    .checklist-row input{width:19px;height:19px;margin:3px 0 0;accent-color:var(--main)}
+    .checklist-row strong,.checklist-row small{display:block}
+    .checklist-row strong{font-size:15px;color:var(--ink)}
+    .checklist-row small{margin-top:2px;color:var(--muted);font-size:12.5px;line-height:1.55}
+    .check-state{margin-top:2px;color:var(--muted);font-size:11.5px;white-space:nowrap}
+    .checklist-row:has(input:checked) strong{text-decoration:line-through;text-decoration-color:var(--rule-2);color:var(--muted)}
+    .checklist-row:has(input:checked) .check-state{color:var(--main);font-weight:700}
+    .facility-checks{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .facility-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,320px);gap:20px;align-items:end;margin-bottom:16px}
+    .facility-picker label{display:grid;gap:6px;font-weight:700}
+    .facility-select{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;background:#fff;color:var(--main);font:700 16px var(--font-body)}
+    .facility-panel{border-top:1px solid var(--rule)}
+    .checklist-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:20px 24px}
+    .checklist-actions .notice{margin:0 0 0 auto;max-width:420px}
+    .checklist-use{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .checklist-use div{padding:18px;border-left:1px solid var(--rule)}
+    .checklist-use div:first-child{border-left:0}
+    .checklist-use strong,.checklist-use span{display:block}
+    .checklist-use strong{color:var(--main);font-size:16px;margin-bottom:4px}
+    .checklist-use span{color:var(--muted);font-size:13px}
     .steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}
     .steps li{counter-increment:step;padding:12px 14px 12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 4px 4px 0;font-size:14.5px}
     .steps li::before{content:counter(step) ".";font-family:var(--font-display);font-weight:700;color:var(--accent-deep);margin-right:8px}
@@ -455,6 +488,18 @@
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
+      .stockpile-tool-head{grid-template-columns:1fr;align-items:start;padding:18px}
+      .check-progress{text-align:left;min-width:0}
+      .checklist-groups{grid-template-columns:1fr}
+      .checklist-group,.checklist-group:nth-child(odd){padding:18px;border-right:0}
+      .facility-checks{padding:18px}
+      .facility-picker{grid-template-columns:1fr}
+      .checklist-actions{display:grid;padding:18px}
+      .checklist-actions .button{width:100%;justify-content:center;text-align:center}
+      .checklist-actions .notice{margin:0}
+      .checklist-use{grid-template-columns:1fr}
+      .checklist-use div,.checklist-use div:first-child{border-left:0}
+      .checklist-use div+div{border-top:1px solid var(--rule)}
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
@@ -485,6 +530,27 @@
       .button,.small-button{width:100%;justify-content:center;line-height:1.45}
       .showcase-card em{white-space:normal}
     }
+    @media print{
+      @page{size:A4;margin:12mm}
+      body{background:#fff;font-size:11pt;line-height:1.55}
+      body::before,body::after,.site-head,.affiliate-disclosure,.breadcrumb,.hero-actions,.jump-nav,.share-bar,.site-footer,.checklist-actions,.print-hide{display:none!important}
+      main{max-width:none;padding:0}
+      .hero{padding:0 0 12px}
+      .hero h1{font-size:23pt}
+      .lead{font-size:11pt}
+      .section{margin-top:16px}
+      .card,.stockpile-tool,.checklist-use{box-shadow:none;background:#fff}
+      .stockpile-tool-head,.checklist-group,.facility-checks{padding:10px 12px}
+      .checklist-groups{grid-template-columns:1fr 1fr}
+      .checklist-group{break-inside:avoid}
+      .checklist-row{padding:7px 0;break-inside:avoid}
+      .checklist-row input{appearance:none;border:1px solid #555;width:14px;height:14px}
+      .checklist-row input:checked::after{content:"✓";display:block;font-size:12px;line-height:12px;text-align:center}
+      .check-state{display:none}
+      .facility-panel[hidden]{display:none!important}
+      .source-references,.faq{break-before:page}
+      a{color:#000;text-decoration:none}
+    }
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#disasters">災害別</a><a href="https://jigyousho-bousai.com/#categories">カテゴリ</a><a href="https://jigyousho-bousai.com/#quantity">人数別目安</a><a href="https://jigyousho-bousai.com/#popular">よく使う比較</a></nav></header><p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p><nav class="breadcrumb" aria-label="パンくず"><a href="https://jigyousho-bousai.com/">ホーム</a><span>/</span><span>飲食店向け断水対策用品比較</span></nav><section class="hero">
@@ -495,8 +561,8 @@
       <span class="pill navy">対象施設: 飲食店・小規模厨房・テイクアウト店</span>
       <span class="pill navy">想定災害: 断水・台風・地震</span>
       <span class="pill orange">比較候補数: 12件</span>
-      
-      <span class="pill">最終更新: 2026/7/27</span>
+
+      <span class="pill">最終更新: 2026/8/3</span>
     </div>
     <div class="hero-actions">
       <a class="button orange" href="#comparison">比較候補を見る</a>
@@ -546,14 +612,14 @@
         <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="https://jigyousho-bousai.com/pages/office-bichiku.html" href="https://jigyousho-bousai.com/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
       </div>
     </div>
-    
+
   </section>
   <section class="section source-references" aria-labelledby="public-sources-title">
     <div class="section-title"><div><p class="eyebrow">公的資料</p><h2 id="public-sources-title">数量・備蓄期間を決めるときの根拠</h2></div></div>
     <p class="source-intro">3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。</p>
     <ul class="source-list"><li><a href="https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf" target="_blank" rel="noopener">避難所におけるトイレの確保・管理ガイドライン</a><span>内閣府 防災情報のページ</span><small>携帯・簡易トイレの備蓄日数や、使用・管理時に確認する項目を確認できます。</small></li><li><a href="https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf" target="_blank" rel="noopener">事業所における帰宅困難者等対策ガイドライン</a><span>内閣府 防災情報のページ</span><small>3日分の備蓄、水1人1日3L、主食1人1日3食、毛布1人1枚などの考え方を確認できます。</small></li><li><a href="https://www.bichiku.metro.tokyo.lg.jp/" target="_blank" rel="noopener">東京都防災 備蓄ナビ</a><span>東京都</span><small>人数や条件から備蓄品と数量を考えるための公的な案内です。</small></li></ul>
   </section>
-  
+
   <section class="section" id="comparison">
     <div class="section-title"><div><p class="eyebrow">比較表</p><h2>価格・レビュー・用途を横並びで確認</h2></div><p class="notice">スマホでは横にスクロールできます</p></div>
     <div class="plan-summary" id="planSummary" hidden><span>今回の目安</span><strong id="planSummaryText"></strong><small>商品ごとの容量・回数と照らして確認してください。</small></div>
@@ -593,17 +659,17 @@
     <td>人数入力で確認</td>
     <td>店舗・オフィス</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00uer5n.oroxz998.g00uer5n.oroy0ad5/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fquokka-shop%2Fsuinou%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fquokka-shop%2Fi%2F10000029%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="quokka-shop:10000029" data-product-name="13L 5枚 土のう・水のう" data-product-price="2780" data-product-category="飲食店向け断水対策用品比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="insair:10061052" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="5621">
-    <td class="table-product">100L 非常用トイレ</td>
+  </tr><tr data-product-fit="true" data-product-key="monotoki:10003245" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="12650">
+    <td class="table-product">非常用トイレ</td>
     <td>条件が読み取りやすい候補</td>
-    <td>5,621円</td>
+    <td>12,650円</td>
     <td>-</td>
     <td></td>
     <td>要確認</td>
-    <td>100L</td>
+    <td>商品ページで確認</td>
     <td>人数入力で確認</td>
-    <td>店舗・オフィス</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>レビューが少ないため仕様確認<br><span class="notice">根拠: 価格・容量または回数・事業所用途との一致度・商品説明の明確さ</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00sr5an.oroxz359.g00sr5an.oroy0b64/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Finsair%2F7303020%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Finsair%2Fi%2F10061052%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="insair:10061052" data-product-name="100L 非常用トイレ" data-product-price="5621" data-product-category="飲食店向け断水対策用品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td>事業所・施設</td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>レビューが少ないため仕様確認<br><span class="notice">根拠: 価格・事業所用途との一致度・商品説明の明確さ</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00uku8n.oroxz971.g00uku8n.oroy02ce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmonotoki%2F100003257-tnzw%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fmonotoki%2Fi%2F10003245%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="monotoki:10003245" data-product-name="非常用トイレ" data-product-price="12650" data-product-category="飲食店向け断水対策用品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="smile88:10057599" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="1650">
     <td class="table-product">15L 給水用品</td>
     <td>条件が読み取りやすい候補</td>
@@ -620,7 +686,7 @@
     <td>条件が読み取りやすい候補</td>
     <td>1,000円</td>
     <td>4.46</td>
-    <td>262</td>
+    <td>263</td>
     <td>要確認</td>
     <td>10L</td>
     <td>人数入力で確認</td>
@@ -631,34 +697,34 @@
     <td>条件が読み取りやすい候補</td>
     <td>1,590円</td>
     <td>4.52</td>
-    <td>343</td>
+    <td>344</td>
     <td>要確認</td>
     <td>10L</td>
     <td>人数入力で確認</td>
     <td>飲食店・小規模厨房・テイクアウト店</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rt7qn.oroxzc2d.g00rt7qn.oroy0937/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftakara-jiang%2Fwatertank%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Ftakara-jiang%2Fi%2F10033987%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="takara-jiang:10033987" data-product-name="10L 3個" data-product-price="1590" data-product-category="飲食店向け断水対策用品比較" data-product-position="7" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="bestco:10000409" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="3690">
-    <td class="table-product">10L 5個 給水用品</td>
-    <td>条件が読み取りやすい候補</td>
-    <td>3,690円</td>
-    <td>4.67</td>
-    <td>3</td>
-    <td>要確認</td>
-    <td>10L</td>
-    <td>人数入力で確認</td>
-    <td>飲食店・小規模厨房・テイクアウト店</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・容量または回数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00tldun.oroxz093.g00tldun.oroy06be/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbestco%2Fn201-5%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbestco%2Fi%2F10000409%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bestco:10000409" data-product-name="10L 5個 給水用品" data-product-price="3690" data-product-category="飲食店向け断水対策用品比較" data-product-position="8" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="lock110:10000038" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="1280">
     <td class="table-product">20L 給水用品</td>
     <td>条件が読み取りやすい候補</td>
     <td>1,280円</td>
-    <td>4.43</td>
-    <td>187</td>
+    <td>4.44</td>
+    <td>189</td>
     <td>要確認</td>
     <td>20L</td>
     <td>人数入力で確認</td>
     <td>店舗・オフィス</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532109%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000038%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="lock110:10000038" data-product-name="20L 給水用品" data-product-price="1280" data-product-category="飲食店向け断水対策用品比較" data-product-position="9" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532109%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000038%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="lock110:10000038" data-product-name="20L 給水用品" data-product-price="1280" data-product-category="飲食店向け断水対策用品比較" data-product-position="8" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="peaceup:10005182" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="379">
+    <td class="table-product">3L 給水用品</td>
+    <td>条件が読み取りやすい候補</td>
+    <td>379円</td>
+    <td>4.62</td>
+    <td>26</td>
+    <td>要確認</td>
+    <td>3L</td>
+    <td>人数入力で確認</td>
+    <td>飲食店・小規模厨房・テイクアウト店</td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F82101%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10005182%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10005182" data-product-name="3L 給水用品" data-product-price="379" data-product-category="飲食店向け断水対策用品比較" data-product-position="9" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="onehealth:10000319" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="918">
     <td class="table-product">10年保存 20枚 除菌ウェットティッシュ</td>
     <td>条件が読み取りやすい候補</td>
@@ -670,17 +736,17 @@
     <td>人数入力で確認</td>
     <td>介護施設</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・保存年数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00us5kn.oroxze6a.g00us5kn.oroy087d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fonehealth%2Fwettissue-01%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fonehealth%2Fi%2F10000319%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="onehealth:10000319" data-product-name="10年保存 20枚 除菌ウェットティッシュ" data-product-price="918" data-product-category="飲食店向け断水対策用品比較" data-product-position="10" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="ippin-market1:10000021" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="14000">
+  </tr><tr data-product-fit="true" data-product-key="ippin-market1:10000021" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="14700">
     <td class="table-product">10枚 400個 除菌ウェットティッシュ</td>
     <td>条件が読み取りやすい候補</td>
-    <td>14,000円</td>
+    <td>14,700円</td>
     <td>5</td>
     <td>1</td>
     <td>要確認</td>
     <td>商品ページで確認</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・事業所用途との一致度・商品説明の明確さ</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00uhkvn.oroxz320.g00uhkvn.oroy080d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fippin-market1%2Fwtm-0003-400%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fippin-market1%2Fi%2F10000021%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ippin-market1:10000021" data-product-name="10枚 400個 除菌ウェットティッシュ" data-product-price="14000" data-product-category="飲食店向け断水対策用品比較" data-product-position="11" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・事業所用途との一致度・商品説明の明確さ</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00uhkvn.oroxz320.g00uhkvn.oroy080d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fippin-market1%2Fwtm-0003-400%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fippin-market1%2Fi%2F10000021%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ippin-market1:10000021" data-product-name="10枚 400個 除菌ウェットティッシュ" data-product-price="14700" data-product-category="飲食店向け断水対策用品比較" data-product-position="11" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="cocoico-store:10000054" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="3360">
     <td class="table-product">300枚 1個 除菌ウェットティッシュ</td>
     <td>条件が読み取りやすい候補</td>
@@ -701,7 +767,7 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>15L 2個 給水用品</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">3,080円</p>
@@ -723,7 +789,7 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>1枚 除菌ウェットティッシュ</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">700円</p>
@@ -745,7 +811,7 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>13L 5枚 土のう・水のう</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">2,780円</p>
@@ -762,34 +828,34 @@
       </div>
       <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00uer5n.oroxz998.g00uer5n.oroy0ad5/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fquokka-shop%2Fsuinou%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fquokka-shop%2Fi%2F10000029%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="quokka-shop:10000029" data-product-name="13L 5枚 土のう・水のう" data-product-price="2780" data-product-category="飲食店向け断水対策用品比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product" data-product-fit="true" data-product-key="insair:10061052" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="5621">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/insair/cabinet/tasya142/7303020-p.jpg" alt="100L 非常用トイレ" loading="lazy">
+  </article><article class="card product" data-product-fit="true" data-product-key="monotoki:10003245" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="12650">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/monotoki/cabinet/image16/100003257_1.jpg" alt="非常用トイレ" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
-      <h2>100L 非常用トイレ</h2>
-      
+      <h2>非常用トイレ</h2>
+
       <p class="summary">回数は販売ページで確認。凝固剤・処理袋・防臭袋の内訳を確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
-      <p class="price">5,621円</p>
+      <p class="price">12,650円</p>
       <div class="facts">
         <span class="fact">レビュー -</span>
         <span class="fact">件数 </span>
-        <span class="fact">照明とエアコン イエプロ</span>
+        <span class="fact">MONOTOKI-モノトキ-</span>
       </div>
       <div class="spec-grid">
-        <div><span>主要スペック</span><strong>100L</strong></div>
-        <div><span>おすすめ度の根拠</span><strong>価格・容量または回数・事業所用途との一致度・商品説明の明確さ</strong></div>
+        <div><span>主要スペック</span><strong>商品ページで確認</strong></div>
+        <div><span>おすすめ度の根拠</span><strong>価格・事業所用途との一致度・商品説明の明確さ</strong></div>
         <div><span>注意点</span><strong>レビューが少ないため仕様確認</strong></div>
-        <div><span>向いている施設</span><strong>店舗・オフィス</strong></div>
+        <div><span>向いている施設</span><strong>事業所・施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00sr5an.oroxz359.g00sr5an.oroy0b64/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Finsair%2F7303020%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Finsair%2Fi%2F10061052%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="insair:10061052" data-product-name="100L 非常用トイレ" data-product-price="5621" data-product-category="飲食店向け断水対策用品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00uku8n.oroxz971.g00uku8n.oroy02ce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmonotoki%2F100003257-tnzw%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fmonotoki%2Fi%2F10003245%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="monotoki:10003245" data-product-name="非常用トイレ" data-product-price="12650" data-product-category="飲食店向け断水対策用品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
   </article><article class="card product" data-product-fit="true" data-product-key="smile88:10057599" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="1650">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/smile88/cabinet/master/1st/a08111.jpg" alt="15L 給水用品" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>15L 給水用品</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">1,650円</p>
@@ -811,13 +877,13 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>10L 給水用品</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">1,000円</p>
       <div class="facts">
         <span class="fact">レビュー 4.46</span>
-        <span class="fact">件数 262</span>
+        <span class="fact">件数 263</span>
         <span class="fact">住まいと暮らしの110番</span>
       </div>
       <div class="spec-grid">
@@ -833,7 +899,7 @@
   <section class="section card"><h2>注意点</h2><p>価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
   <section class="section faq" id="faq"><h2>FAQ</h2><details><summary>飲食店は断水時も営業できますか？</summary><p>衛生管理や自治体の案内に従う必要があります。備蓄は営業継続だけでなく、安全確保と片付けにも使う前提で考えます。</p></details><details><summary>飲料水以外に必要なものは？</summary><p>手指消毒、使い捨て手袋、簡易トイレ、給水タンク、清掃用品を分けて確認すると漏れが減ります。</p></details><details><summary>会社の防災備蓄は何日分必要ですか？</summary><p>まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。</p></details><details><summary>事業所の簡易トイレは何回分必要ですか？</summary><p>目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。</p></details><details><summary>台風対策と地震対策で備えるものは違いますか？</summary><p>共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。</p></details></section>
   <section class="section"><div class="section-title"><h2>関連ページ</h2><p class="notice">災害別・施設別に続けて確認</p></div><div class="link-list"><a href="https://jigyousho-bousai.com/pages/toilet-office.html">事業所向け簡易トイレ比較</a><a href="https://jigyousho-bousai.com/pages/office-bichiku.html">小規模オフィス向け防災備蓄セット比較</a><a href="https://jigyousho-bousai.com/pages/kitaku-konnansha.html">帰宅困難者対策の備蓄品比較</a></div></section>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"飲食店向け断水対策用品比較","description":"飲食店向け断水対策用品比較。飲食店の断水対策は、営業継続より先に手指衛生・トイレ・片付け用水を分けて考えるのが現実的です。 断水時の営業判断、衛生確保、トイレ対応に必要な用品を切り分けて考えるページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/restaurant-dansui.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-26T21:48:02.663Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"飲食店向け断水対策用品比較","item":"https://jigyousho-bousai.com/pages/restaurant-dansui.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"飲食店は断水時も営業できますか？","acceptedAnswer":{"@type":"Answer","text":"衛生管理や自治体の案内に従う必要があります。備蓄は営業継続だけでなく、安全確保と片付けにも使う前提で考えます。"}},{"@type":"Question","name":"飲料水以外に必要なものは？","acceptedAnswer":{"@type":"Answer","text":"手指消毒、使い捨て手袋、簡易トイレ、給水タンク、清掃用品を分けて確認すると漏れが減ります。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/restaurant-dansui.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00prban.oroxz55b.g00prban.oroy06a8/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmaxshare%2Fmax-a04226%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fmaxshare%2Fi%2F10057441%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"15L 2個 給水用品"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u000n.oroxz325.g00u000n.oroy094b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fdorado%2F30-5050-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fdorado%2Fi%2F10000003%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1枚 除菌ウェットティッシュ"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uer5n.oroxz998.g00uer5n.oroy0ad5/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fquokka-shop%2Fsuinou%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fquokka-shop%2Fi%2F10000029%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"13L 5枚 土のう・水のう"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00sr5an.oroxz359.g00sr5an.oroy0b64/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Finsair%2F7303020%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Finsair%2Fi%2F10061052%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"100L 非常用トイレ"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6pen.oroxzb85.g00q6pen.oroy0f86/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsmile88%2Fa08111%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsmile88%2Fi%2F10057599%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"15L 給水用品"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532098%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000036%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10L 給水用品"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rt7qn.oroxzc2d.g00rt7qn.oroy0937/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftakara-jiang%2Fwatertank%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftakara-jiang%2Fi%2F10033987%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10L 3個"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tldun.oroxz093.g00tldun.oroy06be/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbestco%2Fn201-5%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbestco%2Fi%2F10000409%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10L 5個 給水用品"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532109%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000038%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"20L 給水用品"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00us5kn.oroxze6a.g00us5kn.oroy087d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fonehealth%2Fwettissue-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fonehealth%2Fi%2F10000319%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10年保存 20枚 除菌ウェットティッシュ"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhkvn.oroxz320.g00uhkvn.oroy080d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fippin-market1%2Fwtm-0003-400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fippin-market1%2Fi%2F10000021%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10枚 400個 除菌ウェットティッシュ"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u013n.oroxz762.g00u013n.oroy0464/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fcocoico-store%2Fnzw3102_1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fcocoico-store%2Fi%2F10000054%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"300枚 1個 除菌ウェットティッシュ"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"15L 2個 給水用品","description":"15L 2個 給水用品。15L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/maxshare/cabinet/master/1st/max-a04226.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3080,"url":"https://hb.afl.rakuten.co.jp/hgc/g00prban.oroxz55b.g00prban.oroy06a8/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmaxshare%2Fmax-a04226%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fmaxshare%2Fi%2F10057441%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.19,"reviewCount":668}},{"@type":"Product","name":"1枚 除菌ウェットティッシュ","description":"1枚 除菌ウェットティッシュ。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/dorado/cabinet/08377743/compass1632053111.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":700,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u000n.oroxz325.g00u000n.oroy094b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fdorado%2F30-5050-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fdorado%2Fi%2F10000003%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.86,"reviewCount":7}},{"@type":"Product","name":"13L 5枚 土のう・水のう","description":"13L 5枚 土のう・水のう。13L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/quokka-shop/cabinet/imgrc0110582534.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":2780,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uer5n.oroxz998.g00uer5n.oroy0ad5/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fquokka-shop%2Fsuinou%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fquokka-shop%2Fi%2F10000029%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.59,"reviewCount":22}},{"@type":"Product","name":"100L 非常用トイレ","description":"100L 非常用トイレ。100L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/insair/cabinet/tasya142/7303020-p.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":5621,"url":"https://hb.afl.rakuten.co.jp/hgc/g00sr5an.oroxz359.g00sr5an.oroy0b64/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Finsair%2F7303020%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Finsair%2Fi%2F10061052%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"}},{"@type":"Product","name":"15L 給水用品","description":"15L 給水用品。15L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/smile88/cabinet/master/1st/a08111.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1650,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6pen.oroxzb85.g00q6pen.oroy0f86/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsmile88%2Fa08111%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsmile88%2Fi%2F10057599%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.33,"reviewCount":368}},{"@type":"Product","name":"10L 給水用品","description":"10L 給水用品。10L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/lock110/cabinet/eigyou/532098_rank.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1000,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532098%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000036%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.46,"reviewCount":262}},{"@type":"Product","name":"10L 3個","description":"10L 3個。10L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/takara-jiang/cabinet/zakka/top-h/watertank_01-r1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1590,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rt7qn.oroxzc2d.g00rt7qn.oroy0937/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftakara-jiang%2Fwatertank%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftakara-jiang%2Fi%2F10033987%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.52,"reviewCount":343}},{"@type":"Product","name":"10L 5個 給水用品","description":"10L 5個 給水用品。10L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bestco/cabinet/tmb/n201-n300/n201-5.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3690,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tldun.oroxz093.g00tldun.oroy06be/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbestco%2Fn201-5%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbestco%2Fi%2F10000409%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.67,"reviewCount":3}},{"@type":"Product","name":"20L 給水用品","description":"20L 給水用品。20L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/lock110/cabinet/jishahin40/532109-sa.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1280,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532109%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000038%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.43,"reviewCount":187}},{"@type":"Product","name":"10年保存 20枚 除菌ウェットティッシュ","description":"10年保存 20枚 除菌ウェットティッシュ。10年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/onehealth/cabinet/12185240/12185251/12187033/imgrc0128007654.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":918,"url":"https://hb.afl.rakuten.co.jp/hgc/g00us5kn.oroxze6a.g00us5kn.oroy087d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fonehealth%2Fwettissue-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fonehealth%2Fi%2F10000319%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.75,"reviewCount":4}},{"@type":"Product","name":"10枚 400個 除菌ウェットティッシュ","description":"10枚 400個 除菌ウェットティッシュ。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ippin-market1/cabinet/11189939/wtm-0003-400-1v2.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":14000,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhkvn.oroxz320.g00uhkvn.oroy080d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fippin-market1%2Fwtm-0003-400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fippin-market1%2Fi%2F10000021%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":1}},{"@type":"Product","name":"300枚 1個 除菌ウェットティッシュ","description":"300枚 1個 除菌ウェットティッシュ。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/cocoico-store/cabinet/wt/08705842/imgrc0130280478.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3360,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u013n.oroxz762.g00u013n.oroy0464/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fcocoico-store%2Fnzw3102_1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fcocoico-store%2Fi%2F10000054%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":4}}]}</script><section class="share-bar" aria-label="このページを共有">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"飲食店向け断水対策用品比較","description":"飲食店向け断水対策用品比較。飲食店の断水対策は、営業継続より先に手指衛生・トイレ・片付け用水を分けて考えるのが現実的です。 断水時の営業判断、衛生確保、トイレ対応に必要な用品を切り分けて考えるページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/restaurant-dansui.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-08-02T16:47:52.098Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"飲食店向け断水対策用品比較","item":"https://jigyousho-bousai.com/pages/restaurant-dansui.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"飲食店は断水時も営業できますか？","acceptedAnswer":{"@type":"Answer","text":"衛生管理や自治体の案内に従う必要があります。備蓄は営業継続だけでなく、安全確保と片付けにも使う前提で考えます。"}},{"@type":"Question","name":"飲料水以外に必要なものは？","acceptedAnswer":{"@type":"Answer","text":"手指消毒、使い捨て手袋、簡易トイレ、給水タンク、清掃用品を分けて確認すると漏れが減ります。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/restaurant-dansui.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00prban.oroxz55b.g00prban.oroy06a8/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmaxshare%2Fmax-a04226%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fmaxshare%2Fi%2F10057441%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"15L 2個 給水用品"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u000n.oroxz325.g00u000n.oroy094b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fdorado%2F30-5050-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fdorado%2Fi%2F10000003%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1枚 除菌ウェットティッシュ"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uer5n.oroxz998.g00uer5n.oroy0ad5/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fquokka-shop%2Fsuinou%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fquokka-shop%2Fi%2F10000029%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"13L 5枚 土のう・水のう"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uku8n.oroxz971.g00uku8n.oroy02ce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmonotoki%2F100003257-tnzw%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fmonotoki%2Fi%2F10003245%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"非常用トイレ"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6pen.oroxzb85.g00q6pen.oroy0f86/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsmile88%2Fa08111%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsmile88%2Fi%2F10057599%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"15L 給水用品"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532098%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000036%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10L 給水用品"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rt7qn.oroxzc2d.g00rt7qn.oroy0937/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftakara-jiang%2Fwatertank%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftakara-jiang%2Fi%2F10033987%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10L 3個"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532109%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000038%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"20L 給水用品"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F82101%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10005182%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"3L 給水用品"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00us5kn.oroxze6a.g00us5kn.oroy087d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fonehealth%2Fwettissue-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fonehealth%2Fi%2F10000319%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10年保存 20枚 除菌ウェットティッシュ"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhkvn.oroxz320.g00uhkvn.oroy080d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fippin-market1%2Fwtm-0003-400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fippin-market1%2Fi%2F10000021%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"10枚 400個 除菌ウェットティッシュ"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u013n.oroxz762.g00u013n.oroy0464/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fcocoico-store%2Fnzw3102_1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fcocoico-store%2Fi%2F10000054%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"300枚 1個 除菌ウェットティッシュ"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"15L 2個 給水用品","description":"15L 2個 給水用品。15L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/maxshare/cabinet/master/1st/max-a04226.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3080,"url":"https://hb.afl.rakuten.co.jp/hgc/g00prban.oroxz55b.g00prban.oroy06a8/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmaxshare%2Fmax-a04226%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fmaxshare%2Fi%2F10057441%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.19,"reviewCount":668}},{"@type":"Product","name":"1枚 除菌ウェットティッシュ","description":"1枚 除菌ウェットティッシュ。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/dorado/cabinet/08377743/compass1632053111.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":700,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u000n.oroxz325.g00u000n.oroy094b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fdorado%2F30-5050-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fdorado%2Fi%2F10000003%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.86,"reviewCount":7}},{"@type":"Product","name":"13L 5枚 土のう・水のう","description":"13L 5枚 土のう・水のう。13L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/quokka-shop/cabinet/imgrc0110582534.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":2780,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uer5n.oroxz998.g00uer5n.oroy0ad5/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fquokka-shop%2Fsuinou%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fquokka-shop%2Fi%2F10000029%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.59,"reviewCount":22}},{"@type":"Product","name":"非常用トイレ","description":"非常用トイレ。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/monotoki/cabinet/image16/100003257_1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":12650,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uku8n.oroxz971.g00uku8n.oroy02ce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmonotoki%2F100003257-tnzw%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fmonotoki%2Fi%2F10003245%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"}},{"@type":"Product","name":"15L 給水用品","description":"15L 給水用品。15L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/smile88/cabinet/master/1st/a08111.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1650,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q6pen.oroxzb85.g00q6pen.oroy0f86/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsmile88%2Fa08111%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsmile88%2Fi%2F10057599%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.33,"reviewCount":368}},{"@type":"Product","name":"10L 給水用品","description":"10L 給水用品。10L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/lock110/cabinet/eigyou/532098_rank.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1000,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532098%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000036%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.46,"reviewCount":263}},{"@type":"Product","name":"10L 3個","description":"10L 3個。10L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/takara-jiang/cabinet/zakka/top-h/watertank_01-r1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1590,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rt7qn.oroxzc2d.g00rt7qn.oroy0937/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftakara-jiang%2Fwatertank%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftakara-jiang%2Fi%2F10033987%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.52,"reviewCount":344}},{"@type":"Product","name":"20L 給水用品","description":"20L 給水用品。20L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/lock110/cabinet/jishahin40/532109-sa.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":1280,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qr6hn.oroxz144.g00qr6hn.oroy0750/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flock110%2F532109%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flock110%2Fi%2F10000038%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.44,"reviewCount":189}},{"@type":"Product","name":"3L 給水用品","description":"3L 給水用品。3L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/82101-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":379,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F82101%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10005182%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.62,"reviewCount":26}},{"@type":"Product","name":"10年保存 20枚 除菌ウェットティッシュ","description":"10年保存 20枚 除菌ウェットティッシュ。10年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/onehealth/cabinet/12185240/12185251/12187033/imgrc0128007654.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":918,"url":"https://hb.afl.rakuten.co.jp/hgc/g00us5kn.oroxze6a.g00us5kn.oroy087d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fonehealth%2Fwettissue-01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fonehealth%2Fi%2F10000319%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.75,"reviewCount":4}},{"@type":"Product","name":"10枚 400個 除菌ウェットティッシュ","description":"10枚 400個 除菌ウェットティッシュ。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ippin-market1/cabinet/11189939/wtm-0003-400-1v2.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":14700,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhkvn.oroxz320.g00uhkvn.oroy080d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fippin-market1%2Fwtm-0003-400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fippin-market1%2Fi%2F10000021%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":1}},{"@type":"Product","name":"300枚 1個 除菌ウェットティッシュ","description":"300枚 1個 除菌ウェットティッシュ。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/cocoico-store/cabinet/wt/08705842/imgrc0130280478.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":3360,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u013n.oroxz762.g00u013n.oroy0464/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fcocoico-store%2Fnzw3102_1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fcocoico-store%2Fi%2F10000054%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":4}}]}</script><section class="share-bar" aria-label="このページを共有">
     <div><strong>このページを共有</strong><span class="notice">備蓄の相談や社内での検討にそのまま使えます</span></div>
     <div class="share-buttons">
       <a href="https://twitter.com/intent/tweet?text=%E9%A3%B2%E9%A3%9F%E5%BA%97%E3%81%AE%E6%96%AD%E6%B0%B4%E5%AF%BE%E7%AD%96%E7%94%A8%E5%93%81%E6%AF%94%E8%BC%83%EF%BD%9C%E7%B5%A6%E6%B0%B4%E3%83%BB%E8%A1%9B%E7%94%9F%E3%83%BB%E7%B0%A1%E6%98%93%E3%83%88%E3%82%A4%E3%83%AC%20%7C%20%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E3%83%8A%E3%83%93&amp;url=https%3A%2F%2Fjigyousho-bousai.com%2Fpages%2Frestaurant-dansui.html" target="_blank" rel="noopener" data-share="x">Xで共有</a>
@@ -1138,6 +1204,68 @@
           });
         });
       });
+      var stockpileTool=document.querySelector('[data-stockpile-tool]');
+      if(stockpileTool){
+        var stockpileTracked=false;
+        var stockpileChecks=Array.prototype.slice.call(stockpileTool.querySelectorAll('[data-stockpile-check]'));
+        var stockpileCount=document.getElementById('stockpileCheckedCount');
+        var stockpileTotal=document.getElementById('stockpileTotalCount');
+        function updateStockpileProgress(){
+          var activeChecks=stockpileChecks.filter(function(input){
+            var panel=input.closest('[data-facility-panel]');
+            return !panel || !panel.hidden;
+          });
+          var checked=activeChecks.filter(function(input){ return input.checked; }).length;
+          if(stockpileCount) stockpileCount.textContent=String(checked);
+          if(stockpileTotal) stockpileTotal.textContent=String(activeChecks.length);
+          stockpileChecks.forEach(function(input){
+            var state=input.closest('.checklist-row')?.querySelector('.check-state');
+            if(state) state.textContent=input.checked ? '確認済み' : '未確認';
+          });
+          return checked;
+        }
+        stockpileChecks.forEach(function(input){
+          input.addEventListener('change',function(){
+            var checked=updateStockpileProgress();
+            if(stockpileTracked) return;
+            stockpileTracked=true;
+            trackEvent('stockpile_check_use',{
+              checked_items:checked,
+              total_items:stockpileChecks.length,
+              facility_type:document.getElementById('facilityType')?.value || 'office'
+            });
+          });
+        });
+        var facilityType=document.getElementById('facilityType');
+        function showFacilityPanel(){
+          var selected=facilityType ? facilityType.value : 'office';
+          stockpileTool.querySelectorAll('[data-facility-panel]').forEach(function(panel){
+            panel.hidden=panel.dataset.facilityPanel!==selected;
+          });
+          updateStockpileProgress();
+        }
+        if(facilityType){
+          facilityType.addEventListener('change',function(){
+            showFacilityPanel();
+            trackEvent('stockpile_facility_select',{ facility_type:facilityType.value });
+          });
+        }
+        var printChecklist=stockpileTool.querySelector('[data-print-checklist]');
+        if(printChecklist){
+          printChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_print',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+            window.print();
+          });
+        }
+        var downloadChecklist=stockpileTool.querySelector('[data-download-checklist]');
+        if(downloadChecklist){
+          downloadChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_csv_download',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+          });
+        }
+        showFacilityPanel();
+        updateStockpileProgress();
+      }
       var search=document.getElementById('siteSearch');
       var searchTimer=null;
       function filterCards(value){

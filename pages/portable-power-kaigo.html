@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>介護施設向けポータブル電源比較｜容量・出力で選ぶ | 事業所防災ナビ</title>
   <meta name="description" content="介護施設向けポータブル電源比較。介護施設の停電対策は、照明・通信・見守り機器を短時間でも動かせる電源を先に確認します。 停電時にスマホ、照明、通信機器、見守り機器の電源を最低限確保したい施設向けです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。">
-  
+
   <link rel="canonical" href="https://jigyousho-bousai.com/pages/portable-power-kaigo.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="事業所防災ナビ">
@@ -256,6 +256,39 @@
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
     .checklist li{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:11px 14px 11px 38px;position:relative;font-size:14.5px}
     .checklist li::before{content:"✓";position:absolute;left:14px;top:10px;color:var(--accent-deep);font-weight:900}
+    .stockpile-tool{padding:0;border:1px solid var(--rule-2);background:var(--card)}
+    .stockpile-tool-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;padding:22px 24px;border-bottom:1px solid var(--rule);background:var(--teal-soft)}
+    .stockpile-tool-head p{margin:0;color:var(--ink-2)}
+    .check-progress{display:grid;gap:4px;min-width:170px;text-align:right}
+    .check-progress strong{font-family:var(--font-display);font-size:25px;color:var(--main)}
+    .check-progress span{font-size:12px;color:var(--muted)}
+    .checklist-groups{display:grid;grid-template-columns:1fr 1fr}
+    .checklist-group{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .checklist-group:nth-child(odd){border-right:1px solid var(--rule)}
+    .checklist-group h2{font-size:21px;margin-bottom:12px}
+    .checklist-group p{margin:0 0 12px;color:var(--muted);font-size:13px}
+    .checklist-rows{display:grid;gap:0;border-top:1px solid var(--rule)}
+    .checklist-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--rule);cursor:pointer}
+    .checklist-row input{width:19px;height:19px;margin:3px 0 0;accent-color:var(--main)}
+    .checklist-row strong,.checklist-row small{display:block}
+    .checklist-row strong{font-size:15px;color:var(--ink)}
+    .checklist-row small{margin-top:2px;color:var(--muted);font-size:12.5px;line-height:1.55}
+    .check-state{margin-top:2px;color:var(--muted);font-size:11.5px;white-space:nowrap}
+    .checklist-row:has(input:checked) strong{text-decoration:line-through;text-decoration-color:var(--rule-2);color:var(--muted)}
+    .checklist-row:has(input:checked) .check-state{color:var(--main);font-weight:700}
+    .facility-checks{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .facility-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,320px);gap:20px;align-items:end;margin-bottom:16px}
+    .facility-picker label{display:grid;gap:6px;font-weight:700}
+    .facility-select{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;background:#fff;color:var(--main);font:700 16px var(--font-body)}
+    .facility-panel{border-top:1px solid var(--rule)}
+    .checklist-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:20px 24px}
+    .checklist-actions .notice{margin:0 0 0 auto;max-width:420px}
+    .checklist-use{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .checklist-use div{padding:18px;border-left:1px solid var(--rule)}
+    .checklist-use div:first-child{border-left:0}
+    .checklist-use strong,.checklist-use span{display:block}
+    .checklist-use strong{color:var(--main);font-size:16px;margin-bottom:4px}
+    .checklist-use span{color:var(--muted);font-size:13px}
     .steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}
     .steps li{counter-increment:step;padding:12px 14px 12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 4px 4px 0;font-size:14.5px}
     .steps li::before{content:counter(step) ".";font-family:var(--font-display);font-weight:700;color:var(--accent-deep);margin-right:8px}
@@ -455,6 +488,18 @@
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
+      .stockpile-tool-head{grid-template-columns:1fr;align-items:start;padding:18px}
+      .check-progress{text-align:left;min-width:0}
+      .checklist-groups{grid-template-columns:1fr}
+      .checklist-group,.checklist-group:nth-child(odd){padding:18px;border-right:0}
+      .facility-checks{padding:18px}
+      .facility-picker{grid-template-columns:1fr}
+      .checklist-actions{display:grid;padding:18px}
+      .checklist-actions .button{width:100%;justify-content:center;text-align:center}
+      .checklist-actions .notice{margin:0}
+      .checklist-use{grid-template-columns:1fr}
+      .checklist-use div,.checklist-use div:first-child{border-left:0}
+      .checklist-use div+div{border-top:1px solid var(--rule)}
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
@@ -485,6 +530,27 @@
       .button,.small-button{width:100%;justify-content:center;line-height:1.45}
       .showcase-card em{white-space:normal}
     }
+    @media print{
+      @page{size:A4;margin:12mm}
+      body{background:#fff;font-size:11pt;line-height:1.55}
+      body::before,body::after,.site-head,.affiliate-disclosure,.breadcrumb,.hero-actions,.jump-nav,.share-bar,.site-footer,.checklist-actions,.print-hide{display:none!important}
+      main{max-width:none;padding:0}
+      .hero{padding:0 0 12px}
+      .hero h1{font-size:23pt}
+      .lead{font-size:11pt}
+      .section{margin-top:16px}
+      .card,.stockpile-tool,.checklist-use{box-shadow:none;background:#fff}
+      .stockpile-tool-head,.checklist-group,.facility-checks{padding:10px 12px}
+      .checklist-groups{grid-template-columns:1fr 1fr}
+      .checklist-group{break-inside:avoid}
+      .checklist-row{padding:7px 0;break-inside:avoid}
+      .checklist-row input{appearance:none;border:1px solid #555;width:14px;height:14px}
+      .checklist-row input:checked::after{content:"✓";display:block;font-size:12px;line-height:12px;text-align:center}
+      .check-state{display:none}
+      .facility-panel[hidden]{display:none!important}
+      .source-references,.faq{break-before:page}
+      a{color:#000;text-decoration:none}
+    }
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#disasters">災害別</a><a href="https://jigyousho-bousai.com/#categories">カテゴリ</a><a href="https://jigyousho-bousai.com/#quantity">人数別目安</a><a href="https://jigyousho-bousai.com/#popular">よく使う比較</a></nav></header><p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p><nav class="breadcrumb" aria-label="パンくず"><a href="https://jigyousho-bousai.com/">ホーム</a><span>/</span><span>介護施設向けポータブル電源比較</span></nav><section class="hero">
@@ -495,8 +561,8 @@
       <span class="pill navy">対象施設: 介護施設・小規模福祉施設</span>
       <span class="pill navy">想定災害: 停電・台風・地震</span>
       <span class="pill orange">比較候補数: 12件</span>
-      
-      <span class="pill">最終更新: 2026/7/27</span>
+
+      <span class="pill">最終更新: 2026/8/3</span>
     </div>
     <div class="hero-actions">
       <a class="button orange" href="#comparison">比較候補を見る</a>
@@ -546,14 +612,14 @@
         <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="https://jigyousho-bousai.com/pages/office-bichiku.html" href="https://jigyousho-bousai.com/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
       </div>
     </div>
-    
+
   </section>
   <section class="section source-references" aria-labelledby="public-sources-title">
     <div class="section-title"><div><p class="eyebrow">公的資料</p><h2 id="public-sources-title">数量・備蓄期間を決めるときの根拠</h2></div></div>
     <p class="source-intro">3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。</p>
     <ul class="source-list"><li><a href="https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf" target="_blank" rel="noopener">事業所における帰宅困難者等対策ガイドライン</a><span>内閣府 防災情報のページ</span><small>3日分の備蓄、水1人1日3L、主食1人1日3食、毛布1人1枚などの考え方を確認できます。</small></li><li><a href="https://www.bichiku.metro.tokyo.lg.jp/" target="_blank" rel="noopener">東京都防災 備蓄ナビ</a><span>東京都</span><small>人数や条件から備蓄品と数量を考えるための公的な案内です。</small></li></ul>
   </section>
-  
+
   <section class="section" id="comparison">
     <div class="section-title"><div><p class="eyebrow">比較表</p><h2>価格・レビュー・用途を横並びで確認</h2></div><p class="notice">スマホでは横にスクロールできます</p></div>
     <div class="plan-summary" id="planSummary" hidden><span>今回の目安</span><strong id="planSummaryText"></strong><small>商品ごとの容量・回数と照らして確認してください。</small></div>
@@ -576,29 +642,29 @@
     <td>条件が読み取りやすい候補</td>
     <td>154,600円</td>
     <td>4.64</td>
-    <td>2618</td>
+    <td>2620</td>
     <td>要確認</td>
     <td>1070Wh / 1500W</td>
     <td>人数入力で確認</td>
     <td>介護施設・小規模福祉施設</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="jackery-japan:10000033" data-product-name="Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源" data-product-price="154600" data-product-category="介護施設向けポータブル電源比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="heystop:10000143" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="2048" data-output-w="2400" data-unit-price="279980">
+  </tr><tr data-product-fit="true" data-product-key="heystop:10000143" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="2048" data-output-w="2400" data-unit-price="129970">
     <td class="table-product">2048Wh 2400W ポータブル電源</td>
     <td>条件が読み取りやすい候補</td>
-    <td>279,980円</td>
+    <td>129,970円</td>
     <td>4.55</td>
     <td>794</td>
     <td>要確認</td>
     <td>2048Wh / 2400W</td>
     <td>人数入力で確認</td>
     <td>介護施設・小規模福祉施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000143" data-product-name="2048Wh 2400W ポータブル電源" data-product-price="279980" data-product-category="介護施設向けポータブル電源比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000143" data-product-name="2048Wh 2400W ポータブル電源" data-product-price="129970" data-product-category="介護施設向けポータブル電源比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="ecoflow:10000266" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="1024" data-output-w="1500" data-unit-price="192200">
     <td class="table-product">EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源</td>
     <td>条件が読み取りやすい候補</td>
     <td>192,200円</td>
     <td>4.63</td>
-    <td>224</td>
+    <td>226</td>
     <td>要確認</td>
     <td>1024Wh / 1500W</td>
     <td>人数入力で確認</td>
@@ -609,7 +675,7 @@
     <td>条件が読み取りやすい候補</td>
     <td>109,700円</td>
     <td>4.68</td>
-    <td>191</td>
+    <td>192</td>
     <td>要確認</td>
     <td>1024Wh / 1500W</td>
     <td>人数入力で確認</td>
@@ -619,8 +685,8 @@
     <td class="table-product">1024Wh 1800W ポータブル電源</td>
     <td>条件が読み取りやすい候補</td>
     <td>50,990円</td>
-    <td>4.58</td>
-    <td>92</td>
+    <td>4.56</td>
+    <td>94</td>
     <td>要確認</td>
     <td>1024Wh / 1800W</td>
     <td>人数入力で確認</td>
@@ -648,34 +714,34 @@
     <td>人数入力で確認</td>
     <td>介護施設・小規模福祉施設</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll1531%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000016%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="aiwo:10000016" data-product-name="1531Wh 1500W ポータブル電源" data-product-price="59999" data-product-category="介護施設向けポータブル電源比較" data-product-position="8" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="heystop:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="1024" data-output-w="1500" data-unit-price="149800">
+  </tr><tr data-product-fit="true" data-product-key="heystop:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="1024" data-output-w="1500" data-unit-price="110900">
     <td class="table-product">1024Wh 1500W ポータブル電源</td>
     <td>条件が読み取りやすい候補</td>
-    <td>149,800円</td>
+    <td>110,900円</td>
     <td>4.67</td>
     <td>3</td>
     <td>要確認</td>
     <td>1024Wh / 1500W</td>
     <td>人数入力で確認</td>
     <td>介護施設・小規模福祉施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・容量または回数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800fac%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000260" data-product-name="1024Wh 1500W ポータブル電源" data-product-price="149800" data-product-category="介護施設向けポータブル電源比較" data-product-position="9" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="heystop:10000256" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="1024" data-output-w="1500" data-unit-price="189800">
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・容量または回数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800fac%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000260" data-product-name="1024Wh 1500W ポータブル電源" data-product-price="110900" data-product-category="介護施設向けポータブル電源比較" data-product-position="9" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="heystop:10000256" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="1024" data-output-w="1500" data-unit-price="111780">
     <td class="table-product">1024Wh 1500W ソーラーパネルセット ポータブル電源</td>
     <td>条件が読み取りやすい候補</td>
-    <td>189,800円</td>
+    <td>111,780円</td>
     <td>4.33</td>
     <td>15</td>
     <td>要確認</td>
     <td>1024Wh / 1500W</td>
     <td>人数入力で確認</td>
     <td>介護施設・小規模福祉施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800sp2%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000256%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000256" data-product-name="1024Wh 1500W ソーラーパネルセット ポータブル電源" data-product-price="189800" data-product-category="介護施設向けポータブル電源比較" data-product-position="10" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>出力W数と充電管理を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800sp2%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000256%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000256" data-product-name="1024Wh 1500W ソーラーパネルセット ポータブル電源" data-product-price="111780" data-product-category="介護施設向けポータブル電源比較" data-product-position="10" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="bluettijapan:10000195" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="288" data-output-w="600" data-unit-price="39800">
     <td class="table-product">BLUETTI 288Wh 600W ポータブル電源</td>
     <td>条件が読み取りやすい候補</td>
     <td>39,800円</td>
-    <td>4.42</td>
-    <td>33</td>
+    <td>4.46</td>
+    <td>35</td>
     <td>要確認</td>
     <td>288Wh / 600W</td>
     <td>人数入力で確認</td>
@@ -685,8 +751,8 @@
     <td class="table-product">BLUETTI 288Wh 600W ソーラーパネルセット ポータブル電源</td>
     <td>条件が読み取りやすい候補</td>
     <td>60,800円</td>
-    <td>4.61</td>
-    <td>33</td>
+    <td>4.62</td>
+    <td>34</td>
     <td>要確認</td>
     <td>288Wh / 600W</td>
     <td>人数入力で確認</td>
@@ -701,7 +767,7 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>Jackery 1070Wh 1500W ポータブル電源</h2>
-      
+
       <p class="summary">1070Wh・定格出力1500W。使用機器の定格消費電力と起動電力を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">119,800円</p>
@@ -723,13 +789,13 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源</h2>
-      
+
       <p class="summary">1070Wh・定格出力1500W。使用機器の定格消費電力と起動電力を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">154,600円</p>
       <div class="facts">
         <span class="fact">レビュー 4.64</span>
-        <span class="fact">件数 2618</span>
+        <span class="fact">件数 2620</span>
         <span class="fact">Jackery Japan 楽天市場店</span>
       </div>
       <div class="spec-grid">
@@ -740,15 +806,15 @@
       </div>
       <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="jackery-japan:10000033" data-product-name="Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源" data-product-price="154600" data-product-category="介護施設向けポータブル電源比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product" data-product-fit="true" data-product-key="heystop:10000143" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="2048" data-output-w="2400" data-unit-price="279980">
+  </article><article class="card product" data-product-fit="true" data-product-key="heystop:10000143" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="2048" data-output-w="2400" data-unit-price="129970">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/ba01-2026/f2400.jpg" alt="2048Wh 2400W ポータブル電源" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>2048Wh 2400W ポータブル電源</h2>
-      
+
       <p class="summary">2048Wh・定格出力2400W。使用機器の定格消費電力と起動電力を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
-      <p class="price">279,980円</p>
+      <p class="price">129,970円</p>
       <div class="facts">
         <span class="fact">レビュー 4.55</span>
         <span class="fact">件数 794</span>
@@ -760,20 +826,20 @@
         <div><span>注意点</span><strong>出力W数と充電管理を確認</strong></div>
         <div><span>向いている施設</span><strong>介護施設・小規模福祉施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000143" data-product-name="2048Wh 2400W ポータブル電源" data-product-price="279980" data-product-category="介護施設向けポータブル電源比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="heystop:10000143" data-product-name="2048Wh 2400W ポータブル電源" data-product-price="129970" data-product-category="介護施設向けポータブル電源比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
   </article><article class="card product" data-product-fit="true" data-product-key="ecoflow:10000266" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="1024" data-output-w="1500" data-unit-price="192200">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/ecoflow/cabinet/13590390/13590392/d3c220.jpg" alt="EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源</h2>
-      
+
       <p class="summary">1024Wh・定格出力1500W。使用機器の定格消費電力と起動電力を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">192,200円</p>
       <div class="facts">
         <span class="fact">レビュー 4.63</span>
-        <span class="fact">件数 224</span>
+        <span class="fact">件数 226</span>
         <span class="fact">EcoFlow公式楽天市場店</span>
       </div>
       <div class="spec-grid">
@@ -789,13 +855,13 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>EcoFlow 1024Wh 1500W ポータブル電源</h2>
-      
+
       <p class="summary">1024Wh・定格出力1500W。使用機器の定格消費電力と起動電力を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">109,700円</p>
       <div class="facts">
         <span class="fact">レビュー 4.68</span>
-        <span class="fact">件数 191</span>
+        <span class="fact">件数 192</span>
         <span class="fact">EcoFlow公式楽天市場店</span>
       </div>
       <div class="spec-grid">
@@ -807,17 +873,17 @@
       <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fefdeltamini-c%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000092%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="ecoflow:10000092" data-product-name="EcoFlow 1024Wh 1500W ポータブル電源" data-product-price="109700" data-product-category="介護施設向けポータブル電源比較" data-product-position="5" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
   </article><article class="card product" data-product-fit="true" data-product-key="lovleopstore:10000023" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="1024" data-output-w="1800" data-unit-price="50990">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/lovleopstore/cabinet/shohin34/1800pro-2000.jpg" alt="1024Wh 1800W ポータブル電源" loading="lazy">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/lovleopstore/cabinet/shohin34/1800pro-1000.jpg" alt="1024Wh 1800W ポータブル電源" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>1024Wh 1800W ポータブル電源</h2>
-      
+
       <p class="summary">1024Wh・定格出力1800W。使用機器の定格消費電力と起動電力を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">50,990円</p>
       <div class="facts">
-        <span class="fact">レビュー 4.58</span>
-        <span class="fact">件数 92</span>
+        <span class="fact">レビュー 4.56</span>
+        <span class="fact">件数 94</span>
         <span class="fact">AFERIY公式楽天市場店</span>
       </div>
       <div class="spec-grid">
@@ -833,7 +899,7 @@
   <section class="section card"><h2>注意点</h2><p>価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
   <section class="section faq" id="faq"><h2>FAQ</h2><details><summary>何Whあれば安心ですか？</summary><p>使う機器の消費電力と使いたい時間で変わります。まずはスマホ、照明、通信機器など、止めたくないものをリスト化するのが現実的です。</p></details><details><summary>介護施設では何を優先しますか？</summary><p>照明、連絡手段、見守り機器、冷暖房補助を優先し、電源以外に水・トイレ・防寒も合わせて確認します。</p></details><details><summary>会社の防災備蓄は何日分必要ですか？</summary><p>まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。</p></details><details><summary>事業所の簡易トイレは何回分必要ですか？</summary><p>目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。</p></details><details><summary>台風対策と地震対策で備えるものは違いますか？</summary><p>共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。</p></details></section>
   <section class="section"><div class="section-title"><h2>関連ページ</h2><p class="notice">災害別・施設別に続けて確認</p></div><div class="link-list"><a href="https://jigyousho-bousai.com/pages/office-bichiku.html">小規模オフィス向け防災備蓄セット比較</a><a href="https://jigyousho-bousai.com/pages/hoikuen-bousai.html">保育園向け防災備蓄セット比較</a><a href="https://jigyousho-bousai.com/pages/kitaku-konnansha.html">帰宅困難者対策の備蓄品比較</a></div></section>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"介護施設向けポータブル電源比較","description":"介護施設向けポータブル電源比較。介護施設の停電対策は、照明・通信・見守り機器を短時間でも動かせる電源を先に確認します。 停電時にスマホ、照明、通信機器、見守り機器の電源を最低限確保したい施設向けです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/portable-power-kaigo.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-26T21:48:02.663Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"介護施設向けポータブル電源比較","item":"https://jigyousho-bousai.com/pages/portable-power-kaigo.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"何Whあれば安心ですか？","acceptedAnswer":{"@type":"Answer","text":"使う機器の消費電力と使いたい時間で変わります。まずはスマホ、照明、通信機器など、止めたくないものをリスト化するのが現実的です。"}},{"@type":"Question","name":"介護施設では何を優先しますか？","acceptedAnswer":{"@type":"Answer","text":"照明、連絡手段、見守り機器、冷暖房補助を優先し、電源以外に水・トイレ・防寒も合わせて確認します。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/portable-power-kaigo.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"Jackery 1070Wh 1500W ポータブル電源"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"2048Wh 2400W ポータブル電源"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fdelta-3-220%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000266%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fefdeltamini-c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000092%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"EcoFlow 1024Wh 1500W ポータブル電源"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u9v8n.oroxz4cd.g00u9v8n.oroy0813/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flovleopstore%2Frk0002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flovleopstore%2Fi%2F10000023%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1024Wh 1800W ポータブル電源"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uahtn.oroxzc3a.g00uahtn.oroy074a/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyesper%2Fvtoman-flashspeed1500%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyesper%2Fi%2F10000030%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1548Wh 1500W ポータブル電源"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll1531%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1531Wh 1500W ポータブル電源"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800fac%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1024Wh 1500W ポータブル電源"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800sp2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000256%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1024Wh 1500W ソーラーパネルセット ポータブル電源"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000195%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"BLUETTI 288Wh 600W ポータブル電源"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_60w_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000199%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"BLUETTI 288Wh 600W ソーラーパネルセット ポータブル電源"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"Jackery 1070Wh 1500W ポータブル電源","description":"Jackery 1070Wh 1500W ポータブル電源。1070Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":119800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.72,"reviewCount":1939}},{"@type":"Product","name":"Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源","description":"Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源。1070Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725814.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":154600,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.64,"reviewCount":2618}},{"@type":"Product","name":"2048Wh 2400W ポータブル電源","description":"2048Wh 2400W ポータブル電源。2048Wh / 2400W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/ba01-2026/f2400.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":279980,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.55,"reviewCount":794}},{"@type":"Product","name":"EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源","description":"EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ecoflow/cabinet/13590390/13590392/d3c220.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":192200,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fdelta-3-220%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000266%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.63,"reviewCount":224}},{"@type":"Product","name":"EcoFlow 1024Wh 1500W ポータブル電源","description":"EcoFlow 1024Wh 1500W ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ecoflow/cabinet/13590390/13590392/d3c.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":109700,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fefdeltamini-c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000092%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.68,"reviewCount":191}},{"@type":"Product","name":"1024Wh 1800W ポータブル電源","description":"1024Wh 1800W ポータブル電源。1024Wh / 1800W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/lovleopstore/cabinet/shohin34/1800pro-2000.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":50990,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u9v8n.oroxz4cd.g00u9v8n.oroy0813/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flovleopstore%2Frk0002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flovleopstore%2Fi%2F10000023%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":92}},{"@type":"Product","name":"1548Wh 1500W ポータブル電源","description":"1548Wh 1500W ポータブル電源。1548Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/yesper/cabinet/10320701/11186372/imgrc0108282121.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":88900,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uahtn.oroxzc3a.g00uahtn.oroy074a/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyesper%2Fvtoman-flashspeed1500%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyesper%2Fi%2F10000030%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.6,"reviewCount":25}},{"@type":"Product","name":"1531Wh 1500W ポータブル電源","description":"1531Wh 1500W ポータブル電源。1531Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/aiwo/cabinet/10115841/imgrc0097246548.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":59999,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll1531%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.73,"reviewCount":44}},{"@type":"Product","name":"1024Wh 1500W ポータブル電源","description":"1024Wh 1500W ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/f1800/f1800fac-l.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":149800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800fac%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.67,"reviewCount":3}},{"@type":"Product","name":"1024Wh 1500W ソーラーパネルセット ポータブル電源","description":"1024Wh 1500W ソーラーパネルセット ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/f1800/f1800sp200.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":189800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800sp2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000256%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.33,"reviewCount":15}},{"@type":"Product","name":"BLUETTI 288Wh 600W ポータブル電源","description":"BLUETTI 288Wh 600W ポータブル電源。288Wh / 600W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bluettijapan/cabinet/12874450/13520339/30v2.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":39800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000195%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.42,"reviewCount":33}},{"@type":"Product","name":"BLUETTI 288Wh 600W ソーラーパネルセット ポータブル電源","description":"BLUETTI 288Wh 600W ソーラーパネルセット ポータブル電源。288Wh / 600W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bluettijapan/cabinet/12874450/13520339/30v2_60w1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":60800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_60w_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000199%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.61,"reviewCount":33}}]}</script><section class="share-bar" aria-label="このページを共有">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"介護施設向けポータブル電源比較","description":"介護施設向けポータブル電源比較。介護施設の停電対策は、照明・通信・見守り機器を短時間でも動かせる電源を先に確認します。 停電時にスマホ、照明、通信機器、見守り機器の電源を最低限確保したい施設向けです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/portable-power-kaigo.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-08-02T16:47:52.098Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"介護施設向けポータブル電源比較","item":"https://jigyousho-bousai.com/pages/portable-power-kaigo.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"何Whあれば安心ですか？","acceptedAnswer":{"@type":"Answer","text":"使う機器の消費電力と使いたい時間で変わります。まずはスマホ、照明、通信機器など、止めたくないものをリスト化するのが現実的です。"}},{"@type":"Question","name":"介護施設では何を優先しますか？","acceptedAnswer":{"@type":"Answer","text":"照明、連絡手段、見守り機器、冷暖房補助を優先し、電源以外に水・トイレ・防寒も合わせて確認します。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/portable-power-kaigo.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"Jackery 1070Wh 1500W ポータブル電源"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"2048Wh 2400W ポータブル電源"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fdelta-3-220%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000266%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fefdeltamini-c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000092%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"EcoFlow 1024Wh 1500W ポータブル電源"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u9v8n.oroxz4cd.g00u9v8n.oroy0813/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flovleopstore%2Frk0002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flovleopstore%2Fi%2F10000023%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1024Wh 1800W ポータブル電源"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uahtn.oroxzc3a.g00uahtn.oroy074a/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyesper%2Fvtoman-flashspeed1500%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyesper%2Fi%2F10000030%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1548Wh 1500W ポータブル電源"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll1531%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1531Wh 1500W ポータブル電源"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800fac%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1024Wh 1500W ポータブル電源"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800sp2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000256%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1024Wh 1500W ソーラーパネルセット ポータブル電源"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000195%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"BLUETTI 288Wh 600W ポータブル電源"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_60w_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000199%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"BLUETTI 288Wh 600W ソーラーパネルセット ポータブル電源"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"Jackery 1070Wh 1500W ポータブル電源","description":"Jackery 1070Wh 1500W ポータブル電源。1070Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":119800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.72,"reviewCount":1939}},{"@type":"Product","name":"Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源","description":"Jackery 1070Wh 1500W ソーラーパネルセット ポータブル電源。1070Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725814.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":154600,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p1000-s100-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000033%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.64,"reviewCount":2620}},{"@type":"Product","name":"2048Wh 2400W ポータブル電源","description":"2048Wh 2400W ポータブル電源。2048Wh / 2400W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/ba01-2026/f2400.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":129970,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff2400%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000143%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.55,"reviewCount":794}},{"@type":"Product","name":"EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源","description":"EcoFlow 1024Wh 1500W ソーラーパネルセット ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ecoflow/cabinet/13590390/13590392/d3c220.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":192200,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fdelta-3-220%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000266%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.63,"reviewCount":226}},{"@type":"Product","name":"EcoFlow 1024Wh 1500W ポータブル電源","description":"EcoFlow 1024Wh 1500W ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/ecoflow/cabinet/13590390/13590392/d3c.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":109700,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tzcjn.oroxz4ae.g00tzcjn.oroy0986/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fecoflow%2Fefdeltamini-c%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fecoflow%2Fi%2F10000092%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.68,"reviewCount":192}},{"@type":"Product","name":"1024Wh 1800W ポータブル電源","description":"1024Wh 1800W ポータブル電源。1024Wh / 1800W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/lovleopstore/cabinet/shohin34/1800pro-1000.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":50990,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u9v8n.oroxz4cd.g00u9v8n.oroy0813/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Flovleopstore%2Frk0002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Flovleopstore%2Fi%2F10000023%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.56,"reviewCount":94}},{"@type":"Product","name":"1548Wh 1500W ポータブル電源","description":"1548Wh 1500W ポータブル電源。1548Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/yesper/cabinet/10320701/11186372/imgrc0108282121.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":88900,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uahtn.oroxzc3a.g00uahtn.oroy074a/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyesper%2Fvtoman-flashspeed1500%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyesper%2Fi%2F10000030%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.6,"reviewCount":25}},{"@type":"Product","name":"1531Wh 1500W ポータブル電源","description":"1531Wh 1500W ポータブル電源。1531Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/aiwo/cabinet/10115841/imgrc0097246548.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":59999,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uhf4n.oroxz392.g00uhf4n.oroy0e14/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Faiwo%2Faiwoll1531%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Faiwo%2Fi%2F10000016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.73,"reviewCount":44}},{"@type":"Product","name":"1024Wh 1500W ポータブル電源","description":"1024Wh 1500W ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/f1800/f1800fac-l.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":110900,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800fac%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.67,"reviewCount":3}},{"@type":"Product","name":"1024Wh 1500W ソーラーパネルセット ポータブル電源","description":"1024Wh 1500W ソーラーパネルセット ポータブル電源。1024Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/heystop/cabinet/f1800/f1800sp200.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":111780,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u0njn.oroxz039.g00u0njn.oroy05de/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fheystop%2Ff1800sp2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fheystop%2Fi%2F10000256%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.33,"reviewCount":15}},{"@type":"Product","name":"BLUETTI 288Wh 600W ポータブル電源","description":"BLUETTI 288Wh 600W ポータブル電源。288Wh / 600W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bluettijapan/cabinet/12874450/13520339/30v2.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":39800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000195%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.46,"reviewCount":35}},{"@type":"Product","name":"BLUETTI 288Wh 600W ソーラーパネルセット ポータブル電源","description":"BLUETTI 288Wh 600W ソーラーパネルセット ポータブル電源。288Wh / 600W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bluettijapan/cabinet/12874450/13520339/30v2_60w1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":60800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u57jn.oroxzac1.g00u57jn.oroy0341/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbluettijapan%2Fbluettijapan_aora30v2_60w_eg%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbluettijapan%2Fi%2F10000199%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.62,"reviewCount":34}}]}</script><section class="share-bar" aria-label="このページを共有">
     <div><strong>このページを共有</strong><span class="notice">備蓄の相談や社内での検討にそのまま使えます</span></div>
     <div class="share-buttons">
       <a href="https://twitter.com/intent/tweet?text=%E4%BB%8B%E8%AD%B7%E6%96%BD%E8%A8%AD%E5%90%91%E3%81%91%E3%83%9D%E3%83%BC%E3%82%BF%E3%83%96%E3%83%AB%E9%9B%BB%E6%BA%90%E6%AF%94%E8%BC%83%EF%BD%9C%E5%AE%B9%E9%87%8F%E3%83%BB%E5%87%BA%E5%8A%9B%E3%81%A7%E9%81%B8%E3%81%B6%20%7C%20%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E3%83%8A%E3%83%93&amp;url=https%3A%2F%2Fjigyousho-bousai.com%2Fpages%2Fportable-power-kaigo.html" target="_blank" rel="noopener" data-share="x">Xで共有</a>
@@ -1138,6 +1204,68 @@
           });
         });
       });
+      var stockpileTool=document.querySelector('[data-stockpile-tool]');
+      if(stockpileTool){
+        var stockpileTracked=false;
+        var stockpileChecks=Array.prototype.slice.call(stockpileTool.querySelectorAll('[data-stockpile-check]'));
+        var stockpileCount=document.getElementById('stockpileCheckedCount');
+        var stockpileTotal=document.getElementById('stockpileTotalCount');
+        function updateStockpileProgress(){
+          var activeChecks=stockpileChecks.filter(function(input){
+            var panel=input.closest('[data-facility-panel]');
+            return !panel || !panel.hidden;
+          });
+          var checked=activeChecks.filter(function(input){ return input.checked; }).length;
+          if(stockpileCount) stockpileCount.textContent=String(checked);
+          if(stockpileTotal) stockpileTotal.textContent=String(activeChecks.length);
+          stockpileChecks.forEach(function(input){
+            var state=input.closest('.checklist-row')?.querySelector('.check-state');
+            if(state) state.textContent=input.checked ? '確認済み' : '未確認';
+          });
+          return checked;
+        }
+        stockpileChecks.forEach(function(input){
+          input.addEventListener('change',function(){
+            var checked=updateStockpileProgress();
+            if(stockpileTracked) return;
+            stockpileTracked=true;
+            trackEvent('stockpile_check_use',{
+              checked_items:checked,
+              total_items:stockpileChecks.length,
+              facility_type:document.getElementById('facilityType')?.value || 'office'
+            });
+          });
+        });
+        var facilityType=document.getElementById('facilityType');
+        function showFacilityPanel(){
+          var selected=facilityType ? facilityType.value : 'office';
+          stockpileTool.querySelectorAll('[data-facility-panel]').forEach(function(panel){
+            panel.hidden=panel.dataset.facilityPanel!==selected;
+          });
+          updateStockpileProgress();
+        }
+        if(facilityType){
+          facilityType.addEventListener('change',function(){
+            showFacilityPanel();
+            trackEvent('stockpile_facility_select',{ facility_type:facilityType.value });
+          });
+        }
+        var printChecklist=stockpileTool.querySelector('[data-print-checklist]');
+        if(printChecklist){
+          printChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_print',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+            window.print();
+          });
+        }
+        var downloadChecklist=stockpileTool.querySelector('[data-download-checklist]');
+        if(downloadChecklist){
+          downloadChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_csv_download',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+          });
+        }
+        showFacilityPanel();
+        updateStockpileProgress();
+      }
       var search=document.getElementById('siteSearch');
       var searchTimer=null;
       function filterCards(value){

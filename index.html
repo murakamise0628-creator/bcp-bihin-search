@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>事業所の防災備蓄は何を何日分？会社・店舗向け用品比較 | 事業所防災ナビ</title>
   <meta name="description" content="会社、店舗、保育園、介護施設、飲食店の防災備蓄を、人数と待機日数から確認。地震、台風、停電、断水に備える簡易トイレ、保存水、非常食、ポータブル電源を比較できます。">
-  
+
   <link rel="canonical" href="https://jigyousho-bousai.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="事業所防災ナビ">
@@ -256,6 +256,39 @@
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
     .checklist li{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:11px 14px 11px 38px;position:relative;font-size:14.5px}
     .checklist li::before{content:"✓";position:absolute;left:14px;top:10px;color:var(--accent-deep);font-weight:900}
+    .stockpile-tool{padding:0;border:1px solid var(--rule-2);background:var(--card)}
+    .stockpile-tool-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;padding:22px 24px;border-bottom:1px solid var(--rule);background:var(--teal-soft)}
+    .stockpile-tool-head p{margin:0;color:var(--ink-2)}
+    .check-progress{display:grid;gap:4px;min-width:170px;text-align:right}
+    .check-progress strong{font-family:var(--font-display);font-size:25px;color:var(--main)}
+    .check-progress span{font-size:12px;color:var(--muted)}
+    .checklist-groups{display:grid;grid-template-columns:1fr 1fr}
+    .checklist-group{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .checklist-group:nth-child(odd){border-right:1px solid var(--rule)}
+    .checklist-group h2{font-size:21px;margin-bottom:12px}
+    .checklist-group p{margin:0 0 12px;color:var(--muted);font-size:13px}
+    .checklist-rows{display:grid;gap:0;border-top:1px solid var(--rule)}
+    .checklist-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--rule);cursor:pointer}
+    .checklist-row input{width:19px;height:19px;margin:3px 0 0;accent-color:var(--main)}
+    .checklist-row strong,.checklist-row small{display:block}
+    .checklist-row strong{font-size:15px;color:var(--ink)}
+    .checklist-row small{margin-top:2px;color:var(--muted);font-size:12.5px;line-height:1.55}
+    .check-state{margin-top:2px;color:var(--muted);font-size:11.5px;white-space:nowrap}
+    .checklist-row:has(input:checked) strong{text-decoration:line-through;text-decoration-color:var(--rule-2);color:var(--muted)}
+    .checklist-row:has(input:checked) .check-state{color:var(--main);font-weight:700}
+    .facility-checks{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .facility-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,320px);gap:20px;align-items:end;margin-bottom:16px}
+    .facility-picker label{display:grid;gap:6px;font-weight:700}
+    .facility-select{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;background:#fff;color:var(--main);font:700 16px var(--font-body)}
+    .facility-panel{border-top:1px solid var(--rule)}
+    .checklist-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:20px 24px}
+    .checklist-actions .notice{margin:0 0 0 auto;max-width:420px}
+    .checklist-use{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .checklist-use div{padding:18px;border-left:1px solid var(--rule)}
+    .checklist-use div:first-child{border-left:0}
+    .checklist-use strong,.checklist-use span{display:block}
+    .checklist-use strong{color:var(--main);font-size:16px;margin-bottom:4px}
+    .checklist-use span{color:var(--muted);font-size:13px}
     .steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}
     .steps li{counter-increment:step;padding:12px 14px 12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 4px 4px 0;font-size:14.5px}
     .steps li::before{content:counter(step) ".";font-family:var(--font-display);font-weight:700;color:var(--accent-deep);margin-right:8px}
@@ -455,6 +488,18 @@
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
+      .stockpile-tool-head{grid-template-columns:1fr;align-items:start;padding:18px}
+      .check-progress{text-align:left;min-width:0}
+      .checklist-groups{grid-template-columns:1fr}
+      .checklist-group,.checklist-group:nth-child(odd){padding:18px;border-right:0}
+      .facility-checks{padding:18px}
+      .facility-picker{grid-template-columns:1fr}
+      .checklist-actions{display:grid;padding:18px}
+      .checklist-actions .button{width:100%;justify-content:center;text-align:center}
+      .checklist-actions .notice{margin:0}
+      .checklist-use{grid-template-columns:1fr}
+      .checklist-use div,.checklist-use div:first-child{border-left:0}
+      .checklist-use div+div{border-top:1px solid var(--rule)}
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
@@ -485,6 +530,27 @@
       .button,.small-button{width:100%;justify-content:center;line-height:1.45}
       .showcase-card em{white-space:normal}
     }
+    @media print{
+      @page{size:A4;margin:12mm}
+      body{background:#fff;font-size:11pt;line-height:1.55}
+      body::before,body::after,.site-head,.affiliate-disclosure,.breadcrumb,.hero-actions,.jump-nav,.share-bar,.site-footer,.checklist-actions,.print-hide{display:none!important}
+      main{max-width:none;padding:0}
+      .hero{padding:0 0 12px}
+      .hero h1{font-size:23pt}
+      .lead{font-size:11pt}
+      .section{margin-top:16px}
+      .card,.stockpile-tool,.checklist-use{box-shadow:none;background:#fff}
+      .stockpile-tool-head,.checklist-group,.facility-checks{padding:10px 12px}
+      .checklist-groups{grid-template-columns:1fr 1fr}
+      .checklist-group{break-inside:avoid}
+      .checklist-row{padding:7px 0;break-inside:avoid}
+      .checklist-row input{appearance:none;border:1px solid #555;width:14px;height:14px}
+      .checklist-row input:checked::after{content:"✓";display:block;font-size:12px;line-height:12px;text-align:center}
+      .check-state{display:none}
+      .facility-panel[hidden]{display:none!important}
+      .source-references,.faq{break-before:page}
+      a{color:#000;text-decoration:none}
+    }
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#disasters">災害別</a><a href="https://jigyousho-bousai.com/#categories">カテゴリ</a><a href="https://jigyousho-bousai.com/#quantity">人数別目安</a><a href="https://jigyousho-bousai.com/#popular">よく使う比較</a></nav></header><p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p><section class="home-hero">
@@ -505,7 +571,7 @@
     <div class="hero-stats" aria-label="掲載情報">
       <span><strong>11</strong>比較ページ</span>
       <span><strong>132</strong>商品候補</span>
-      <span><strong>2026/7/27</strong>情報更新</span>
+      <span><strong>2026/8/3</strong>情報更新</span>
     </div>
   </div>
   <aside class="hero-shopping" aria-label="よく比較される備蓄候補">
@@ -514,9 +580,9 @@
   <img src="https://thumbnail.image.rakuten.co.jp/@0_mall/pro-bousai/cabinet/b1031/hinanset_main_y.jpg" alt="1人用 防災セット" loading="lazy">
   <span>1人用 防災セット</span>
   <em>楽天で価格を見る</em>
-</a><a class="showcase-card" href="https://hb.afl.rakuten.co.jp/hgc/g00u1i9n.oroxz03e.g00u1i9n.oroy0bf0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fofficetrust%2Fsk6773%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fofficetrust%2Fi%2F10009169%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="officetrust:10009169" data-product-name="120回分 トイレ用凝固剤" data-product-price="11880" data-product-category="トップ" data-product-position="2" data-variable-price="false">
-  <img src="https://thumbnail.image.rakuten.co.jp/@0_mall/officetrust/cabinet/life/life09/sk6773_1.jpg" alt="120回分 トイレ用凝固剤" loading="lazy">
-  <span>120回分 トイレ用凝固剤</span>
+</a><a class="showcase-card" href="https://hb.afl.rakuten.co.jp/hgc/g00u1i9n.oroxz03e.g00u1i9n.oroy0bf0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fofficetrust%2Fsk6773%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fofficetrust%2Fi%2F10009169%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="officetrust:10009169" data-product-name="120回分 非常用トイレ" data-product-price="11880" data-product-category="トップ" data-product-position="2" data-variable-price="false">
+  <img src="https://thumbnail.image.rakuten.co.jp/@0_mall/officetrust/cabinet/life/life09/sk6773_1.jpg" alt="120回分 非常用トイレ" loading="lazy">
+  <span>120回分 非常用トイレ</span>
   <em>楽天で価格を見る</em>
 </a><a class="showcase-card" href="https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="jackery-japan:10000025" data-product-name="Jackery 1070Wh 1500W ポータブル電源" data-product-price="119800" data-product-category="トップ" data-product-position="3" data-variable-price="false">
   <img src="https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg" alt="Jackery 1070Wh 1500W ポータブル電源" loading="lazy">
@@ -614,7 +680,7 @@
         <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="https://jigyousho-bousai.com/pages/office-bichiku.html" href="https://jigyousho-bousai.com/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
       </div>
     </div>
-    
+
   </section>
 
 <section class="section source-references" aria-labelledby="public-sources-title">
@@ -632,7 +698,7 @@
     <a id="帰宅困難者" class="chip active" href="https://jigyousho-bousai.com/topics/commuter-stranding.html">帰宅困難者</a>
   </div>
 </section>
-<section class="section" id="popular"><h2>迷ったらここから見る</h2><div class="grid"><article class="card popular-card"><p class="pill orange">まず見るべき比較</p><h3><a href="https://jigyousho-bousai.com/pages/office-bichiku.html">小規模オフィス向け防災備蓄</a></h3><p class="notice">比較候補: 12件</p></article><article class="card popular-card"><p class="pill orange">トイレ不足を防ぐ</p><h3><a href="https://jigyousho-bousai.com/pages/toilet-office.html">事業所向け簡易トイレ</a></h3><p class="notice">比較候補: 12件</p></article><article class="card popular-card"><p class="pill orange">停電に備える</p><h3><a href="https://jigyousho-bousai.com/pages/blackout-power.html">停電対策用品比較</a></h3><p class="notice">比較候補: 12件</p></article></div></section>
+<section class="section" id="popular"><h2>迷ったらここから見る</h2><div class="grid"><article class="card popular-card"><p class="pill orange">まず見るべき比較</p><h3><a href="https://jigyousho-bousai.com/pages/office-bichiku.html">小規模オフィス向け防災備蓄</a></h3><p class="notice">比較候補: 12件</p></article><article class="card popular-card"><p class="pill orange">トイレ不足を防ぐ</p><h3><a href="https://jigyousho-bousai.com/pages/toilet-office.html">事業所向け簡易トイレ</a></h3><p class="notice">比較候補: 12件</p></article><article class="card popular-card"><p class="pill orange">停電に備える</p><h3><a href="https://jigyousho-bousai.com/pages/blackout-power.html">停電対策用品比較</a></h3><p class="notice">比較候補: 12件</p></article><article class="card popular-card"><p class="pill orange">備蓄量を点検</p><h3><a href="https://jigyousho-bousai.com/pages/bcp-stockpile-checklist.html">事業所防災備蓄チェックリスト</a></h3><p class="notice">人数計算・印刷・CSV</p></article></div></section>
 <section class="section" id="categories"><div class="section-title"><div><h2>用途・災害・施設別に探す</h2></div><p class="notice">検索窓で絞り込みできます</p></div><div class="grid"><article class="card category-card" data-search-card>
     <div class="chip-row"><span class="chip">地震</span><span class="chip">台風</span></div>
     <h3><a href="https://jigyousho-bousai.com/pages/office-bichiku.html">小規模オフィス向け防災備蓄</a></h3>
@@ -697,11 +763,11 @@
     <div class="chip-row"><span class="chip">BCP</span><span class="chip">備蓄</span></div>
     <h3><a href="https://jigyousho-bousai.com/pages/bcp-stockpile-checklist.html">事業所防災備蓄チェックリスト</a></h3>
     <p>水・食料・トイレ・電源をまとめて点検。</p>
-    <p class="count">比較候補: 12件</p>
+    <p class="count">人数計算・印刷・CSV</p>
   </article></div></section>
 <section class="section faq home-faq"><h2>事業所の防災備蓄でよくある質問</h2><details><summary>会社の防災備蓄は何日分から考えればよいですか？</summary><p>まずは従業員、来客、施設利用者を含む最大人数を出し、待機を想定する日数を決めます。水は1人1日3L、食料は1人1日3食を一つの目安にし、保管場所や期限管理も含めて調整してください。</p></details><details><summary>事業所の簡易トイレは何回分を見ればよいですか？</summary><p>1人1日5回を目安に、人数と待機日数を掛けて確認します。職員だけでなく、来客や利用者が残る可能性も含め、防臭袋、凝固剤、保管場所も確認してください。</p></details><details><summary>停電対策でポータブル電源を選ぶときの注意点は？</summary><p>容量だけでなく、同時に使う機器の消費電力、必要な出力、充電方法を確認します。医療機器や介護機器への利用は、機器メーカーや施設管理者へ適合を確認してください。</p></details></section>
 <section class="section card final-note"><h2>購入前の確認</h2><p>商品名だけではなく、人数、待機日数、用途、容量、回数、保存年数、レビュー件数を合わせて確認してください。条件に合うものが見つからない場合は、用途が近い備蓄品もあわせて確認してください。</p><p>価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。価格・在庫・レビューは変動するため、購入前にリンク先で最新情報を確認してください。</p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/","inLanguage":"ja","potentialAction":{"@type":"SearchAction","target":"https://jigyousho-bousai.com/?q={search_term_string}#categories","query-input":"required name=search_term_string"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"事業所の防災備蓄は何を何日分？会社・店舗向け用品比較","description":"会社、店舗、保育園、介護施設、飲食店の防災備蓄を、人数と待機日数から確認。地震、台風、停電、断水に備える簡易トイレ、保存水、非常食、ポータブル電源を比較できます。","url":"https://jigyousho-bousai.com/","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-26T21:48:02.663Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rqadn.oroxz678.g00rqadn.oroy076c/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpro-bousai%2Fhinanset%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpro-bousai%2Fi%2F10000008%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 防災セット"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u1i9n.oroxz03e.g00u1i9n.oroy0bf0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fofficetrust%2Fsk6773%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fofficetrust%2Fi%2F10009169%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"120回分 トイレ用凝固剤"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"Jackery 1070Wh 1500W ポータブル電源"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"1人用 防災セット","description":"1人用 防災セット。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/pro-bousai/cabinet/b1031/hinanset_main_y.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":22000,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rqadn.oroxz678.g00rqadn.oroy076c/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpro-bousai%2Fhinanset%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpro-bousai%2Fi%2F10000008%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.5,"reviewCount":1498}},{"@type":"Product","name":"120回分 トイレ用凝固剤","description":"120回分 トイレ用凝固剤。120回分。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/officetrust/cabinet/life/life09/sk6773_1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":11880,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u1i9n.oroxz03e.g00u1i9n.oroy0bf0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fofficetrust%2Fsk6773%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fofficetrust%2Fi%2F10009169%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":1}},{"@type":"Product","name":"Jackery 1070Wh 1500W ポータブル電源","description":"Jackery 1070Wh 1500W ポータブル電源。1070Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":119800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.72,"reviewCount":1939}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"会社の防災備蓄は何日分から考えればよいですか？","acceptedAnswer":{"@type":"Answer","text":"まずは従業員、来客、施設利用者を含む最大人数を出し、待機を想定する日数を決めます。水は1人1日3L、食料は1人1日3食を一つの目安にし、保管場所や期限管理も含めて調整してください。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分を見ればよいですか？","acceptedAnswer":{"@type":"Answer","text":"1人1日5回を目安に、人数と待機日数を掛けて確認します。職員だけでなく、来客や利用者が残る可能性も含め、防臭袋、凝固剤、保管場所も確認してください。"}},{"@type":"Question","name":"停電対策でポータブル電源を選ぶときの注意点は？","acceptedAnswer":{"@type":"Answer","text":"容量だけでなく、同時に使う機器の消費電力、必要な出力、充電方法を確認します。医療機器や介護機器への利用は、機器メーカーや施設管理者へ適合を確認してください。"}}]}</script><section class="share-bar" aria-label="このページを共有">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/","inLanguage":"ja","potentialAction":{"@type":"SearchAction","target":"https://jigyousho-bousai.com/?q={search_term_string}#categories","query-input":"required name=search_term_string"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"事業所の防災備蓄は何を何日分？会社・店舗向け用品比較","description":"会社、店舗、保育園、介護施設、飲食店の防災備蓄を、人数と待機日数から確認。地震、台風、停電、断水に備える簡易トイレ、保存水、非常食、ポータブル電源を比較できます。","url":"https://jigyousho-bousai.com/","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-08-02T16:47:52.098Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rqadn.oroxz678.g00rqadn.oroy076c/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpro-bousai%2Fhinanset%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpro-bousai%2Fi%2F10000008%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 防災セット"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u1i9n.oroxz03e.g00u1i9n.oroy0bf0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fofficetrust%2Fsk6773%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fofficetrust%2Fi%2F10009169%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"120回分 非常用トイレ"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"Jackery 1070Wh 1500W ポータブル電源"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"1人用 防災セット","description":"1人用 防災セット。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/pro-bousai/cabinet/b1031/hinanset_main_y.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":22000,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rqadn.oroxz678.g00rqadn.oroy076c/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpro-bousai%2Fhinanset%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpro-bousai%2Fi%2F10000008%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.5,"reviewCount":1502}},{"@type":"Product","name":"120回分 非常用トイレ","description":"120回分 非常用トイレ。120回分。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/officetrust/cabinet/life/life09/sk6773_1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":11880,"url":"https://hb.afl.rakuten.co.jp/hgc/g00u1i9n.oroxz03e.g00u1i9n.oroy0bf0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fofficetrust%2Fsk6773%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fofficetrust%2Fi%2F10009169%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":5,"reviewCount":1}},{"@type":"Product","name":"Jackery 1070Wh 1500W ポータブル電源","description":"Jackery 1070Wh 1500W ポータブル電源。1070Wh / 1500W。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/jackery-japan/cabinet/13482422/13503408/imgrc0116725813.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":119800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tgron.oroxzfcd.g00tgron.oroy0f46/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fjackery-japan%2Fn-p-10001000-bkor-jk2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fjackery-japan%2Fi%2F10000025%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.72,"reviewCount":1939}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"会社の防災備蓄は何日分から考えればよいですか？","acceptedAnswer":{"@type":"Answer","text":"まずは従業員、来客、施設利用者を含む最大人数を出し、待機を想定する日数を決めます。水は1人1日3L、食料は1人1日3食を一つの目安にし、保管場所や期限管理も含めて調整してください。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分を見ればよいですか？","acceptedAnswer":{"@type":"Answer","text":"1人1日5回を目安に、人数と待機日数を掛けて確認します。職員だけでなく、来客や利用者が残る可能性も含め、防臭袋、凝固剤、保管場所も確認してください。"}},{"@type":"Question","name":"停電対策でポータブル電源を選ぶときの注意点は？","acceptedAnswer":{"@type":"Answer","text":"容量だけでなく、同時に使う機器の消費電力、必要な出力、充電方法を確認します。医療機器や介護機器への利用は、機器メーカーや施設管理者へ適合を確認してください。"}}]}</script><section class="share-bar" aria-label="このページを共有">
     <div><strong>このページを共有</strong><span class="notice">備蓄の相談や社内での検討にそのまま使えます</span></div>
     <div class="share-buttons">
       <a href="https://twitter.com/intent/tweet?text=%E4%BA%8B%E6%A5%AD%E6%89%80%E3%81%AE%E9%98%B2%E7%81%BD%E5%82%99%E8%93%84%E3%81%AF%E4%BD%95%E3%82%92%E4%BD%95%E6%97%A5%E5%88%86%EF%BC%9F%E4%BC%9A%E7%A4%BE%E3%83%BB%E5%BA%97%E8%88%97%E5%90%91%E3%81%91%E7%94%A8%E5%93%81%E6%AF%94%E8%BC%83%20%7C%20%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E3%83%8A%E3%83%93&amp;url=https%3A%2F%2Fjigyousho-bousai.com%2F" target="_blank" rel="noopener" data-share="x">Xで共有</a>
@@ -1006,6 +1072,68 @@
           });
         });
       });
+      var stockpileTool=document.querySelector('[data-stockpile-tool]');
+      if(stockpileTool){
+        var stockpileTracked=false;
+        var stockpileChecks=Array.prototype.slice.call(stockpileTool.querySelectorAll('[data-stockpile-check]'));
+        var stockpileCount=document.getElementById('stockpileCheckedCount');
+        var stockpileTotal=document.getElementById('stockpileTotalCount');
+        function updateStockpileProgress(){
+          var activeChecks=stockpileChecks.filter(function(input){
+            var panel=input.closest('[data-facility-panel]');
+            return !panel || !panel.hidden;
+          });
+          var checked=activeChecks.filter(function(input){ return input.checked; }).length;
+          if(stockpileCount) stockpileCount.textContent=String(checked);
+          if(stockpileTotal) stockpileTotal.textContent=String(activeChecks.length);
+          stockpileChecks.forEach(function(input){
+            var state=input.closest('.checklist-row')?.querySelector('.check-state');
+            if(state) state.textContent=input.checked ? '確認済み' : '未確認';
+          });
+          return checked;
+        }
+        stockpileChecks.forEach(function(input){
+          input.addEventListener('change',function(){
+            var checked=updateStockpileProgress();
+            if(stockpileTracked) return;
+            stockpileTracked=true;
+            trackEvent('stockpile_check_use',{
+              checked_items:checked,
+              total_items:stockpileChecks.length,
+              facility_type:document.getElementById('facilityType')?.value || 'office'
+            });
+          });
+        });
+        var facilityType=document.getElementById('facilityType');
+        function showFacilityPanel(){
+          var selected=facilityType ? facilityType.value : 'office';
+          stockpileTool.querySelectorAll('[data-facility-panel]').forEach(function(panel){
+            panel.hidden=panel.dataset.facilityPanel!==selected;
+          });
+          updateStockpileProgress();
+        }
+        if(facilityType){
+          facilityType.addEventListener('change',function(){
+            showFacilityPanel();
+            trackEvent('stockpile_facility_select',{ facility_type:facilityType.value });
+          });
+        }
+        var printChecklist=stockpileTool.querySelector('[data-print-checklist]');
+        if(printChecklist){
+          printChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_print',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+            window.print();
+          });
+        }
+        var downloadChecklist=stockpileTool.querySelector('[data-download-checklist]');
+        if(downloadChecklist){
+          downloadChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_csv_download',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+          });
+        }
+        showFacilityPanel();
+        updateStockpileProgress();
+      }
       var search=document.getElementById('siteSearch');
       var searchTimer=null;
       function filterCards(value){

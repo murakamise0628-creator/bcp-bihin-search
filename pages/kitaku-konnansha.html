@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>帰宅困難者対策の備蓄品比較 | 事業所防災ナビ</title>
   <meta name="description" content="帰宅困難者対策の備蓄品比較。帰宅困難者対策は、移動用グッズよりも施設内で安全に待つための水・トイレ・防寒を優先します。 災害時にすぐ帰れない従業員・来訪者が出る場所で、待機用品を揃えるための比較ページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。">
-  
+
   <link rel="canonical" href="https://jigyousho-bousai.com/pages/kitaku-konnansha.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="事業所防災ナビ">
@@ -256,6 +256,39 @@
     .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
     .checklist li{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:11px 14px 11px 38px;position:relative;font-size:14.5px}
     .checklist li::before{content:"✓";position:absolute;left:14px;top:10px;color:var(--accent-deep);font-weight:900}
+    .stockpile-tool{padding:0;border:1px solid var(--rule-2);background:var(--card)}
+    .stockpile-tool-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;padding:22px 24px;border-bottom:1px solid var(--rule);background:var(--teal-soft)}
+    .stockpile-tool-head p{margin:0;color:var(--ink-2)}
+    .check-progress{display:grid;gap:4px;min-width:170px;text-align:right}
+    .check-progress strong{font-family:var(--font-display);font-size:25px;color:var(--main)}
+    .check-progress span{font-size:12px;color:var(--muted)}
+    .checklist-groups{display:grid;grid-template-columns:1fr 1fr}
+    .checklist-group{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .checklist-group:nth-child(odd){border-right:1px solid var(--rule)}
+    .checklist-group h2{font-size:21px;margin-bottom:12px}
+    .checklist-group p{margin:0 0 12px;color:var(--muted);font-size:13px}
+    .checklist-rows{display:grid;gap:0;border-top:1px solid var(--rule)}
+    .checklist-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--rule);cursor:pointer}
+    .checklist-row input{width:19px;height:19px;margin:3px 0 0;accent-color:var(--main)}
+    .checklist-row strong,.checklist-row small{display:block}
+    .checklist-row strong{font-size:15px;color:var(--ink)}
+    .checklist-row small{margin-top:2px;color:var(--muted);font-size:12.5px;line-height:1.55}
+    .check-state{margin-top:2px;color:var(--muted);font-size:11.5px;white-space:nowrap}
+    .checklist-row:has(input:checked) strong{text-decoration:line-through;text-decoration-color:var(--rule-2);color:var(--muted)}
+    .checklist-row:has(input:checked) .check-state{color:var(--main);font-weight:700}
+    .facility-checks{padding:22px 24px;border-bottom:1px solid var(--rule)}
+    .facility-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,320px);gap:20px;align-items:end;margin-bottom:16px}
+    .facility-picker label{display:grid;gap:6px;font-weight:700}
+    .facility-select{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;background:#fff;color:var(--main);font:700 16px var(--font-body)}
+    .facility-panel{border-top:1px solid var(--rule)}
+    .checklist-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:20px 24px}
+    .checklist-actions .notice{margin:0 0 0 auto;max-width:420px}
+    .checklist-use{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);background:var(--card)}
+    .checklist-use div{padding:18px;border-left:1px solid var(--rule)}
+    .checklist-use div:first-child{border-left:0}
+    .checklist-use strong,.checklist-use span{display:block}
+    .checklist-use strong{color:var(--main);font-size:16px;margin-bottom:4px}
+    .checklist-use span{color:var(--muted);font-size:13px}
     .steps{counter-reset:step;display:grid;gap:10px;margin:0;padding:0;list-style:none}
     .steps li{counter-increment:step;padding:12px 14px 12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 4px 4px 0;font-size:14.5px}
     .steps li::before{content:counter(step) ".";font-family:var(--font-display);font-weight:700;color:var(--accent-deep);margin-right:8px}
@@ -455,6 +488,18 @@
       .source-list{grid-template-columns:1fr}
       .two{grid-template-columns:1fr}
       .estimate-grid{grid-template-columns:1fr 1fr}
+      .stockpile-tool-head{grid-template-columns:1fr;align-items:start;padding:18px}
+      .check-progress{text-align:left;min-width:0}
+      .checklist-groups{grid-template-columns:1fr}
+      .checklist-group,.checklist-group:nth-child(odd){padding:18px;border-right:0}
+      .facility-checks{padding:18px}
+      .facility-picker{grid-template-columns:1fr}
+      .checklist-actions{display:grid;padding:18px}
+      .checklist-actions .button{width:100%;justify-content:center;text-align:center}
+      .checklist-actions .notice{margin:0}
+      .checklist-use{grid-template-columns:1fr}
+      .checklist-use div,.checklist-use div:first-child{border-left:0}
+      .checklist-use div+div{border-top:1px solid var(--rule)}
       .calc-kit-next{grid-template-columns:1fr}
       .calc-kit-next .button{width:100%;white-space:normal;text-align:center}
       .hero{padding:26px 2px 20px}
@@ -485,6 +530,27 @@
       .button,.small-button{width:100%;justify-content:center;line-height:1.45}
       .showcase-card em{white-space:normal}
     }
+    @media print{
+      @page{size:A4;margin:12mm}
+      body{background:#fff;font-size:11pt;line-height:1.55}
+      body::before,body::after,.site-head,.affiliate-disclosure,.breadcrumb,.hero-actions,.jump-nav,.share-bar,.site-footer,.checklist-actions,.print-hide{display:none!important}
+      main{max-width:none;padding:0}
+      .hero{padding:0 0 12px}
+      .hero h1{font-size:23pt}
+      .lead{font-size:11pt}
+      .section{margin-top:16px}
+      .card,.stockpile-tool,.checklist-use{box-shadow:none;background:#fff}
+      .stockpile-tool-head,.checklist-group,.facility-checks{padding:10px 12px}
+      .checklist-groups{grid-template-columns:1fr 1fr}
+      .checklist-group{break-inside:avoid}
+      .checklist-row{padding:7px 0;break-inside:avoid}
+      .checklist-row input{appearance:none;border:1px solid #555;width:14px;height:14px}
+      .checklist-row input:checked::after{content:"✓";display:block;font-size:12px;line-height:12px;text-align:center}
+      .check-state{display:none}
+      .facility-panel[hidden]{display:none!important}
+      .source-references,.faq{break-before:page}
+      a{color:#000;text-decoration:none}
+    }
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="https://jigyousho-bousai.com/">事業所防災ナビ</a><nav class="nav"><a href="https://jigyousho-bousai.com/#disasters">災害別</a><a href="https://jigyousho-bousai.com/#categories">カテゴリ</a><a href="https://jigyousho-bousai.com/#quantity">人数別目安</a><a href="https://jigyousho-bousai.com/#popular">よく使う比較</a></nav></header><p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p><nav class="breadcrumb" aria-label="パンくず"><a href="https://jigyousho-bousai.com/">ホーム</a><span>/</span><span>帰宅困難者対策の備蓄品比較</span></nav><section class="hero">
@@ -495,8 +561,8 @@
       <span class="pill navy">対象施設: 駅近オフィス・商業施設・学習塾</span>
       <span class="pill navy">想定災害: 地震・帰宅困難者・台風</span>
       <span class="pill orange">比較候補数: 12件</span>
-      
-      <span class="pill">最終更新: 2026/7/27</span>
+
+      <span class="pill">最終更新: 2026/8/3</span>
     </div>
     <div class="hero-actions">
       <a class="button orange" href="#comparison">比較候補を見る</a>
@@ -546,14 +612,14 @@
         <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="https://jigyousho-bousai.com/pages/office-bichiku.html" href="https://jigyousho-bousai.com/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
       </div>
     </div>
-    
+
   </section>
   <section class="section source-references" aria-labelledby="public-sources-title">
     <div class="section-title"><div><p class="eyebrow">公的資料</p><h2 id="public-sources-title">数量・備蓄期間を決めるときの根拠</h2></div></div>
     <p class="source-intro">3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。</p>
     <ul class="source-list"><li><a href="https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf" target="_blank" rel="noopener">事業所における帰宅困難者等対策ガイドライン</a><span>内閣府 防災情報のページ</span><small>3日分の備蓄、水1人1日3L、主食1人1日3食、毛布1人1枚などの考え方を確認できます。</small></li><li><a href="https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf" target="_blank" rel="noopener">避難所におけるトイレの確保・管理ガイドライン</a><span>内閣府 防災情報のページ</span><small>携帯・簡易トイレの備蓄日数や、使用・管理時に確認する項目を確認できます。</small></li><li><a href="https://www.bichiku.metro.tokyo.lg.jp/" target="_blank" rel="noopener">東京都防災 備蓄ナビ</a><span>東京都</span><small>人数や条件から備蓄品と数量を考えるための公的な案内です。</small></li></ul>
   </section>
-  
+
   <section class="section" id="comparison">
     <div class="section-title"><div><p class="eyebrow">比較表</p><h2>価格・レビュー・用途を横並びで確認</h2></div><p class="notice">スマホでは横にスクロールできます</p></div>
     <div class="plan-summary" id="planSummary" hidden><span>今回の目安</span><strong id="planSummaryText"></strong><small>商品ごとの容量・回数と照らして確認してください。</small></div>
@@ -571,17 +637,17 @@
     <td>1人用表記</td>
     <td>事業所・施設</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00qd5cn.oroxz15d.g00qd5cn.oroy0dce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fnayami-kaiketu%2Fnsns002%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fnayami-kaiketu%2Fi%2F10000630%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="nayami-kaiketu:10000630" data-product-name="1人用 防災セット" data-product-price="15800" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="1" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="6480">
+  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="6965">
     <td class="table-product">1人用 5年保存 非常食</td>
     <td>条件が読み取りやすい候補</td>
-    <td>6,480円</td>
+    <td>6,965円</td>
     <td>4.57</td>
     <td>268</td>
     <td>5年</td>
     <td>5年保存</td>
     <td>1人用表記</td>
     <td>事業所・施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6965" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="peaceup:10001144" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="467">
     <td class="table-product">4個 防寒用品</td>
     <td>条件が読み取りやすい候補</td>
@@ -594,7 +660,7 @@
     <td>駅近オフィス・商業施設・学習塾</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001144%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10001144%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10001144" data-product-name="4個 防寒用品" data-product-price="467" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="peaceup:10009484" data-fit-tier="preferred" data-toilet-uses="5" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="479">
-    <td class="table-product">5回分 非常用トイレ</td>
+    <td class="table-product">5回分 トイレ用袋</td>
     <td>条件が読み取りやすい候補</td>
     <td>479円</td>
     <td>4.49</td>
@@ -603,7 +669,7 @@
     <td>5回分</td>
     <td>約1人1日分の目安</td>
     <td>店舗・オフィス</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>凝固剤が別途必要<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10009484" data-product-name="5回分 非常用トイレ" data-product-price="479" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>凝固剤が別途必要<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・容量または回数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10009484" data-product-name="5回分 トイレ用袋" data-product-price="479" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="peaceup:10005182" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="379">
     <td class="table-product">3L 給水用品</td>
     <td>条件が読み取りやすい候補</td>
@@ -637,17 +703,17 @@
     <td>50人用表記</td>
     <td>事業所・施設</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>レビューが少ないため仕様確認<br><span class="notice">根拠: 価格・事業所用途との一致度・商品説明の明確さ</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F9-9-bako-50%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000049%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="bousaiya-life:10000049" data-product-name="50人用 衛生用品" data-product-price="69800" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="7" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000522" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="22000">
+  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000522" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="24860">
     <td class="table-product">1人用 5年保存 防災セット</td>
     <td>条件が読み取りやすい候補</td>
-    <td>22,000円</td>
+    <td>24,860円</td>
     <td>4.57</td>
     <td>604</td>
     <td>5年</td>
     <td>5年保存</td>
     <td>1人用表記</td>
     <td>事業所・施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-03-007%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000522%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000522" data-product-name="1人用 5年保存 防災セット" data-product-price="22000" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="8" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>購入前に最新条件を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-03-007%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000522%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000522" data-product-name="1人用 5年保存 防災セット" data-product-price="24860" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="8" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr><tr data-product-fit="true" data-product-key="peaceup:10016016" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="2" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="25960">
     <td class="table-product">2人用 防災セット</td>
     <td>条件が読み取りやすい候補</td>
@@ -659,39 +725,39 @@
     <td>2人用表記</td>
     <td>店舗・オフィス</td>
     <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>凝固剤・処理袋・防臭袋の数を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001178%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10016016%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10016016" data-product-name="2人用 防災セット" data-product-price="25960" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="9" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="peaceup:10009491" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="4" data-power-wh="" data-output-w="" data-unit-price="5780">
-    <td class="table-product">5年保存 12食 非常食</td>
-    <td>条件が読み取りやすい候補</td>
-    <td>5,780円</td>
-    <td>4.67</td>
-    <td>297</td>
-    <td>5年</td>
-    <td>5年保存</td>
-    <td>約4人1日分の目安</td>
-    <td>介護施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009491%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009491%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10009491" data-product-name="5年保存 12食 非常食" data-product-price="5780" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="10" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10001325" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="7316">
+  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10001325" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="9055">
     <td class="table-product">5年保存 21食 非常食</td>
     <td>条件が読み取りやすい候補</td>
-    <td>7,316円</td>
+    <td>9,055円</td>
     <td>4.69</td>
     <td>198</td>
     <td>5年</td>
     <td>5年保存</td>
     <td>約7人1日分の目安</td>
     <td>事業所・施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10001325" data-product-name="5年保存 21食 非常食" data-product-price="7316" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="11" data-variable-price="false">楽天で数量・価格を確認</a></td>
-  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000872" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="5184">
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10001325" data-product-name="5年保存 21食 非常食" data-product-price="9055" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="10" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000872" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="5571">
     <td class="table-product">非常食</td>
     <td>条件が読み取りやすい候補</td>
-    <td>5,184円</td>
+    <td>5,571円</td>
     <td>4.83</td>
     <td>12</td>
     <td>要確認</td>
     <td>商品ページで確認</td>
     <td>人数入力で確認</td>
     <td>事業所・施設</td>
-    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-007%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000872%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000872" data-product-name="非常食" data-product-price="5184" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="12" data-variable-price="false">楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・事業所用途との一致度</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-007%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000872%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000872" data-product-name="非常食" data-product-price="5571" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="11" data-variable-price="false">楽天で数量・価格を確認</a></td>
+  </tr><tr data-product-fit="true" data-product-key="peaceup:10010366" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="7" data-power-wh="" data-output-w="" data-unit-price="8870">
+    <td class="table-product">8年保存 21食 非常食</td>
+    <td>条件が読み取りやすい候補</td>
+    <td>8,870円</td>
+    <td>4.58</td>
+    <td>24</td>
+    <td>8年</td>
+    <td>8年保存</td>
+    <td>約7人1日分の目安</td>
+    <td>事業所・施設</td>
+    <td><strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong><br>アレルギーと期限を確認<br><span class="notice">根拠: 価格・レビュー点数・レビュー件数・保存年数</span><br><a class="small-button" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10010366" data-product-name="8年保存 21食 非常食" data-product-price="8870" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="12" data-variable-price="false">楽天で数量・価格を確認</a></td>
   </tr></tbody>
       </table>
     </div>
@@ -701,7 +767,7 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>1人用 防災セット</h2>
-      
+
       <p class="summary">1人用表記・備蓄日数は要確認。セット内訳は要確認です。人数と待機日数に対する数量を確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">15,800円</p>
@@ -718,15 +784,15 @@
       </div>
       <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00qd5cn.oroxz15d.g00qd5cn.oroy0dce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fnayami-kaiketu%2Fnsns002%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fnayami-kaiketu%2Fi%2F10000630%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="nayami-kaiketu:10000630" data-product-name="1人用 防災セット" data-product-price="15800" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="1" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
-  </article><article class="card product" data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="6480">
+  </article><article class="card product" data-product-fit="true" data-product-key="saigaitaisakuhonpo:10000260" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="1" data-stock-days="3" data-power-wh="" data-output-w="" data-unit-price="6965">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/00869187/variety10_top_202602.gif" alt="1人用 5年保存 非常食" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>1人用 5年保存 非常食</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
-      <p class="price">6,480円</p>
+      <p class="price">6,965円</p>
       <div class="facts">
         <span class="fact">レビュー 4.57</span>
         <span class="fact">件数 268</span>
@@ -738,14 +804,14 @@
         <div><span>注意点</span><strong>アレルギーと期限を確認</strong></div>
         <div><span>向いている施設</span><strong>事業所・施設</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6480" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="saigaitaisakuhonpo:10000260" data-product-name="1人用 5年保存 非常食" data-product-price="6965" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="2" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
   </article><article class="card product" data-product-fit="true" data-product-key="peaceup:10001144" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="467">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001144-01r.jpg" alt="4個 防寒用品" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>4個 防寒用品</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">467円</p>
@@ -763,11 +829,11 @@
       <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001144%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10001144%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10001144" data-product-name="4個 防寒用品" data-product-price="467" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="3" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
   </article><article class="card product" data-product-fit="true" data-product-key="peaceup:10009484" data-fit-tier="preferred" data-toilet-uses="5" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="479">
-    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10009484-01.jpg" alt="5回分 非常用トイレ" loading="lazy">
+    <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10009484-01.jpg" alt="5回分 トイレ用袋" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
-      <h2>5回分 非常用トイレ</h2>
-      
+      <h2>5回分 トイレ用袋</h2>
+
       <p class="summary">5回分相当の袋用品です。凝固剤が別途必要か確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">479円</p>
@@ -782,14 +848,14 @@
         <div><span>注意点</span><strong>凝固剤が別途必要</strong></div>
         <div><span>向いている施設</span><strong>店舗・オフィス</strong></div>
       </div>
-      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10009484" data-product-name="5回分 非常用トイレ" data-product-price="479" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認する</a>
+      <a class="button orange" href="https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&amp;m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&amp;rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3" target="_blank" rel="nofollow sponsored noopener" data-product-id="peaceup:10009484" data-product-name="5回分 トイレ用袋" data-product-price="479" data-product-category="帰宅困難者対策の備蓄品比較" data-product-position="4" data-variable-price="false">楽天で数量・価格を確認する</a>
     </div>
   </article><article class="card product" data-product-fit="true" data-product-key="peaceup:10005182" data-fit-tier="preferred" data-toilet-uses="" data-people-capacity="" data-stock-days="" data-power-wh="" data-output-w="" data-unit-price="379">
     <img class="product-img" src="https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/82101-01.jpg" alt="3L 給水用品" loading="lazy">
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>3L 給水用品</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">379円</p>
@@ -811,7 +877,7 @@
     <div>
       <p class="pill navy">条件が読み取りやすい候補</p>
       <h2>5年保存 保存水</h2>
-      
+
       <p class="summary">容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。</p>
       <strong class="fit-result" data-fit-result>条件が読み取りやすい候補</strong>
       <p class="price">4,370円</p>
@@ -833,7 +899,7 @@
   <section class="section card"><h2>注意点</h2><p>価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
   <section class="section faq" id="faq"><h2>FAQ</h2><details><summary>帰宅困難者対策で不足しやすいものは？</summary><p>簡易トイレ、防寒用品、スマホ充電、飲料水が不足しやすいです。</p></details><details><summary>来客分も必要ですか？</summary><p>店舗や教室など来客がある場所では、従業員分だけでなく最大滞在人数を目安に考えると安全です。</p></details><details><summary>会社の防災備蓄は何日分必要ですか？</summary><p>まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。</p></details><details><summary>事業所の簡易トイレは何回分必要ですか？</summary><p>目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。</p></details><details><summary>台風対策と地震対策で備えるものは違いますか？</summary><p>共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。</p></details></section>
   <section class="section"><div class="section-title"><h2>関連ページ</h2><p class="notice">災害別・施設別に続けて確認</p></div><div class="link-list"><a href="https://jigyousho-bousai.com/pages/office-bichiku.html">小規模オフィス向け防災備蓄セット比較</a><a href="https://jigyousho-bousai.com/pages/toilet-office.html">事業所向け簡易トイレ比較</a><a href="https://jigyousho-bousai.com/pages/portable-power-kaigo.html">介護施設向けポータブル電源比較</a></div></section>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"帰宅困難者対策の備蓄品比較","description":"帰宅困難者対策の備蓄品比較。帰宅困難者対策は、移動用グッズよりも施設内で安全に待つための水・トイレ・防寒を優先します。 災害時にすぐ帰れない従業員・来訪者が出る場所で、待機用品を揃えるための比較ページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/kitaku-konnansha.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-07-26T21:48:02.663Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"帰宅困難者対策の備蓄品比較","item":"https://jigyousho-bousai.com/pages/kitaku-konnansha.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"帰宅困難者対策で不足しやすいものは？","acceptedAnswer":{"@type":"Answer","text":"簡易トイレ、防寒用品、スマホ充電、飲料水が不足しやすいです。"}},{"@type":"Question","name":"来客分も必要ですか？","acceptedAnswer":{"@type":"Answer","text":"店舗や教室など来客がある場所では、従業員分だけでなく最大滞在人数を目安に考えると安全です。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/kitaku-konnansha.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qd5cn.oroxz15d.g00qd5cn.oroy0dce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fnayami-kaiketu%2Fnsns002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fnayami-kaiketu%2Fi%2F10000630%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 防災セット"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 5年保存 非常食"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001144%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10001144%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"4個 防寒用品"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5回分 非常用トイレ"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F82101%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10005182%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"3L 給水用品"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uohmn.oroxz955.g00uohmn.oroy0462/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsforest%2Flbs-newark3-1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsforest%2Fi%2F10000269%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 保存水"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F9-9-bako-50%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000049%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"50人用 衛生用品"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-03-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000522%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 5年保存 防災セット"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001178%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10016016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"2人用 防災セット"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009491%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009491%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 12食 非常食"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 21食 非常食"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000872%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"非常食"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"1人用 防災セット","description":"1人用 防災セット。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/nayami-kaiketu/cabinet/02887876/06944001/imgrc0110266216.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":15800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qd5cn.oroxz15d.g00qd5cn.oroy0dce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fnayami-kaiketu%2Fnsns002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fnayami-kaiketu%2Fi%2F10000630%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.6,"reviewCount":3227}},{"@type":"Product","name":"1人用 5年保存 非常食","description":"1人用 5年保存 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/00869187/variety10_top_202602.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":6480,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.57,"reviewCount":268}},{"@type":"Product","name":"4個 防寒用品","description":"4個 防寒用品。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001144-01r.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":467,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001144%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10001144%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":276}},{"@type":"Product","name":"5回分 非常用トイレ","description":"5回分 非常用トイレ。5回分。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10009484-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":479,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.49,"reviewCount":117}},{"@type":"Product","name":"3L 給水用品","description":"3L 給水用品。3L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/82101-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":379,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F82101%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10005182%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.62,"reviewCount":26}},{"@type":"Product","name":"5年保存 保存水","description":"5年保存 保存水。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/sforest/cabinet/shohin01/lbs-newark3/newark3-m1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":4370,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uohmn.oroxz955.g00uohmn.oroy0462/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsforest%2Flbs-newark3-1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsforest%2Fi%2F10000269%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"}},{"@type":"Product","name":"50人用 衛生用品","description":"50人用 衛生用品。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/1bn176.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":69800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F9-9-bako-50%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000049%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"}},{"@type":"Product","name":"1人用 5年保存 防災セット","description":"1人用 5年保存 防災セット。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/mainset/08120891/main2021_top_1.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":22000,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-03-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000522%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.57,"reviewCount":604}},{"@type":"Product","name":"2人用 防災セット","description":"2人用 防災セット。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/bousai-set/bousai24-itg/10001178-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":25960,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001178%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10016016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.62,"reviewCount":250}},{"@type":"Product","name":"5年保存 12食 非常食","description":"5年保存 12食 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10009491-01r.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":5780,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009491%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009491%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.67,"reviewCount":297}},{"@type":"Product","name":"5年保存 21食 非常食","description":"5年保存 21食 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/7daysbasic/imgrc0137101952.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":7316,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.69,"reviewCount":198}},{"@type":"Product","name":"非常食","description":"非常食。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/minimum3/08-02-007_wh.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":5184,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000872%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.83,"reviewCount":12}}]}</script><section class="share-bar" aria-label="このページを共有">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"帰宅困難者対策の備蓄品比較","description":"帰宅困難者対策の備蓄品比較。帰宅困難者対策は、移動用グッズよりも施設内で安全に待つための水・トイレ・防寒を優先します。 災害時にすぐ帰れない従業員・来訪者が出る場所で、待機用品を揃えるための比較ページです。 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。","url":"https://jigyousho-bousai.com/pages/kitaku-konnansha.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":["https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf","https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf","https://www.bichiku.metro.tokyo.lg.jp/"],"inLanguage":"ja","dateModified":"2026-08-02T16:47:52.098Z"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"ホーム","item":"https://jigyousho-bousai.com/"},{"@type":"ListItem","position":2,"name":"帰宅困難者対策の備蓄品比較","item":"https://jigyousho-bousai.com/pages/kitaku-konnansha.html"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"帰宅困難者対策で不足しやすいものは？","acceptedAnswer":{"@type":"Answer","text":"簡易トイレ、防寒用品、スマホ充電、飲料水が不足しやすいです。"}},{"@type":"Question","name":"来客分も必要ですか？","acceptedAnswer":{"@type":"Answer","text":"店舗や教室など来客がある場所では、従業員分だけでなく最大滞在人数を目安に考えると安全です。"}},{"@type":"Question","name":"会社の防災備蓄は何日分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"まず3日分を出発点にします。水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回を目安に人数分を確認し、地域や施設条件に応じて日数を増やします。"}},{"@type":"Question","name":"事業所の簡易トイレは何回分必要ですか？","acceptedAnswer":{"@type":"Answer","text":"目安として1人1日5回で計算します。従業員、来客、利用者がいる場合は上乗せして考えます。"}},{"@type":"Question","name":"台風対策と地震対策で備えるものは違いますか？","acceptedAnswer":{"@type":"Answer","text":"共通する備蓄もありますが、台風では停電や交通停止、地震では断水や帰宅困難者対策を特に確認します。"}}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"比較候補","url":"https://jigyousho-bousai.com/pages/kitaku-konnansha.html","itemListElement":[{"@type":"ListItem","position":1,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qd5cn.oroxz15d.g00qd5cn.oroy0dce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fnayami-kaiketu%2Fnsns002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fnayami-kaiketu%2Fi%2F10000630%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 防災セット"},{"@type":"ListItem","position":2,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 5年保存 非常食"},{"@type":"ListItem","position":3,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001144%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10001144%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"4個 防寒用品"},{"@type":"ListItem","position":4,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5回分 トイレ用袋"},{"@type":"ListItem","position":5,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F82101%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10005182%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"3L 給水用品"},{"@type":"ListItem","position":6,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uohmn.oroxz955.g00uohmn.oroy0462/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsforest%2Flbs-newark3-1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsforest%2Fi%2F10000269%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 保存水"},{"@type":"ListItem","position":7,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F9-9-bako-50%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000049%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"50人用 衛生用品"},{"@type":"ListItem","position":8,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-03-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000522%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"1人用 5年保存 防災セット"},{"@type":"ListItem","position":9,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001178%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10016016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"2人用 防災セット"},{"@type":"ListItem","position":10,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"5年保存 21食 非常食"},{"@type":"ListItem","position":11,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000872%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"非常食"},{"@type":"ListItem","position":12,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","name":"8年保存 21食 非常食"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product","name":"1人用 防災セット","description":"1人用 防災セット。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/nayami-kaiketu/cabinet/02887876/06944001/imgrc0110266216.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":15800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00qd5cn.oroxz15d.g00qd5cn.oroy0dce/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fnayami-kaiketu%2Fnsns002%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fnayami-kaiketu%2Fi%2F10000630%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.6,"reviewCount":3227}},{"@type":"Product","name":"1人用 5年保存 非常食","description":"1人用 5年保存 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/00869187/variety10_top_202602.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":6965,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-005%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000260%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.57,"reviewCount":268}},{"@type":"Product","name":"4個 防寒用品","description":"4個 防寒用品。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10001144-01r.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":467,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001144%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10001144%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":276}},{"@type":"Product","name":"5回分 トイレ用袋","description":"5回分 トイレ用袋。5回分。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail2/10009484-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":479,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10009484%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10009484%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.49,"reviewCount":117}},{"@type":"Product","name":"3L 給水用品","description":"3L 給水用品。3L。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/82101-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":379,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F82101%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10005182%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.62,"reviewCount":26}},{"@type":"Product","name":"5年保存 保存水","description":"5年保存 保存水。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/sforest/cabinet/shohin01/lbs-newark3/newark3-m1.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":4370,"url":"https://hb.afl.rakuten.co.jp/hgc/g00uohmn.oroxz955.g00uohmn.oroy0462/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsforest%2Flbs-newark3-1%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsforest%2Fi%2F10000269%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"}},{"@type":"Product","name":"50人用 衛生用品","description":"50人用 衛生用品。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/bousaiya-life/cabinet/1bn176.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":69800,"url":"https://hb.afl.rakuten.co.jp/hgc/g00tf0fn.oroxzdea.g00tf0fn.oroy0e5d/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbousaiya-life%2F9-9-bako-50%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fbousaiya-life%2Fi%2F10000049%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"}},{"@type":"Product","name":"1人用 5年保存 防災セット","description":"1人用 5年保存 防災セット。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/mainset/08120891/main2021_top_1.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":24860,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-03-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000522%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.57,"reviewCount":604}},{"@type":"Product","name":"2人用 防災セット","description":"2人用 防災セット。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/bousai-set/bousai24-itg/10001178-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":25960,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10001178%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10016016%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.62,"reviewCount":250}},{"@type":"Product","name":"5年保存 21食 非常食","description":"5年保存 21食 非常食。5年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/7daysbasic/imgrc0137101952.gif","offers":{"@type":"Offer","priceCurrency":"JPY","price":9055,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F14-06-008%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10001325%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.69,"reviewCount":198}},{"@type":"Product","name":"非常食","description":"非常食。商品ページで確認。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/saigaitaisakuhonpo/cabinet/minimum3/08-02-007_wh.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":5571,"url":"https://hb.afl.rakuten.co.jp/hgc/g00q5oen.oroxz422.g00q5oen.oroy0212/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fsaigaitaisakuhonpo%2F08-02-007%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fsaigaitaisakuhonpo%2Fi%2F10000872%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.83,"reviewCount":12}},{"@type":"Product","name":"8年保存 21食 非常食","description":"8年保存 21食 非常食。8年保存。価格、在庫、仕様は販売ページで最新情報を確認してください。","image":"https://thumbnail.image.rakuten.co.jp/@0_mall/peaceup/cabinet/items-thumbnail/10008161-01.jpg","offers":{"@type":"Offer","priceCurrency":"JPY","price":8870,"url":"https://hb.afl.rakuten.co.jp/hgc/g00rk7on.oroxz86d.g00rk7on.oroy0e00/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpeaceup%2F10008161%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpeaceup%2Fi%2F10010366%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.58,"reviewCount":24}}]}</script><section class="share-bar" aria-label="このページを共有">
     <div><strong>このページを共有</strong><span class="notice">備蓄の相談や社内での検討にそのまま使えます</span></div>
     <div class="share-buttons">
       <a href="https://twitter.com/intent/tweet?text=%E5%B8%B0%E5%AE%85%E5%9B%B0%E9%9B%A3%E8%80%85%E5%AF%BE%E7%AD%96%E3%81%AE%E5%82%99%E8%93%84%E5%93%81%E6%AF%94%E8%BC%83%20%7C%20%E4%BA%8B%E6%A5%AD%E6%89%80%E9%98%B2%E7%81%BD%E3%83%8A%E3%83%93&amp;url=https%3A%2F%2Fjigyousho-bousai.com%2Fpages%2Fkitaku-konnansha.html" target="_blank" rel="noopener" data-share="x">Xで共有</a>
@@ -1138,6 +1204,68 @@
           });
         });
       });
+      var stockpileTool=document.querySelector('[data-stockpile-tool]');
+      if(stockpileTool){
+        var stockpileTracked=false;
+        var stockpileChecks=Array.prototype.slice.call(stockpileTool.querySelectorAll('[data-stockpile-check]'));
+        var stockpileCount=document.getElementById('stockpileCheckedCount');
+        var stockpileTotal=document.getElementById('stockpileTotalCount');
+        function updateStockpileProgress(){
+          var activeChecks=stockpileChecks.filter(function(input){
+            var panel=input.closest('[data-facility-panel]');
+            return !panel || !panel.hidden;
+          });
+          var checked=activeChecks.filter(function(input){ return input.checked; }).length;
+          if(stockpileCount) stockpileCount.textContent=String(checked);
+          if(stockpileTotal) stockpileTotal.textContent=String(activeChecks.length);
+          stockpileChecks.forEach(function(input){
+            var state=input.closest('.checklist-row')?.querySelector('.check-state');
+            if(state) state.textContent=input.checked ? '確認済み' : '未確認';
+          });
+          return checked;
+        }
+        stockpileChecks.forEach(function(input){
+          input.addEventListener('change',function(){
+            var checked=updateStockpileProgress();
+            if(stockpileTracked) return;
+            stockpileTracked=true;
+            trackEvent('stockpile_check_use',{
+              checked_items:checked,
+              total_items:stockpileChecks.length,
+              facility_type:document.getElementById('facilityType')?.value || 'office'
+            });
+          });
+        });
+        var facilityType=document.getElementById('facilityType');
+        function showFacilityPanel(){
+          var selected=facilityType ? facilityType.value : 'office';
+          stockpileTool.querySelectorAll('[data-facility-panel]').forEach(function(panel){
+            panel.hidden=panel.dataset.facilityPanel!==selected;
+          });
+          updateStockpileProgress();
+        }
+        if(facilityType){
+          facilityType.addEventListener('change',function(){
+            showFacilityPanel();
+            trackEvent('stockpile_facility_select',{ facility_type:facilityType.value });
+          });
+        }
+        var printChecklist=stockpileTool.querySelector('[data-print-checklist]');
+        if(printChecklist){
+          printChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_print',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+            window.print();
+          });
+        }
+        var downloadChecklist=stockpileTool.querySelector('[data-download-checklist]');
+        if(downloadChecklist){
+          downloadChecklist.addEventListener('click',function(){
+            trackEvent('stockpile_csv_download',{ checked_items:updateStockpileProgress(), facility_type:facilityType?.value || 'office' });
+          });
+        }
+        showFacilityPanel();
+        updateStockpileProgress();
+      }
       var search=document.getElementById('siteSearch');
       var searchTimer=null;
       function filterCards(value){
