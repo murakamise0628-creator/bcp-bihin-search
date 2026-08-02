@@ -40,10 +40,10 @@ jobs:
           RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
           SITE_URL: https://jigyousho-bousai.com
           REFRESH_MAX_AGE_HOURS: 12
-      - name: Verify browser output and generated diff
-        run: |
-          npm run verify:browser
-          git diff --check
+      - name: Verify browser output
+        run: npm run verify:browser
+      - name: Verify generated diff
+        run: git diff --check
       - name: Reject unexpected generated changes
         shell: bash
         run: |
