@@ -28,12 +28,15 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function endpoint(pathname, options) {
   let lastError;
-  for (let attempt = 0; attempt < 30; attempt += 1) {
+  for (let attempt = 0; attempt < 150; attempt += 1) {
     try {
       const response = await fetch(`http://127.0.0.1:${port}${pathname}`, options);
       if (response.ok) return response.json();
       lastError = new Error(`CDP endpoint returned ${response.status}`);
     } catch (error) {
+      if (chrome?.exitCode !== null && chrome?.exitCode !== undefined) {
+        throw new Error(`Chrome exited before CDP was ready (code ${chrome.exitCode}) at ${chromePath}`);
+      }
       lastError = error;
     }
     await sleep(100);
