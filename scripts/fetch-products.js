@@ -110,6 +110,7 @@ function isEmergencyFoodSetCandidate(product) {
   const title = String(product.titleRaw || product.name || '');
   if ((product.productType || detectProductType(title)) !== 'food') return false;
   if (/野菜ジュース|ジュース|飲料|ドリンク|スープ単品/.test(title) && !/(?:非常食セット|\d+食|\d+日分|\d+人用|一人用)/.test(title)) return false;
+  if (/^(?:\u975e\u5e38\u98df|\u4fdd\u5b58\u98df)$/.test(productDisplayTitle(title, product.summary || ''))) return false;
   return /非常食セット|保存食セット|備蓄食セット|詰め合わせ|\d+\s*(?:食|個|袋|缶)(?:入り|セット|詰)?|\d+日分|\d+人(?:用|分)|一人用/.test(title);
 }
 
@@ -547,7 +548,18 @@ function productDisplayTitle(raw, summary = '', maxLength = 58) {
   const base = titleShort(raw, maxLength);
   if (base !== '\u975e\u5e38\u98df') return base;
   const enriched = titleShort(`${raw || ''} ${summary || ''}`, maxLength);
-  return enriched === '\u975e\u5e38\u98df' ? base : enriched;
+  if (enriched !== '\u975e\u5e38\u98df') return enriched;
+  const descriptor = String(raw || '')
+    .replace(/\u975e\u5e38\u98df(?:\u30bb\u30c3\u30c8)?|\u4fdd\u5b58\u98df(?:\u30bb\u30c3\u30c8)?|\u9632\u707d\u98df(?:\u30bb\u30c3\u30c8)?|\u5099\u84c4\u98df|\u9632\u707d\u30b0\u30c3\u30ba|\u9632\u707d\u30bb\u30c3\u30c8|\u707d\u5bb3\u5bfe\u7b56|\u5099\u84c4\u54c1|\u9577\u671f\u4fdd\u5b58|\u8a70\u3081\u5408\u308f\u305b|\u30bb\u30c3\u30c8/g, ' ')
+    .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter((part) => part.length > 1)
+    .slice(0, 3)
+    .join(' ');
+  const result = descriptor ? `${descriptor} ${base}` : base;
+  return result.length > maxLength ? result.slice(0, maxLength - 1) + '\u2026' : result;
 }
 function keywordsForRow(row) {
   const values = [row.keyword, row.keywords]
