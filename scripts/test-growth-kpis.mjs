@@ -27,11 +27,13 @@ test('handles comparisons with a zero baseline', () => {
 });
 
 test('creates a credential-free KPI sheet row', () => {
-  const report = { collectedAt: '2026-08-10T00:00:00.000Z', periods: { current: { startDate: '2026-07-11', endDate: '2026-08-07' } }, ga: { current: { activeUsers: 10, sessions: 12, organicSessions: 5, pageViews: 20, events: { rakuten_click: 4 } }, previous: { organicSessions: 4, events: { rakuten_click: 2 } } }, search: { current: { clicks: 2, impressions: 30, ctr: 0.0667, position: 9.1 } } };
+  const report = { collectedAt: '2026-08-10T00:00:00.000Z', periods: { current: { startDate: '2026-07-11', endDate: '2026-08-07' } }, ga: { current: { activeUsers: 10, sessions: 12, organicSessions: 5, pageViews: 20, events: { rakuten_click: 4 }, eventPages: [{ eventName: 'rakuten_click', path: '/pages/toilet-office.html', count: 3 }] }, previous: { organicSessions: 4, events: { rakuten_click: 2 } } }, search: { current: { clicks: 2, impressions: 30, ctr: 0.0667, position: 9.1, queries: [{ key: '会社 簡易トイレ', clicks: 2, impressions: 12 }], pages: [{ key: 'https://jigyousho-bousai.com/pages/toilet-office.html', clicks: 2 }] } } };
   const row = sheetRow(report);
-  assert.equal(row.length, 19);
+  assert.equal(row.length, 22);
   assert.equal(row[7], 4);
   assert.equal(row[16], 0.25);
+  assert.match(row[19], /会社 簡易トイレ/);
+  assert.match(row[21], /toilet-office/);
   assert.equal(JSON.stringify(row).includes('private_key'), false);
 });
 

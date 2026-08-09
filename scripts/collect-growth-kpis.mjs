@@ -8,7 +8,8 @@ const configPath = path.join(root, 'data', 'kpi-config.json');
 const headers = [
   '取得日時', '開始日', '終了日', 'アクティブユーザー', 'セッション', '自然検索セッション', 'PV',
   '楽天クリック', '数量計算', '備蓄チェック', 'CSVダウンロード', '有料導線クリック',
-  '検索クリック', '検索表示回数', '検索CTR', '平均掲載順位', '自然検索前期比', '楽天クリック前期比', '注記'
+  '検索クリック', '検索表示回数', '検索CTR', '平均掲載順位', '自然検索前期比', '楽天クリック前期比', '注記',
+  '上位検索語', '上位検索ページ', '楽天クリック上位ページ'
 ];
 
 export function reportingPeriods(now, days = 28, delay = 3) {
@@ -90,7 +91,7 @@ async function ga(propertyId, token, request, fetchImpl) {
 
 async function gaPeriod(propertyId, token, period, events, fetchImpl) {
   const dateRanges = [period];
-  const [summary, organic, eventReport, landing] = await Promise.all([
+  const [summary, organic, eventReport, landing, eventPages] = await Promise.all([
     ga(propertyId, token, { dateRanges, metrics: [{ name: 'activeUsers' }, { name: 'sessions' }, { name: 'screenPageViews' }] }, fetchImpl),
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'sessionDefaultChannelGroup' }], metrics: [{ name: 'sessions' }],
@@ -103,12 +104,18 @@ async function gaPeriod(propertyId, token, period, events, fetchImpl) {
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'landingPagePlusQueryString' }], metrics: [{ name: 'sessions' }, { name: 'activeUsers' }],
       orderBys: [{ metric: { metricName: 'sessions' }, desc: true }], limit: 20
+    }, fetchImpl),
+    ga(propertyId, token, {
+      dateRanges, dimensions: [{ name: 'eventName' }, { name: 'pagePath' }], metrics: [{ name: 'eventCount' }],
+      dimensionFilter: { filter: { fieldName: 'eventName', inListFilter: { values: events, caseSensitive: true } } },
+      orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }], limit: 100
     }, fetchImpl)
   ]);
   return {
     activeUsers: metric(summary, 'activeUsers'), sessions: metric(summary, 'sessions'), pageViews: metric(summary, 'screenPageViews'),
     organicSessions: metric(organic, 'sessions'), events: eventCounts(eventReport),
-    landingPages: (landing.rows || []).map((row) => ({ path: row.dimensionValues?.[0]?.value || '', sessions: Number(row.metricValues?.[0]?.value || 0), activeUsers: Number(row.metricValues?.[1]?.value || 0) }))
+    landingPages: (landing.rows || []).map((row) => ({ path: row.dimensionValues?.[0]?.value || '', sessions: Number(row.metricValues?.[0]?.value || 0), activeUsers: Number(row.metricValues?.[1]?.value || 0) })),
+    eventPages: (eventPages.rows || []).map((row) => ({ eventName: row.dimensionValues?.[0]?.value || '', path: row.dimensionValues?.[1]?.value || '', count: Number(row.metricValues?.[0]?.value || 0) }))
   };
 }
 
@@ -135,21 +142,28 @@ export function comparison(current, previous) {
   return Number.isFinite(previous) ? (current - previous) / previous : null;
 }
 
+export function summarizeTopRows(rows, formatter, limit = 5) {
+  return (rows || []).filter(Boolean).slice(0, limit).map(formatter).filter(Boolean).join(' | ');
+}
 export function sheetRow(report) {
   const events = report.ga.current.events;
+  const querySummary = summarizeTopRows(report.search.current.queries, (row) => `${row.key} (${row.clicks}クリック/${row.impressions}表示)`);
+  const searchPageSummary = summarizeTopRows(report.search.current.pages, (row) => `${row.key} (${row.clicks}クリック)`);
+  const rakutenPageSummary = summarizeTopRows((report.ga.current.eventPages || []).filter((row) => row.eventName === 'rakuten_click'), (row) => `${row.path} (${row.count})`);
   return [report.collectedAt, report.periods.current.startDate, report.periods.current.endDate, report.ga.current.activeUsers,
     report.ga.current.sessions, report.ga.current.organicSessions, report.ga.current.pageViews, events.rakuten_click || 0,
     events.quantity_calculator_use || 0, events.stockpile_check_use || 0, events.stockpile_csv_download || 0,
     events.paid_kit_checkout_click || 0, report.search.current.clicks, report.search.current.impressions, report.search.current.ctr,
     report.search.current.position, comparison(report.ga.current.organicSessions, report.ga.previous.organicSessions),
-    comparison(events.rakuten_click || 0, report.ga.previous.events.rakuten_click || 0), '楽天の注文・確定報酬は公式CSVで別途照合'];
+    comparison(events.rakuten_click || 0, report.ga.previous.events.rakuten_click || 0), '楽天の注文・確定報酬は公式CSVで別途照合',
+    querySummary, searchPageSummary, rakutenPageSummary];
 }
 
 async function appendSheet(id, token, row, fetchImpl) {
   const base = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values`;
-  const current = await googleJson(`${base}/${encodeURIComponent('A1:S1')}`, token, {}, fetchImpl);
-  if (!current.values?.length) await googleJson(`${base}/${encodeURIComponent('A1:S1')}?valueInputOption=RAW`, token, { method: 'PUT', body: JSON.stringify({ values: [headers] }) }, fetchImpl);
-  await googleJson(`${base}/${encodeURIComponent('A:S')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, token, { method: 'POST', body: JSON.stringify({ values: [row] }) }, fetchImpl);
+  const current = await googleJson(`${base}/${encodeURIComponent('A1:V1')}`, token, {}, fetchImpl);
+  if (!current.values?.length || current.values[0].length !== headers.length) await googleJson(`${base}/${encodeURIComponent('A1:V1')}?valueInputOption=RAW`, token, { method: 'PUT', body: JSON.stringify({ values: [headers] }) }, fetchImpl);
+  await googleJson(`${base}/${encodeURIComponent('A:V')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, token, { method: 'POST', body: JSON.stringify({ values: [row] }) }, fetchImpl);
 }
 
 export async function collectGrowthKpis(options = {}) {
