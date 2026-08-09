@@ -87,10 +87,10 @@ const requiredNotice = '価格、在庫、レビュー、商品仕様は変わ�
 
 const publicSources = {
   workplaceGuideline: {
-    title: '事業所における帰宅困難者等対策ガイドライン',
+    title: '災害発生時における大規模な帰宅困難者等の発生への対策に関するガイドライン',
     publisher: '内閣府 防災情報のページ',
-    url: 'https://www.bousai.go.jp/jishin/syuto/kitaku/pdf/kitaku_guideline-jigyosyo.pdf',
-    note: '3日分の備蓄、水1人1日3L、主食1人1日3食、毛布1人1枚などの考え方を確認できます。'
+    url: 'https://www.bousai.go.jp/jishin/kitakukonnan/pdf/kitakukonnan_guideline.pdf',
+    note: '3日分の備蓄、水1人1日3L、主食1人1日3食、毛布1人1枚、外部の帰宅困難者分の上乗せなどの考え方を確認できます。'
   },
   toiletGuideline: {
     title: '避難所におけるトイレの確保・管理ガイドライン',
@@ -152,7 +152,7 @@ const pageNotes = {
     related: ['office-bichiku', 'toilet-office', 'portable-power-kaigo'],
     faq: [
       ['帰宅困難者対策で不足しやすいものは？', '簡易トイレ、防寒用品、スマホ充電、飲料水が不足しやすいです。'],
-      ['来客分も必要ですか？', '店舗や教室など来客がある場所では、従業員分だけでなく最大滞在人数を目安に考えると安全です。']
+      ['来客分も必要ですか？', '来客数を把握できる場合は最大滞在人数で計算します。読めない場合は、内閣府ガイドラインの例として従業員分の10％程度を上乗せして検討します。']
     ]
   },
   'restaurant-dansui': {
@@ -347,7 +347,7 @@ const topicPages = [
     links: ['kitaku-konnansha', 'office-bichiku', 'toilet-office', 'blackout-power', 'bcp-stockpile-checklist'],
     mustHave: ['保存水', '非常食', '簡易トイレ', 'アルミブランケット', '充電用品'],
     faq: [
-      ['帰宅困難者対策は何人分必要ですか？', '従業員数に加えて、来客や利用者の最大滞在人数を少し見込むと不足しにくくなります。'],
+      ['帰宅困難者対策は何人分必要ですか？', '従業員数に来客・利用者の最大滞在人数を加えます。人数を読めない場合は、内閣府ガイドラインの例として10％程度の上乗せも検討します。'],
       ['帰宅支援グッズだけで足りますか？', '施設内で安全に待つ時間が発生するため、水、トイレ、防寒、充電も確認します。']
     ]
   }

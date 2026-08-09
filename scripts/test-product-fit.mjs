@@ -4,12 +4,26 @@ import productTools from './fetch-products.js';
 
 const {
   candidateTier,
+  detectProductType,
   decisionFacts,
   decisionSummary,
   sanitizeProductDataset,
   titleShort,
   toiletUseCount
 } = productTools;
+
+test('detectProductType distinguishes a helmet multipack from a disaster set containing a helmet', () => {
+  const helmetMultipack = '【2個セット】防災ヘルメット 保護帽 安全帽 防災用品 防災セット';
+  assert.equal(
+    detectProductType(helmetMultipack),
+    'safety'
+  );
+  assert.equal(titleShort(helmetMultipack), '2個 防災ヘルメット');
+  assert.equal(
+    detectProductType('【ヘルメット付き】防災セット 1人用 保存水 非常食'),
+    'disaster-set'
+  );
+});
 
 test('toiletUseCount reads fixed business packs and avoids variant prices', () => {
   assert.equal(toiletUseCount('サニタクリーン 簡単トイレ 組織用セット 200回分'), 200);
@@ -98,6 +112,19 @@ test('BOS toilet sets stay classified as complete toilet kits in public copy', (
 
   assert.equal(titleShort(titleRaw), 'BOS 50回分 非常用トイレ');
   assert.match(decisionSummary({ titleRaw }, { slug: 'toilet-office' }), /凝固剤・処理袋・防臭袋の同梱表記/);
+});
+
+test('known complete toilet sets do not become replenishment-only products when titles omit one component', () => {
+  const bosBundle = 'クリロン化成 BOS 非常用トイレセット 15回分 × 3箱 まとめ買い';
+  const safetyBcp = 'SAFETYTOILET BCP 500 簡易トイレ 500回分 日本製 抗菌凝固剤 15年保存 大型消臭袋 便座カバー 法人向け大容量セット';
+
+  assert.equal(decisionFacts({ titleRaw: bosBundle }).toiletSupplyType, 'complete-kit');
+  assert.equal(titleShort(bosBundle), 'BOS 45回分 非常用トイレ');
+  assert.match(decisionSummary({ titleRaw: bosBundle }, { slug: 'toilet-office' }), /凝固剤・処理袋・防臭袋の同梱表記/);
+
+  assert.equal(decisionFacts({ titleRaw: safetyBcp }).toiletSupplyType, 'complete-kit');
+  assert.equal(titleShort(safetyBcp), '500回分 15年保存 非常用トイレ');
+  assert.match(decisionSummary({ titleRaw: safetyBcp }, { slug: 'toilet-office' }), /凝固剤・処理袋・防臭袋の同梱表記/);
 });
 
 test('public product data strips internal affiliate value fields', () => {

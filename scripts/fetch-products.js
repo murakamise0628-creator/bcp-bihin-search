@@ -293,12 +293,15 @@ function detectProductType(raw) {
   const source = String(raw || '');
   const setIndex = source.search(/防災(?:備蓄)?セット|避難セット|防災リュック/);
   const toiletIndex = source.search(/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/);
+  const safetyIndex = source.search(/防災ヘルメット|ヘルメット|転倒防止|家具固定|飛散防止/);
   const leadingProductText = setIndex >= 0 ? source.slice(0, setIndex) : '';
   if (toiletIndex >= 0 && toiletIndex < setIndex && /\d{1,4}\s*回(?:分)?|凝固剤|汚物袋|排便袋|防臭袋|排泄/.test(leadingProductText)) {
     return 'toilet';
   }
-  if (setIndex >= 0 && /防災ヘルメット|ヘルメット|転倒防止|家具固定|飛散防止/.test(source)) {
-    return 'disaster-set';
+  if (setIndex >= 0 && safetyIndex >= 0) {
+    const safetyMention = source.slice(safetyIndex, setIndex);
+    const isIncludedInSet = /付き|付属|同梱|入り/.test(safetyMention);
+    return safetyIndex < setIndex && !isIncludedInSet ? 'safety' : 'disaster-set';
   }
   const candidates = [
     ['disaster-set', /防災(?:備蓄)?セット|避難セット|防災リュック/],
@@ -352,9 +355,10 @@ function decisionFacts(product) {
   const source = String(product?.titleRaw || product?.name || product || '').normalize('NFKC');
   const productType = product?.productType || detectProductType(source);
   const toiletUses = toiletUseCount(source);
-  const hasCoagulant = /凝固剤|固形剤|吸水ポリマー/.test(source);
-  const hasWasteBag = /汚物袋|排便袋|処理袋|防臭袋|臭わない袋|においバイバイ袋|BOS/.test(source);
-  const hasDeodorizingBag = /防臭袋|臭わない袋|においバイバイ袋|BOS/.test(source);
+  const verifiedCompleteKit = /(?:\bBOS\b.{0,48}(?:非常用|簡易)トイレセット|(?:非常用|簡易)トイレセット.{0,48}\bBOS\b|SAFETY\s*TOILET\s+BCP\s*\d+)/i.test(source);
+  const hasCoagulant = /凝固剤|固形剤|吸水ポリマー/.test(source) || verifiedCompleteKit;
+  const hasWasteBag = /汚物袋|排便袋|処理袋|防臭袋|消臭袋|臭わない袋|においバイバイ袋|BOS/.test(source) || verifiedCompleteKit;
+  const hasDeodorizingBag = /防臭袋|消臭袋|臭わない袋|においバイバイ袋|BOS/.test(source) || verifiedCompleteKit;
   let toiletSupplyType = '';
   if (productType === 'toilet') {
     if (hasCoagulant && hasWasteBag) toiletSupplyType = 'complete-kit';

@@ -249,6 +249,9 @@ for (const file of files) {
   if (relative !== 'site-policy.html') {
     if (!html.includes('source-references')) issues.push(`${relative}: public source section missing`);
     if (!html.includes('www.bousai.go.jp')) issues.push(`${relative}: Cabinet Office citation missing`);
+    if (!html.includes('https://www.bousai.go.jp/jishin/kitakukonnan/pdf/kitakukonnan_guideline.pdf')) {
+      issues.push(`${relative}: current Cabinet Office commuter-stranding guideline missing`);
+    }
     if (!html.includes('"citation":[')) issues.push(`${relative}: WebPage citation metadata missing`);
   }
   if (relative.replace(/\\/g, '/') === 'pages/toilet-office.html') {
