@@ -20,6 +20,16 @@ test('accepts a complete fresh page', () => {
   assert.deepEqual(auditRefreshData(data, { now, maxAgeHours: 12 }), []);
 });
 
+test('requires 12 fresh emergency food sets in a full refresh audit', () => {
+  const foodProducts = products(12).map((product, index) => ({
+    ...product,
+    productType: 'food',
+    titleRaw: `法人向け非常食セット ${index + 1} 3日分 9食`
+  }));
+  const data = { schemaVersion: 2, pages: [{ slug: 'water-food-stock', products: foodProducts }] };
+  assert.deepEqual(auditRefreshData(data, { now, maxAgeHours: 12, requireDerivedPages: true }), []);
+});
+
 test('rejects fallback data even when product count is sufficient', () => {
   const data = {
     schemaVersion: 2,

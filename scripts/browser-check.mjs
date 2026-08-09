@@ -111,6 +111,7 @@ const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet
 const officePage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'office-bichiku.html')).href;
 const powerPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'portable-power-kaigo.html')).href;
 const quantityPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'office-stockpile-quantity.html')).href;
+const emergencyFoodPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'emergency-food-office.html')).href;
 const checklistPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'bcp-stockpile-checklist.html')).href;
 const homePage = pathToFileURL(path.join(projectRoot, 'dist', 'index.html')).href;
 let socket;
@@ -254,6 +255,39 @@ try {
       assert.ok(result.classes.includes(label), `${width}px office buying path missing: ${label}`);
     }
     officeResults.push(result);
+  }
+
+  const emergencyFoodResults = [];
+  for (const width of [320, 375, 768, 1440]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height: width >= 1024 ? 1000 : 900,
+      deviceScaleFactor: 1,
+      mobile: width < 768
+    });
+    await navigateFresh(send, `${emergencyFoodPage}?staff=30&days=3&visitors=0&audit=food-${width}`);
+    const result = await evaluate(send, `(() => {
+      const html = document.documentElement.innerHTML;
+      const ids = new Set([...document.querySelectorAll('[data-product-id]')].map((node) => node.dataset.productId));
+      return {
+        width: innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        h1: document.querySelector('h1')?.textContent || '',
+        foodEstimate: document.querySelector('#foodEstimate')?.textContent || '',
+        ids: ids.size,
+        images: document.querySelectorAll('#products .product img').length,
+        productSchemaCount: (html.match(/"@type":"Product"/g) || []).length,
+        hasSponsoredCta: !!document.querySelector('a[rel="nofollow sponsored noopener"]')
+      };
+    })()`);
+    assert.ok(result.scrollWidth <= result.width + 1, `${width}px emergency food page overflow: ${result.scrollWidth}px`);
+    assert.match(result.h1, /非常食セット比較/);
+    assert.match(result.foodEstimate, /270食/);
+    assert.ok(result.ids >= 12, `${width}px emergency food page has fewer than 12 products`);
+    assert.equal(result.images, 6, `${width}px emergency food detailed cards need six images`);
+    assert.equal(result.productSchemaCount, 12);
+    assert.equal(result.hasSponsoredCta, true);
+    emergencyFoodResults.push(result);
   }
 
   const quantityResults = [];
@@ -402,7 +436,7 @@ try {
 
   const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'toilet-mobile-cdp.png'), Buffer.from(screenshot.data, 'base64'));
-  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, office: officeResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
+  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, office: officeResults, emergencyFood: emergencyFoodResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
 } catch (error) {
   if (process.env.GITHUB_ACTIONS === 'true') {
     const message = String(error?.message || error)

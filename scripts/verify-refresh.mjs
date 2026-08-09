@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { isEmergencyFoodSetCandidate } = require('./fetch-products.js');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
@@ -8,7 +12,8 @@ const projectRoot = path.resolve(__dirname, '..');
 const stricterPageCounts = new Map([
   ['toilet-office', 12],
   ['blackout-power', 12],
-  ['water-food-stock', 12]
+  ['water-food-stock', 12],
+  ['emergency-food-office', 12]
 ]);
 
 export function auditRefreshData(data, options = {}) {
@@ -21,10 +26,22 @@ export function auditRefreshData(data, options = {}) {
     issues.push('products.json schemaVersion must be 2 or newer');
   }
 
-  const pages = Array.isArray(data?.pages) ? data.pages : [];
-  if (!pages.length) {
+  const sourcePages = Array.isArray(data?.pages) ? data.pages : [];
+  if (!sourcePages.length) {
     issues.push('products.json contains no pages');
     return issues;
+  }
+
+  const pages = [...sourcePages];
+  if (options.requireDerivedPages && !pages.some((page) => page.slug === 'emergency-food-office')) {
+    const seen = new Set();
+    const products = sourcePages.flatMap((page) => page.products || []).filter(isEmergencyFoodSetCandidate).filter((product) => {
+      const id = String(product?.itemCode || '').trim();
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    }).sort((a, b) => Number(b.reviewCount || 0) - Number(a.reviewCount || 0)).slice(0, 12);
+    pages.push({ slug: 'emergency-food-office', products, derivedFrom: 'fresh-api-products' });
   }
 
   for (const page of pages) {
@@ -71,7 +88,7 @@ function main() {
   const dataPath = path.join(projectRoot, 'data', 'products.json');
   const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
   const maxAgeHours = Number(process.env.REFRESH_MAX_AGE_HOURS || 12);
-  const issues = auditRefreshData(data, { maxAgeHours });
+  const issues = auditRefreshData(data, { maxAgeHours, requireDerivedPages: true });
 
   if (issues.length) {
     console.error(issues.join('\n'));

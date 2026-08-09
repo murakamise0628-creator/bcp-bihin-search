@@ -10,7 +10,8 @@ const {
   candidateTier,
   prioritizeProductVariety,
   decisionFacts,
-  decisionSummary
+  decisionSummary,
+  isEmergencyFoodSetCandidate
 } = require('./fetch-products');
 const { isApprovedBaseProductUrl } = require('./paid-checkout-url.cjs');
 
@@ -83,6 +84,23 @@ const keywordRows = fs.existsSync(keywordsPath) ? parseCsv(fs.readFileSync(keywo
 const dataPagesBySlug = new Map((data.pages || []).map((page) => [page.slug, page]));
 data.pages = keywordRows.map((row) => ({ ...row, ...(dataPagesBySlug.get(row.slug) || {}), products: dataPagesBySlug.get(row.slug)?.products || [] }));
 
+const emergencyFoodPage = data.pages.find((page) => page.slug === 'emergency-food-office');
+if (emergencyFoodPage && emergencyFoodPage.products.length < 12) {
+  const seenFood = new Set();
+  const foodCandidates = [...dataPagesBySlug.values()]
+    .flatMap((page) => page.products || [])
+    .filter((product) => isEmergencyFoodSetCandidate(product) && product.image && product.url && Number(product.price || 0) > 0)
+    .filter((product) => {
+      const key = product.itemCode || product.url;
+      if (!key || seenFood.has(key)) return false;
+      seenFood.add(key);
+      return true;
+    })
+    .sort((a, b) => (Number(b.reviewCount || 0) - Number(a.reviewCount || 0)) || (Number(b.reviewAverage || 0) - Number(a.reviewAverage || 0)));
+  emergencyFoodPage.products = foodCandidates.slice(0, 12);
+  emergencyFoodPage.derivedFrom = 'existing-food-products';
+}
+
 const requiredNotice = '価格、在庫、レビュー、商品仕様は変わります。購入前に販売ページで最新情報を確認してください。医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄は、メーカー、専門業者、施設管理者に確認してください。';
 
 const publicSources = {
@@ -103,6 +121,18 @@ const publicSources = {
     publisher: '経済産業省',
     url: 'https://www.meti.go.jp/policy/mono_info_service/mono/jyutaku/toirebichiku.html',
     note: '災害時用トイレについて、1人あたり35回分（7日分）の備蓄例を確認できます。'
+  },
+  foodStockGuide: {
+    title: '災害時に備えた食品ストックガイド',
+    publisher: '農林水産省',
+    url: 'https://www.maff.go.jp/j/zyukyu/foodstock/chapter06.html',
+    note: 'アルファ米などの調理方法や、調理器具を使わずに食べられる食品の特徴を確認できます。'
+  },
+  foodAllergyGuide: {
+    title: 'アレルギーの方こそローリングストック',
+    publisher: '農林水産省',
+    url: 'https://www.maff.go.jp/j/zyukyu/foodstock/imadoki/imadoki11.html',
+    note: '食物アレルギーに配慮した備蓄食品と、原材料表示を確認する考え方を確認できます。'
   },
   stockpilePortal: {
     title: '東京都防災 備蓄ナビ',
@@ -251,14 +281,30 @@ const pageNotes = {
     disasters: ['地震', '台風', '帰宅困難者'],
     conclusion: '保存水・非常食は、人数と待機日数から水は1人1日3L、食料は1人1日3食を目安に確認します。',
     mustHave: ['保存水', '非常食', 'アルファ米', '個包装食', '配布しやすいセット'],
-    problem: '会社や事業所で従業員・来客が待機する場面に備え、保存水と非常食を比較するページです。',
+    problem: '会社や事業所で必要な水量と食数を同時に出し、保存水と非常食をまとめて確認するページです。非常食セットの商品選定は専用ページで詳しく比較できます。',
     checks: ['人数と日数で必要量を見る', '保存年数と期限管理を見る', 'アレルギー表示を確認', '配布しやすい個包装か見る'],
     avoid: '食料だけを先に揃えず、水、簡易トイレ、防寒も合わせて確認します。',
-    related: ['office-bichiku', 'earthquake-office', 'kitaku-konnansha', 'hoikuen-bousai'],
+    related: ['emergency-food-office', 'office-bichiku', 'earthquake-office', 'kitaku-konnansha', 'hoikuen-bousai'],
     faq: [
       ['会社の防災備蓄は何日分必要ですか？', 'まず3日分を出発点に、従業員と来客の人数から必要量を確認します。地域や建物、物流の条件に応じて日数を増やします。'],
       ['保存水はどれくらい必要ですか？', '目安として1人1日3Lで計算します。来客や利用者がいる場合は上乗せします。'],
       ['非常食で注意することは？', '保存年数、アレルギー表示、配布しやすさ、食べるために水や加熱が必要かを確認します。']
+    ]
+  },
+  'emergency-food-office': {
+    audience: '会社・事業所・店舗の備蓄担当者',
+    disasters: ['地震', '台風', '帰宅困難者'],
+    conclusion: '非常食は、従業員と来客を含む人数に1日3食を掛け、まず3日分の食数を出してから箱数を比較します。',
+    mustHave: ['3日分の食数', '保存年数', 'アレルギー表示', '調理に必要な水', '配布しやすい個包装'],
+    problem: '会社や事業所で待機する人の非常食セットに絞り、食数、保存年数、調理方法、アレルギー表示から商品を比較するページです。保存水を含む全体量は別ページで確認できます。',
+    checks: ['人数×3食×日数で必要食数を出す', '水や加熱が必要か確認する', '主食・おかず・甘味の偏りを見る', '箱サイズと賞味期限の管理方法を見る'],
+    avoid: '保存年数だけで決めず、食べるために必要な水、加熱器具、食器、アレルギー表示まで確認します。',
+    related: ['water-food-stock', 'office-stockpile-quantity', 'office-bichiku', 'kitaku-konnansha', 'hoikuen-bousai'],
+    faq: [
+      ['会社の非常食は何食必要ですか？', '1人1日3食を目安に、従業員と来客を含む人数へ待機日数を掛けます。30人の3日分なら270食が目安です。'],
+      ['アルファ米は水がなくても食べられますか？', '商品により調理方法が異なります。多くは水またはお湯が必要なため、調理用水と待ち時間を販売ページで確認してください。'],
+      ['非常食は何年保存を選べばいいですか？', '保存年数だけでなく、納品時の残存期間、棚卸し頻度、入れ替え方法を含めて選びます。'],
+      ['アレルギー対応はどう確認しますか？', '原材料とアレルギー表示を商品ごとに確認し、対象者がいる施設ではメーカーや施設管理者と運用を決めてください。']
     ]
   },
   'bcp-stockpile-checklist': {
@@ -289,6 +335,7 @@ const categoryDefinitions = [
   ['介護施設向けポータブル電源', 'portable-power-kaigo', '見守り、通信、照明の停電対策。', ['停電']],
   ['帰宅困難者対策', 'kitaku-konnansha', '施設内待機に必要な水・トイレ・防寒。', ['帰宅困難者', '地震']],
   ['保存水・非常食', 'water-food-stock', '人数と日数で不足を防ぐ基本備蓄。', ['地震', '台風']],
+  ['会社向け非常食セット', 'emergency-food-office', '食数・保存年数・調理方法で選ぶ備蓄食。', ['地震', '帰宅困難者']],
   ['衛生用品・感染対策', 'restaurant-dansui', '断水時の手指衛生と片付け用品。', ['断水']],
   ['防寒・睡眠用品', 'kitaku-konnansha', '待機時の体温維持と休息用品。', ['帰宅困難者']],
   ['事業所防災備蓄チェックリスト', 'bcp-stockpile-checklist', '水・食料・トイレ・電源をまとめて点検。', ['BCP', '備蓄']]
@@ -1193,6 +1240,7 @@ function sourceKeysFor(slug = '') {
   if (/toilet/.test(slug)) return ['toiletStockpileGuide', 'toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
   if (/dansui|water-outage/.test(slug)) return ['toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
   if (/portable-power|blackout|power-outage|typhoon/.test(slug)) return ['workplaceGuideline', 'stockpilePortal'];
+  if (/emergency-food/.test(slug)) return ['workplaceGuideline', 'foodStockGuide', 'foodAllergyGuide'];
   return ['workplaceGuideline', 'toiletGuideline', 'stockpilePortal'];
 }
 
@@ -1205,9 +1253,12 @@ function sourceSection(slug = '') {
     const source = publicSources[key];
     return `<li><a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.title)}</a><span>${esc(source.publisher)}</span><small>${esc(source.note)}</small></li>`;
   }).join('');
+  const intro = /emergency-food/.test(slug)
+    ? '事業所の3日分の食数、アルファ米などの調理方法、食物アレルギーへの配慮を確認できる公的資料です。施設の人数と運用に合わせて確認してください。'
+    : '3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。';
   return `<section class="section source-references" aria-labelledby="public-sources-title">
     <div class="section-title"><div><p class="eyebrow">公的資料</p><h2 id="public-sources-title">数量・備蓄期間を決めるときの根拠</h2></div></div>
-    <p class="source-intro">3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。</p>
+    <p class="source-intro">${esc(intro)}</p>
     <ul class="source-list">${items}</ul>
   </section>`;
 }
@@ -2092,6 +2143,7 @@ function pageSeoTitle(page) {
     'toilet-office': '事業所の簡易トイレは何回分？100回・200回を比較',
     'blackout-power': '会社の停電対策用品比較｜ポータブル電源・ライト',
     'water-food-stock': '会社の保存水・非常食は何日分？備蓄量と商品比較',
+    'emergency-food-office': '会社向け非常食セット比較｜3日分の食数・保存年数で選ぶ',
     'portable-power-kaigo': '介護施設向けポータブル電源比較｜容量・出力で選ぶ',
     'restaurant-dansui': '飲食店の断水対策用品比較｜給水・衛生・簡易トイレ'
   };
@@ -2346,12 +2398,12 @@ function pageHtml(page) {
   const products = effectiveProducts(page, note, 8);
   const canonical = `${siteUrl}/pages/${page.slug}.html`;
   const description = pageDescription(page, note);
-  const quantityFirst = ['toilet-office', 'office-bichiku', 'water-food-stock'].includes(page.slug);
+  const quantityFirst = ['toilet-office', 'office-bichiku', 'water-food-stock', 'emergency-food-office'].includes(page.slug);
   const primaryAction = page.slug === 'toilet-office'
     ? '必要回数を計算する'
     : page.slug === 'office-bichiku'
       ? '人数から必要数を確認する'
-      : page.slug === 'water-food-stock'
+      : ['water-food-stock', 'emergency-food-office'].includes(page.slug)
         ? '人数と日数から必要量を確認する'
         : '比較候補を見る';
   const checks = note.checks.map((item) => `<li>${esc(item)}</li>`).join('');
@@ -2392,11 +2444,11 @@ function pageHtml(page) {
   </section>
   <section class="section two">
     <article class="card"><h2>選び方</h2><ul class="checklist">${checks}</ul></article>
-    ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
+    ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : page.slug === 'emergency-food-office' ? `<article class="card"><h2>このページで比べるもの</h2><p>非常食セットの食数、保存年数、調理方法を比べます。保存水を含む全体量は早見表で確認してください。</p><a class="small-button" href="${siteUrl}/pages/office-stockpile-quantity.html">人数別の備蓄量を見る</a></article>` : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
   </section>
   ${quantityEstimateSection(page.slug)}
   ${sourceSection(page.slug)}
-  ${['toilet-office', 'office-bichiku', 'blackout-power', 'water-food-stock'].includes(page.slug) ? quickPicks(products, note) : ''}
+  ${['toilet-office', 'office-bichiku', 'blackout-power', 'water-food-stock', 'emergency-food-office'].includes(page.slug) ? quickPicks(products, note) : ''}
   ${comparisonTable(products, note)}
   <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>上位候補の向き・注意点を見る</h2></div><p class="notice">比較表から上位6件を詳しく掲載</p></div><div class="product-list">${productCards(products.slice(0, 6), note)}</div></section>
   ${stockCheckSection(page.slug)}

@@ -91,6 +91,11 @@ const pageRules = {
     weak: /ペット|アウトドア|キャンプ/,
     productTypes: ['water', 'food']
   },
+  'emergency-food-office': {
+    boost: /非常食|保存食|アルファ米|備蓄食|長期保存|3日分|7年|50食|100食|会社|法人|企業/i,
+    weak: /ペット|アウトドア|キャンプ|保存水|飲料水/,
+    productTypes: ['food']
+  },
   'bcp-stockpile-checklist': {
     boost: /防災セット|備蓄|保存水|非常食|簡易トイレ|ライト|帰宅困難|企業|法人|会社/i,
     weak: /ペット|アウトドア|キャンプ/
@@ -100,6 +105,13 @@ const pageRules = {
 const excludePattern = /中古|訳あり|ジャンク|ふるさと納税|レンタル|本体のみ|ケースのみ|カバーのみ|交換用|部品|アクセサリのみ|リュック単体|中身はない|バッグのみ|釣り|登山専用|ペット専用|犬用|猫用/i;
 const hypePattern = /最強|絶対|完全|万能|奇跡|爆売れ|神|ランキング.{0,8}1位|ポイント\d+倍|セール|送料無料|最安|激安|受賞/i;
 const homeyPattern = /家庭用|一人用|1人用|個人用|ソロ|キャンプ|アウトドア/i;
+
+function isEmergencyFoodSetCandidate(product) {
+  const title = String(product.titleRaw || product.name || '');
+  if ((product.productType || detectProductType(title)) !== 'food') return false;
+  if (/野菜ジュース|ジュース|飲料|ドリンク|スープ単品/.test(title) && !/(?:非常食セット|\d+食|\d+日分|\d+人用|一人用)/.test(title)) return false;
+  return /非常食セット|保存食セット|備蓄食セット|詰め合わせ|\d+\s*(?:食|個|袋|缶)(?:入り|セット|詰)?|\d+日分|\d+人(?:用|分)|一人用/.test(title);
+}
 
 function relevanceScore(product, row) {
   const rule = pageRules[row.slug] || {};
@@ -192,6 +204,7 @@ function matchesPageType(product, row) {
 
 function candidateTier(product, row) {
   if (!matchesPageType(product, row)) return 'exclude';
+  if (row.slug === 'emergency-food-office' && !isEmergencyFoodSetCandidate(product)) return 'exclude';
   const source = String(product.titleRaw || product.name || '');
   const facts = decisionFacts(product);
   if (row.slug === 'toilet-office') {
@@ -475,14 +488,19 @@ function titleShort(raw, maxLength = 58) {
     source.match(/\d{4,6}mAh/i)?.[0],
     toiletCount ? `${toiletCount}回分` : '',
     source.match(/\d{1,3}人用/)?.[0],
+    productType === 'food' ? source.match(/\d{1,3}人\s*\d{1,2}日分/)?.[0]?.replace(/\s+/g, '') : '',
     source.match(/\d{1,2}年保存/)?.[0],
     standaloneSpec(source, '\\d+(?:\\.\\d+)?L'),
     boundedCount(source, '食', 1000),
+    productType === 'food' ? source.match(/\d{1,3}種類?/)?.[0] : '',
+    productType === 'food' ? boundedCount(source, '点', 1000) : '',
     boundedCount(source, '枚', 1000),
     toiletCount ? '' : boundedCount(source, '個', 1000)
   ].filter(Boolean);
   parts.push(...specs);
   if (/ソーラーパネル.{0,12}(?:セット|付)|(?:セット|付).{0,12}ソーラーパネル/.test(source)) parts.push('ソーラーパネルセット');
+  if (productType === 'food' && /アレルギー|アレルゲン|特定原材料/.test(source)) parts.push('アレルギー配慮');
+  if (productType === 'food' && /調理不要/.test(source) && /水不要/.test(source)) parts.push('調理・水不要');
   if (variableQuantity) parts.push('回数選択式');
 
   const typeLabels = {
@@ -641,7 +659,7 @@ async function main() {
   const rows = parseCsv(fs.readFileSync(keywordsPath, 'utf8'));
   const previous = fs.existsSync(outPath) ? JSON.parse(fs.readFileSync(outPath, 'utf8')) : { pages: [] };
   const previousBySlug = new Map((previous.pages || []).map((page) => [page.slug, page]));
-  const minimumFreshCount = (row) => ['toilet-office', 'blackout-power', 'water-food-stock'].includes(row.slug) ? 12 : 8;
+  const minimumFreshCount = (row) => ['toilet-office', 'blackout-power', 'water-food-stock', 'emergency-food-office'].includes(row.slug) ? 12 : 8;
   const usableFallback = (row) => {
     const fallback = previousBySlug.get(row.slug);
     const products = (fallback?.products || []).filter((product) => matchesPageType(product, row));
@@ -732,6 +750,7 @@ module.exports = {
   prioritizeProductVariety,
   decisionFacts,
   decisionSummary,
+  isEmergencyFoodSetCandidate,
   sanitizeProductDataset,
   createProductDataset
 };

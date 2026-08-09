@@ -9,7 +9,8 @@ const {
   toiletUseCount,
   matchesPageType,
   candidateTier,
-  prioritizeProductVariety
+  prioritizeProductVariety,
+  isEmergencyFoodSetCandidate
 } = require('./fetch-products');
 const { isApprovedBaseProductUrl } = require('./paid-checkout-url.cjs');
 
@@ -61,6 +62,12 @@ const productTitleFixtures = [
   ['モバイルバッテリー 60000mAh Max27W 電気毛布用', 'mobile-power', 'モバイルバッテリー'],
   ['保存水 2L 6本 5年保存', 'water', '保存水']
 ];
+if (isEmergencyFoodSetCandidate({ productType: 'food', titleRaw: '非常食 カゴメ 野菜ジュース 190g×1本', summary: '1缶に野菜1日分' })) issues.push('single beverage accepted as an emergency food set');
+if (!isEmergencyFoodSetCandidate({ productType: 'food', titleRaw: '非常食セット 1人用 3日分 9食' })) issues.push('three-day emergency food set rejected');
+const foodTitleA = titleShort('非常食 保存食セット 1人 3日分 11種 長期保存 アレルギー配慮');
+const foodTitleB = titleShort('非常食 保存食セット 1人 3日分 11種類 16点 5年保存 調理不要 水不要');
+if (foodTitleA === foodTitleB || !foodTitleA.includes('11種') || !foodTitleB.includes('16点')) issues.push('emergency food titles must expose distinguishing set contents');
+
 for (const [raw, expectedType, expectedLabel] of productTitleFixtures) {
   const actualType = detectProductType(raw);
   const actualTitle = titleShort(raw);
@@ -333,6 +340,7 @@ const data = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'products
 const expectedTypes = {
   'toilet-office': new Set(['toilet']),
   'water-food-stock': new Set(['water', 'food']),
+  'emergency-food-office': new Set(['food']),
   'blackout-power': new Set(['power', 'mobile-power', 'lighting'])
 };
 function validateProductRecord(pageSlug, product) {
@@ -421,6 +429,7 @@ const expectedSearchTitles = {
   'pages/toilet-office.html': '事業所の簡易トイレは何回分？100回・200回を比較',
   'pages/blackout-power.html': '会社の停電対策用品比較｜ポータブル電源・ライト',
   'pages/water-food-stock.html': '会社の保存水・非常食は何日分？備蓄量と商品比較',
+  'pages/emergency-food-office.html': '会社向け非常食セット比較｜3日分の食数・保存年数で選ぶ',
   'pages/portable-power-kaigo.html': '介護施設向けポータブル電源比較｜容量・出力で選ぶ',
   'pages/restaurant-dansui.html': '飲食店の断水対策用品比較｜給水・衛生・簡易トイレ'
 };
@@ -429,6 +438,28 @@ for (const [relative, expectedTitle] of Object.entries(expectedSearchTitles)) {
   if (!html.includes(`<title>${expectedTitle} | 事業所防災ナビ</title>`)) {
     issues.push(`${relative}: search-intent title missing`);
   }
+}
+
+const emergencyFoodRelative = 'pages/emergency-food-office.html';
+const emergencyFoodPath = path.join(root, emergencyFoodRelative);
+if (!fs.existsSync(emergencyFoodPath)) {
+  issues.push(`${emergencyFoodRelative}: generated page missing`);
+} else {
+  const emergencyFoodHtml = fs.readFileSync(emergencyFoodPath, 'utf8');
+  const emergencyFoodIds = new Set([...emergencyFoodHtml.matchAll(/data-product-id="([^"]+)"/g)].map((match) => match[1]));
+  for (const marker of ['非常食セットに絞り', '人数×3食×日数', 'アレルギー表示', '30人の3日分なら270食', '人数別の備蓄量を見る']) {
+    if (!emergencyFoodHtml.includes(marker)) issues.push(`${emergencyFoodRelative}: purchase-decision marker missing: ${marker}`);
+  }
+  if (emergencyFoodIds.size < 12) issues.push(`${emergencyFoodRelative}: fewer than 12 unique displayed products`);
+  if ((emergencyFoodHtml.match(/"@type":"Product"/g) || []).length !== 12) issues.push(`${emergencyFoodRelative}: expected 12 Product schema entries`);
+  if (!emergencyFoodHtml.includes('rel="nofollow sponsored noopener"')) issues.push(`${emergencyFoodRelative}: sponsored Rakuten links missing`);
+  if (/野菜一日これ一本|野菜ジュース|190g(?:×|x)1本/.test(emergencyFoodHtml)) issues.push(`${emergencyFoodRelative}: single beverage leaked into food-set comparison`);
+  const emergencyFoodNames = [...emergencyFoodHtml.matchAll(/data-product-name="([^"]+)"/g)].map((match) => match[1]);
+  if (new Set(emergencyFoodNames).size !== 12) issues.push(`${emergencyFoodRelative}: product names are not distinguishable`);
+  for (const source of ['foodstock/chapter06.html', 'foodstock/imadoki/imadoki11.html']) {
+    if (!emergencyFoodHtml.includes(source)) issues.push(`${emergencyFoodRelative}: food-specific public source missing: ${source}`);
+  }
+  if (emergencyFoodHtml.includes('1605hinanjo_toilet_guideline.pdf')) issues.push(`${emergencyFoodRelative}: unrelated toilet source leaked into citations`);
 }
 
 const officeHtml = fs.readFileSync(path.join(root, 'pages', 'office-bichiku.html'), 'utf8');

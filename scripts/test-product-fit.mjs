@@ -9,6 +9,7 @@ const {
   detectProductType,
   decisionFacts,
   decisionSummary,
+  isEmergencyFoodSetCandidate,
   sanitizeProductDataset,
   titleShort,
   toiletUseCount
@@ -180,4 +181,22 @@ test('affiliate rate only breaks close product-quality calls', () => {
     [closeHighRate, closeLowRate],
     'commission may break a close quality call'
   );
+});
+
+
+test('emergency food set filtering rejects drinks and keeps distinguishable set titles', () => {
+  assert.equal(isEmergencyFoodSetCandidate({
+    productType: 'food',
+    titleRaw: '非常食 カゴメ 野菜ジュース 190g×1本 保存食セット',
+    summary: '1缶に野菜1日分'
+  }), false);
+  assert.equal(isEmergencyFoodSetCandidate({
+    productType: 'food',
+    titleRaw: '非常食 保存食セット 1人 3日分 11種'
+  }), true);
+  const standard = titleShort('非常食 保存食セット 1人 3日分 11種 長期保存 アレルギー配慮');
+  const noCook = titleShort('非常食 保存食セット 1人 3日分 11種類 16点 5年保存 調理不要 水不要');
+  assert.notEqual(standard, noCook);
+  assert.match(standard, /11種/);
+  assert.match(noCook, /16点/);
 });
