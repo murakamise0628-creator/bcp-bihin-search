@@ -4,3 +4,8 @@ output/
 artifacts/
 .omc/
 .codegraph/
+.env
+.env.*
+reports/private/
+credentials/
+*service-account*.json

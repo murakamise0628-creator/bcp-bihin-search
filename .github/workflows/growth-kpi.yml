@@ -1,0 +1,43 @@
+name: Weekly growth KPI
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check KPI credentials
+        id: configured
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
+        shell: bash
+        run: |
+          if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ] && [ -n "$GA4_PROPERTY_ID" ] && [ -n "$GOOGLE_KPI_SHEET_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "KPI collection is not configured. Add the three required repository secrets."
+          fi
+      - name: Test KPI collector
+        run: node --test scripts/test-growth-kpis.mjs
+      - name: Append GA4 and Search Console KPI to private sheet
+        if: steps.configured.outputs.ready == 'true'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
+          SEARCH_CONSOLE_SITE_URL: sc-domain:jigyousho-bousai.com
+        run: node scripts/collect-growth-kpis.mjs
