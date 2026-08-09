@@ -28,6 +28,24 @@ function score(item) {
   return reviewScore + ratingScore + priceScore;
 }
 
+function affiliateRateValue(item) {
+  const rate = Number(item.affiliateRate || 0);
+  return Number.isFinite(rate) && rate > 0 ? rate : 0;
+}
+
+function compareRankedProducts(a, b) {
+  const aQuality = Number(a.relevance || 0) + Number(a.score || 0);
+  const bQuality = Number(b.relevance || 0) + Number(b.score || 0);
+  const qualityDifference = bQuality - aQuality;
+  const aQualityBand = Math.round(aQuality / 10);
+  const bQualityBand = Math.round(bQuality / 10);
+
+  // Commission only breaks ties inside a stable quality band.
+  if (aQualityBand !== bQualityBand) return bQualityBand - aQualityBand;
+  const affiliateDifference = affiliateRateValue(b) - affiliateRateValue(a);
+  return affiliateDifference || qualityDifference;
+}
+
 const pageRules = {
   'portable-power-kaigo': {
     boost: /ポータブル電源|蓄電|バッテリー|Wh|リン酸鉄|電源|停電/i,
@@ -540,7 +558,8 @@ function normalizeProducts(items, sourceKeyword = '') {
         sourceKeyword,
         availability: item.availability === 0 ? 0 : 1,
         priceIsFromVariant: hasAmbiguousToiletQuantity(item.itemName),
-        score: score(item)
+        score: score(item),
+        affiliateRate: affiliateRateValue(item)
       };
       return {
         ...product,
@@ -600,7 +619,7 @@ async function fetchForKeyword(row) {
       return true;
     })
     .map((product) => ({ ...product, relevance: relevanceScore(product, row) }))
-    .sort((a, b) => (b.relevance + b.score) - (a.relevance + a.score));
+    .sort(compareRankedProducts);
   const preferred = ranked.filter((product) => candidateTier(product, row) === 'preferred');
   const supplementary = ranked.filter((product) => candidateTier(product, row) === 'supplementary');
   const demoted = ranked.filter((product) => candidateTier(product, row) === 'demoted');
@@ -683,7 +702,10 @@ function sanitizeProductDataset(data) {
 }
 
 function createProductDataset(previous, results, now = new Date()) {
-  const comparable = (value) => JSON.stringify(value, (key, item) => key === 'fetchedAt' ? undefined : item);
+  const comparable = (value) => JSON.stringify(
+    sanitizeProductDataset(value),
+    (key, item) => key === 'fetchedAt' ? undefined : item
+  );
   const unchanged = comparable(previous.pages || []) === comparable(results);
   return sanitizeProductDataset({
     schemaVersion: 2,
@@ -706,6 +728,7 @@ module.exports = {
   toiletUseCount,
   matchesPageType,
   candidateTier,
+  compareRankedProducts,
   prioritizeProductVariety,
   decisionFacts,
   decisionSummary,

@@ -4,6 +4,8 @@ import productTools from './fetch-products.js';
 
 const {
   candidateTier,
+  compareRankedProducts,
+  createProductDataset,
   detectProductType,
   decisionFacts,
   decisionSummary,
@@ -143,4 +145,39 @@ test('public product data strips internal affiliate value fields', () => {
   });
 
   assert.deepEqual(sanitized.pages[0].products[0], { itemCode: 'shop:item' });
+});
+
+test('internal affiliate values do not create a false dataset change', () => {
+  const previous = {
+    schemaVersion: 2,
+    generatedAt: '2026-08-10T00:00:00.000Z',
+    pages: [{ slug: 'office-bichiku', products: [{ itemCode: 'shop:item', fetchedAt: 'old' }] }]
+  };
+  const results = [{
+    slug: 'office-bichiku',
+    products: [{ itemCode: 'shop:item', fetchedAt: 'new', affiliateRate: 8 }]
+  }];
+
+  const next = createProductDataset(previous, results, new Date('2026-08-10T12:00:00.000Z'));
+
+  assert.equal(next.generatedAt, previous.generatedAt);
+  assert.deepEqual(next.pages, previous.pages);
+});
+
+test('affiliate rate only breaks close product-quality calls', () => {
+  const strongFit = { relevance: 90, score: 80, affiliateRate: 2 };
+  const weakFitHighRate = { relevance: 20, score: 80, affiliateRate: 20 };
+  const closeLowRate = { relevance: 90, score: 80, affiliateRate: 2 };
+  const closeHighRate = { relevance: 88, score: 80, affiliateRate: 8 };
+
+  assert.deepEqual(
+    [weakFitHighRate, strongFit].sort(compareRankedProducts),
+    [strongFit, weakFitHighRate],
+    'a high commission must not outrank a materially better product fit'
+  );
+  assert.deepEqual(
+    [closeLowRate, closeHighRate].sort(compareRankedProducts),
+    [closeHighRate, closeLowRate],
+    'commission may break a close quality call'
+  );
 });
