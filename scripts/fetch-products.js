@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const appId = String(process.env.RAKUTEN_APP_ID || '').trim();
@@ -543,6 +543,12 @@ function titleShort(raw, maxLength = 58) {
   return result.length > maxLength ? result.slice(0, maxLength - 1) + '…' : result;
 }
 
+function productDisplayTitle(raw, summary = '', maxLength = 58) {
+  const base = titleShort(raw, maxLength);
+  if (base !== '\u975e\u5e38\u98df') return base;
+  const enriched = titleShort(`${raw || ''} ${summary || ''}`, maxLength);
+  return enriched === '\u975e\u5e38\u98df' ? base : enriched;
+}
 function keywordsForRow(row) {
   const values = [row.keyword, row.keywords]
     .flatMap((value) => String(value || '').split('|'))
@@ -556,14 +562,15 @@ function normalizeProducts(items, sourceKeyword = '') {
   return (items || [])
     .map((entry) => entry.Item || entry.item || entry)
     .map((item) => {
+      const summary = compactText(item.catchcopy || item.itemCaption || '');
+      const displayTitle = productDisplayTitle(item.itemName, summary);
       const product = {
-        name: titleShort(item.itemName),
-        titleShort: titleShort(item.itemName),
+        name: displayTitle,
+        titleShort: displayTitle,
         titleRaw: item.itemName,
         price: item.itemPrice,
         image: firstImage(item),
-        summary: compactText(item.catchcopy || item.itemCaption || ''),
-        url: item.affiliateUrl || item.itemUrl,
+        summary,        url: item.affiliateUrl || item.itemUrl,
         reviewCount: item.reviewCount || 0,
         reviewAverage: item.reviewAverage || 0,
         shopName: item.shopName || '',
@@ -742,6 +749,7 @@ if (require.main === module) {
 module.exports = {
   detectProductType,
   titleShort,
+  productDisplayTitle,
   hasAmbiguousToiletQuantity,
   toiletUseCount,
   matchesPageType,

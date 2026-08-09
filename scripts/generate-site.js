@@ -6,6 +6,7 @@ const {
   hasAmbiguousToiletQuantity,
   toiletUseCount,
   titleShort,
+  productDisplayTitle,
   matchesPageType,
   candidateTier,
   prioritizeProductVariety,
@@ -444,7 +445,7 @@ function shortName(name, maxLength = 54) {
 }
 
 function displayTitle(product, maxLength = 58) {
-  const raw = product.titleRaw ? titleShort(product.titleRaw, maxLength) : (product.titleShort || product.name || '');
+  const raw = product.titleRaw ? productDisplayTitle(product.titleRaw, product.summary || '', maxLength) : (product.titleShort || product.name || '');
   return shortName(raw, maxLength);
 }
 

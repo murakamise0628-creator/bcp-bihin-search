@@ -455,6 +455,7 @@ if (!fs.existsSync(emergencyFoodPath)) {
   if (!emergencyFoodHtml.includes('rel="nofollow sponsored noopener"')) issues.push(`${emergencyFoodRelative}: sponsored Rakuten links missing`);
   if (/野菜一日これ一本|野菜ジュース|190g(?:×|x)1本/.test(emergencyFoodHtml)) issues.push(`${emergencyFoodRelative}: single beverage leaked into food-set comparison`);
   const emergencyFoodNames = [...emergencyFoodHtml.matchAll(/data-product-name="([^"]+)"/g)].map((match) => match[1]);
+  if (emergencyFoodNames.some((name) => /^(?:\u975e\u5e38\u98df|\u4fdd\u5b58\u98df)$/.test(name))) issues.push(`${emergencyFoodRelative}: generic food product name leaked into comparison`);
   if (new Set(emergencyFoodNames).size !== 12) issues.push(`${emergencyFoodRelative}: product names are not distinguishable`);
   for (const source of ['foodstock/chapter06.html', 'foodstock/imadoki/imadoki11.html']) {
     if (!emergencyFoodHtml.includes(source)) issues.push(`${emergencyFoodRelative}: food-specific public source missing: ${source}`);

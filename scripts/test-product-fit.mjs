@@ -12,6 +12,7 @@ const {
   isEmergencyFoodSetCandidate,
   sanitizeProductDataset,
   titleShort,
+  productDisplayTitle,
   toiletUseCount
 } = productTools;
 
@@ -184,6 +185,11 @@ test('affiliate rate only breaks close product-quality calls', () => {
 });
 
 
+test('generic emergency-food names inherit decision quantities from the summary', () => {
+  const raw = '\u30ec\u30b9\u30ad\u30e5\u30fc\u30d5\u30fc\u30ba \u975e\u5e38\u98df \u4fdd\u5b58\u98df';
+  const summary = '3\u98df\u3092\u30b3\u30f3\u30d1\u30af\u30c8\u306b\u307e\u3068\u3081\u305f\u30bb\u30c3\u30c8';
+  assert.equal(productDisplayTitle(raw, summary), '3\u98df \u975e\u5e38\u98df');
+});
 test('emergency food set filtering rejects drinks and keeps distinguishable set titles', () => {
   assert.equal(isEmergencyFoodSetCandidate({
     productType: 'food',
