@@ -109,6 +109,7 @@ async function navigateFresh(send, url) {
 
 const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet-office.html')).href;
 const powerPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'portable-power-kaigo.html')).href;
+const quantityPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'office-stockpile-quantity.html')).href;
 const checklistPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'bcp-stockpile-checklist.html')).href;
 const homePage = pathToFileURL(path.join(projectRoot, 'dist', 'index.html')).href;
 let socket;
@@ -219,6 +220,48 @@ try {
     powerResults.push(result);
   }
 
+  const quantityResults = [];
+  for (const width of [320, 375, 768]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height: 900,
+      deviceScaleFactor: 1,
+      mobile: width < 768
+    });
+    await navigateFresh(send, `${quantityPage}?audit=quantity-${width}`);
+    const result = await evaluate(send, `(() => {
+      window.__quantityEvents = [];
+      window.gtag = (...args) => window.__quantityEvents.push(args);
+      const cards = [...document.querySelectorAll('article.card.product')];
+      const ids = cards.map((card) => card.querySelector('a[data-product-id]')?.dataset.productId || '');
+      const firstCta = cards[0]?.querySelector('a[data-product-id]');
+      firstCta?.addEventListener('click', (event) => event.preventDefault(), { once: true });
+      firstCta?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      const html = document.documentElement.innerHTML;
+      return {
+        width: innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        cards: cards.length,
+        uniqueIds: new Set(ids).size,
+        images: cards.filter((card) => card.querySelector('img')).length,
+        completeCards: cards.filter((card) => card.querySelector('.price') && card.querySelector('.facts') && card.querySelector('.spec-grid') && card.querySelector('a[data-product-id]')).length,
+        itemListSchema: html.includes('"@type":"ItemList"'),
+        productSchemaCount: (html.match(/"@type":"Product"/g) || []).length,
+        events: window.__quantityEvents.map((args) => args[1])
+      };
+    })()`);
+    assert.ok(result.scrollWidth <= result.width + 1, `${width}px quantity page overflow: ${result.scrollWidth}px`);
+    assert.equal(result.cards, 6, `${width}px quantity page product count changed`);
+    assert.equal(result.uniqueIds, 6, `${width}px quantity page contains duplicate products`);
+    assert.equal(result.images, 6, `${width}px quantity page has a product without an image`);
+    assert.equal(result.completeCards, 6, `${width}px quantity page has an incomplete product card`);
+    assert.equal(result.itemListSchema, true);
+    assert.equal(result.productSchemaCount, 6);
+    assert.ok(result.events.includes('select_item'), `${width}px select_item event missing`);
+    assert.ok(result.events.includes('rakuten_click'), `${width}px rakuten_click event missing`);
+    quantityResults.push(result);
+  }
+
   const homeResults = [];
   for (const width of [320, 375, 414, 768, 1440]) {
     await send('Emulation.setDeviceMetricsOverride', {
@@ -323,7 +366,7 @@ try {
 
   const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'toilet-mobile-cdp.png'), Buffer.from(screenshot.data, 'base64'));
-  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, home: homeResults, checklist: checklistResults }, null, 2));
+  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
 } catch (error) {
   if (process.env.GITHUB_ACTIONS === 'true') {
     const message = String(error?.message || error)

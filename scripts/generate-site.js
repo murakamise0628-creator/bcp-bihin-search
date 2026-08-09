@@ -2750,6 +2750,46 @@ const quantityRows = [
   [100, 900, 900, 1500, 100, 2100, 2100, 3500]
 ];
 const quantityTableRows = quantityRows.map(([people, water3, food3, toilet3, warm, water7, food7, toilet7]) => `<tr><th scope="row">${people}人</th><td>${water3.toLocaleString('ja-JP')}L</td><td>${food3.toLocaleString('ja-JP')}食</td><td>${toilet3.toLocaleString('ja-JP')}回</td><td>${warm.toLocaleString('ja-JP')}枚</td><td>${water7.toLocaleString('ja-JP')}L</td><td>${food7.toLocaleString('ja-JP')}食</td><td>${toilet7.toLocaleString('ja-JP')}回</td></tr>`).join('');
+
+const quantityProductGroups = [
+  {
+    slug: 'water-food-stock',
+    heading: '保存水・非常食',
+    intro: '保存年数だけでなく、1箱の水量・食数、箱サイズ、アレルギー表示を確認してください。',
+    products: ['water', 'food'].map((type) => pageBySlug('water-food-stock')?.products?.find((product) => product.productType === type)).filter(Boolean)
+  },
+  {
+    slug: 'toilet-office',
+    heading: '簡易トイレ',
+    intro: '必要回数に対して、凝固剤、処理袋、防臭袋がそろうかを確認してください。',
+    products: (pageBySlug('toilet-office')?.products || []).filter((product) => productDecisionFacts(product).toiletSupplyType === 'complete-kit').slice(0, 2)
+  },
+  {
+    slug: 'office-bichiku',
+    heading: '事業所向け備蓄セット',
+    intro: 'セットに含まれる水・食料・トイレの量を人数分に換算し、不足品を別に補います。',
+    products: (pageBySlug('office-bichiku')?.products || []).filter((product) => product.productType === 'disaster-set').slice(0, 2)
+  }
+];
+const quantitySeenProducts = new Set();
+const quantityGuideProducts = quantityProductGroups.flatMap((group) => group.products).filter((product) => {
+  const key = product.itemCode || product.url;
+  if (!key || quantitySeenProducts.has(key)) return false;
+  quantitySeenProducts.add(key);
+  return true;
+});
+const quantityRenderedProducts = new Set();
+const quantityProductSections = quantityProductGroups.map((group) => {
+  const note = { ...(pageNotes[group.slug] || {}), slug: group.slug, title: group.heading };
+  const products = group.products.filter((product) => {
+    const key = product.itemCode || product.url;
+    if (!key || quantityRenderedProducts.has(key)) return false;
+    quantityRenderedProducts.add(key);
+    return true;
+  });
+  return `<section class="quantity-product-group"><div class="section-title"><div><h3>${esc(group.heading)}</h3><p>${esc(group.intro)}</p></div><a class="small-button" href="${siteUrl}/pages/${group.slug}.html">全候補を比較</a></div><div class="product-list quantity-product-list">${productCards(products, note)}</div></section>`;
+}).join('');
+
 const quantityGuideBody = `<section class="hero">
   <p class="eyebrow">会社・店舗・施設の数量早見表</p>
   <h1>会社の防災備蓄量早見表</h1>
@@ -2766,11 +2806,14 @@ const quantityGuideBody = `<section class="hero">
   <article class="card"><h3>簡易トイレ</h3><p>必要回数に対して、凝固剤、処理袋、防臭袋が足りるかを確認します。</p><a class="small-button" href="${siteUrl}/pages/toilet-office.html">簡易トイレを比較</a></article>
   <article class="card"><h3>事業所向け備蓄セット</h3><p>セット内容を人数分に換算し、不足する水・食料・トイレを分けて確認します。</p><a class="small-button" href="${siteUrl}/pages/office-bichiku.html">備蓄セットを比較</a></article>
 </div></section>
+<section class="section quantity-products" id="products"><div class="section-title"><div><p class="eyebrow">商品を確認</p><h2>必要量と、商品の入数・仕様を照らす</h2><p>早見表の数量を、1箱あたりの水量・食数・回数と照らして確認してください。</p></div><p class="notice">価格・在庫・仕様は楽天市場で最終確認</p></div>${quantityProductSections}</section>
 ${sourceSection('home')}
 <section class="section faq" id="faq"><h2>よくある質問</h2>${quantityGuideFaq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
 ${structuredData(
   webPageJsonLd('会社の防災備蓄量早見表｜10・30・50・100人の3日・7日分', '会社や事業所の防災備蓄量を、10人、30人、50人、100人の3日分・7日分で一覧化。保存水、非常食、簡易トイレ、毛布・保温シートの必要量を確認し、商品比較へ進めます。', quantityGuideCanonical, sourceUrlsFor('home')),
   breadcrumbJsonLd([{ name: '会社の防災備蓄量早見表', url: quantityGuideCanonical }]),
+  itemListJsonLd(quantityGuideProducts, quantityGuideCanonical),
+  productJsonLd(quantityGuideProducts),
   faqJsonLd(quantityGuideFaq)
 )}`;
 const policyCanonical = `${siteUrl}/site-policy.html`;

@@ -512,6 +512,15 @@ if (!fs.existsSync(quantityGuidePath)) {
   for (const marker of requiredQuantityMarkers) {
     if (!quantityGuideHtml.includes(marker)) issues.push(`${quantityGuideRelative}: missing ${marker}`);
   }
+  const quantityProductCards = quantityGuideHtml.match(/<article class="card product(?:\s|\")/g) || [];
+  const quantityProductIds = [...quantityGuideHtml.matchAll(/<article class="card product[\s\S]*?data-product-id="([^"]+)"[\s\S]*?<\/article>/g)].map((match) => match[1]);
+  if (quantityProductCards.length !== 6) issues.push(`${quantityGuideRelative}: expected 6 direct product cards, found ${quantityProductCards.length}`);
+  if (quantityProductIds.length !== 6) issues.push(`${quantityGuideRelative}: expected 6 tracked product cards, found ${quantityProductIds.length}`);
+  if (new Set(quantityProductIds).size !== quantityProductIds.length) issues.push(`${quantityGuideRelative}: duplicate direct products found`);
+  if ((quantityGuideHtml.match(/<article class="card product[\s\S]*?<img /g) || []).length !== 6) issues.push(`${quantityGuideRelative}: every direct product needs an image`);
+  if (!quantityGuideHtml.includes('数量・価格を楽天で確認')) issues.push(`${quantityGuideRelative}: direct Rakuten CTA missing`);
+  if (!quantityGuideHtml.includes('"@type":"ItemList"')) issues.push(`${quantityGuideRelative}: ItemList schema missing`);
+  if ((quantityGuideHtml.match(/"@type":"Product"/g) || []).length !== 6) issues.push(`${quantityGuideRelative}: expected 6 Product schema entries`);
 }
 if (!homeHtml.includes('href="https://jigyousho-bousai.com/pages/office-stockpile-quantity.html"')) {
   issues.push('index.html: quantity guide internal link missing');
