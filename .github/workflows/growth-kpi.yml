@@ -31,21 +31,48 @@ jobs:
           GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
         shell: bash
         run: |
-          if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ] && [ -n "$GA4_PROPERTY_ID" ] && [ -n "$GOOGLE_KPI_SHEET_ID" ]; then
+          test -n "$GOOGLE_SERVICE_ACCOUNT_JSON" && service_account=true || service_account=false
+          test -n "$GA4_PROPERTY_ID" && ga4_property=true || ga4_property=false
+          test -n "$GOOGLE_KPI_SHEET_ID" && sheet=true || sheet=false
+          echo "service_account=$service_account" >> "$GITHUB_OUTPUT"
+          echo "ga4_property=$ga4_property" >> "$GITHUB_OUTPUT"
+          echo "sheet=$sheet" >> "$GITHUB_OUTPUT"
+          if [ "$service_account" = true ] && [ "$ga4_property" = true ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
           fi
-      - name: Report missing KPI credentials
-        if: steps.configured.outputs.ready != 'true'
-        run: echo "::warning::Weekly KPI collection is not connected. Add GOOGLE_SERVICE_ACCOUNT_JSON, GA4_PROPERTY_ID, and GOOGLE_KPI_SHEET_ID."
       - name: Test KPI collector
         run: node --test scripts/test-growth-kpis.mjs
-      - name: Append GA4 and Search Console KPI to private sheet
+      - name: Collect GA4 and Search Console KPI
         if: steps.configured.outputs.ready == 'true'
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
           GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
           SEARCH_CONSOLE_SITE_URL: sc-domain:jigyousho-bousai.com
+          KPI_OUTPUT_PATH: artifacts/growth-kpi.json
         run: node scripts/collect-growth-kpis.mjs
+      - name: Upload private KPI report
+        if: steps.configured.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: growth-kpi-${{ github.run_id }}
+          path: artifacts/growth-kpi.json
+          retention-days: 90
+          if-no-files-found: error
+      - name: Report connection status
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Weekly KPI connection"
+            echo "- Service account: ${{ steps.configured.outputs.service_account }}"
+            echo "- GA4 property ID: ${{ steps.configured.outputs.ga4_property }}"
+            echo "- Google Sheet (optional): ${{ steps.configured.outputs.sheet }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Fail when KPI collection is disconnected
+        if: steps.configured.outputs.ready != 'true'
+        run: |
+          echo "::error::Weekly KPI collection is disconnected. Add GOOGLE_SERVICE_ACCOUNT_JSON and GA4_PROPERTY_ID. GOOGLE_KPI_SHEET_ID is optional."
+          exit 1

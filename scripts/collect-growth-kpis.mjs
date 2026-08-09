@@ -171,7 +171,6 @@ export async function collectGrowthKpis(options = {}) {
   const propertyId = options.propertyId || process.env.GA4_PROPERTY_ID;
   const sheetId = options.sheetId || process.env.GOOGLE_KPI_SHEET_ID;
   if (!/^\d+$/.test(propertyId || '')) throw new Error('GA4_PROPERTY_ID must contain digits only.');
-  if (!sheetId) throw new Error('GOOGLE_KPI_SHEET_ID is required.');
   const fetchImpl = options.fetchImpl || fetch;
   const token = await accessToken(parseServiceAccount(options.serviceAccount || process.env.GOOGLE_SERVICE_ACCOUNT_JSON), fetchImpl);
   const periods = reportingPeriods(options.now || new Date(), config.reportDays, config.dataDelayDays);
@@ -181,7 +180,7 @@ export async function collectGrowthKpis(options = {}) {
     searchPeriod(site, token, periods.current, fetchImpl), searchPeriod(site, token, periods.previous, fetchImpl)
   ]);
   const report = { schemaVersion: 1, collectedAt: new Date().toISOString(), siteUrl: config.siteUrl, periods, ga: { current: gaCurrent, previous: gaPrevious }, search: { current: searchCurrent, previous: searchPrevious } };
-  await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
+  if (sheetId) await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
   if (process.env.KPI_OUTPUT_PATH) {
     fs.mkdirSync(path.dirname(path.resolve(process.env.KPI_OUTPUT_PATH)), { recursive: true });
     fs.writeFileSync(process.env.KPI_OUTPUT_PATH, `${JSON.stringify(report, null, 2)}\n`);
