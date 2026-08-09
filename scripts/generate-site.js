@@ -1305,6 +1305,32 @@ function clientScript() {
             text='必要な'+plan.toilet.toLocaleString('ja-JP')+'回分と、販売ページの入数を照合';
             score+=900000000;
           }
+        }else if(slug==='portable-power-kaigo'){
+          var productWh=Number(element.dataset.powerWh || 0);
+          var productOutput=Number(element.dataset.outputW || 0);
+          var requiredWh=Number(plan.requiredWh || 0);
+          var requiredOutput=Number(plan.watts || 0);
+          if(requiredWh<=0 || requiredOutput<=0){
+            text='消費電力と使用時間を入力';
+            score=900000000;
+          }else if(productWh>0 && productOutput>0){
+            var capacityEnough=productWh>=requiredWh;
+            var outputEnough=productOutput>=requiredOutput;
+            if(capacityEnough && outputEnough){
+              text=requiredWh.toLocaleString('ja-JP')+'Wh以上・'+requiredOutput.toLocaleString('ja-JP')+'W対応候補';
+              score=tierRank*10000000+(price>0 ? price : 5000000)+(productWh-requiredWh);
+              matched=true;
+            }else{
+              var shortage=[];
+              if(!capacityEnough) shortage.push('容量'+productWh.toLocaleString('ja-JP')+'Wh');
+              if(!outputEnough) shortage.push('出力'+productOutput.toLocaleString('ja-JP')+'W');
+              text=shortage.join('・')+'のため入力条件に不足';
+              score=800000000+Math.max(0,requiredWh-productWh)*100+Math.max(0,requiredOutput-productOutput);
+            }
+          }else{
+            text='容量または定格出力を販売ページで確認';
+            score=1500000000;
+          }
         }else if(slug==='office-bichiku'){
           var capacity=Number(element.dataset.peopleCapacity || 0);
           var stockDays=Number(element.dataset.stockDays || 0);
@@ -1355,13 +1381,20 @@ function clientScript() {
       }
       function updateProductFit(plan){
         var slug=currentPageSlug();
-        if(!plan.active || !['toilet-office','office-bichiku'].includes(slug)) return;
+        if(!plan.active || !['toilet-office','office-bichiku','portable-power-kaigo'].includes(slug)) return;
         var matchedProducts=new Set();
         document.querySelectorAll('[data-product-fit]').forEach(function(element){
           var result=productFitFor(element,plan,slug);
           element.dataset.fitScore=String(result.score);
           var label=element.querySelector('[data-fit-result]');
           if(label) label.textContent=result.text;
+          if(slug==='portable-power-kaigo'){
+            element.querySelectorAll('a[data-product-id]').forEach(function(anchor){
+              anchor.textContent=result.matched
+                ? plan.requiredWh.toLocaleString('ja-JP')+'Wh以上・'+plan.watts.toLocaleString('ja-JP')+'W対応候補を楽天で確認'
+                : plan.requiredWh.toLocaleString('ja-JP')+'Wh・'+plan.watts.toLocaleString('ja-JP')+'W条件を楽天で確認';
+            });
+          }
           if(result.matched) matchedProducts.add(element.dataset.productKey || element.textContent);
         });
         document.querySelectorAll('.compare-table tbody,.product-list').forEach(sortProductChildren);
@@ -1373,7 +1406,9 @@ function clientScript() {
             matched_candidate_count:matchedCount,
             people_count:plan.people,
             days_count:plan.days,
-            required_toilet_uses:plan.toilet
+            required_toilet_uses:slug==='toilet-office' ? plan.toilet : undefined,
+            required_power_wh:slug==='portable-power-kaigo' ? plan.requiredWh : undefined,
+            required_output_w:slug==='portable-power-kaigo' ? plan.watts : undefined
           });
         }
       }
@@ -1446,6 +1481,7 @@ function clientScript() {
         if(!output) return;
         var wh=Math.ceil((watts*hours*(1+margin/100))/100)*100;
         output.textContent=wh.toLocaleString('ja-JP')+'Wh以上';
+        updateProductFit({ active:watts>0 && hours>0, requiredWh:wh, watts:watts, people:0, days:0 });
       }
       var powerTracked=false;
       ['powerWatts','powerHours','powerMargin'].forEach(function(id){
@@ -2382,6 +2418,7 @@ function topicHtml(topic) {
     <article class="card"><h2>見方</h2><ol class="steps"><li>人数と待機日数を決める</li><li>水・トイレ・食料・電源を分けて見る</li><li>関連する比較ページで商品候補を確認する</li></ol></article>
   </section>
   ${quantityEstimateSection()}
+<section class="section card quantity-guide-promo"><div><p class="eyebrow">10・30・50・100人</p><h2>人数別の3日分・7日分を一覧で確認</h2><p>保存水、食料、簡易トイレ、毛布・保温シートの量を、人数ごとに見比べられます。</p></div><a class="button" href="${quantityGuideCanonical}">備蓄量早見表を見る</a></section>
   ${sourceSection(topic.slug)}
   <section class="section" id="related"><div class="section-title"><div><p class="eyebrow">関連する比較ページ</p><h2>用途別に詳しく比較する</h2></div></div><div class="grid">${linkCards}</div></section>
   ${stockCheckSection('')}
@@ -2669,6 +2706,7 @@ const indexBody = `<section class="home-hero">
   <div><strong>介護施設</strong><span>停電時の照明、通信、電源、利用者対応を確認。</span></div>
 </section>
 ${quantityEstimateSection()}
+<section class="section card quantity-guide-promo"><div><p class="eyebrow">10・30・50・100人</p><h2>人数別の3日分・7日分を一覧で確認</h2><p>保存水、食料、簡易トイレ、毛布・保温シートの量を、人数ごとに見比べられます。</p></div><a class="button" href="${siteUrl}/pages/office-stockpile-quantity.html">備蓄量早見表を見る</a></section>
 ${paidKitHomePromo}
 ${sourceSection('home')}
 <section class="section" id="disasters">
@@ -2698,6 +2736,43 @@ ${structuredData(
   faqJsonLd(homeFaq.map((item) => [item.question, item.answer]))
 )}`;
 
+const quantityGuideCanonical = `${siteUrl}/pages/office-stockpile-quantity.html`;
+const quantityGuideFaq = [
+  ['会社の防災備蓄は何日分から考えますか？', 'まず3日分を出発点に、従業員、来客、施設利用者を含む最大人数で計算します。地域や建物、物流の条件によっては7日分も比較してください。'],
+  ['30人分の保存水はどれくらい必要ですか？', '1人1日3Lを目安にすると、30人では3日分で270L、7日分で630Lです。保管場所と持ち運びやすさもあわせて確認します。'],
+  ['50人分の簡易トイレは何回分ですか？', '1人1日5回を目安にすると、50人では3日分で750回、7日分で1,750回です。凝固剤、処理袋、防臭袋の数も確認してください。'],
+  ['毛布や保温シートは日数分必要ですか？', 'この早見表では1人1枚を出発点にしています。季節、建物の断熱性、夜間待機の有無に合わせて追加を検討してください。']
+];
+const quantityRows = [
+  [10, 90, 90, 150, 10, 210, 210, 350],
+  [30, 270, 270, 450, 30, 630, 630, 1050],
+  [50, 450, 450, 750, 50, 1050, 1050, 1750],
+  [100, 900, 900, 1500, 100, 2100, 2100, 3500]
+];
+const quantityTableRows = quantityRows.map(([people, water3, food3, toilet3, warm, water7, food7, toilet7]) => `<tr><th scope="row">${people}人</th><td>${water3.toLocaleString('ja-JP')}L</td><td>${food3.toLocaleString('ja-JP')}食</td><td>${toilet3.toLocaleString('ja-JP')}回</td><td>${warm.toLocaleString('ja-JP')}枚</td><td>${water7.toLocaleString('ja-JP')}L</td><td>${food7.toLocaleString('ja-JP')}食</td><td>${toilet7.toLocaleString('ja-JP')}回</td></tr>`).join('');
+const quantityGuideBody = `<section class="hero">
+  <p class="eyebrow">会社・店舗・施設の数量早見表</p>
+  <h1>会社の防災備蓄量早見表</h1>
+  <p class="lead">10人、30人、50人、100人の事業所を想定し、保存水、非常食、簡易トイレ、毛布・保温シートの3日分と7日分を比較できます。従業員だけでなく、来客や施設利用者が残る場合は人数に加えてください。</p>
+  <div class="hero-actions"><a class="button orange" href="#quantity-table">人数別の数量を見る</a><a class="button secondary" href="${siteUrl}/pages/bcp-stockpile-checklist.html">自社の人数で計算する</a></div>
+</section>
+<section class="section card"><p class="eyebrow">このページの結論</p><h2>まず3日分を出発点に、人数と保管場所の両方で確認します</h2><p>水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回、毛布または保温シートは1人1枚を目安に計算しています。7日分は物流やライフラインの復旧に時間がかかる場合の比較用です。施設条件や自治体の方針に合わせて調整してください。</p></section>
+<section class="section" id="quantity-table"><div class="section-title"><div><p class="eyebrow">人数別</p><h2>3日分・7日分の備蓄量</h2></div><p class="notice">横にスクロールして比較できます</p></div>
+  <div class="compare-scroll"><table class="compare-table"><thead><tr><th rowspan="2">人数</th><th colspan="4">3日分</th><th colspan="3">7日分</th></tr><tr><th>保存水</th><th>食料</th><th>簡易トイレ</th><th>毛布・保温</th><th>保存水</th><th>食料</th><th>簡易トイレ</th></tr></thead><tbody>${quantityTableRows}</tbody></table></div>
+  <p class="notice">数値は購入量を決めるための目安です。箱数、1箱あたりの本数・食数・回数は販売ページで確認してください。</p>
+</section>
+<section class="section"><div class="section-title"><div><p class="eyebrow">次に比較</p><h2>必要量が分かったら、箱数と仕様を確認</h2></div></div><div class="grid">
+  <article class="card"><h3>保存水・非常食</h3><p>水量、食数、保存年数、アレルギー表示、箱サイズを確認します。</p><a class="small-button" href="${siteUrl}/pages/water-food-stock.html">保存水・非常食を比較</a></article>
+  <article class="card"><h3>簡易トイレ</h3><p>必要回数に対して、凝固剤、処理袋、防臭袋が足りるかを確認します。</p><a class="small-button" href="${siteUrl}/pages/toilet-office.html">簡易トイレを比較</a></article>
+  <article class="card"><h3>事業所向け備蓄セット</h3><p>セット内容を人数分に換算し、不足する水・食料・トイレを分けて確認します。</p><a class="small-button" href="${siteUrl}/pages/office-bichiku.html">備蓄セットを比較</a></article>
+</div></section>
+${sourceSection('home')}
+<section class="section faq" id="faq"><h2>よくある質問</h2>${quantityGuideFaq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
+${structuredData(
+  webPageJsonLd('会社の防災備蓄量早見表｜10・30・50・100人の3日・7日分', '会社や事業所の防災備蓄量を、10人、30人、50人、100人の3日分・7日分で一覧化。保存水、非常食、簡易トイレ、毛布・保温シートの必要量を確認し、商品比較へ進めます。', quantityGuideCanonical, sourceUrlsFor('home')),
+  breadcrumbJsonLd([{ name: '会社の防災備蓄量早見表', url: quantityGuideCanonical }]),
+  faqJsonLd(quantityGuideFaq)
+)}`;
 const policyCanonical = `${siteUrl}/site-policy.html`;
 const policyBody = `<nav class="breadcrumbs" aria-label="パンくず"><a href="${siteUrl}/">ホーム</a><span>›</span><span>サイト情報・広告掲載・プライバシー</span></nav>
 <section class="hero"><p class="eyebrow">サイトについて</p><h1>サイト情報・広告掲載・プライバシー</h1><p class="lead">事業所防災ナビの掲載内容、広告リンク、アクセス解析で取り扱う情報を記載します。</p></section>
@@ -2731,6 +2806,13 @@ writeGenerated(path.join(dist, 'site-policy.html'), layout(
 writeGenerated(path.join(dist, 'CNAME'), 'jigyousho-bousai.com\n');
 writeGenerated(path.join(dist, 'google2ec9ab5d0fbf2c67.html'), 'google-site-verification: google2ec9ab5d0fbf2c67.html\n');
 fs.mkdirSync(path.join(dist, 'pages'), { recursive: true });
+writeGenerated(path.join(dist, 'pages', 'office-stockpile-quantity.html'), layout(
+  '会社の防災備蓄量早見表｜10・30・50・100人の3日・7日分',
+  quantityGuideBody,
+  '会社や事業所の防災備蓄量を、10人、30人、50人、100人の3日分・7日分で一覧化。保存水、非常食、簡易トイレ、毛布・保温シートの必要量を確認し、商品比較へ進めます。',
+  quantityGuideCanonical,
+  { crumbs: ['会社の防災備蓄量早見表'] }
+));
 for (const page of data.pages) {
   writeGenerated(path.join(dist, 'pages', page.slug + '.html'), pageHtml(page));
 }
@@ -2757,6 +2839,7 @@ for (const topic of topicPages) {
 const urls = [
   `${siteUrl}/`,
   policyCanonical,
+  quantityGuideCanonical,
   ...data.pages.map((page) => `${siteUrl}/pages/${page.slug}.html`),
   ...(paidProduct.published ? [paidKitCanonical] : []),
   ...topicPages.map((topic) => `${siteUrl}/topics/${topic.slug}.html`)
@@ -2774,6 +2857,7 @@ const llmsText = [
   `- [事業所防災ナビ](${siteUrl}/): 必要数量の目安、災害別導線、主要比較ページの入口`,
   `- [事業所防災備蓄チェックリスト](${siteUrl}/pages/bcp-stockpile-checklist.html): 水、食料、簡易トイレ、電源、衛生、防寒の確認項目`,
   '',
+  `- [会社の防災備蓄量早見表](${quantityGuideCanonical}): 10人、30人、50人、100人の3日分・7日分を一覧で確認`,
   '## 商品比較',
   '',
   ...data.pages.map((page) => `- [${page.title}](${siteUrl}/pages/${page.slug}.html)`),

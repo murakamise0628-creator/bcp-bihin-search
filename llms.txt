@@ -7,6 +7,7 @@
 - [事業所防災ナビ](https://jigyousho-bousai.com/): 必要数量の目安、災害別導線、主要比較ページの入口
 - [事業所防災備蓄チェックリスト](https://jigyousho-bousai.com/pages/bcp-stockpile-checklist.html): 水、食料、簡易トイレ、電源、衛生、防寒の確認項目
 
+- [会社の防災備蓄量早見表](https://jigyousho-bousai.com/pages/office-stockpile-quantity.html): 10人、30人、50人、100人の3日分・7日分を一覧で確認
 ## 商品比較
 
 - [介護施設向けポータブル電源比較](https://jigyousho-bousai.com/pages/portable-power-kaigo.html)

@@ -108,6 +108,7 @@ async function navigateFresh(send, url) {
 }
 
 const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet-office.html')).href;
+const powerPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'portable-power-kaigo.html')).href;
 const checklistPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'bcp-stockpile-checklist.html')).href;
 const homePage = pathToFileURL(path.join(projectRoot, 'dist', 'index.html')).href;
 let socket;
@@ -187,6 +188,36 @@ try {
   })()`);
   assert.match(zeroPlan.text, /1人以上/);
   assert.equal(zeroPlan.hasUnitRecommendation, false);
+
+  const powerResults = [];
+  for (const width of [320, 375, 768]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height: 900,
+      deviceScaleFactor: 1,
+      mobile: width < 768
+    });
+    await navigateFresh(send, `${powerPage}?audit=power-${width}`);
+    const result = await evaluate(send, `(() => {
+      const first = document.querySelector('.compare-table tbody [data-product-fit]');
+      return {
+        width: innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        estimate: document.querySelector('#powerEstimate')?.textContent || '',
+        fit: first?.querySelector('[data-fit-result]')?.textContent || '',
+        cta: first?.querySelector('a[data-product-id]')?.textContent || '',
+        powerWh: Number(first?.dataset.powerWh || 0),
+        outputW: Number(first?.dataset.outputW || 0)
+      };
+    })()`);
+    assert.ok(result.scrollWidth <= result.width + 1, `${width}px power page overflow: ${result.scrollWidth}px`);
+    assert.equal(result.estimate, '1,500Wh以上');
+    assert.ok(result.powerWh >= 1500, `${width}px first power candidate capacity is insufficient`);
+    assert.ok(result.outputW >= 300, `${width}px first power candidate output is insufficient`);
+    assert.match(result.fit, /1,500Wh以上・300W対応候補/);
+    assert.match(result.cta, /1,500Wh以上・300W対応候補を楽天で確認/);
+    powerResults.push(result);
+  }
 
   const homeResults = [];
   for (const width of [320, 375, 414, 768, 1440]) {
@@ -292,7 +323,7 @@ try {
 
   const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'toilet-mobile-cdp.png'), Buffer.from(screenshot.data, 'base64'));
-  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, home: homeResults, checklist: checklistResults }, null, 2));
+  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, home: homeResults, checklist: checklistResults }, null, 2));
 } catch (error) {
   if (process.env.GITHUB_ACTIONS === 'true') {
     const message = String(error?.message || error)

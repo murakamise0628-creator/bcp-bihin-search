@@ -271,6 +271,9 @@ for (const file of files) {
   if (relative.replace(/\\/g, '/') === 'pages/portable-power-kaigo.html') {
     if (!html.includes('id="powerWatts"') || !html.includes('id="powerEstimate"')) issues.push(`${relative}: power capacity calculator missing`);
     if (!html.includes("trackEvent('power_calculator_use'")) issues.push(`${relative}: power calculator analytics missing`);
+    if (!html.includes("slug==='portable-power-kaigo'")) issues.push(`${relative}: power product-fit ranking missing`);
+    if (!html.includes('required_power_wh') || !html.includes('required_output_w')) issues.push(`${relative}: power-fit analytics dimensions missing`);
+    if (!html.includes('W対応候補を楽天で確認')) issues.push(`${relative}: calculated power CTA missing`);
     if (!html.includes('出力・容量を楽天で確認')) issues.push(`${relative}: power-specific CTA missing`);
   }
   if (relative.replace(/\\/g, '/') === 'pages/restaurant-dansui.html') {
@@ -488,6 +491,31 @@ const homeHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const homeHasPaidKit = homeHtml.includes('data-paid-kit-offer="true"');
 if (paidProductEnabled && !homeHasPaidKit) issues.push('index.html: enabled paid-kit link missing');
 if (!paidProductEnabled && homeHasPaidKit) issues.push('index.html: unpublished paid-kit link must be absent');
+
+const quantityGuideRelative = 'pages/office-stockpile-quantity.html';
+const quantityGuidePath = path.join(root, quantityGuideRelative);
+if (!fs.existsSync(quantityGuidePath)) {
+  issues.push(`${quantityGuideRelative}: missing`);
+} else {
+  const quantityGuideHtml = fs.readFileSync(quantityGuidePath, 'utf8');
+  const requiredQuantityMarkers = [
+    '<link rel="canonical" href="https://jigyousho-bousai.com/pages/office-stockpile-quantity.html">',
+    '<h1>会社の防災備蓄量早見表</h1>',
+    '<th scope="row">10人</th><td>90L</td><td>90食</td><td>150回</td>',
+    '<th scope="row">30人</th><td>270L</td><td>270食</td><td>450回</td>',
+    '<th scope="row">50人</th><td>450L</td><td>450食</td><td>750回</td>',
+    '<th scope="row">100人</th><td>900L</td><td>900食</td><td>1,500回</td>',
+    '"@type":"FAQPage"',
+    '保存水・非常食を比較',
+    '簡易トイレを比較'
+  ];
+  for (const marker of requiredQuantityMarkers) {
+    if (!quantityGuideHtml.includes(marker)) issues.push(`${quantityGuideRelative}: missing ${marker}`);
+  }
+}
+if (!homeHtml.includes('href="https://jigyousho-bousai.com/pages/office-stockpile-quantity.html"')) {
+  issues.push('index.html: quantity guide internal link missing');
+}
 
 const robots = fs.readFileSync(path.join(root, 'robots.txt'), 'utf8');
 if (!/User-agent: OAI-SearchBot\s+Allow: \//.test(robots)) issues.push('robots.txt: OAI-SearchBot is not explicitly allowed');
