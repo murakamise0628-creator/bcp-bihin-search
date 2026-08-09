@@ -440,6 +440,34 @@ for (const [relative, expectedTitle] of Object.entries(expectedSearchTitles)) {
   }
 }
 
+const comparisonPages = [
+  'pages/office-bichiku.html',
+  'pages/kitaku-konnansha.html',
+  'pages/restaurant-dansui.html',
+  'pages/hoikuen-bousai.html',
+  'pages/toilet-office.html',
+  'pages/earthquake-office.html',
+  'pages/typhoon-office.html',
+  'pages/blackout-power.html',
+  'pages/water-food-stock.html',
+  'pages/emergency-food-office.html',
+  'pages/portable-power-kaigo.html'
+];
+const genericComparisonTitle = /^(?:\u9632\u707d\u30bb\u30c3\u30c8|\u975e\u5e38\u98df|\u4fdd\u5b58\u98df|\u4fdd\u5b58\u6c34|\u975e\u5e38\u7528\u30c8\u30a4\u30ec|\u30c8\u30a4\u30ec\u7528\u888b|\u30c8\u30a4\u30ec\u7528\u51dd\u56fa\u5264|\u7d66\u6c34\u7528\u54c1|\u885b\u751f\u7528\u54c1|\u5b89\u5168\u5bfe\u7b56\u7528\u54c1|\u975e\u5e38\u7528\u30e9\u30a4\u30c8|\u9632\u707d\u30e9\u30b8\u30aa|\u30dd\u30fc\u30bf\u30d6\u30eb\u96fb\u6e90|\u9632\u5bd2\u7528\u54c1|\u6d78\u6c34\u5bfe\u7b56\u7528\u54c1)$/;
+for (const relative of comparisonPages) {
+  const pagePath = path.join(root, relative);
+  if (!fs.existsSync(pagePath)) {
+    issues.push(`${relative}: comparison page missing`);
+    continue;
+  }
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const names = [...html.matchAll(/data-product-name="([^"]+)"/g)].map((match) => match[1].trim());
+  const uniqueNames = new Set(names);
+  if (uniqueNames.size < 8) issues.push(`${relative}: fewer than 8 unique comparison products`);
+  if (names.some((name) => genericComparisonTitle.test(name))) {
+    issues.push(`${relative}: generic product name leaked into comparison`);
+  }
+}
 const emergencyFoodRelative = 'pages/emergency-food-office.html';
 const emergencyFoodPath = path.join(root, emergencyFoodRelative);
 if (!fs.existsSync(emergencyFoodPath)) {

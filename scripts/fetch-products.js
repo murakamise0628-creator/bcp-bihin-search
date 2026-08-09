@@ -102,7 +102,7 @@ const pageRules = {
   }
 };
 
-const excludePattern = /中古|訳あり|ジャンク|ふるさと納税|レンタル|本体のみ|ケースのみ|カバーのみ|交換用|部品|アクセサリのみ|リュック単体|中身はない|バッグのみ|釣り|登山専用|ペット専用|犬用|猫用/i;
+const excludePattern = /中古|訳あり|ジャンク|ふるさと納税|レンタル|本体のみ|ケースのみ|カバーのみ|交換用|部品|アクセサリのみ|リュック単体|中身はない|バッグのみ|釣り|登山専用|ペット専用|犬用|猫用|光るおもちゃ|おもちゃ|玩具|景品|縁日|くじ引き|お祭り|リュック\s*(?:単品|のみ)|中身(?:は)?(?:ない|なし)|サブセット/i;
 const hypePattern = /最強|絶対|完全|万能|奇跡|爆売れ|神|ランキング.{0,8}1位|ポイント\d+倍|セール|送料無料|最安|激安|受賞/i;
 const homeyPattern = /家庭用|一人用|1人用|個人用|ソロ|キャンプ|アウトドア/i;
 
@@ -204,6 +204,7 @@ function matchesPageType(product, row) {
 }
 
 function candidateTier(product, row) {
+  if (isExcluded(product)) return 'exclude';
   if (!matchesPageType(product, row)) return 'exclude';
   if (row.slug === 'emergency-food-office' && !isEmergencyFoodSetCandidate(product)) return 'exclude';
   const source = String(product.titleRaw || product.name || '');
@@ -489,6 +490,7 @@ function titleShort(raw, maxLength = 58) {
     source.match(/\d{4,6}mAh/i)?.[0],
     toiletCount ? `${toiletCount}回分` : '',
     source.match(/\d{1,3}人用/)?.[0],
+    source.match(/\d{1,3}人\s*[×xX]\s*\d{1,2}日分/)?.[0]?.replace(/\s+/g, ''),
     productType === 'food' ? source.match(/\d{1,3}人\s*\d{1,2}日分/)?.[0]?.replace(/\s+/g, '') : '',
     source.match(/\d{1,2}年保存/)?.[0],
     standaloneSpec(source, '\\d+(?:\\.\\d+)?L'),
@@ -544,13 +546,19 @@ function titleShort(raw, maxLength = 58) {
   return result.length > maxLength ? result.slice(0, maxLength - 1) + '…' : result;
 }
 
+const genericProductLabels = new Set([
+  '\u9632\u707d\u30bb\u30c3\u30c8', '\u975e\u5e38\u98df', '\u4fdd\u5b58\u98df', '\u4fdd\u5b58\u6c34',
+  '\u975e\u5e38\u7528\u30c8\u30a4\u30ec', '\u30c8\u30a4\u30ec\u7528\u888b', '\u30c8\u30a4\u30ec\u7528\u51dd\u56fa\u5264',
+  '\u7d66\u6c34\u7528\u54c1', '\u885b\u751f\u7528\u54c1', '\u5b89\u5168\u5bfe\u7b56\u7528\u54c1', '\u975e\u5e38\u7528\u30e9\u30a4\u30c8',
+  '\u9632\u707d\u30e9\u30b8\u30aa', '\u30dd\u30fc\u30bf\u30d6\u30eb\u96fb\u6e90', '\u9632\u5bd2\u7528\u54c1', '\u6d78\u6c34\u5bfe\u7b56\u7528\u54c1'
+]);
 function productDisplayTitle(raw, summary = '', maxLength = 58) {
   const base = titleShort(raw, maxLength);
-  if (base !== '\u975e\u5e38\u98df') return base;
+  if (!genericProductLabels.has(base)) return base;
   const enriched = titleShort(`${raw || ''} ${summary || ''}`, maxLength);
-  if (enriched !== '\u975e\u5e38\u98df') return enriched;
+  if (!genericProductLabels.has(enriched)) return enriched;
   const descriptor = String(raw || '')
-    .replace(/\u975e\u5e38\u98df(?:\u30bb\u30c3\u30c8)?|\u4fdd\u5b58\u98df(?:\u30bb\u30c3\u30c8)?|\u9632\u707d\u98df(?:\u30bb\u30c3\u30c8)?|\u5099\u84c4\u98df|\u9632\u707d\u30b0\u30c3\u30ba|\u9632\u707d\u30bb\u30c3\u30c8|\u707d\u5bb3\u5bfe\u7b56|\u5099\u84c4\u54c1|\u9577\u671f\u4fdd\u5b58|\u8a70\u3081\u5408\u308f\u305b|\u30bb\u30c3\u30c8/g, ' ')
+    .replace(/\u975e\u5e38\u98df(?:\u30bb\u30c3\u30c8)?|\u4fdd\u5b58\u98df(?:\u30bb\u30c3\u30c8)?|\u9632\u707d\u98df(?:\u30bb\u30c3\u30c8)?|\u5099\u84c4\u98df|\u9632\u707d\u30b0\u30c3\u30ba|\u9632\u707d\u30bb\u30c3\u30c8|\u4fdd\u5b58\u6c34|\u975e\u5e38\u7528\u30c8\u30a4\u30ec|\u30c8\u30a4\u30ec\u7528(?:\u888b|\u51dd\u56fa\u5264)|\u7d66\u6c34\u7528\u54c1|\u885b\u751f\u7528\u54c1|\u5b89\u5168\u5bfe\u7b56\u7528\u54c1|\u975e\u5e38\u7528\u30e9\u30a4\u30c8|\u9632\u707d\u30e9\u30b8\u30aa|\u30dd\u30fc\u30bf\u30d6\u30eb\u96fb\u6e90|\u9632\u5bd2\u7528\u54c1|\u6d78\u6c34\u5bfe\u7b56\u7528\u54c1|\u707d\u5bb3\u5bfe\u7b56|\u5099\u84c4\u54c1|\u9577\u671f\u4fdd\u5b58|\u8a70\u3081\u5408\u308f\u305b|\u30bb\u30c3\u30c8|\u975e\u5e38\u7528|\u9632\u707d|\u707d\u5bb3|\u7528\u54c1|\u5099\u84c4/g, ' ')
     .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim()
@@ -582,7 +590,8 @@ function normalizeProducts(items, sourceKeyword = '') {
         titleRaw: item.itemName,
         price: item.itemPrice,
         image: firstImage(item),
-        summary,        url: item.affiliateUrl || item.itemUrl,
+        summary,
+        url: item.affiliateUrl || item.itemUrl,
         reviewCount: item.reviewCount || 0,
         reviewAverage: item.reviewAverage || 0,
         shopName: item.shopName || '',
@@ -771,6 +780,7 @@ module.exports = {
   decisionFacts,
   decisionSummary,
   isEmergencyFoodSetCandidate,
+  isExcluded,
   sanitizeProductDataset,
   createProductDataset
 };

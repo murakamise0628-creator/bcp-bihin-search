@@ -557,6 +557,7 @@ function effectiveProducts(page, note, minCount = 8) {
     const relatedPage = pageBySlug(slug);
     const eligibleRelated = (relatedPage?.products || [])
       .filter((product) => matchesPageType(product, { slug: page.slug }))
+      .filter((product) => candidateTier(product, { slug: page.slug }) !== 'exclude')
       .sort((a, b) => {
         const order = { preferred: 0, supplementary: 1, demoted: 2 };
         return order[candidateTier(a, { slug: page.slug })] - order[candidateTier(b, { slug: page.slug })];

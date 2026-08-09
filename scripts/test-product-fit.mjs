@@ -10,6 +10,7 @@ const {
   decisionFacts,
   decisionSummary,
   isEmergencyFoodSetCandidate,
+  isExcluded,
   sanitizeProductDataset,
   titleShort,
   productDisplayTitle,
@@ -185,6 +186,22 @@ test('affiliate rate only breaks close product-quality calls', () => {
 });
 
 
+test('generic product labels retain quantities or model names', () => {
+  assert.equal(
+    productDisplayTitle('\u975e\u5e38\u7528\u30c8\u30a4\u30ec\u30bb\u30c3\u30c8 4\u4eba\u00d73\u65e5\u5206 A4\u30b5\u30a4\u30ba', ''),
+    '4\u4eba\u00d73\u65e5\u5206 \u975e\u5e38\u7528\u30c8\u30a4\u30ec'
+  );
+  assert.match(
+    productDisplayTitle('\u30b5\u30f3\u30a8\u30a4 \u9632\u707d\u30de\u30eb\u30c1\u30e9\u30a4\u30c8 A\u30bf\u30a4\u30d7 BMR-1', ''),
+    /BMR-1|\u30b5\u30f3\u30a8\u30a4/
+  );
+});
+
+test('toy lights and incomplete bags are excluded from disaster comparisons', () => {
+  assert.equal(isExcluded({ titleRaw: '\u5149\u308b\u304a\u3082\u3061\u3083 \u30af\u30ea\u30b9\u30bf\u30eb\u30e9\u30a4\u30c8 \u4fdd\u80b2\u5712 \u666f\u54c1' }), true);
+  assert.equal(isExcluded({ titleRaw: '\u9632\u707d\u30ea\u30e5\u30c3\u30af \u5358\u54c1 \u4e2d\u8eab\u306a\u3057' }), true);
+  assert.equal(isExcluded({ titleRaw: '\u30b5\u30f3\u30a8\u30a4 \u9632\u707d\u30de\u30eb\u30c1\u30e9\u30a4\u30c8 BMR-1' }), false);
+});
 test('generic emergency-food names inherit decision quantities from the summary', () => {
   const raw = '\u30ec\u30b9\u30ad\u30e5\u30fc\u30d5\u30fc\u30ba \u975e\u5e38\u98df \u4fdd\u5b58\u98df';
   const summary = '3\u98df\u3092\u30b3\u30f3\u30d1\u30af\u30c8\u306b\u307e\u3068\u3081\u305f\u30bb\u30c3\u30c8';
