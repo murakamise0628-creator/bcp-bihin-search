@@ -71,8 +71,13 @@ jobs:
             echo "- GA4 property ID: ${{ steps.configured.outputs.ga4_property }}"
             echo "- Google Sheet (optional): ${{ steps.configured.outputs.sheet }}"
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Fail when KPI collection is disconnected
-        if: steps.configured.outputs.ready != 'true'
+      - name: Missing service account credential
+        if: always() && steps.configured.outputs.service_account != 'true'
         run: |
-          echo "::error::Weekly KPI collection is disconnected. Add GOOGLE_SERVICE_ACCOUNT_JSON and GA4_PROPERTY_ID. GOOGLE_KPI_SHEET_ID is optional."
+          echo "::error::Add GOOGLE_SERVICE_ACCOUNT_JSON to repository Actions secrets."
+          exit 1
+      - name: Missing GA4 property ID
+        if: always() && steps.configured.outputs.ga4_property != 'true'
+        run: |
+          echo "::error::Add GA4_PROPERTY_ID to repository Actions secrets."
           exit 1
