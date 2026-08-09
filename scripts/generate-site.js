@@ -116,15 +116,17 @@ const pageNotes = {
   'portable-power-kaigo': {
     audience: '介護施設・小規模福祉施設',
     disasters: ['停電', '台風', '地震'],
-    conclusion: '介護施設の停電対策は、照明・通信・見守り機器を短時間でも動かせる電源を先に確認します。',
+    conclusion: '介護施設の停電対策は、止めたくない機器の消費電力（W）と使用時間から必要容量（Wh）を出し、定格出力と合わせて確認します。',
     mustHave: ['ポータブル電源', '充電ケーブル', 'LEDライト', '延長コード'],
     problem: '停電時にスマホ、照明、通信機器、見守り機器の電源を最低限確保したい施設向けです。',
     checks: ['容量はWh表記で見る', '出力W数が使う機器に足りるか確認', '保管場所で持ち運べる重量か見る', '長期保管時の充電管理がしやすいものを選ぶ'],
     avoid: '医療機器や生命維持に関わる機器への利用可否は、必ずメーカーや専門業者に確認してください。',
     related: ['office-bichiku', 'hoikuen-bousai', 'kitaku-konnansha'],
     faq: [
-      ['何Whあれば安心ですか？', '使う機器の消費電力と使いたい時間で変わります。まずはスマホ、照明、通信機器など、止めたくないものをリスト化するのが現実的です。'],
-      ['介護施設では何を優先しますか？', '照明、連絡手段、見守り機器、冷暖房補助を優先し、電源以外に水・トイレ・防寒も合わせて確認します。']
+      ['必要な容量（Wh）はどう計算しますか？', '使う機器の消費電力（W）に使用時間を掛け、変換ロスや余裕分を加えて見積もります。定格出力（W）が機器の起動時電力を上回るかも確認します。'],
+      ['介護施設では何を優先しますか？', '照明、連絡手段、見守り機器、冷蔵が必要な物品などを施設内で洗い出し、生命やケアに関わる機器はメーカーや専門業者と別途確認します。'],
+      ['医療機器に使えますか？', '医療機器への給電可否は商品ページの一般仕様だけで判断できません。機器メーカー、電源メーカー、施設の管理責任者に確認してください。'],
+      ['保管中は何を点検しますか？', '充電残量、充電周期、ケーブル、保管温度、持ち出し経路を定期的に確認します。']
     ]
   },
   'office-bichiku': {
@@ -158,7 +160,7 @@ const pageNotes = {
   'restaurant-dansui': {
     audience: '飲食店・小規模厨房・テイクアウト店',
     disasters: ['断水', '台風', '地震'],
-    conclusion: '飲食店の断水対策は、営業継続より先に手指衛生・トイレ・片付け用水を分けて考えるのが現実的です。',
+    conclusion: '飲食店の断水対策は、まず営業可否を判断し、飲料・調理、手指衛生、トイレ、清掃・復旧の用途ごとに必要品を分けます。',
     mustHave: ['保存水', '給水タンク', '手指消毒用品', '簡易トイレ', '使い捨て手袋'],
     problem: '断水時の営業判断、衛生確保、トイレ対応に必要な用品を切り分けて考えるページです。',
     checks: ['飲料水と衛生用水を分ける', '手指衛生用品を先に確保', '簡易トイレと消臭袋を見る', '営業継続ではなく安全確保を基準にする'],
@@ -166,7 +168,9 @@ const pageNotes = {
     related: ['toilet-office', 'office-bichiku', 'kitaku-konnansha'],
     faq: [
       ['飲食店は断水時も営業できますか？', '衛生管理や自治体の案内に従う必要があります。備蓄は営業継続だけでなく、安全確保と片付けにも使う前提で考えます。'],
-      ['飲料水以外に必要なものは？', '手指消毒、使い捨て手袋、簡易トイレ、給水タンク、清掃用品を分けて確認すると漏れが減ります。']
+      ['飲料水以外に必要なものは？', '手指消毒、使い捨て手袋、簡易トイレ、給水タンク、清掃用品を分けて確認すると漏れが減ります。'],
+      ['断水中の手洗いはどうしますか？', '水を使わない手指衛生用品だけで代替できる場面と、流水が必要な作業を分け、自治体や保健所の案内に従ってください。'],
+      ['復旧後すぐ営業できますか？', '濁りや異臭、機器の作動、配管内の水、清掃・消毒などを確認します。具体的な再開判断は自治体や保健所の案内に従ってください。']
     ]
   },
   'hoikuen-bousai': {
@@ -186,7 +190,7 @@ const pageNotes = {
   'toilet-office': {
     audience: '事業所・店舗・施設管理者',
     disasters: ['断水', '地震', '台風'],
-    conclusion: '簡易トイレは人数分ではなく回数分で見るのが基本です。1人1日5回を目安に不足しないか確認します。',
+    conclusion: '簡易トイレは人数分ではなく回数分で確認します。1人1日5回を目安に、まず3日分、可能なら7日分まで計算します。',
     mustHave: ['凝固剤', '汚物袋', '防臭袋', '手袋', '目隠し用品'],
     problem: '断水や排水不可のときに、最低限のトイレ環境を維持するための比較ページです。',
     checks: ['回数表記で必要量を見る', '凝固剤と袋のセット内容を確認', '保管年数と箱サイズを見る', '消臭袋や目隠し用品も合わせて考える'],
@@ -200,7 +204,7 @@ const pageNotes = {
   'earthquake-office': {
     audience: '会社・店舗・小規模事業所',
     disasters: ['地震', '帰宅困難者', '断水'],
-    conclusion: '事業所の地震対策は、水・簡易トイレ・非常食・ライト・防寒用品を人数と待機日数で分けて確認します。',
+    conclusion: '事業所の地震対策は、まず3日分を出発点に、水・簡易トイレ・非常食・ライト・防寒用品を人数と待機日数で確認します。地域条件により1週間分も検討します。',
     mustHave: ['保存水', '非常食', '簡易トイレ', 'ライト', '防寒用品'],
     problem: '地震で会社や店舗に従業員・来客が残る場面に備え、防災備蓄を比較するページです。帰宅困難者対策も合わせて確認します。',
     checks: ['水とトイレを先に数量計算する', '従業員と来客を分けて考える', '停電時のライトと充電も見る', '保管場所と期限管理を確認する'],
@@ -521,20 +525,49 @@ function effectiveProducts(page, note, minCount = 8) {
   return prioritizeProductVariety([...own, ...related]);
 }
 
-function quantityEstimateSection() {
+function powerEstimateSection() {
+  return `<section class="section card calc-card" id="quantity">
+    <div class="section-title"><div><p class="eyebrow">必要容量の目安</p><h2>何を何時間動かすかで、必要Whを確認</h2></div><p class="notice">医療・介護機器はメーカーや専門業者にも確認してください。</p></div>
+    <div class="calc-grid">
+      <label>同時に使う機器の合計<input class="calc-input" id="powerWatts" type="number" min="1" value="300"><small>消費電力の合計（W）</small></label>
+      <label>動かしたい時間<input class="calc-input" id="powerHours" type="number" min="0.5" step="0.5" value="4"><small>使用時間（時間）</small></label>
+      <label>変換ロス・余裕<input class="calc-input" id="powerMargin" type="number" min="0" max="100" value="20"><small>上乗せ率（%）</small></label>
+    </div>
+    <div class="estimate-grid power-estimate" aria-live="polite"><div><span>容量の計算目安</span><strong id="powerEstimate">1,500Wh以上</strong><small>W × 時間 ＋ 余裕分。定格出力Wも別に確認</small></div></div>
+    <div class="hero-actions"><a class="button orange" href="#comparison">この容量帯の商品を見る</a></div>
+  </section>`;
+}
+
+function restaurantWaterOutageSection() {
+  return `<section class="section card" id="quantity">
+    <div class="section-title"><div><p class="eyebrow">断水時の判断順</p><h2>商品を選ぶ前に、営業可否と用途を分ける</h2></div><p class="notice">自治体・保健所・施設の衛生管理手順を優先してください。</p></div>
+    <div class="decision-strip flow"><div><strong>1. 営業可否</strong><span>調理・洗浄・トイレの条件を確認</span></div><div><strong>2. 飲料・調理</strong><span>飲用可能な水と給水容器を分ける</span></div><div><strong>3. 手指衛生・トイレ</strong><span>流水が必要な作業と代替用品を分ける</span></div><div><strong>4. 清掃・復旧</strong><span>濁り、異臭、機器、配管を確認</span></div></div>
+    <div class="hero-actions"><a class="button orange" href="#comparison">用途別の商品候補を見る</a></div>
+  </section>`;
+}
+
+function quantityEstimateSection(slug = '') {
+  if (slug === 'portable-power-kaigo') return powerEstimateSection();
+  if (slug === 'restaurant-dansui') return restaurantWaterOutageSection();
+  const defaultDays = slug ? 3 : 1;
+  const initialPeople = 10;
+  const initialWater = initialPeople * defaultDays * 3;
+  const initialFood = initialPeople * defaultDays * 3;
+  const initialToilet = initialPeople * defaultDays * 5;
   return `<section class="section card calc-card" id="quantity">
     <div class="section-title"><div><p class="eyebrow">必要数量の目安</p><h2>人数と日数から、まず必要量をざっくり確認</h2></div><p class="notice">目安です。施設条件に合わせて調整してください。</p></div>
     <div class="calc-grid">
       <label>従業員・職員数<input class="calc-input" id="staffCount" type="number" min="0" value="10"></label>
-      <label>待機日数<input class="calc-input" id="daysCount" type="number" min="1" value="1"></label>
+      <label>待機日数<input class="calc-input" id="daysCount" type="number" min="1" value="${defaultDays}"></label>
       <label>来客・利用者数<input class="calc-input" id="visitorCount" type="number" min="0" value="0"></label>
     </div>
     <div class="estimate-grid" aria-live="polite">
-      <div><span>水</span><strong id="waterEstimate">30L</strong><small>1人1日3Lの目安</small></div>
-      <div><span>食料</span><strong id="foodEstimate">30食</strong><small>1人1日3食の目安</small></div>
-      <div><span>簡易トイレ</span><strong id="toiletEstimate">50回分</strong><small>1人1日5回の目安</small></div>
+      <div><span>水</span><strong id="waterEstimate">${initialWater}L</strong><small>1人1日3Lの目安</small></div>
+      <div><span>食料</span><strong id="foodEstimate">${initialFood}食</strong><small>1人1日3食の目安</small></div>
+      <div><span>簡易トイレ</span><strong id="toiletEstimate">${initialToilet}回分</strong><small>1人1日5回の目安</small></div>
       <div><span>保温シート・毛布</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small></div>
     </div>
+    ${slug === 'toilet-office' ? `<div class="compare-scroll quantity-guide"><table class="compare-table"><thead><tr><th>利用人数</th><th>3日分</th><th>7日分</th></tr></thead><tbody><tr><td>10人</td><td>150回</td><td>350回</td></tr><tr><td>30人</td><td>450回</td><td>1,050回</td></tr><tr><td>50人</td><td>750回</td><td>1,750回</td></tr></tbody></table></div>` : ''}
     <div class="stock-plan-actions" aria-labelledby="stock-plan-title">
       <div><p class="eyebrow">この条件で比較</p><h3 id="stock-plan-title">必要量を持ったまま、商品候補を見る</h3></div>
       <div class="stock-plan-grid">
@@ -1405,6 +1438,27 @@ function clientScript() {
       setPlanInputsFromUrl();
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
       updateEstimate();
+      function updatePowerEstimate(){
+        var watts=Number(document.getElementById('powerWatts')?.value || 0);
+        var hours=Number(document.getElementById('powerHours')?.value || 0);
+        var margin=Number(document.getElementById('powerMargin')?.value || 0);
+        var output=document.getElementById('powerEstimate');
+        if(!output) return;
+        var wh=Math.ceil((watts*hours*(1+margin/100))/100)*100;
+        output.textContent=wh.toLocaleString('ja-JP')+'Wh以上';
+      }
+      var powerTracked=false;
+      ['powerWatts','powerHours','powerMargin'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('input',updatePowerEstimate);
+        el.addEventListener('change',function(){
+          if(powerTracked) return;
+          powerTracked=true;
+          trackEvent('power_calculator_use',{ watts:Number(document.getElementById('powerWatts')?.value || 0),hours:Number(document.getElementById('powerHours')?.value || 0) });
+        });
+      });
+      updatePowerEstimate();
       if(stockPlanActive){
         var initialPlan=stockPlanValues();
         trackEvent('stock_plan_view',{ people_count:initialPlan.people,days_count:initialPlan.days,water_liters:initialPlan.water,food_servings:initialPlan.food,toilet_uses:initialPlan.toilet });
@@ -1946,7 +2000,7 @@ function productCards(products, note) {
         <div><span>注意点</span><strong>${esc(cautionForProduct(product))}</strong></div>
         <div><span>向いている施設</span><strong>${esc(suitedFacility(product, note))}</strong></div>
       </div>
-      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a>
+      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>${esc(note.slug === 'toilet-office' ? '回数・袋の構成を楽天で確認' : note.slug === 'portable-power-kaigo' ? '出力・容量を楽天で確認' : note.slug === 'restaurant-dansui' ? '用途・在庫を楽天で確認' : '数量・価格を楽天で確認')}</a>
     </div>
   </article>`).join('');
 }
@@ -1966,7 +2020,7 @@ function relatedLinks(slugs) {
 
 function pageDescription(page, note) {
   const disasters = (note.disasters || []).join('、');
-  return `${page.title}。${note.conclusion} ${note.problem} 地震、台風、停電、断水、帰宅困難者などの事業所・会社・店舗の防災備蓄を、比較表、選び方、必要数量、FAQで確認できます。`;
+  return `${page.title}。${note.problem} ${note.conclusion} 想定する災害は${disasters}。比較表、選び方、必要数量、FAQから購入前の確認点を整理できます。`;
 }
 
 function pageSeoTitle(page) {
@@ -2277,7 +2331,7 @@ function pageHtml(page) {
     <article class="card"><h2>選び方</h2><ul class="checklist">${checks}</ul></article>
     <article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>
   </section>
-  ${quantityEstimateSection()}
+  ${quantityEstimateSection(page.slug)}
   ${sourceSection(page.slug)}
   ${['toilet-office', 'blackout-power', 'water-food-stock'].includes(page.slug) ? quickPicks(products, note) : ''}
   ${comparisonTable(products, note)}

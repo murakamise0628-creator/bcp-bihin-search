@@ -263,6 +263,21 @@ for (const file of files) {
     }
   }
 
+  if (relative.replace(/\\/g, '/') === 'pages/toilet-office.html') {
+    if (!html.includes('<th>利用人数</th><th>3日分</th><th>7日分</th>')) issues.push(`${relative}: business-size toilet quantity guide missing`);
+    if (!html.includes('id="toiletEstimate">150回分')) issues.push(`${relative}: three-day toilet default missing`);
+    if (!html.includes('回数・袋の構成を楽天で確認')) issues.push(`${relative}: toilet-specific CTA missing`);
+  }
+  if (relative.replace(/\\/g, '/') === 'pages/portable-power-kaigo.html') {
+    if (!html.includes('id="powerWatts"') || !html.includes('id="powerEstimate"')) issues.push(`${relative}: power capacity calculator missing`);
+    if (!html.includes("trackEvent('power_calculator_use'")) issues.push(`${relative}: power calculator analytics missing`);
+    if (!html.includes('出力・容量を楽天で確認')) issues.push(`${relative}: power-specific CTA missing`);
+  }
+  if (relative.replace(/\\/g, '/') === 'pages/restaurant-dansui.html') {
+    if (!html.includes('断水時の判断順') || !html.includes('1. 営業可否') || !html.includes('4. 清掃・復旧')) issues.push(`${relative}: water-outage decision flow missing`);
+    if (!html.includes('用途・在庫を楽天で確認')) issues.push(`${relative}: water-outage-specific CTA missing`);
+  }
+
   for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try {
       const data = JSON.parse(match[1]);
@@ -353,7 +368,7 @@ for (const page of data.pages || []) {
       issues.push(`${page.slug}: checklist tool controls missing`);
     }
     if (pageHtml.includes('"@type":"Product"')) issues.push(`${page.slug}: product schema must not be used without displayed products`);
-  } else {
+  } else if (!['portable-power-kaigo', 'restaurant-dansui'].includes(page.slug)) {
     if (!pageHtml.includes('data-stock-plan="toilet"') || !pageHtml.includes('data-stock-plan="water_food"')) {
       issues.push(`${page.slug}: stock-plan comparison links missing`);
     }

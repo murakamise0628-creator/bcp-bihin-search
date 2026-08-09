@@ -8,6 +8,7 @@
     "view_item_list",
     "select_item",
     "quantity_calculator_use",
+    "power_calculator_use",
     "stockpile_check_use",
     "stockpile_csv_download",
     "paid_kit_offer_view",
@@ -15,4 +16,3 @@
     "paid_kit_checkout_click"
   ]
 }
-
