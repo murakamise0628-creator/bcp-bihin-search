@@ -108,6 +108,7 @@ async function navigateFresh(send, url) {
 }
 
 const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet-office.html')).href;
+const officePage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'office-bichiku.html')).href;
 const powerPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'portable-power-kaigo.html')).href;
 const quantityPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'office-stockpile-quantity.html')).href;
 const checklistPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'bcp-stockpile-checklist.html')).href;
@@ -218,6 +219,41 @@ try {
     assert.match(result.fit, /1,500Wh以上・300W対応候補/);
     assert.match(result.cta, /1,500Wh以上・300W対応候補を楽天で確認/);
     powerResults.push(result);
+  }
+
+  const officeResults = [];
+  for (const width of [320, 375, 768, 1440]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height: width >= 1024 ? 1000 : 900,
+      deviceScaleFactor: 1,
+      mobile: width < 768
+    });
+    await navigateFresh(send, `${officePage}?audit=office-${width}`);
+    const result = await evaluate(send, `(() => {
+      const quick = [...document.querySelectorAll('.quick-picks .quick-pick-candidate')];
+      const visible = quick.filter((node) => !node.hidden);
+      return {
+        width: innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        heading: document.querySelector('#quick-picks-title')?.textContent || '',
+        eyebrow: document.querySelector('.quick-picks .eyebrow')?.textContent || '',
+        classes: visible.map((node) => node.querySelector('.pill')?.textContent || ''),
+        images: visible.filter((node) => node.querySelector('img')).length,
+        visible: visible.length,
+        total: quick.length
+      };
+    })()`);
+    assert.ok(result.scrollWidth <= result.width + 1, `${width}px office page overflow: ${result.scrollWidth}px`);
+    assert.equal(result.heading, '買い方別に、最初の候補を確認');
+    assert.equal(result.eyebrow, '個人配布・共有・補充');
+    assert.equal(result.visible, 3, `${width}px office page must show three quick picks`);
+    assert.ok(result.total >= 3, `${width}px office page has fewer than three candidates`);
+    assert.equal(result.images, 3, `${width}px office quick pick is missing an image`);
+    for (const label of ['従業員ごとの配布セット', '水・食料の共有備蓄', '不足品の補充']) {
+      assert.ok(result.classes.includes(label), `${width}px office buying path missing: ${label}`);
+    }
+    officeResults.push(result);
   }
 
   const quantityResults = [];
@@ -366,7 +402,7 @@ try {
 
   const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'toilet-mobile-cdp.png'), Buffer.from(screenshot.data, 'base64'));
-  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
+  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, office: officeResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
 } catch (error) {
   if (process.env.GITHUB_ACTIONS === 'true') {
     const message = String(error?.message || error)

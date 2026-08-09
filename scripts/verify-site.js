@@ -431,6 +431,12 @@ for (const [relative, expectedTitle] of Object.entries(expectedSearchTitles)) {
   }
 }
 
+const officeHtml = fs.readFileSync(path.join(root, 'pages', 'office-bichiku.html'), 'utf8');
+for (const marker of ['個人配布・共有・補充', '従業員ごとの配布セット', '水・食料の共有備蓄', '不足品の補充']) {
+  if (!officeHtml.includes(marker)) issues.push('office-bichiku: procurement marker missing: ' + marker);
+}
+if ((officeHtml.match(/quick-pick-candidate/g) || []).length < 3) issues.push('office-bichiku: fewer than three procurement quick picks');
+
 if (paidProductEnabled) {
   if (!fs.existsSync(paidProductPath)) {
     issues.push(`${paidProductRelative}: enabled paid-kit page was not generated`);

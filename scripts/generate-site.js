@@ -1920,13 +1920,26 @@ function fitTierLabel(product, note = {}) {
   return '仕様を販売ページで要確認';
 }
 
+function recommendationClass(product, note = {}) {
+  if (note.slug !== 'office-bichiku') return fitTierLabel(product, note);
+  const type = product.productType || recommendedType(product, note);
+  const people = Number(productDecisionFacts(product).peopleCapacity || 0);
+  if (type === 'disaster-set') {
+    if (people > 2) return '複数人用の備蓄セット';
+    if (people > 0) return '従業員ごとの配布セット';
+    return '配布・共有方法を要確認';
+  }
+  if (type === 'water' || type === 'food') return '水・食料の共有備蓄';
+  return '不足品の補充';
+}
+
 function comparisonRows(products, note) {
   if (!products.length) {
     return `<tr><td colspan="10"><strong>条件に合う候補を確認中です。</strong><br>人数、用途、保管場所、必要回数を先に確認し、関連する備蓄品もあわせて見てください。</td></tr>`;
   }
   return products.map((product, index) => `<tr ${productFitAttrs(product, note)}>
     <td class="table-product">${esc(displayTitle(product, 46))}</td>
-    <td>${esc(product.relatedCandidate ? '関連候補' : fitTierLabel(product, note))}</td>
+    <td>${esc(product.relatedCandidate ? '関連候補' : recommendationClass(product, note))}</td>
     <td>${esc(displayPrice(product))}</td>
     <td>${esc(product.reviewAverage || '-')}</td>
     <td>${esc(product.reviewCount || 0)}</td>
@@ -1940,9 +1953,10 @@ function comparisonRows(products, note) {
 
 function quickPicks(products, note) {
   if (!products.length) return '';
-  const clearProducts = products.filter((product) =>
-    !hasAmbiguousToiletQuantity(product) &&
-    candidateTier(product, { slug: note.slug || '' }) === 'preferred' &&
+  const clearProducts = products.filter((product) => {
+    const tier = candidateTier(product, { slug: note.slug || '' });
+    return !hasAmbiguousToiletQuantity(product) &&
+    (tier === 'preferred' || (note.slug === 'office-bichiku' && tier === 'supplementary')) &&
     Number(product.reviewCount || 0) >= 5 &&
     (
       note.slug !== 'toilet-office' ||
@@ -1951,14 +1965,25 @@ function quickPicks(products, note) {
         Number(productDecisionFacts(product).toiletUses || 0) > 0 &&
         Number(product.price || 0) / Number(productDecisionFacts(product).toiletUses || 1) <= 1000
       )
-    )
-  );
+    );
+  });
   if (!clearProducts.length) return '';
   const quickPool = clearProducts;
   const selected = [];
   const seenTypes = new Set();
+  const priorityClasses = note.slug === 'office-bichiku'
+    ? ['従業員ごとの配布セット', '水・食料の共有備蓄', '不足品の補充']
+    : [];
+  for (const category of priorityClasses) {
+    const product = quickPool.find((candidate) => recommendationClass(candidate, note) === category);
+    if (!product) continue;
+    selected.push(product);
+    seenTypes.add(category);
+  }
   for (const product of quickPool) {
-    const type = product.productType || recommendedType(product, note);
+    const type = note.slug === 'office-bichiku'
+      ? recommendationClass(product, note)
+      : product.productType || recommendedType(product, note);
     if (seenTypes.has(type)) continue;
     selected.push(product);
     seenTypes.add(type);
@@ -1972,13 +1997,15 @@ function quickPicks(products, note) {
   const visibleCount = Math.min(3, ordered.length);
   const cards = ordered.map((product, index) => `<article class="card product quick-pick-candidate" ${index >= visibleCount ? 'hidden ' : ''}${productFitAttrs(product, note)}>
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : ''}
-    <div><p class="pill navy">${esc(fitTierLabel(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
+    <div><p class="pill navy">${esc(recommendationClass(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
     <p>${esc(productDecisionSummary(product, note))}</p>
     <p class="price">${esc(displayPrice(product))}</p><p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
     <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>
     <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a></div>
   </article>`).join('');
-  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">先に見る${visibleCount}候補</p><h2 id="quick-picks-title">比較条件が読み取りやすい商品</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
+  const eyebrow = note.slug === 'office-bichiku' ? '個人配布・共有・補充' : `先に見る${visibleCount}候補`;
+  const heading = note.slug === 'office-bichiku' ? '買い方別に、最初の候補を確認' : '比較条件が読み取りやすい商品';
+  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">${eyebrow}</p><h2 id="quick-picks-title">${heading}</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
 }
 
 function webPageJsonLd(title, description, canonical, citationUrls = []) {
@@ -2019,7 +2046,7 @@ function productCards(products, note) {
   return products.map((product, index) => `<article class="card product" ${productFitAttrs(product, note)}>
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">商品画像<br>取得待ち</div>'}
     <div>
-      <p class="pill navy">${esc(product.relatedCandidate ? '関連候補' : fitTierLabel(product, note))}</p>
+      <p class="pill navy">${esc(product.relatedCandidate ? '関連候補' : recommendationClass(product, note))}</p>
       <h2>${esc(displayTitle(product))}</h2>
       ${product.relatedCandidate ? `<p class="notice">この商品は「${esc(product.relatedFrom || '関連ページ')}」から補完した関連候補です。用途の一致度は販売ページで確認してください。</p>` : ''}
       <p class="summary">${esc(productDecisionSummary(product, note))}</p>
@@ -2365,11 +2392,11 @@ function pageHtml(page) {
   </section>
   <section class="section two">
     <article class="card"><h2>選び方</h2><ul class="checklist">${checks}</ul></article>
-    <article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>
+    ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
   </section>
   ${quantityEstimateSection(page.slug)}
   ${sourceSection(page.slug)}
-  ${['toilet-office', 'blackout-power', 'water-food-stock'].includes(page.slug) ? quickPicks(products, note) : ''}
+  ${['toilet-office', 'office-bichiku', 'blackout-power', 'water-food-stock'].includes(page.slug) ? quickPicks(products, note) : ''}
   ${comparisonTable(products, note)}
   <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>上位候補の向き・注意点を見る</h2></div><p class="notice">比較表から上位6件を詳しく掲載</p></div><div class="product-list">${productCards(products.slice(0, 6), note)}</div></section>
   ${stockCheckSection(page.slug)}
