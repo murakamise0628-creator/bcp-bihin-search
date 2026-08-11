@@ -2427,12 +2427,13 @@ function marketSnapshotSection(products, note) {
     intro = '容量Whと定格出力Wを両方確認できる候補を優先し、保管・使用時の安全情報も合わせて掲載しています。';
   } else {
     const sets = facts.filter((item) => item.productType === 'disaster-set').length;
-    const people = facts.filter((item) => Number(item.peopleCapacity || 0) > 0).length;
-    const days = facts.filter((item) => Number(item.stockDays || 0) > 0).length;
-    stats.push(['防災セットの候補', `${sets}件`, '水・食料・ライトなどを含むセット']);
-    stats.push(['対象人数を確認できた候補', `${people}件`, `${days}件は備蓄日数の表記も確認`]);
-    title = '掲載商品の備蓄セット表示';
-    intro = 'セット名だけで判断せず、対象人数と備蓄日数を読み取れるかを掲載情報から確認しています。';
+    const shared = facts.filter((item) => ['water', 'food'].includes(item.productType)).length;
+    const supplements = Math.max(products.length - sets - shared, 0);
+    stats.push(['配布・セット候補', `${sets}件`, '従業員への配布または共有方法を確認']);
+    stats.push(['水・食料の共有備蓄', `${shared}件`, '人数と待機日数から必要箱数を確認']);
+    stats.push(['不足品の補充候補', `${supplements}件`, 'トイレ・防寒・給水用品など']);
+    title = '掲載商品の買い方別内訳';
+    intro = '配布セット、水・食料の共有備蓄、不足品の補充に分けて比べられます。';
   }
   return `<section class="section card snapshot-section" data-market-snapshot="${esc(note.slug)}">
     <div class="section-title"><div><p class="eyebrow">掲載${products.length}商品の集計</p><h2>${esc(title)}</h2><p>${esc(intro)}</p></div><p class="notice">${esc(updatedDate())}時点</p></div>
