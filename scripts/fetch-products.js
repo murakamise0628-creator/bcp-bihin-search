@@ -472,7 +472,7 @@ function decisionSummary(product, row = {}) {
 function titleShort(raw, maxLength = 58) {
   const source = String(raw || '')
     .replace(/[【】\[\]■◆★☆◎〇○●◇<>＜＞]/g, ' ')
-    .replace(/送料無料|ポイント\d+倍|ランキング.{0,10}|セール|最安|激安|お買い物マラソン|スーパーSALE|クーポン|あす楽/g, ' ')
+    .replace(/送料無料|ポイント\d+倍|ランキング(?:総合)?(?:第?\s*\d+\s*位|入賞|受賞)?(?:獲得)?|セール|最安|激安|お買い物マラソン|スーパーSALE|クーポン|あす楽/g, ' ')
     .replace(/防災グッズ|災害対策|非常時|備蓄用品/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

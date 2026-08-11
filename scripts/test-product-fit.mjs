@@ -197,6 +197,11 @@ test('generic product labels retain quantities or model names', () => {
   );
 });
 
+test('ranking copy removal does not erase the product type', () => {
+  const raw = '\u3010\u697d\u5929\u30e9\u30f3\u30ad\u30f3\u30b01\u4f4d\u3011\u9632\u707d\u30bb\u30c3\u30c8 2\u4eba\u7528 68\u70b9 \u30c8\u30a4\u30ec \u6c34 \u98df\u54c1 \u61d0\u4e2d\u96fb\u706f \u30e9\u30f3\u30bf\u30f3';
+  assert.equal(titleShort(raw), '2\u4eba\u7528 \u9632\u707d\u30bb\u30c3\u30c8');
+  assert.equal(productDisplayTitle(raw, '3\u4eba\u7528\u3082\u9078\u3079\u308b\u30e9\u30a4\u30c8\u4ed8\u304d'), '2\u4eba\u7528 \u9632\u707d\u30bb\u30c3\u30c8');
+});
 test('toy lights and incomplete bags are excluded from disaster comparisons', () => {
   assert.equal(isExcluded({ titleRaw: '\u5149\u308b\u304a\u3082\u3061\u3083 \u30af\u30ea\u30b9\u30bf\u30eb\u30e9\u30a4\u30c8 \u4fdd\u80b2\u5712 \u666f\u54c1' }), true);
   assert.equal(isExcluded({ titleRaw: '\u9632\u707d\u30ea\u30e5\u30c3\u30af \u5358\u54c1 \u4e2d\u8eab\u306a\u3057' }), true);
