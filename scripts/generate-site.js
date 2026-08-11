@@ -140,6 +140,12 @@ const publicSources = {
     publisher: '東京都',
     url: 'https://www.bichiku.metro.tokyo.lg.jp/',
     note: '人数や条件から備蓄品と数量を考えるための公的な案内です。'
+  },
+  batterySafety: {
+    title: '「リチウムイオン電池搭載製品」は3つのCで事故を防ぎましょう',
+    publisher: '製品評価技術基盤機構（NITE）',
+    url: 'https://www.nite.go.jp/jiko/chuikanki/press/2026fy/prs260715.html',
+    note: 'ポータブル電源を含むリチウムイオン電池搭載製品の選び方、高温・衝撃・異常時の注意点を確認できます。'
   }
 };
 
@@ -1241,7 +1247,7 @@ function stockCheckSection(currentSlug) {
 function sourceKeysFor(slug = '') {
   if (/toilet/.test(slug)) return ['toiletStockpileGuide', 'toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
   if (/dansui|water-outage/.test(slug)) return ['toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
-  if (/portable-power|blackout|power-outage|typhoon/.test(slug)) return ['workplaceGuideline', 'stockpilePortal'];
+  if (/portable-power|blackout|power-outage|typhoon/.test(slug)) return ['batterySafety', 'workplaceGuideline', 'stockpilePortal'];
   if (/emergency-food/.test(slug)) return ['workplaceGuideline', 'foodStockGuide', 'foodAllergyGuide'];
   return ['workplaceGuideline', 'toiletGuideline', 'stockpilePortal'];
 }
@@ -2383,6 +2389,56 @@ function checklistPageHtml(page) {
   return layout(title, body, description, canonical, { crumbs: ['事業所防災備蓄チェックリスト'] });
 }
 
+function median(values = []) {
+  const numbers = values.map(Number).filter((value) => Number.isFinite(value) && value > 0).sort((a, b) => a - b);
+  if (!numbers.length) return 0;
+  const middle = Math.floor(numbers.length / 2);
+  return numbers.length % 2 ? numbers[middle] : Math.round((numbers[middle - 1] + numbers[middle]) / 2);
+}
+
+function yenAmount(value) {
+  return Number(value || 0).toLocaleString('ja-JP') + '円';
+}
+
+function marketSnapshotSection(products, note) {
+  if (!['toilet-office', 'portable-power-kaigo', 'office-bichiku'].includes(note.slug)) return '';
+  const prices = products.map((product) => Number(product.price || 0)).filter((value) => value > 0).sort((a, b) => a - b);
+  const facts = products.map((product) => productDecisionFacts(product));
+  const stats = [
+    ['掲載候補', `${products.length}件`, '比較表と商品カードに掲載'],
+    ['価格の中央値', yenAmount(median(prices)), '掲載価格を小さい順に並べた中央'],
+    ['掲載価格の幅', prices.length ? `${yenAmount(prices[0])}～${yenAmount(prices[prices.length - 1])}` : '要確認', '送料・数量違いは販売ページで確認']
+  ];
+  let title = '掲載商品の比較データ';
+  let intro = '掲載商品の価格と仕様を同じ条件で見比べるための集計です。販売単位や送料は購入前に確認してください。';
+  if (note.slug === 'toilet-office') {
+    const uses = facts.map((item) => Number(item.toiletUses || 0)).filter((value) => value > 0).sort((a, b) => a - b);
+    const complete = facts.filter((item) => item.toiletSupplyType === 'complete-kit').length;
+    stats.push(['凝固剤・処理袋のセット', `${complete}件`, '商品名・説明で両方を確認できた候補']);
+    stats.push(['回数表記を確認できた候補', `${uses.length}件`, uses.length ? `${uses[0]}～${uses[uses.length - 1]}回分の表記` : '販売ページで確認']);
+    title = '掲載商品の価格とセット構成';
+    intro = '価格だけでなく、凝固剤・処理袋がそろうか、何回分かを掲載情報から確認しています。';
+  } else if (note.slug === 'portable-power-kaigo') {
+    const capacities = facts.map((item) => Number(item.powerWh || 0)).filter((value) => value > 0).sort((a, b) => a - b);
+    const outputs = facts.map((item) => Number(item.outputW || 0)).filter((value) => value > 0).sort((a, b) => a - b);
+    stats.push(['Wh容量を確認できた候補', `${capacities.length}件`, capacities.length ? `${capacities[0].toLocaleString('ja-JP')}～${capacities[capacities.length - 1].toLocaleString('ja-JP')}Wh` : '販売ページで確認']);
+    stats.push(['定格出力を確認できた候補', `${outputs.length}件`, outputs.length ? `${outputs[0].toLocaleString('ja-JP')}～${outputs[outputs.length - 1].toLocaleString('ja-JP')}W` : '販売ページで確認']);
+    title = '掲載商品の容量・出力確認状況';
+    intro = '容量Whと定格出力Wを両方確認できる候補を優先し、保管・使用時の安全情報も合わせて掲載しています。';
+  } else {
+    const sets = facts.filter((item) => item.productType === 'disaster-set').length;
+    const people = facts.filter((item) => Number(item.peopleCapacity || 0) > 0).length;
+    const days = facts.filter((item) => Number(item.stockDays || 0) > 0).length;
+    stats.push(['防災セットの候補', `${sets}件`, '水・食料・ライトなどを含むセット']);
+    stats.push(['対象人数を確認できた候補', `${people}件`, `${days}件は備蓄日数の表記も確認`]);
+    title = '掲載商品の備蓄セット表示';
+    intro = 'セット名だけで判断せず、対象人数と備蓄日数を読み取れるかを掲載情報から確認しています。';
+  }
+  return `<section class="section card snapshot-section" data-market-snapshot="${esc(note.slug)}">
+    <div class="section-title"><div><p class="eyebrow">掲載${products.length}商品の集計</p><h2>${esc(title)}</h2><p>${esc(intro)}</p></div><p class="notice">${esc(updatedDate())}時点</p></div>
+    <div class="estimate-grid">${stats.map(([label, value, detail]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(detail)}</small></div>`).join('')}</div>
+  </section>`;
+}
 function pageHtml(page) {
   if (page.slug === 'bcp-stockpile-checklist') return checklistPageHtml(page);
   const baseNote = pageNotes[page.slug] || {
@@ -2449,6 +2505,7 @@ function pageHtml(page) {
     ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : page.slug === 'emergency-food-office' ? `<article class="card"><h2>このページで比べるもの</h2><p>非常食セットの食数、保存年数、調理方法を比べます。保存水を含む全体量は早見表で確認してください。</p><a class="small-button" href="${siteUrl}/pages/office-stockpile-quantity.html">人数別の備蓄量を見る</a></article>` : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
   </section>
   ${quantityEstimateSection(page.slug)}
+  ${marketSnapshotSection(products, note)}
   ${sourceSection(page.slug)}
   ${['toilet-office', 'office-bichiku', 'blackout-power', 'water-food-stock', 'emergency-food-office'].includes(page.slug) ? quickPicks(products, note) : ''}
   ${comparisonTable(products, note)}

@@ -261,6 +261,21 @@ for (const file of files) {
     }
     if (!html.includes('"citation":[')) issues.push(`${relative}: WebPage citation metadata missing`);
   }
+  const marketSnapshotPages = new Set([
+    'pages/toilet-office.html',
+    'pages/portable-power-kaigo.html',
+    'pages/office-bichiku.html'
+  ]);
+  if (marketSnapshotPages.has(relative.replace(/\\/g, '/'))) {
+    if (!html.includes('data-market-snapshot=')) issues.push(`${relative}: listed-product snapshot missing`);
+    if (!/掲載\d+商品の集計/.test(html)) issues.push(`${relative}: listed-product snapshot heading missing`);
+    if (!html.includes('価格の中央値') || !html.includes('掲載価格の幅')) issues.push(`${relative}: listed-product price summary missing`);
+  }
+  if (relative.replace(/\\/g, '/') === 'pages/portable-power-kaigo.html') {
+    if (!html.includes('https://www.nite.go.jp/jiko/chuikanki/press/2026fy/prs260715.html')) {
+      issues.push(`${relative}: current NITE battery safety source missing`);
+    }
+  }
   if (relative.replace(/\\/g, '/') === 'pages/toilet-office.html') {
     if (!html.includes('https://www.meti.go.jp/policy/mono_info_service/mono/jyutaku/toirebichiku.html')) {
       issues.push(`${relative}: METI toilet stockpile source missing`);
