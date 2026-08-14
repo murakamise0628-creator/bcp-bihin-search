@@ -289,6 +289,9 @@ for (const file of files) {
     if (!html.includes('<th>利用人数</th><th>3日分</th><th>7日分</th>')) issues.push(`${relative}: business-size toilet quantity guide missing`);
     if (!html.includes('id="toiletEstimate">150回分')) issues.push(`${relative}: three-day toilet default missing`);
     if (!html.includes('回数・袋の構成を楽天で確認')) issues.push(`${relative}: toilet-specific CTA missing`);
+    if (!html.includes('id="purchase-units"')) issues.push(`${relative}: purchase-unit section missing`);
+    if (!html.includes('10・30・50人の購入単位を商品に当てはめる')) issues.push(`${relative}: purchase-unit heading missing`);
+    if (!html.includes('10人・3日') || !html.includes('30人・3日') || !html.includes('50人・3日')) issues.push(`${relative}: purchase-unit business sizes missing`);
   }
   if (relative.replace(/\\/g, '/') === 'pages/portable-power-kaigo.html') {
     if (!html.includes('id="powerWatts"') || !html.includes('id="powerEstimate"')) issues.push(`${relative}: power capacity calculator missing`);
@@ -441,7 +444,7 @@ if (!generatedClientScript.includes("sessionStorage.setItem(paidKitQualifiedKey,
 
 const expectedSearchTitles = {
   'pages/office-bichiku.html': '会社の防災備蓄セット比較｜人数・3日分で選ぶ',
-  'pages/toilet-office.html': '事業所の簡易トイレは何回分？100回・200回を比較',
+  'pages/toilet-office.html': '会社の簡易トイレは何回分？10・30・50人の必要数と商品比較',
   'pages/blackout-power.html': '会社の停電対策用品比較｜ポータブル電源・ライト',
   'pages/water-food-stock.html': '会社の保存水・非常食は何日分？備蓄量と商品比較',
   'pages/emergency-food-office.html': '会社向け非常食セット比較｜3日分の食数・保存年数で選ぶ',

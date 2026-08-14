@@ -2067,6 +2067,42 @@ function quickPicks(products, note) {
   return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">${eyebrow}</p><h2 id="quick-picks-title">${heading}</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
 }
 
+function toiletPurchasePlans(products, note) {
+  if (note.slug !== 'toilet-office') return '';
+  const candidates = products
+    .map((product) => ({ product, uses: Number(productDecisionFacts(product).toiletUses || 0) }))
+    .filter(({ product, uses }) => uses > 0 && Number(product.price || 0) > 0 && !hasAmbiguousToiletQuantity(product))
+    .sort((a, b) => a.uses - b.uses || Number(b.product.reviewCount || 0) - Number(a.product.reviewCount || 0) || Number(a.product.price || 0) - Number(b.product.price || 0));
+  if (!candidates.length) return '';
+
+  const plans = [
+    { people: 10, days: 3 },
+    { people: 30, days: 3 },
+    { people: 50, days: 3 }
+  ].map((plan, index) => {
+    const requiredUses = plan.people * plan.days * 5;
+    const singlePack = candidates.find((candidate) => candidate.uses >= requiredUses);
+    const candidate = singlePack || candidates[candidates.length - 1];
+    const boxes = Math.ceil(requiredUses / candidate.uses);
+    const suppliedUses = candidate.uses * boxes;
+    const totalPrice = Number(candidate.product.price || 0) * boxes;
+    return `<article class="card procurement-card">
+      <p class="pill orange">${plan.people}人・${plan.days}日</p>
+      <h3>必要目安 ${requiredUses.toLocaleString('ja-JP')}回分</h3>
+      <p><strong>${esc(displayTitle(candidate.product))}</strong>を${boxes}箱で、合計${suppliedUses.toLocaleString('ja-JP')}回分になる組み方です。</p>
+      <p class="price">概算 ${yen(totalPrice)}</p>
+      <p class="notice">不足を避ける購入単位の一例です。袋・凝固剤・防臭袋の内訳、配送単位、価格、在庫は販売ページで確認してください。</p>
+      <a class="button orange" href="${esc(candidate.product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(candidate.product, `${note.title} ${plan.people}人${plan.days}日`, index + 1)}>${boxes}箱分の内容を楽天で確認</a>
+    </article>`;
+  }).join('');
+
+  return `<section class="section" id="purchase-units">
+    <div class="section-title"><div><p class="eyebrow">発注前の数量確認</p><h2>10・30・50人の購入単位を商品に当てはめる</h2></div><p class="notice">1人1日5回、3日分で算出</p></div>
+    <p class="lead">必要回数だけでなく、実際に何箱になるかまで確認します。商品データが更新されると、この組み方も掲載中の商品から自動で選び直します。</p>
+    <div class="grid">${plans}</div>
+  </section>`;
+}
+
 function webPageJsonLd(title, description, canonical, citationUrls = []) {
   return jsonLd({
     '@context': 'https://schema.org',
@@ -2148,7 +2184,7 @@ function pageDescription(page, note) {
 function pageSeoTitle(page) {
   const titles = {
     'office-bichiku': '会社の防災備蓄セット比較｜人数・3日分で選ぶ',
-    'toilet-office': '事業所の簡易トイレは何回分？100回・200回を比較',
+    'toilet-office': '会社の簡易トイレは何回分？10・30・50人の必要数と商品比較',
     'blackout-power': '会社の停電対策用品比較｜ポータブル電源・ライト',
     'water-food-stock': '会社の保存水・非常食は何日分？備蓄量と商品比較',
     'emergency-food-office': '会社向け非常食セット比較｜3日分の食数・保存年数で選ぶ',
@@ -2506,6 +2542,7 @@ function pageHtml(page) {
     ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : page.slug === 'emergency-food-office' ? `<article class="card"><h2>このページで比べるもの</h2><p>非常食セットの食数、保存年数、調理方法を比べます。保存水を含む全体量は早見表で確認してください。</p><a class="small-button" href="${siteUrl}/pages/office-stockpile-quantity.html">人数別の備蓄量を見る</a></article>` : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
   </section>
   ${quantityEstimateSection(page.slug)}
+  ${toiletPurchasePlans(products, note)}
   ${marketSnapshotSection(products, note)}
   ${sourceSection(page.slug)}
   ${['toilet-office', 'office-bichiku', 'blackout-power', 'water-food-stock', 'emergency-food-office'].includes(page.slug) ? quickPicks(products, note) : ''}
