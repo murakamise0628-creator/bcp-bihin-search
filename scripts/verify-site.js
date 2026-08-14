@@ -444,7 +444,7 @@ if (!generatedClientScript.includes("sessionStorage.setItem(paidKitQualifiedKey,
 
 const expectedSearchTitles = {
   'pages/office-bichiku.html': '会社の防災備蓄セット比較｜人数・3日分で選ぶ',
-  'pages/toilet-office.html': '事業所の簡易トイレは何回分？100回・200回を比較',
+  'pages/toilet-office.html': '会社の簡易トイレは何回分？10・30・50人の必要数と商品比較',
   'pages/blackout-power.html': '会社の停電対策用品比較｜ポータブル電源・ライト',
   'pages/water-food-stock.html': '会社の保存水・非常食は何日分？備蓄量と商品比較',
   'pages/emergency-food-office.html': '会社向け非常食セット比較｜3日分の食数・保存年数で選ぶ',
