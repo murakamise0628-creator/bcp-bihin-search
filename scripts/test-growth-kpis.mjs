@@ -46,10 +46,10 @@ test('normalizes full URLs and GA paths to the same page', () => {
 });
 
 test('classifies actionable page gaps without inventing conversions', () => {
-  assert.equal(classifyPageOpportunity({ sessions: 8, rakutenClicks: 0, impressions: 5, position: 0, ctr: 0 }).primary, 'conversion_gap');
-  assert.equal(classifyPageOpportunity({ sessions: 2, rakutenClicks: 0, impressions: 100, position: 6, ctr: 0.01 }).primary, 'snippet_gap');
-  assert.equal(classifyPageOpportunity({ sessions: 2, rakutenClicks: 0, impressions: 100, position: 14, ctr: 0.02 }).primary, 'ranking_opportunity');
-  assert.equal(classifyPageOpportunity({ sessions: 2, rakutenClicks: 1, impressions: 100, position: 4, ctr: 0.08 }).primary, 'winner');
+  assert.equal(classifyPageOpportunity({ sessions: 8, pageViews: 12, rakutenClicks: 0, impressions: 5, position: 0, ctr: 0 }).primary, 'conversion_gap');
+  assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 0, impressions: 100, position: 6, ctr: 0.01 }).primary, 'snippet_gap');
+  assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 0, impressions: 100, position: 14, ctr: 0.02 }).primary, 'ranking_opportunity');
+  assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 1, impressions: 100, position: 4, ctr: 0.08 }).primary, 'winner');
 });
 
 test('joins GSC pages, GA landing sessions and Rakuten clicks by path', () => {
@@ -64,6 +64,10 @@ test('joins GSC pages, GA landing sessions and Rakuten clicks by path', () => {
         { path: '/pages/toilet-office.html?source=google', sessions: 12, activeUsers: 10 },
         { path: '/pages/blackout-power.html', sessions: 7, activeUsers: 6 }
       ],
+      pageViewsByPage: [
+        { path: '/pages/toilet-office.html', pageViews: 20, activeUsers: 11 },
+        { path: '/pages/blackout-power.html', pageViews: 9, activeUsers: 7 }
+      ],
       eventPages: [{ eventName: 'rakuten_click', path: '/pages/toilet-office.html', count: 2 }]
     } }
   };
@@ -71,7 +75,7 @@ test('joins GSC pages, GA landing sessions and Rakuten clicks by path', () => {
   const toilet = pages.find((row) => row.path === '/pages/toilet-office.html');
   const blackout = pages.find((row) => row.path === '/pages/blackout-power.html');
   assert.equal(toilet.rakutenClicks, 2);
-  assert.equal(toilet.rakutenClickRate, 2 / 12);
+  assert.equal(toilet.rakutenClickRate, 2 / 20);
   assert.equal(toilet.primary, 'snippet_gap');
   assert.equal(blackout.primary, 'conversion_gap');
   assert.equal(pages[0].path, '/pages/blackout-power.html');
@@ -82,12 +86,12 @@ test('creates a readable private priority summary', () => {
     periods: { current: { startDate: '2026-07-11', endDate: '2026-08-07' } },
     pagePriorities: [{
       path: '/pages/toilet-office.html', impressions: 120, searchClicks: 3, ctr: 0.025,
-      position: 8.2, sessions: 12, rakutenClicks: 2, rakutenClickRate: 2 / 12,
+      position: 8.2, pageViews: 20, sessions: 12, rakutenClicks: 2, rakutenClickRate: 2 / 20,
       primary: 'snippet_gap', action: 'titleを改善する'
     }]
   });
   assert.match(markdown, /週次ページ改善優先度/);
   assert.match(markdown, /toilet-office/);
-  assert.match(markdown, /16\.7%/);
+  assert.match(markdown, /10\.0%/);
   assert.doesNotMatch(markdown, /private_key/);
 });
