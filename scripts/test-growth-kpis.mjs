@@ -42,11 +42,13 @@ test('creates a secret-free KPI sheet row', () => {
 test('normalizes full URLs and GA paths to the same page', () => {
   assert.equal(normalizePagePath('https://jigyousho-bousai.com/pages/toilet-office.html?utm_source=test'), '/pages/toilet-office.html');
   assert.equal(normalizePagePath('/pages/toilet-office.html/'), '/pages/toilet-office.html');
-  assert.equal(normalizePagePath(''), '/');
+  assert.equal(normalizePagePath('/index.html'), '/');
+  assert.equal(normalizePagePath('(not set)'), null);
+  assert.equal(normalizePagePath('https://example.com/pages/toilet-office.html'), null);
 });
 
 test('classifies actionable page gaps without inventing conversions', () => {
-  assert.equal(classifyPageOpportunity({ sessions: 8, pageViews: 12, rakutenClicks: 0, impressions: 5, position: 0, ctr: 0 }).primary, 'conversion_gap');
+  assert.equal(classifyPageOpportunity({ sessions: 8, pageViews: 25, rakutenClicks: 0, impressions: 5, position: 0, ctr: 0 }).primary, 'conversion_gap');
   assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 0, impressions: 100, position: 6, ctr: 0.01 }).primary, 'snippet_gap');
   assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 0, impressions: 100, position: 14, ctr: 0.02 }).primary, 'ranking_opportunity');
   assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 1, impressions: 100, position: 4, ctr: 0.08 }).primary, 'winner');
@@ -66,7 +68,7 @@ test('joins GSC pages, GA landing sessions and Rakuten clicks by path', () => {
       ],
       pageViewsByPage: [
         { path: '/pages/toilet-office.html', pageViews: 20, activeUsers: 11 },
-        { path: '/pages/blackout-power.html', pageViews: 9, activeUsers: 7 }
+        { path: '/pages/blackout-power.html', pageViews: 25, activeUsers: 7 }
       ],
       eventPages: [{ eventName: 'rakuten_click', path: '/pages/toilet-office.html', count: 2 }]
     } }
@@ -79,6 +81,7 @@ test('joins GSC pages, GA landing sessions and Rakuten clicks by path', () => {
   assert.equal(toilet.primary, 'snippet_gap');
   assert.equal(blackout.primary, 'conversion_gap');
   assert.equal(pages[0].path, '/pages/blackout-power.html');
+  assert.ok(classifyPageOpportunity({ sessions: 2, pageViews: 2, rakutenClicks: 0, impressions: 1000, position: 14, ctr: 0.01 }).priorityScore > classifyPageOpportunity({ sessions: 20, pageViews: 20, rakutenClicks: 0, impressions: 20, position: 5, ctr: 0.2 }).priorityScore);
 });
 
 test('creates a readable private priority summary', () => {
