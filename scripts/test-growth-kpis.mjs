@@ -48,7 +48,7 @@ test('normalizes full URLs and GA paths to the same page', () => {
 });
 
 test('classifies actionable page gaps without inventing conversions', () => {
-  assert.equal(classifyPageOpportunity({ sessions: 8, pageViews: 25, rakutenClicks: 0, impressions: 5, position: 0, ctr: 0 }).primary, 'conversion_gap');
+  assert.equal(classifyPageOpportunity({ sessions: 8, pageViews: 25, rakutenClicks: 0, impressions: 20, position: 5, ctr: 0.2 }).primary, 'conversion_gap');
   assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 0, impressions: 100, position: 6, ctr: 0.01 }).primary, 'snippet_gap');
   assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 0, impressions: 100, position: 14, ctr: 0.02 }).primary, 'ranking_opportunity');
   assert.equal(classifyPageOpportunity({ sessions: 2, pageViews: 3, rakutenClicks: 1, impressions: 100, position: 4, ctr: 0.08 }).primary, 'winner');
