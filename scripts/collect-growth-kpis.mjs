@@ -91,7 +91,7 @@ async function ga(propertyId, token, request, fetchImpl) {
 
 async function gaPeriod(propertyId, token, period, events, fetchImpl) {
   const dateRanges = [period];
-  const [summary, organic, eventReport, landing, eventPages] = await Promise.all([
+  const [summary, organic, eventReport, landing, pageViewsByPage, eventPages] = await Promise.all([
     ga(propertyId, token, { dateRanges, metrics: [{ name: 'activeUsers' }, { name: 'sessions' }, { name: 'screenPageViews' }] }, fetchImpl),
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'sessionDefaultChannelGroup' }], metrics: [{ name: 'sessions' }],
@@ -103,7 +103,11 @@ async function gaPeriod(propertyId, token, period, events, fetchImpl) {
     }, fetchImpl),
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'landingPagePlusQueryString' }], metrics: [{ name: 'sessions' }, { name: 'activeUsers' }],
-      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }], limit: 20
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }], limit: 100
+    }, fetchImpl),
+    ga(propertyId, token, {
+      dateRanges, dimensions: [{ name: 'pagePath' }], metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
+      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }], limit: 100
     }, fetchImpl),
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'eventName' }, { name: 'pagePath' }], metrics: [{ name: 'eventCount' }],
@@ -115,6 +119,7 @@ async function gaPeriod(propertyId, token, period, events, fetchImpl) {
     activeUsers: metric(summary, 'activeUsers'), sessions: metric(summary, 'sessions'), pageViews: metric(summary, 'screenPageViews'),
     organicSessions: metric(organic, 'sessions'), events: eventCounts(eventReport),
     landingPages: (landing.rows || []).map((row) => ({ path: row.dimensionValues?.[0]?.value || '', sessions: Number(row.metricValues?.[0]?.value || 0), activeUsers: Number(row.metricValues?.[1]?.value || 0) })),
+    pageViewsByPage: (pageViewsByPage.rows || []).map((row) => ({ path: row.dimensionValues?.[0]?.value || '', pageViews: Number(row.metricValues?.[0]?.value || 0), activeUsers: Number(row.metricValues?.[1]?.value || 0) })),
     eventPages: (eventPages.rows || []).map((row) => ({ eventName: row.dimensionValues?.[0]?.value || '', path: row.dimensionValues?.[1]?.value || '', count: Number(row.metricValues?.[0]?.value || 0) }))
   };
 }
@@ -158,13 +163,13 @@ export function classifyPageOpportunity(row, thresholds = {}) {
   const limits = {
     minImpressions: Number(thresholds.minImpressions ?? 20),
     lowVisibilityImpressions: Number(thresholds.lowVisibilityImpressions ?? 10),
-    minSessions: Number(thresholds.minSessions ?? 5),
+    minPageViews: Number(thresholds.minPageViews ?? thresholds.minSessions ?? 5),
     lowCtr: Number(thresholds.lowCtr ?? 0.03),
     topResultPosition: Number(thresholds.topResultPosition ?? 10),
     opportunityPosition: Number(thresholds.opportunityPosition ?? 20)
   };
   const signals = [];
-  if (row.sessions >= limits.minSessions && row.rakutenClicks === 0) signals.push('conversion_gap');
+  if (row.pageViews >= limits.minPageViews && row.rakutenClicks === 0) signals.push('conversion_gap');
   if (row.impressions >= limits.minImpressions && row.position > 0 && row.position <= limits.topResultPosition && row.ctr < limits.lowCtr) signals.push('snippet_gap');
   if (row.impressions >= limits.minImpressions && row.position > limits.topResultPosition && row.position <= limits.opportunityPosition) signals.push('ranking_opportunity');
   if (row.impressions < limits.lowVisibilityImpressions) signals.push('visibility_gap');
@@ -186,7 +191,7 @@ export function classifyPageOpportunity(row, thresholds = {}) {
     primary,
     signals,
     action: actions[primary],
-    priorityScore: Math.round((weights[primary] || 0) + Math.min(row.impressions, 1000) / 100 + Math.min(row.sessions, 100) / 10)
+    priorityScore: Math.round((weights[primary] || 0) + Math.min(row.impressions, 1000) / 100 + Math.min(row.pageViews, 100) / 10)
   };
 }
 
@@ -197,7 +202,7 @@ export function buildPagePriorities(report, thresholds = {}) {
     const pagePath = normalizePagePath(value, siteUrl);
     if (!pages.has(pagePath)) pages.set(pagePath, {
       path: pagePath, impressions: 0, searchClicks: 0, ctr: 0, position: 0,
-      sessions: 0, activeUsers: 0, rakutenClicks: 0
+      sessions: 0, activeUsers: 0, pageViews: 0, rakutenClicks: 0
     });
     return pages.get(pagePath);
   };
@@ -215,13 +220,18 @@ export function buildPagePriorities(report, thresholds = {}) {
     page.sessions += Number(row.sessions || 0);
     page.activeUsers += Number(row.activeUsers || 0);
   }
+  for (const row of report.ga?.current?.pageViewsByPage || []) {
+    const page = ensure(row.path);
+    page.pageViews += Number(row.pageViews || 0);
+    page.activeUsers = Math.max(page.activeUsers, Number(row.activeUsers || 0));
+  }
   for (const row of report.ga?.current?.eventPages || []) {
     if (row.eventName !== 'rakuten_click') continue;
     ensure(row.path).rakutenClicks += Number(row.count || 0);
   }
 
   return [...pages.values()].map((page) => {
-    const rakutenClickRate = page.sessions > 0 ? page.rakutenClicks / page.sessions : null;
+    const rakutenClickRate = page.pageViews > 0 ? page.rakutenClicks / page.pageViews : null;
     return { ...page, rakutenClickRate, ...classifyPageOpportunity({ ...page, rakutenClickRate }, thresholds) };
   }).sort((a, b) => b.priorityScore - a.priorityScore || b.impressions - a.impressions || b.sessions - a.sessions);
 }
@@ -230,16 +240,16 @@ export function priorityMarkdown(report, limit = 10) {
   const esc = (value) => String(value ?? '').replace(/\|/g, '\\|');
   const percent = (value) => value === null || value === undefined ? '-' : `${(value * 100).toFixed(1)}%`;
   const rows = (report.pagePriorities || []).slice(0, limit).map((row) =>
-    `| ${esc(row.path)} | ${row.impressions} | ${row.searchClicks} | ${percent(row.ctr)} | ${row.position ? row.position.toFixed(1) : '-'} | ${row.sessions} | ${row.rakutenClicks} | ${percent(row.rakutenClickRate)} | ${row.primary} | ${esc(row.action)} |`
+    `| ${esc(row.path)} | ${row.impressions} | ${row.searchClicks} | ${percent(row.ctr)} | ${row.position ? row.position.toFixed(1) : '-'} | ${row.pageViews} | ${row.sessions} | ${row.rakutenClicks} | ${percent(row.rakutenClickRate)} | ${row.primary} | ${esc(row.action)} |`
   );
   return [
     '# 週次ページ改善優先度',
     '',
     `対象期間: ${report.periods.current.startDate} - ${report.periods.current.endDate}`,
     '',
-    '| ページ | 表示 | 検索クリック | CTR | 順位 | セッション | 楽天クリック | 楽天クリック率 | 判定 | 次の作業 |',
-    '|---|---:|---:|---:|---:|---:|---:|---:|---|---|',
-    ...(rows.length ? rows : ['| データなし | 0 | 0 | - | - | 0 | 0 | - | monitor | 計測設定を確認する |']),
+    '| ページ | 表示 | 検索クリック | CTR | 順位 | PV | ランディングセッション | 楽天クリック | 楽天クリック率 | 判定 | 次の作業 |',
+    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---|',
+    ...(rows.length ? rows : ['| データなし | 0 | 0 | - | - | 0 | 0 | 0 | - | monitor | 計測設定を確認する |']),
     '',
     '判定は優先順位付けの補助です。楽天の注文・確定報酬は楽天公式レポートで別途確認してください。',
     ''
