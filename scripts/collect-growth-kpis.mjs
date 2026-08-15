@@ -103,16 +103,21 @@ async function gaPeriod(propertyId, token, period, events, fetchImpl) {
     }, fetchImpl),
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'landingPagePlusQueryString' }], metrics: [{ name: 'sessions' }, { name: 'activeUsers' }],
-      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }], limit: 100
+      dimensionFilter: { filter: { fieldName: 'sessionDefaultChannelGroup', stringFilter: { matchType: 'EXACT', value: 'Organic Search' } } },
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }], limit: 10000
     }, fetchImpl),
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'pagePath' }], metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
-      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }], limit: 100
+      dimensionFilter: { filter: { fieldName: 'sessionDefaultChannelGroup', stringFilter: { matchType: 'EXACT', value: 'Organic Search' } } },
+      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }], limit: 10000
     }, fetchImpl),
     ga(propertyId, token, {
       dateRanges, dimensions: [{ name: 'eventName' }, { name: 'pagePath' }], metrics: [{ name: 'eventCount' }],
-      dimensionFilter: { filter: { fieldName: 'eventName', inListFilter: { values: events, caseSensitive: true } } },
-      orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }], limit: 100
+      dimensionFilter: { andGroup: { expressions: [
+        { filter: { fieldName: 'eventName', inListFilter: { values: events, caseSensitive: true } } },
+        { filter: { fieldName: 'sessionDefaultChannelGroup', stringFilter: { matchType: 'EXACT', value: 'Organic Search' } } }
+      ] } },
+      orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }], limit: 10000
     }, fetchImpl)
   ]);
   return {
@@ -134,8 +139,8 @@ async function searchPeriod(site, token, period, fetchImpl) {
   const base = { ...period, type: 'web', dataState: 'final' };
   const [total, queries, pages] = await Promise.all([
     searchQuery(site, token, base, fetchImpl),
-    searchQuery(site, token, { ...base, dimensions: ['query'], rowLimit: 50 }, fetchImpl),
-    searchQuery(site, token, { ...base, dimensions: ['page'], rowLimit: 50 }, fetchImpl)
+    searchQuery(site, token, { ...base, dimensions: ['query'], rowLimit: 25000 }, fetchImpl),
+    searchQuery(site, token, { ...base, dimensions: ['page'], rowLimit: 25000 }, fetchImpl)
   ]);
   const normalize = (rows) => (rows || []).map((row) => ({ key: row.keys?.[0] || '', clicks: Number(row.clicks || 0), impressions: Number(row.impressions || 0), ctr: Number(row.ctr || 0), position: Number(row.position || 0) }));
   const row = total.rows?.[0] || {};
@@ -148,14 +153,17 @@ export function comparison(current, previous) {
 }
 
 export function normalizePagePath(value, siteUrl = 'https://jigyousho-bousai.com') {
-  if (!value) return '/';
+  const raw = String(value || '').trim();
+  if (!raw || /^\(not set\)$/i.test(raw) || /^not set$/i.test(raw)) return null;
   try {
-    const url = new URL(value, siteUrl);
-    const pathName = url.pathname.replace(/\/{2,}/g, '/').replace(/\/$/, '');
+    const base = new URL(siteUrl);
+    const url = new URL(raw, base);
+    const host = (value) => value.toLowerCase().replace(/^www\./, '');
+    if (host(url.hostname) !== host(base.hostname)) return null;
+    let pathName = url.pathname.replace(/\/{2,}/g, '/').replace(/\/index\.html$/i, '/').replace(/\/$/, '');
     return pathName || '/';
   } catch {
-    const pathName = String(value).split(/[?#]/)[0].replace(/\/{2,}/g, '/').replace(/\/$/, '');
-    return pathName || '/';
+    return null;
   }
 }
 
@@ -163,43 +171,43 @@ export function classifyPageOpportunity(row, thresholds = {}) {
   const limits = {
     minImpressions: Number(thresholds.minImpressions ?? 20),
     lowVisibilityImpressions: Number(thresholds.lowVisibilityImpressions ?? 10),
-    minPageViews: Number(thresholds.minPageViews ?? thresholds.minSessions ?? 5),
+    minPageViews: Number(thresholds.minPageViews ?? 20),
     lowCtr: Number(thresholds.lowCtr ?? 0.03),
     topResultPosition: Number(thresholds.topResultPosition ?? 10),
     opportunityPosition: Number(thresholds.opportunityPosition ?? 20)
   };
-  const signals = [];
-  if (row.pageViews >= limits.minPageViews && row.rakutenClicks === 0) signals.push('conversion_gap');
-  if (row.impressions >= limits.minImpressions && row.position > 0 && row.position <= limits.topResultPosition && row.ctr < limits.lowCtr) signals.push('snippet_gap');
-  if (row.impressions >= limits.minImpressions && row.position > limits.topResultPosition && row.position <= limits.opportunityPosition) signals.push('ranking_opportunity');
-  if (row.impressions < limits.lowVisibilityImpressions) signals.push('visibility_gap');
-  if (row.rakutenClicks > 0) signals.push('winner');
-  if (!signals.length) signals.push('monitor');
-
-  const order = ['conversion_gap', 'snippet_gap', 'ranking_opportunity', 'visibility_gap', 'winner', 'monitor'];
-  const primary = order.find((value) => signals.includes(value));
-  const actions = {
-    conversion_gap: '商品比較・価格確認CTA・商品との一致を見直す',
-    snippet_gap: '検索意図に合わせてtitleとdescriptionを改善する',
-    ranking_opportunity: '本文の不足回答と関連ページからの内部リンクを補強する',
-    visibility_gap: '検索需要とインデックス状況を確認し、対象クエリを絞る',
-    winner: '流入クエリと楽天クリック導線を維持し、近いページへ展開する',
-    monitor: '急いで変更せず、次回データまで推移を確認する'
-  };
-  const weights = { conversion_gap: 100, snippet_gap: 90, ranking_opportunity: 80, visibility_gap: 50, winner: 20, monitor: 0 };
+  const candidates = [];
+  const add = (type, score, action) => candidates.push({ type, score: Math.round(score), action });
+  if (row.pageViews >= limits.minPageViews && row.impressions >= limits.minImpressions && row.rakutenClicks === 0) {
+    add('conversion_gap', 40 + Math.min(row.pageViews, 100) * 1.5 + Math.min(row.impressions, 1000) * 0.05, '商品比較・価格確認CTA・商品との一致を見直す');
+  }
+  if (row.impressions >= limits.minImpressions && row.position > 0 && row.position <= limits.topResultPosition && row.ctr < limits.lowCtr) {
+    add('snippet_gap', 50 + Math.min(row.impressions, 1000) * 0.1, '検索意図に合わせてtitleとdescriptionを改善する');
+  }
+  if (row.impressions >= limits.minImpressions && row.position > limits.topResultPosition && row.position <= limits.opportunityPosition) {
+    add('ranking_opportunity', 60 + Math.min(row.impressions, 1000) * 0.1, '本文の不足回答と関連ページからの内部リンクを補強する');
+  }
+  if (row.impressions < limits.lowVisibilityImpressions) {
+    add('visibility_gap', 20 + Math.min(row.pageViews, 20), '検索需要とインデックス状況を確認し、対象クエリを絞る');
+  }
+  if (row.rakutenClicks > 0) {
+    add('winner', 10 + Math.min(row.rakutenClicks, 20), '流入クエリと楽天クリック導線を維持し、近いページへ展開する');
+  }
+  if (!candidates.length) add('monitor', 0, '急いで変更せず、次回データまで推移を確認する');
+  candidates.sort((a, b) => b.score - a.score);
   return {
-    primary,
-    signals,
-    action: actions[primary],
-    priorityScore: Math.round((weights[primary] || 0) + Math.min(row.impressions, 1000) / 100 + Math.min(row.pageViews, 100) / 10)
+    primary: candidates[0].type,
+    signals: candidates.map((item) => item.type),
+    action: candidates[0].action,
+    priorityScore: candidates[0].score
   };
 }
-
 export function buildPagePriorities(report, thresholds = {}) {
   const siteUrl = report.siteUrl || 'https://jigyousho-bousai.com';
   const pages = new Map();
   const ensure = (value) => {
     const pagePath = normalizePagePath(value, siteUrl);
+    if (!pagePath) return null;
     if (!pages.has(pagePath)) pages.set(pagePath, {
       path: pagePath, impressions: 0, searchClicks: 0, ctr: 0, position: 0,
       sessions: 0, activeUsers: 0, pageViews: 0, rakutenClicks: 0
@@ -208,7 +216,9 @@ export function buildPagePriorities(report, thresholds = {}) {
   };
 
   for (const row of report.search?.current?.pages || []) {
-    Object.assign(ensure(row.key), {
+    const page = ensure(row.key);
+    if (!page) continue;
+    Object.assign(page, {
       impressions: Number(row.impressions || 0),
       searchClicks: Number(row.clicks || 0),
       ctr: Number(row.ctr || 0),
@@ -217,17 +227,21 @@ export function buildPagePriorities(report, thresholds = {}) {
   }
   for (const row of report.ga?.current?.landingPages || []) {
     const page = ensure(row.path);
+    if (!page) continue;
     page.sessions += Number(row.sessions || 0);
     page.activeUsers += Number(row.activeUsers || 0);
   }
   for (const row of report.ga?.current?.pageViewsByPage || []) {
     const page = ensure(row.path);
+    if (!page) continue;
     page.pageViews += Number(row.pageViews || 0);
     page.activeUsers = Math.max(page.activeUsers, Number(row.activeUsers || 0));
   }
   for (const row of report.ga?.current?.eventPages || []) {
     if (row.eventName !== 'rakuten_click') continue;
-    ensure(row.path).rakutenClicks += Number(row.count || 0);
+    const page = ensure(row.path);
+    if (!page) continue;
+    page.rakutenClicks += Number(row.count || 0);
   }
 
   return [...pages.values()].map((page) => {
