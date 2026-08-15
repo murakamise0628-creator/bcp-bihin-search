@@ -18,9 +18,9 @@
   "decisionThresholds": {
     "minImpressions": 20,
     "lowVisibilityImpressions": 10,
-    "minSessions": 5,
     "lowCtr": 0.03,
     "topResultPosition": 10,
-    "opportunityPosition": 20
+    "opportunityPosition": 20,
+    "minPageViews": 5
   }
 }
