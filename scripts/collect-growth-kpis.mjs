@@ -142,6 +142,110 @@ export function comparison(current, previous) {
   return Number.isFinite(previous) ? (current - previous) / previous : null;
 }
 
+export function normalizePagePath(value, siteUrl = 'https://jigyousho-bousai.com') {
+  if (!value) return '/';
+  try {
+    const url = new URL(value, siteUrl);
+    const pathName = url.pathname.replace(/\/{2,}/g, '/').replace(/\/$/, '');
+    return pathName || '/';
+  } catch {
+    const pathName = String(value).split(/[?#]/)[0].replace(/\/{2,}/g, '/').replace(/\/$/, '');
+    return pathName || '/';
+  }
+}
+
+export function classifyPageOpportunity(row, thresholds = {}) {
+  const limits = {
+    minImpressions: Number(thresholds.minImpressions ?? 20),
+    lowVisibilityImpressions: Number(thresholds.lowVisibilityImpressions ?? 10),
+    minSessions: Number(thresholds.minSessions ?? 5),
+    lowCtr: Number(thresholds.lowCtr ?? 0.03),
+    topResultPosition: Number(thresholds.topResultPosition ?? 10),
+    opportunityPosition: Number(thresholds.opportunityPosition ?? 20)
+  };
+  const signals = [];
+  if (row.sessions >= limits.minSessions && row.rakutenClicks === 0) signals.push('conversion_gap');
+  if (row.impressions >= limits.minImpressions && row.position > 0 && row.position <= limits.topResultPosition && row.ctr < limits.lowCtr) signals.push('snippet_gap');
+  if (row.impressions >= limits.minImpressions && row.position > limits.topResultPosition && row.position <= limits.opportunityPosition) signals.push('ranking_opportunity');
+  if (row.impressions < limits.lowVisibilityImpressions) signals.push('visibility_gap');
+  if (row.rakutenClicks > 0) signals.push('winner');
+  if (!signals.length) signals.push('monitor');
+
+  const order = ['conversion_gap', 'snippet_gap', 'ranking_opportunity', 'visibility_gap', 'winner', 'monitor'];
+  const primary = order.find((value) => signals.includes(value));
+  const actions = {
+    conversion_gap: '商品比較・価格確認CTA・商品との一致を見直す',
+    snippet_gap: '検索意図に合わせてtitleとdescriptionを改善する',
+    ranking_opportunity: '本文の不足回答と関連ページからの内部リンクを補強する',
+    visibility_gap: '検索需要とインデックス状況を確認し、対象クエリを絞る',
+    winner: '流入クエリと楽天クリック導線を維持し、近いページへ展開する',
+    monitor: '急いで変更せず、次回データまで推移を確認する'
+  };
+  const weights = { conversion_gap: 100, snippet_gap: 90, ranking_opportunity: 80, visibility_gap: 50, winner: 20, monitor: 0 };
+  return {
+    primary,
+    signals,
+    action: actions[primary],
+    priorityScore: Math.round((weights[primary] || 0) + Math.min(row.impressions, 1000) / 100 + Math.min(row.sessions, 100) / 10)
+  };
+}
+
+export function buildPagePriorities(report, thresholds = {}) {
+  const siteUrl = report.siteUrl || 'https://jigyousho-bousai.com';
+  const pages = new Map();
+  const ensure = (value) => {
+    const pagePath = normalizePagePath(value, siteUrl);
+    if (!pages.has(pagePath)) pages.set(pagePath, {
+      path: pagePath, impressions: 0, searchClicks: 0, ctr: 0, position: 0,
+      sessions: 0, activeUsers: 0, rakutenClicks: 0
+    });
+    return pages.get(pagePath);
+  };
+
+  for (const row of report.search?.current?.pages || []) {
+    Object.assign(ensure(row.key), {
+      impressions: Number(row.impressions || 0),
+      searchClicks: Number(row.clicks || 0),
+      ctr: Number(row.ctr || 0),
+      position: Number(row.position || 0)
+    });
+  }
+  for (const row of report.ga?.current?.landingPages || []) {
+    const page = ensure(row.path);
+    page.sessions += Number(row.sessions || 0);
+    page.activeUsers += Number(row.activeUsers || 0);
+  }
+  for (const row of report.ga?.current?.eventPages || []) {
+    if (row.eventName !== 'rakuten_click') continue;
+    ensure(row.path).rakutenClicks += Number(row.count || 0);
+  }
+
+  return [...pages.values()].map((page) => {
+    const rakutenClickRate = page.sessions > 0 ? page.rakutenClicks / page.sessions : null;
+    return { ...page, rakutenClickRate, ...classifyPageOpportunity({ ...page, rakutenClickRate }, thresholds) };
+  }).sort((a, b) => b.priorityScore - a.priorityScore || b.impressions - a.impressions || b.sessions - a.sessions);
+}
+
+export function priorityMarkdown(report, limit = 10) {
+  const esc = (value) => String(value ?? '').replace(/\|/g, '\\|');
+  const percent = (value) => value === null || value === undefined ? '-' : `${(value * 100).toFixed(1)}%`;
+  const rows = (report.pagePriorities || []).slice(0, limit).map((row) =>
+    `| ${esc(row.path)} | ${row.impressions} | ${row.searchClicks} | ${percent(row.ctr)} | ${row.position ? row.position.toFixed(1) : '-'} | ${row.sessions} | ${row.rakutenClicks} | ${percent(row.rakutenClickRate)} | ${row.primary} | ${esc(row.action)} |`
+  );
+  return [
+    '# 週次ページ改善優先度',
+    '',
+    `対象期間: ${report.periods.current.startDate} - ${report.periods.current.endDate}`,
+    '',
+    '| ページ | 表示 | 検索クリック | CTR | 順位 | セッション | 楽天クリック | 楽天クリック率 | 判定 | 次の作業 |',
+    '|---|---:|---:|---:|---:|---:|---:|---:|---|---|',
+    ...(rows.length ? rows : ['| データなし | 0 | 0 | - | - | 0 | 0 | - | monitor | 計測設定を確認する |']),
+    '',
+    '判定は優先順位付けの補助です。楽天の注文・確定報酬は楽天公式レポートで別途確認してください。',
+    ''
+  ].join('\n');
+}
+
 export function summarizeTopRows(rows, formatter, limit = 5) {
   return (rows || []).filter(Boolean).slice(0, limit).map(formatter).filter(Boolean).join(' | ');
 }
@@ -179,11 +283,16 @@ export async function collectGrowthKpis(options = {}) {
     gaPeriod(propertyId, token, periods.current, config.events, fetchImpl), gaPeriod(propertyId, token, periods.previous, config.events, fetchImpl),
     searchPeriod(site, token, periods.current, fetchImpl), searchPeriod(site, token, periods.previous, fetchImpl)
   ]);
-  const report = { schemaVersion: 1, collectedAt: new Date().toISOString(), siteUrl: config.siteUrl, periods, ga: { current: gaCurrent, previous: gaPrevious }, search: { current: searchCurrent, previous: searchPrevious } };
+  const report = { schemaVersion: 2, collectedAt: new Date().toISOString(), siteUrl: config.siteUrl, periods, ga: { current: gaCurrent, previous: gaPrevious }, search: { current: searchCurrent, previous: searchPrevious } };
+  report.pagePriorities = buildPagePriorities(report, config.decisionThresholds);
   if (sheetId) await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
   if (process.env.KPI_OUTPUT_PATH) {
     fs.mkdirSync(path.dirname(path.resolve(process.env.KPI_OUTPUT_PATH)), { recursive: true });
     fs.writeFileSync(process.env.KPI_OUTPUT_PATH, `${JSON.stringify(report, null, 2)}\n`);
+  }
+  if (process.env.KPI_SUMMARY_PATH) {
+    fs.mkdirSync(path.dirname(path.resolve(process.env.KPI_SUMMARY_PATH)), { recursive: true });
+    fs.writeFileSync(process.env.KPI_SUMMARY_PATH, priorityMarkdown(report));
   }
   return report;
 }
