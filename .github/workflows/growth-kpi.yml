@@ -54,11 +54,7 @@ jobs:
           KPI_OUTPUT_PATH: artifacts/growth-kpi.json
           KPI_SUMMARY_PATH: artifacts/growth-priority.md
         run: node scripts/collect-growth-kpis.mjs
-      - name: Add page priorities to workflow summary
-        if: steps.configured.outputs.ready == 'true'
-        shell: bash
-        run: cat artifacts/growth-priority.md >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload private KPI report
+      - name: Upload KPI report artifact
         if: steps.configured.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
