@@ -52,13 +52,20 @@ jobs:
           GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
           SEARCH_CONSOLE_SITE_URL: sc-domain:jigyousho-bousai.com
           KPI_OUTPUT_PATH: artifacts/growth-kpi.json
+          KPI_SUMMARY_PATH: artifacts/growth-priority.md
         run: node scripts/collect-growth-kpis.mjs
+      - name: Add page priorities to workflow summary
+        if: steps.configured.outputs.ready == 'true'
+        shell: bash
+        run: cat artifacts/growth-priority.md >> "$GITHUB_STEP_SUMMARY"
       - name: Upload private KPI report
         if: steps.configured.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: growth-kpi-${{ github.run_id }}
-          path: artifacts/growth-kpi.json
+          path: |
+            artifacts/growth-kpi.json
+            artifacts/growth-priority.md
           retention-days: 90
           if-no-files-found: error
       - name: Report connection status
