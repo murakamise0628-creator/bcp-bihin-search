@@ -236,5 +236,7 @@
     "cao.go.jp",
     "go.jp",
     "lg.jp"
-  ]
+  ],
+  "requireOfficialSafetyCheck": true,
+  "officialSafetyMaxAgeHours": 12
 }
