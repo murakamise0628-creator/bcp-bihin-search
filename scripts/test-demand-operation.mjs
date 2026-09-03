@@ -76,7 +76,7 @@ test('accepts recent verified official signals and rejects emergency alerts', ()
   assert.deepEqual(normalized.map((item) => item.id), ['guide']);
   const result = planDemandOperation({ pagePriorities: [page('/pages/blackout-power.html', 'visibility_gap', { impressions: 0, sessions: 0 })] }, config, signals, [], new Date('2026-09-03T00:00:00Z'));
   assert.equal(result.status, 'ACTION');
-  assert.equal(result.trigger, '公式資料更新');
+  assert.equal(result.trigger, '公式防災情報の更新');
 });
 
 test('rejects stale, unverified and non-HTTPS signals', () => {
@@ -182,4 +182,16 @@ test('neutralizes Sheet formula prefixes', () => {
   assert.equal(safeSheetCell('=IMPORTXML("https://example.com")'), `'=IMPORTXML("https://example.com")`);
   assert.equal(safeSheetCell('+1'), `'+1`);
   assert.equal(safeSheetCell('通常文'), '通常文');
+});
+
+test('does not select the same disaster theme consecutively', () => {
+  const report = { pagePriorities: [
+    page('/pages/blackout-power.html', 'conversion_gap', { priorityScore: 100 })
+  ] };
+  const history = [{
+    createdAt: '2026-09-02T00:00:00Z', path: '/pages/previous-power.html',
+    primary: 'winner', theme: '停電', fingerprint: 'previous', status: 'ACTION'
+  }];
+  const result = planDemandOperation(report, { ...config, cooldownDays: 60 }, [], history, new Date('2026-09-03T00:00:00Z'));
+  assert.equal(result.status, 'NO_ACTION');
 });
