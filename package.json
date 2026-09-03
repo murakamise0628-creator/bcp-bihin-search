@@ -5,7 +5,7 @@
     "sync:public": "node scripts/sync-public.js",
     "verify:refresh": "node scripts/verify-refresh.mjs",
     "update": "npm run fetch && npm run verify:refresh && npm run build && npm run sync:public && npm run verify",
-    "verify": "node scripts/verify-site.js && node scripts/test-configure-paid-kit.mjs && node scripts/test-acquisition-page.mjs && node --test scripts/test-product-fit.mjs scripts/test-refresh-safety.mjs scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs",
+    "verify": "node scripts/verify-site.js && node scripts/test-configure-paid-kit.mjs && node scripts/test-acquisition-page.mjs && node --test scripts/test-product-fit.mjs scripts/test-refresh-safety.mjs scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs scripts/test-official-safety-signals.mjs",
     "verify:browser": "node scripts/browser-check.mjs",
     "preview": "node scripts/preview-server.mjs",
     "kpi:collect": "node scripts/collect-growth-kpis.mjs",
@@ -16,7 +16,9 @@
     "paid-kit:unpublish": "node scripts/configure-paid-kit.mjs --unpublish",
     "test:paid-kit": "node scripts/test-configure-paid-kit.mjs",
     "test:product-fit": "node --test scripts/test-product-fit.mjs",
-    "test:refresh": "node --test scripts/test-refresh-safety.mjs"
+    "test:refresh": "node --test scripts/test-refresh-safety.mjs",
+    "safety:fetch": "node scripts/fetch-official-safety-signals.mjs",
+    "test:safety": "node --test scripts/test-official-safety-signals.mjs"
   },
   "engines": {
     "node": ">=18"
