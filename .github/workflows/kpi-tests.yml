@@ -10,8 +10,10 @@ on:
       - 'data/demand-signals.json'
       - 'scripts/collect-growth-kpis.mjs'
       - 'scripts/plan-demand-operation.mjs'
+      - 'scripts/fetch-official-safety-signals.mjs'
       - 'scripts/test-growth-kpis.mjs'
       - 'scripts/test-demand-operation.mjs'
+      - 'scripts/test-official-safety-signals.mjs'
       - 'package.json'
   workflow_dispatch:
 
@@ -28,7 +30,7 @@ jobs:
         with:
           node-version: 24
       - name: Test KPI collector and demand planner
-        run: node --test scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs
+        run: node --test scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs scripts/test-official-safety-signals.mjs
       - name: Build generated site
         run: npm run build
       - name: Run complete verification
