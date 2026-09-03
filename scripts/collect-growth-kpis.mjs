@@ -275,7 +275,7 @@ export function summarizeTopRows(rows, formatter, limit = 5) {
 }
 export function sheetRow(report) {
   const events = report.ga.current.events;
-  const querySummary = summarizeTopRows(report.search.current.queries, (row) => `${row.key} (${row.clicks}クリック/${row.impressions}表示)`);
+  const querySummary = '';
   const searchPageSummary = summarizeTopRows(report.search.current.pages, (row) => `${row.key} (${row.clicks}クリック)`);
   const rakutenPageSummary = summarizeTopRows((report.ga.current.eventPages || []).filter((row) => row.eventName === 'rakuten_click'), (row) => `${row.path} (${row.count})`);
   return [report.collectedAt, report.periods.current.startDate, report.periods.current.endDate, report.ga.current.activeUsers,
@@ -287,10 +287,18 @@ export function sheetRow(report) {
     querySummary, searchPageSummary, rakutenPageSummary];
 }
 
+export function headersMatch(actual, expected) {
+  return Array.isArray(actual) && actual.length === expected.length && actual.every((value, index) => value === expected[index]);
+}
+
 async function appendSheet(id, token, row, fetchImpl) {
   const base = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values`;
   const current = await googleJson(`${base}/${encodeURIComponent('A1:V1')}`, token, {}, fetchImpl);
-  if (!current.values?.length || current.values[0].length !== headers.length) await googleJson(`${base}/${encodeURIComponent('A1:V1')}?valueInputOption=RAW`, token, { method: 'PUT', body: JSON.stringify({ values: [headers] }) }, fetchImpl);
+  if (!current.values?.length) {
+    await googleJson(`${base}/${encodeURIComponent('A1:V1')}?valueInputOption=RAW`, token, { method: 'PUT', body: JSON.stringify({ values: [headers] }) }, fetchImpl);
+  } else if (!headersMatch(current.values[0], headers)) {
+    throw new Error('Unexpected KPI sheet headers; append cancelled.');
+  }
   await googleJson(`${base}/${encodeURIComponent('A:V')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, token, { method: 'POST', body: JSON.stringify({ values: [row] }) }, fetchImpl);
 }
 
@@ -329,13 +337,15 @@ async function appendPrioritySheet(id, token, report, fetchImpl) {
   const headerRange = `'${title}'!A1:N1`;
   const appendRange = `'${title}'!A:N`;
   const current = await googleJson(`${base}/${encodeURIComponent(headerRange)}`, token, {}, fetchImpl);
-  if (!current.values?.length || current.values[0].length !== priorityHeaders.length) {
+  if (!current.values?.length) {
     await googleJson(
       `${base}/${encodeURIComponent(headerRange)}?valueInputOption=RAW`,
       token,
       { method: 'PUT', body: JSON.stringify({ values: [priorityHeaders] }) },
       fetchImpl
     );
+  } else if (!headersMatch(current.values[0], priorityHeaders)) {
+    throw new Error('Unexpected Page Priorities headers; append cancelled.');
   }
   const rows = pagePrioritySheetRows(report);
   if (rows.length) {
