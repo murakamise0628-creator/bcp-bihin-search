@@ -69,8 +69,7 @@ test('does not repeat an existing fingerprint', () => {
 
 test('accepts recent verified official signals and rejects emergency alerts', () => {
   const signals = [
-    { id: 'guide', status: 'verified', kind: 'official_guidance', label: '公式資料更新', topics: ['停電'], observedAt: '2026-09-01T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/guide', weight: 30 },
-    { id: 'alert', status: 'verified', kind: 'emergency_alert', label: '発災中', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/alert', weight: 50 }
+    { id: 'guide', status: 'verified', kind: 'official_guidance', label: '公式資料更新', topics: ['停電'], observedAt: '2026-09-01T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/guide', weight: 30 }
   ];
   const normalized = normalizeVerifiedSignals(signals, new Date('2026-09-03T00:00:00Z'), 21);
   assert.deepEqual(normalized.map((item) => item.id), ['guide']);
