@@ -7,8 +7,12 @@ on:
     paths:
       - '.github/workflows/growth-kpi.yml'
       - 'data/kpi-config.json'
+      - 'data/demand-operation.json'
+      - 'data/demand-signals.json'
       - 'scripts/collect-growth-kpis.mjs'
+      - 'scripts/plan-demand-operation.mjs'
       - 'scripts/test-growth-kpis.mjs'
+      - 'scripts/test-demand-operation.mjs'
   schedule:
     - cron: '0 22 * * 1'
 
@@ -43,8 +47,8 @@ jobs:
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
           fi
-      - name: Test KPI collector
-        run: node --test scripts/test-growth-kpis.mjs
+      - name: Test KPI and demand planner
+        run: node --test scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs
       - name: Collect GA4 and Search Console KPI
         if: steps.configured.outputs.ready == 'true'
         env:
@@ -52,7 +56,19 @@ jobs:
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
           GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
           SEARCH_CONSOLE_SITE_URL: sc-domain:jigyousho-bousai.com
+          KPI_OUTPUT_PATH: ${{ runner.temp }}/growth-kpi.json
         run: node scripts/collect-growth-kpis.mjs
+      - name: Select one demand action and save private drafts
+        if: steps.configured.outputs.ready == 'true'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
+          KPI_OUTPUT_PATH: ${{ runner.temp }}/growth-kpi.json
+        run: node scripts/plan-demand-operation.mjs "$KPI_OUTPUT_PATH"
+      - name: Remove temporary KPI data
+        if: always()
+        shell: bash
+        run: rm -f "${{ runner.temp }}/growth-kpi.json"
       - name: Report connection status
         if: always()
         shell: bash
@@ -62,6 +78,7 @@ jobs:
             echo "- Service account: ${{ steps.configured.outputs.service_account }}"
             echo "- GA4 property ID: ${{ steps.configured.outputs.ga4_property }}"
             echo "- Private Google Sheet: ${{ steps.configured.outputs.sheet }}"
+            echo "- Threads publishing: disabled (drafts only)"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Missing service account credential
         if: always() && steps.configured.outputs.service_account != 'true'
