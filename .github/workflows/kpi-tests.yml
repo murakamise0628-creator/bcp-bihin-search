@@ -1,4 +1,4 @@
-name: KPI unit tests
+name: KPI and demand operation checks
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,3 +29,9 @@ jobs:
           node-version: 24
       - name: Test KPI collector and demand planner
         run: node --test scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs
+      - name: Build generated site
+        run: npm run build
+      - name: Run complete verification
+        run: npm run verify
+      - name: Run browser verification
+        run: npm run verify:browser
