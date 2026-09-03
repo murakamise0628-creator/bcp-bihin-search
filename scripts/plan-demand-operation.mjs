@@ -11,6 +11,9 @@ const unsafePatterns = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
   /(?:api|access|affiliate|secret|token|password|private)[_-]?(?:key|id)?\s*[:=]\s*[^\s]+/i,
   /\bBearer\s+[A-Za-z0-9._~-]+/i,
+  /\bgh[pousr]_[A-Za-z0-9]{20,}\b/,
+  /\bAIza[A-Za-z0-9_-]{30,}\b/,
+  /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/,
   /(?:[A-Z]:\\\\|\/Users\/|\/home\/)[^\s]+/i,
   /(?:0\d{1,4}-\d{1,4}-\d{3,4}|0\d{9,10})/,
   /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i,
@@ -29,7 +32,8 @@ export function normalizeVerifiedSignals(signals, now = new Date(), maxAgeDays =
     try {
       const url = new URL(value);
       const host = url.hostname.toLowerCase();
-      return url.protocol === 'https:' && trustedDomains.some((domain) => host === domain || host.endsWith(`.${domain}`));
+      return url.protocol === 'https:' && !url.username && !url.password && !url.search && !url.hash
+        && trustedDomains.some((domain) => host === domain || host.endsWith(`.${domain}`));
     } catch {
       return false;
     }
@@ -37,8 +41,10 @@ export function normalizeVerifiedSignals(signals, now = new Date(), maxAgeDays =
   const unique = new Map();
   for (const signal of signals || []) {
     const observed = Date.parse(signal.observedAt || '');
+    const checked = Date.parse(signal.checkedAt || '');
     if (signal.status !== 'verified' || signal.sourceVerified !== true || !allowedSignalKinds.has(signal.kind)
       || !Number.isFinite(observed) || observed < lower || observed > upper
+      || !Number.isFinite(checked) || checked < lower || checked > upper
       || !trusted(signal.sourceUrl) || !Array.isArray(signal.topics) || signal.topics.length === 0) continue;
     const id = String(signal.id || hash(JSON.stringify(signal)));
     if (unique.has(id)) continue;
@@ -139,8 +145,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
     const fingerprint = hash([
       row.path,
       `https://jigyousho-bousai.com${row.path}`,
-      drafts.map((draft) => draft.replace(/\s+/g, ' ').trim()).join('|'),
-      config.templateVersion || 1
+      drafts.map((draft) => draft.replace(/\s+/g, ' ').trim()).join('|')
     ].join('|'));
     if (historyFingerprints.has(fingerprint)) continue;
     const score = Number(row.priorityScore || 0)
@@ -245,6 +250,19 @@ async function ensureDemandSheet(id, token, fetchImpl) {
   }
 }
 
+export function demandSheetRow(operation, period = {}) {
+  if (operation.status === 'ACTION') {
+    return [operation.generatedAt, period.startDate || '', period.endDate || '', operation.page, operation.primary,
+      operation.theme, operation.score, operation.reasonCode, operation.trigger, operation.evidence.sourceUrls.join(' | '),
+      operation.evidence.observedAt.join(' | '), operation.evidence.impressions, operation.evidence.searchClicks,
+      operation.evidence.sessions, operation.evidence.pageViews, operation.evidence.rakutenClicks,
+      operation.improvementInstruction, ...operation.drafts, operation.fingerprint,
+      '投稿直前に警報・避難情報、媒体登録、価格・在庫を再確認', operation.status];
+  }
+  return [operation.generatedAt, period.startDate || '', period.endDate || '', '', '', '', '', operation.reasonCode || '',
+    operation.reason, '', '', '', '', '', '', '', '', '', '', '', operation.fingerprint, '', operation.status];
+}
+
 async function planAndAppend(report, config, signals, options = {}) {
   const fetchImpl = options.fetchImpl || fetch;
   const sheetId = options.sheetId || process.env.GOOGLE_KPI_SHEET_ID;
@@ -269,15 +287,7 @@ async function planAndAppend(report, config, signals, options = {}) {
   }));
   const operation = planDemandOperation(report, config, signals, history, options.now || new Date());
   const period = report.periods?.current || {};
-  const row = operation.status === 'ACTION'
-    ? [operation.generatedAt, period.startDate || '', period.endDate || '', operation.page, operation.primary, operation.theme,
-      operation.score, operation.reasonCode, operation.trigger, operation.evidence.sourceUrls.join(' | '),
-      operation.evidence.observedAt.join(' | '), operation.evidence.impressions, operation.evidence.searchClicks,
-      operation.evidence.sessions, operation.evidence.pageViews, operation.evidence.rakutenClicks,
-      operation.improvementInstruction, ...operation.drafts, operation.fingerprint,
-      '投稿直前に警報・避難情報、媒体登録、価格・在庫を再確認', operation.status]
-    : [operation.generatedAt, period.startDate || '', period.endDate || '', '', '', '', operation.reasonCode || '',
-      operation.reason, '', '', '', '', '', '', '', '', '', '', '', '', operation.fingerprint, '', operation.status];
+  const row = demandSheetRow(operation, period);
   const safeRow = row.map(safeSheetCell);
   if (safeRow.some((value) => containsUnsafeContent(value))) {
     throw new Error('Demand Actions row failed privacy and secret checks.');
