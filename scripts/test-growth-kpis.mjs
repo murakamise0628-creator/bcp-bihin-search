@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildPagePriorities, classifyPageOpportunity, comparison, eventCounts, normalizePagePath, parseServiceAccount, priorityMarkdown, reportingPeriods, sheetRow } from './collect-growth-kpis.mjs';
+import { buildPagePriorities, classifyPageOpportunity, comparison, eventCounts, normalizePagePath, pagePrioritySheetRows, parseServiceAccount, priorityMarkdown, reportingPeriods, sheetRow } from './collect-growth-kpis.mjs';
 
 test('uses complete delayed 28-day windows', () => {
   assert.deepEqual(reportingPeriods(new Date('2026-08-10T00:00:00Z'), 28, 3), {
@@ -97,4 +97,23 @@ test('creates a readable private priority summary', () => {
   assert.match(markdown, /toilet-office/);
   assert.match(markdown, /10\.0%/);
   assert.doesNotMatch(markdown, /private_key/);
+});
+
+
+test('creates private Sheet rows without credentials or personal data', () => {
+  const rows = pagePrioritySheetRows({
+    collectedAt: '2026-09-03T00:00:00.000Z',
+    periods: { current: { startDate: '2026-08-03', endDate: '2026-08-30' } },
+    pagePriorities: [{
+      path: '/pages/toilet-office.html', impressions: 120, searchClicks: 3, ctr: 0.025,
+      position: 8.2, pageViews: 20, sessions: 12, rakutenClicks: 2, rakutenClickRate: 0.1,
+      primary: 'snippet_gap', action: 'titleとdescriptionを改善する'
+    }]
+  });
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].length, 14);
+  assert.equal(rows[0][3], '/pages/toilet-office.html');
+  assert.equal(rows[0][10], 2);
+  assert.equal(rows[0][12], 'snippet_gap');
+  assert.equal(/private_key|client_email|村上|誠治/i.test(JSON.stringify(rows)), false);
 });
