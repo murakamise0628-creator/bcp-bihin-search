@@ -34,7 +34,7 @@ npm run update
 
 ## 週次の需要判定
 
-`Weekly growth KPI`は、GSC、GA4、自然検索経由の`rakuten_click`をページ単位で結合します。その後、次の条件で毎回1ページだけを選びます。
+`Weekly growth KPI`は、実行時に気象庁の公式フィードを取得できることを確認したうえで、GSC、GA4、自然検索経由の`rakuten_click`をページ単位で結合します。公式フィードを取得・検証できない場合はfail-closedで下書きを保存しません。その後、次の条件で毎回1ページだけを選びます。
 
 - 実測された検索表示、自然検索セッション、楽天クリックのいずれかが基準を満たす
 - または、`data/demand-signals.json`に新鮮な検証済み公式シグナルがある
@@ -52,6 +52,7 @@ npm run update
 ```bash
 npm run test:kpi
 npm run test:demand
+npm run test:safety
 npm run verify
 ```
 
