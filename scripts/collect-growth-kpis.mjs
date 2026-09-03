@@ -294,6 +294,60 @@ async function appendSheet(id, token, row, fetchImpl) {
   await googleJson(`${base}/${encodeURIComponent('A:V')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, token, { method: 'POST', body: JSON.stringify({ values: [row] }) }, fetchImpl);
 }
 
+const priorityHeaders = [
+  '取得日時', '開始日', '終了日', 'ページ', '検索表示回数', '検索クリック', '検索CTR',
+  '平均掲載順位', '自然検索PV', '自然検索ランディングセッション', '自然検索楽天クリック',
+  '楽天クリック率', '判定', '次の作業'
+];
+
+export function pagePrioritySheetRows(report) {
+  return (report.pagePriorities || []).map((row) => [
+    report.collectedAt, report.periods.current.startDate, report.periods.current.endDate, row.path,
+    row.impressions, row.searchClicks, row.ctr, row.position, row.pageViews, row.sessions,
+    row.rakutenClicks, row.rakutenClickRate ?? '', row.primary, row.action
+  ]);
+}
+
+async function ensureSheet(id, token, title, fetchImpl) {
+  const spreadsheet = await googleJson(
+    `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}?fields=sheets.properties`,
+    token, {}, fetchImpl
+  );
+  if ((spreadsheet.sheets || []).some((sheet) => sheet.properties?.title === title)) return;
+  await googleJson(
+    `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}:batchUpdate`,
+    token,
+    { method: 'POST', body: JSON.stringify({ requests: [{ addSheet: { properties: { title } } }] }) },
+    fetchImpl
+  );
+}
+
+async function appendPrioritySheet(id, token, report, fetchImpl) {
+  const title = 'Page Priorities';
+  await ensureSheet(id, token, title, fetchImpl);
+  const base = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values`;
+  const headerRange = `'${title}'!A1:N1`;
+  const appendRange = `'${title}'!A:N`;
+  const current = await googleJson(`${base}/${encodeURIComponent(headerRange)}`, token, {}, fetchImpl);
+  if (!current.values?.length || current.values[0].length !== priorityHeaders.length) {
+    await googleJson(
+      `${base}/${encodeURIComponent(headerRange)}?valueInputOption=RAW`,
+      token,
+      { method: 'PUT', body: JSON.stringify({ values: [priorityHeaders] }) },
+      fetchImpl
+    );
+  }
+  const rows = pagePrioritySheetRows(report);
+  if (rows.length) {
+    await googleJson(
+      `${base}/${encodeURIComponent(appendRange)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+      token,
+      { method: 'POST', body: JSON.stringify({ values: rows }) },
+      fetchImpl
+    );
+  }
+}
+
 export async function collectGrowthKpis(options = {}) {
   const config = JSON.parse(fs.readFileSync(options.configPath || configPath, 'utf8'));
   const propertyId = options.propertyId || process.env.GA4_PROPERTY_ID;
@@ -309,7 +363,10 @@ export async function collectGrowthKpis(options = {}) {
   ]);
   const report = { schemaVersion: 2, collectedAt: new Date().toISOString(), siteUrl: config.siteUrl, periods, ga: { current: gaCurrent, previous: gaPrevious }, search: { current: searchCurrent, previous: searchPrevious } };
   report.pagePriorities = buildPagePriorities(report, config.decisionThresholds);
-  if (sheetId) await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
+  if (sheetId) {
+    await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
+    await appendPrioritySheet(sheetId, token, report, fetchImpl);
+  }
   if (process.env.KPI_OUTPUT_PATH) {
     fs.mkdirSync(path.dirname(path.resolve(process.env.KPI_OUTPUT_PATH)), { recursive: true });
     fs.writeFileSync(process.env.KPI_OUTPUT_PATH, `${JSON.stringify(report, null, 2)}\n`);
