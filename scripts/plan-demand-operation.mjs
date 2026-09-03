@@ -5,20 +5,28 @@ import { fileURLToPath } from 'node:url';
 import { accessToken, parseServiceAccount } from './collect-growth-kpis.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const disclosure = '※リンク先にはアフィリエイト広告を含みます。';
+const disclosure = '【PR】リンク先にはアフィリエイト広告を含みます。';
 const unsafePatterns = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
   /(?:api|access|affiliate|secret)[_-]?(?:key|id)?\s*[:=]\s*[^\s]+/i,
   /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i,
-  /絶対安心|必ず使える|これだけで大丈夫|最強|完全対応|今すぐ買/i
+  /絶対安心|必ず使える|これだけで大丈夫|最強|完全対応|今すぐ買|買わないと危険|手遅れ/i
 ];
 
 function hash(value) {
   return crypto.createHash('sha256').update(value).digest('hex').slice(0, 24);
 }
 
-export function normalizeVerifiedSignals(signals, now = new Date(), maxAgeDays = 21) {
+export function normalizeVerifiedSignals(signals, now = new Date(), maxAgeDays = 21, trustedDomains = []) {
   const limit = now.getTime() - maxAgeDays * 86400000;
+  const trusted = (value) => {
+    try {
+      const host = new URL(value).hostname.toLowerCase();
+      return trustedDomains.length === 0 || trustedDomains.some((domain) => host === domain || host.endsWith(`.${domain}`));
+    } catch {
+      return false;
+    }
+  };
   return (signals || []).filter((signal) => {
     const observed = Date.parse(signal.observedAt || '');
     return signal.status === 'verified'
@@ -26,6 +34,7 @@ export function normalizeVerifiedSignals(signals, now = new Date(), maxAgeDays =
       && Number.isFinite(observed)
       && observed >= limit
       && /^https:\/\//.test(signal.sourceUrl || '')
+      && trusted(signal.sourceUrl)
       && Array.isArray(signal.topics)
       && signal.topics.length > 0;
   }).map((signal) => ({
@@ -61,16 +70,51 @@ function improvement(primary, page) {
 export function buildThreadsDrafts(page) {
   const url = `https://jigyousho-bousai.com${page.path}`;
   return [
-    `${page.audience}の備蓄は、セット名より「${page.problem}」から確認すると不足を見つけやすくなります。見る項目は${page.checks.join('、')}。比較表はこちら：${url}\n${disclosure}`,
-    `${page.title}を選ぶ前に、${page.checks.slice(0, 3).join('、')}を分けて確認してください。${page.caution} 条件別に候補を比較できます：${url}\n${disclosure}`,
-    `${page.quantityBasis}。人数だけでなく、来客・利用者と待機日数も含めて見積もるのがポイントです。${page.title}の比較：${url}\n${disclosure}`
+    `${disclosure}\n${page.audience}の備蓄は、セット名より「${page.problem}」から確認すると不足を見つけやすくなります。見る項目は${page.checks.join('、')}。比較表はこちら：${url}`,
+    `${disclosure}\n${page.title}を選ぶ前に、${page.checks.slice(0, 3).join('、')}を分けて確認してください。${page.caution} 条件別に候補を比較できます：${url}`,
+    `${disclosure}\n${page.quantityBasis}。人数だけでなく、来客・利用者と待機日数も含めて見積もるのがポイントです。${page.title}の比較：${url}`
   ];
 }
 
 export function planDemandOperation(report, config, rawSignals = [], history = [], now = new Date()) {
   const periods = report.periods || {};
-  const signals = normalizeVerifiedSignals(rawSignals, now, config.signalMaxAgeDays || 21);
-  const historyFingerprints = new Set(history.map((item) => typeof item === 'string' ? item : item.fingerprint).filter(Boolean));
+  const maxAgeDays = config.signalMaxAgeDays || 21;
+  const trustedDomains = config.trustedDomains || [];
+  const recentLimit = now.getTime() - maxAgeDays * 86400000;
+  const isTrustedUrl = (value) => {
+    try {
+      const host = new URL(value).hostname.toLowerCase();
+      return trustedDomains.length === 0 || trustedDomains.some((domain) => host === domain || host.endsWith(`.${domain}`));
+    } catch {
+      return false;
+    }
+  };
+  const activeEmergency = (rawSignals || []).some((signal) => {
+    const observed = Date.parse(signal.observedAt || '');
+    return signal.status === 'verified' && signal.kind === 'emergency_alert'
+      && Number.isFinite(observed) && observed >= recentLimit
+      && /^https:\/\//.test(signal.sourceUrl || '') && isTrustedUrl(signal.sourceUrl);
+  });
+  if (activeEmergency) {
+    return {
+      status: 'NO_ACTION',
+      reasonCode: 'ACTIVE_EMERGENCY',
+      reason: '緊急情報が有効なため商品訴求の下書きを生成しません。',
+      generatedAt: now.toISOString(),
+      periods,
+      fingerprint: hash(`ACTIVE_EMERGENCY|${periods.current?.endDate || now.toISOString().slice(0, 10)}`)
+    };
+  }
+  const signals = normalizeVerifiedSignals(rawSignals, now, maxAgeDays, trustedDomains);
+  const cooldownLimit = now.getTime() - Number(config.cooldownDays || 60) * 86400000;
+  const activeHistory = history.filter((item) => {
+    if (typeof item === 'string' || !item?.createdAt) return true;
+    const created = Date.parse(item.createdAt);
+    return Number.isFinite(created) && created >= cooldownLimit;
+  });
+  const historyFingerprints = new Set(activeHistory.map((item) => typeof item === 'string' ? item : item.fingerprint).filter(Boolean));
+  const latestAction = activeHistory.filter((item) => typeof item !== 'string' && item.status === 'ACTION' && item.createdAt)
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0];
   const candidates = [];
 
   for (const row of report.pagePriorities || []) {
@@ -81,9 +125,17 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
       || Number(row.sessions || 0) >= Number(config.minSessions || 5)
       || Number(row.rakutenClicks || 0) > 0;
     if (!measuredDemand && matchedSignals.length === 0) continue;
-    if (row.primary === 'monitor' && matchedSignals.length === 0) continue;
+    if (row.primary === 'monitor') continue;
+    if (row.primary === 'visibility_gap' && matchedSignals.length === 0) continue;
+    if (latestAction?.path === row.path) continue;
 
-    const fingerprint = hash([row.path, row.primary, matchedSignals.map((item) => item.id).join(',')].join('|'));
+    const fingerprint = hash([
+      row.path,
+      row.primary,
+      matchedSignals.map((item) => item.id).join(','),
+      page.checks.join(','),
+      config.templateVersion || 1
+    ].join('|'));
     if (historyFingerprints.has(fingerprint)) continue;
     const score = Number(row.priorityScore || 0)
       + Math.min(Number(row.impressions || 0), 1000) / 20
@@ -98,6 +150,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
   if (!selected) {
     return {
       status: 'NO_ACTION',
+      reasonCode: 'NO_ELIGIBLE_DEMAND',
       reason: '需要または計測根拠を満たす未処理候補がありません。',
       generatedAt: now.toISOString(),
       periods,
@@ -115,6 +168,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
   if (containsUnsafeContent(publicPayload) || drafts.some((draft) => draft.length > 500 || !draft.includes(disclosure))) {
     return {
       status: 'NO_ACTION',
+      reasonCode: 'SAFETY_GATE_FAILED',
       reason: '安全チェックに合格しなかったため下書きを生成しません。',
       generatedAt: now.toISOString(),
       periods,
@@ -196,7 +250,7 @@ async function planAndAppend(report, config, signals, options = {}) {
     throw new Error('Unexpected Demand Actions headers; append cancelled.');
   }
   const prior = await googleJson(`${base}/${encodeURIComponent(`'${sheetTitle}'!A2:M5000`)}`, token, {}, fetchImpl);
-  const history = (prior.values || []).map((row) => ({ path: row[3], primary: row[4], fingerprint: row[11] }));
+  const history = (prior.values || []).map((row) => ({ createdAt: row[0], path: row[3], primary: row[4], fingerprint: row[11], status: row[12] }));
   const operation = planDemandOperation(report, config, signals, history, options.now || new Date());
   const period = report.periods?.current || {};
   const row = operation.status === 'ACTION'
