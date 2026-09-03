@@ -3,6 +3,8 @@ name: Weekly growth KPI
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/growth-kpi.yml'
       - 'data/kpi-config.json'
