@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildThreadsDrafts, containsUnsafeContent, demandSheetRow, normalizeVerifiedSignals, planDemandOperation, safeSheetCell } from './plan-demand-operation.mjs';
+import { buildThreadsDrafts, containsUnsafeContent, demandSheetRow, normalizeVerifiedSignals, planDemandOperation, safeSheetCell, validateOfficialSafetyResult } from './plan-demand-operation.mjs';
 
 const config = {
   minImpressions: 20,
@@ -222,4 +222,33 @@ test('fingerprint is unchanged when templateVersion changes without changing dra
   const a = planDemandOperation(report, { ...config, templateVersion: 1 }, [], [], new Date('2026-09-03T00:00:00Z'));
   const b = planDemandOperation(report, { ...config, templateVersion: 2 }, [], [], new Date('2026-09-03T00:00:00Z'));
   assert.equal(a.fingerprint, b.fingerprint);
+});
+test('keeps a currently verified emergency active even when it began over 21 days ago', () => {
+  const signal = {
+    id: 'long-running-alert', status: 'verified', sourceVerified: true, kind: 'emergency_alert',
+    label: '居住地域危険', topics: ['地震'], observedAt: '2026-01-01T00:00:00Z',
+    checkedAt: '2026-09-03T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/bosai/volcano/data/warning.json', weight: 0
+  };
+  const normalized = normalizeVerifiedSignals([signal], new Date('2026-09-03T01:00:00Z'), 21, ['jma.go.jp']);
+  assert.equal(normalized.length, 1);
+});
+
+test('validates the current five-source official safety result and rejects the legacy shape', () => {
+  const now = new Date('2026-09-03T01:00:00Z');
+  const official = {
+    schemaVersion: 2,
+    fetchStatus: 'ok',
+    checkedAt: '2026-09-03T00:30:00Z',
+    sourceUrls: [
+      'https://www.jma.go.jp/bosai/warning/data/r8/map.json',
+      'https://www.jma.go.jp/bosai/warning/data/r8/map_time.json',
+      'https://www.jma.go.jp/bosai/tsunami/data/list.json',
+      'https://www.jma.go.jp/bosai/volcano/data/warning.json',
+      'https://www.data.jma.go.jp/developer/xml/feed/eqvol.xml'
+    ],
+    signals: []
+  };
+  assert.equal(validateOfficialSafetyResult(official, now, 12), true);
+  assert.equal(validateOfficialSafetyResult({ ...official, sourceUrls: undefined, sourceUrl: 'https://www.data.jma.go.jp/developer/xml/feed/extra.xml' }, now, 12), false);
+  assert.equal(validateOfficialSafetyResult({ ...official, checkedAt: '2026-09-01T00:00:00Z' }, now, 12), false);
 });

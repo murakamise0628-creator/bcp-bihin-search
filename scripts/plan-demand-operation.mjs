@@ -7,6 +7,13 @@ import { accessToken, parseServiceAccount } from './collect-growth-kpis.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const disclosure = '【PR】リンク先にはアフィリエイト広告を含みます。';
 const allowedSignalKinds = new Set(['official_guidance', 'regulatory_update', 'emergency_alert']);
+const officialSafetySources = [
+  'https://www.jma.go.jp/bosai/warning/data/r8/map.json',
+  'https://www.jma.go.jp/bosai/warning/data/r8/map_time.json',
+  'https://www.jma.go.jp/bosai/tsunami/data/list.json',
+  'https://www.jma.go.jp/bosai/volcano/data/warning.json',
+  'https://www.data.jma.go.jp/developer/xml/feed/eqvol.xml'
+];
 const unsafePatterns = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
   /(?:api|access|affiliate|secret|token|password|private)[_-]?(?:key|id)?\s*[:=]\s*[^\s]+/i,
@@ -42,8 +49,11 @@ export function normalizeVerifiedSignals(signals, now = new Date(), maxAgeDays =
   for (const signal of signals || []) {
     const observed = Date.parse(signal.observedAt || '');
     const checked = Date.parse(signal.checkedAt || '');
+    const observedIsCurrent = signal.kind === 'emergency_alert'
+      ? Number.isFinite(observed) && observed <= upper
+      : Number.isFinite(observed) && observed >= lower && observed <= upper;
     if (signal.status !== 'verified' || signal.sourceVerified !== true || !allowedSignalKinds.has(signal.kind)
-      || !Number.isFinite(observed) || observed < lower || observed > upper
+      || !observedIsCurrent
       || !Number.isFinite(checked) || checked < lower || checked > upper
       || !trusted(signal.sourceUrl) || !Array.isArray(signal.topics) || signal.topics.length === 0) continue;
     const id = String(signal.id || hash(JSON.stringify(signal)));
@@ -60,6 +70,21 @@ export function normalizeVerifiedSignals(signals, now = new Date(), maxAgeDays =
     });
   }
   return [...unique.values()].sort((a, b) => b.weight - a.weight || a.id.localeCompare(b.id));
+}
+
+export function validateOfficialSafetyResult(official, now = new Date(), maxAgeHours = 12) {
+  const checkedAt = Date.parse(official?.checkedAt || '');
+  const lower = now.getTime() - Number(maxAgeHours || 12) * 3600000;
+  const upper = now.getTime() + 5 * 60000;
+  const urls = official?.sourceUrls;
+  const hasExactSources = Array.isArray(urls)
+    && urls.length === officialSafetySources.length
+    && officialSafetySources.every((url) => urls.includes(url));
+  return official?.schemaVersion === 2
+    && official?.fetchStatus === 'ok'
+    && hasExactSources
+    && Array.isArray(official?.signals)
+    && Number.isFinite(checkedAt) && checkedAt >= lower && checkedAt <= upper;
 }
 
 export function containsUnsafeContent(value) {
@@ -308,10 +333,11 @@ export async function runDemandPlanner(reportPath, options = {}) {
     const officialPath = options.officialSignalsPath || process.env.OFFICIAL_SIGNAL_PATH;
     if (!officialPath || !fs.existsSync(officialPath)) throw new Error('Official safety check result is required.');
     const official = JSON.parse(fs.readFileSync(officialPath, 'utf8'));
-    const checkedAt = Date.parse(official.checkedAt || '');
-    const maxAgeMs = Number(config.officialSafetyMaxAgeHours || 12) * 3600000;
-    if (official.fetchStatus !== 'ok' || official.sourceUrl !== 'https://www.data.jma.go.jp/developer/xml/feed/extra.xml'
-      || !Number.isFinite(checkedAt) || checkedAt > Date.now() + 5 * 60000 || checkedAt < Date.now() - maxAgeMs) {
+    if (!validateOfficialSafetyResult(
+      official,
+      options.now || new Date(),
+      Number(config.officialSafetyMaxAgeHours || 12)
+    )) {
       throw new Error('Official safety check result is missing, stale or invalid.');
     }
     officialSignals = official.signals || [];

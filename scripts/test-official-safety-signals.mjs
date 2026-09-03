@@ -11,6 +11,7 @@ import {
   parseJmaFeedCandidates,
   verifyJmaEmergencyBulletin
 } from './fetch-official-safety-signals.mjs';
+import { validateOfficialSafetyResult } from './plan-demand-operation.mjs';
 
 const feed = (entries) => `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom">${entries}</feed>`;
 const entry = ({ title, content, updated, href }) => `<entry><title>${title}</title><updated>${updated}</updated><link href="${href}"/><content type="text">${content}</content></entry>`;
@@ -156,6 +157,7 @@ test('fetches every current-state source and verifies detailed candidates', asyn
   });
   assert.equal(result.candidateCount, 1);
   assert.equal(result.signals.length, 1);
+  assert.equal(validateOfficialSafetyResult(result, new Date('2026-09-03T01:00:00Z'), 12), true);
   assert.equal(calls.length, 6);
   assert.equal(JSON.parse(fs.readFileSync(output, 'utf8')).schemaVersion, 2);
   fs.rmSync(output, { force: true });
