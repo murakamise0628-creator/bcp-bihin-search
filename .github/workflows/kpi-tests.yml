@@ -1,0 +1,25 @@
+name: KPI unit tests
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/kpi-tests.yml'
+      - 'data/kpi-config.json'
+      - 'scripts/collect-growth-kpis.mjs'
+      - 'scripts/test-growth-kpis.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Test KPI collector
+        run: node --test scripts/test-growth-kpis.mjs

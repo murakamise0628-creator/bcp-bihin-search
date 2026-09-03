@@ -14,5 +14,13 @@
     "paid_kit_offer_view",
     "paid_kit_offer_click",
     "paid_kit_checkout_click"
-  ]
+  ],
+  "decisionThresholds": {
+    "minImpressions": 20,
+    "lowVisibilityImpressions": 10,
+    "lowCtr": 0.03,
+    "topResultPosition": 10,
+    "opportunityPosition": 20,
+    "minPageViews": 20
+  }
 }

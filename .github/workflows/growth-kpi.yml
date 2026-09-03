@@ -1,8 +1,9 @@
 name: Weekly growth KPI
 
 on:
-  workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/growth-kpi.yml'
       - 'data/kpi-config.json'
@@ -37,7 +38,7 @@ jobs:
           echo "service_account=$service_account" >> "$GITHUB_OUTPUT"
           echo "ga4_property=$ga4_property" >> "$GITHUB_OUTPUT"
           echo "sheet=$sheet" >> "$GITHUB_OUTPUT"
-          if [ "$service_account" = true ] && [ "$ga4_property" = true ]; then
+          if [ "$service_account" = true ] && [ "$ga4_property" = true ] && [ "$sheet" = true ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
@@ -51,16 +52,7 @@ jobs:
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
           GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
           SEARCH_CONSOLE_SITE_URL: sc-domain:jigyousho-bousai.com
-          KPI_OUTPUT_PATH: artifacts/growth-kpi.json
         run: node scripts/collect-growth-kpis.mjs
-      - name: Upload private KPI report
-        if: steps.configured.outputs.ready == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: growth-kpi-${{ github.run_id }}
-          path: artifacts/growth-kpi.json
-          retention-days: 90
-          if-no-files-found: error
       - name: Report connection status
         if: always()
         shell: bash
@@ -69,7 +61,7 @@ jobs:
             echo "## Weekly KPI connection"
             echo "- Service account: ${{ steps.configured.outputs.service_account }}"
             echo "- GA4 property ID: ${{ steps.configured.outputs.ga4_property }}"
-            echo "- Google Sheet (optional): ${{ steps.configured.outputs.sheet }}"
+            echo "- Private Google Sheet: ${{ steps.configured.outputs.sheet }}"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Missing service account credential
         if: always() && steps.configured.outputs.service_account != 'true'
@@ -80,4 +72,9 @@ jobs:
         if: always() && steps.configured.outputs.ga4_property != 'true'
         run: |
           echo "::error::Add GA4_PROPERTY_ID to repository Actions secrets."
+          exit 1
+      - name: Missing private Google Sheet ID
+        if: always() && steps.configured.outputs.sheet != 'true'
+        run: |
+          echo "::error::Add GOOGLE_KPI_SHEET_ID to repository Actions secrets."
           exit 1
