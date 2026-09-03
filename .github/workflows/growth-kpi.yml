@@ -1,7 +1,6 @@
 name: Weekly growth KPI
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
