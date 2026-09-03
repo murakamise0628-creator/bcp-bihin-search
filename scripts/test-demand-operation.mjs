@@ -69,8 +69,8 @@ test('does not repeat an existing fingerprint', () => {
 
 test('accepts recent verified official signals and rejects emergency alerts', () => {
   const signals = [
-    { id: 'guide', status: 'verified', kind: 'official_guidance', label: '公式資料更新', topics: ['停電'], observedAt: '2026-09-01T00:00:00Z', sourceUrl: 'https://example.go.jp/guide', weight: 30 },
-    { id: 'alert', status: 'verified', kind: 'emergency_alert', label: '発災中', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'https://example.go.jp/alert', weight: 50 }
+    { id: 'guide', status: 'verified', kind: 'official_guidance', label: '公式資料更新', topics: ['停電'], observedAt: '2026-09-01T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/guide', weight: 30 },
+    { id: 'alert', status: 'verified', kind: 'emergency_alert', label: '発災中', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/alert', weight: 50 }
   ];
   const normalized = normalizeVerifiedSignals(signals, new Date('2026-09-03T00:00:00Z'), 21);
   assert.deepEqual(normalized.map((item) => item.id), ['guide']);
@@ -81,8 +81,8 @@ test('accepts recent verified official signals and rejects emergency alerts', ()
 
 test('rejects stale, unverified and non-HTTPS signals', () => {
   const signals = [
-    { id: 'old', status: 'verified', topics: ['停電'], observedAt: '2026-01-01T00:00:00Z', sourceUrl: 'https://example.go.jp/old' },
-    { id: 'guess', status: 'unverified', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'https://example.go.jp/guess' },
+    { id: 'old', status: 'verified', topics: ['停電'], observedAt: '2026-01-01T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/old' },
+    { id: 'guess', status: 'unverified', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/guess' },
     { id: 'http', status: 'verified', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'http://example.go.jp/http' }
   ];
   assert.equal(normalizeVerifiedSignals(signals, new Date('2026-09-03T00:00:00Z'), 21).length, 0);
@@ -92,7 +92,7 @@ test('drafts include disclosure, a site URL and stay within Threads length', () 
   const drafts = buildThreadsDrafts(config.pages[0]);
   assert.equal(drafts.length, 3);
   for (const draft of drafts) {
-    assert.match(draft, /アフィリエイト広告/);
+    assert.match(draft, /^【PR】/);
     assert.match(draft, /jigyousho-bousai\.com/);
     assert.ok(draft.length <= 500);
   }
@@ -103,4 +103,50 @@ test('detects secrets, email addresses and prohibited claims', () => {
   assert.equal(containsUnsafeContent('person@example.com'), true);
   assert.equal(containsUnsafeContent('これだけで大丈夫'), true);
   assert.equal(containsUnsafeContent('回数と保存年数を確認する'), false);
+});
+
+test('does not treat visibility alone as demand', () => {
+  const result = planDemandOperation({
+    pagePriorities: [page('/pages/blackout-power.html', 'visibility_gap', { impressions: 25, sessions: 6 })]
+  }, config, [], [], new Date('2026-09-03T00:00:00Z'));
+  assert.equal(result.status, 'NO_ACTION');
+});
+
+test('blocks all commercial drafts during a verified active emergency', () => {
+  const signals = [{
+    id: 'active-alert', status: 'verified', kind: 'emergency_alert', label: '緊急警報',
+    topics: ['台風'], observedAt: '2026-09-03T00:00:00Z',
+    sourceUrl: 'https://www.jma.go.jp/alert', weight: 50
+  }];
+  const result = planDemandOperation({
+    pagePriorities: [page('/pages/blackout-power.html', 'conversion_gap', { impressions: 200, sessions: 20 })]
+  }, { ...config, trustedDomains: ['jma.go.jp'] }, signals, [], new Date('2026-09-03T01:00:00Z'));
+  assert.equal(result.status, 'NO_ACTION');
+  assert.equal(result.reasonCode, 'ACTIVE_EMERGENCY');
+  assert.equal(result.drafts, undefined);
+});
+
+test('rejects non-official signal domains when a trust list is configured', () => {
+  const signals = [{
+    id: 'unknown', status: 'verified', kind: 'official_guidance', label: '不明な情報',
+    topics: ['停電'], observedAt: '2026-09-02T00:00:00Z',
+    sourceUrl: 'https://example.com/guide', weight: 50
+  }];
+  const result = planDemandOperation({
+    pagePriorities: [page('/pages/blackout-power.html', 'visibility_gap', { impressions: 0, sessions: 0 })]
+  }, { ...config, trustedDomains: ['jma.go.jp'] }, signals, [], new Date('2026-09-03T00:00:00Z'));
+  assert.equal(result.status, 'NO_ACTION');
+});
+
+test('skips the page used by the latest action', () => {
+  const report = { pagePriorities: [
+    page('/pages/toilet-office.html', 'conversion_gap', { priorityScore: 100 }),
+    page('/pages/blackout-power.html', 'ranking_opportunity', { priorityScore: 80 })
+  ] };
+  const history = [{
+    createdAt: '2026-09-02T00:00:00Z', path: '/pages/toilet-office.html',
+    primary: 'conversion_gap', fingerprint: 'old-key', status: 'ACTION'
+  }];
+  const result = planDemandOperation(report, { ...config, cooldownDays: 60 }, [], history, new Date('2026-09-03T00:00:00Z'));
+  assert.equal(result.page, '/pages/blackout-power.html');
 });
