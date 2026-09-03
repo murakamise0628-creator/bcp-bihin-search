@@ -90,10 +90,9 @@ export function parseCurrentTsunamiWarnings(reports, now = new Date()) {
   for (const report of reports) {
     const observedAt = report?.rdt || report?.reportDatetime;
     if (!Number.isFinite(Date.parse(observedAt))) continue;
-    const labels = [
-      report?.ttl,
-      ...(Array.isArray(report?.kind) ? report.kind.map((item) => item?.kind || item?.name) : [])
-    ].filter((value) => /^(大津波警報|津波警報)/.test(String(value || '')));
+    const labels = (Array.isArray(report?.kind) ? report.kind : [])
+      .map((item) => String(item?.kind || item?.name || ''))
+      .filter((value) => /^(大津波警報|津波警報)$/.test(value));
     for (const label of labels) signals.push(makeSignal(String(label), observedAt, sources.tsunami, now));
   }
   return dedupeSignals(signals);

@@ -50,7 +50,7 @@ test('reads active tsunami warning state and ignores forecasts without warnings'
     { rdt: '2026-09-03T00:00:00+09:00', ttl: '津波警報・津波注意報・津波予報', kind: [{ kind: '津波警報' }] },
     { rdt: '2026-09-03T00:01:00+09:00', ttl: '津波予報', kind: [{ kind: '津波予報（若干の海面変動）' }] }
   ];
-  assert.deepEqual(parseCurrentTsunamiWarnings(reports).map((item) => item.label), ['津波警報・津波注意報・津波予報', '津波警報']);
+  assert.deepEqual(parseCurrentTsunamiWarnings(reports).map((item) => item.label), ['津波警報']);
 });
 
 test('reads only residential-area volcano emergencies', () => {
