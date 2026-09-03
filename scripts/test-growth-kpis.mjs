@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildPagePriorities, classifyPageOpportunity, comparison, eventCounts, normalizePagePath, pagePrioritySheetRows, parseServiceAccount, priorityMarkdown, reportingPeriods, sheetRow } from './collect-growth-kpis.mjs';
+import { buildPagePriorities, classifyPageOpportunity, comparison, eventCounts, headersMatch, normalizePagePath, pagePrioritySheetRows, parseServiceAccount, priorityMarkdown, reportingPeriods, sheetRow } from './collect-growth-kpis.mjs';
 
 test('uses complete delayed 28-day windows', () => {
   assert.deepEqual(reportingPeriods(new Date('2026-08-10T00:00:00Z'), 28, 3), {
@@ -32,7 +32,8 @@ test('creates a secret-free KPI sheet row', () => {
   assert.equal(row.length, 22);
   assert.equal(row[7], 4);
   assert.equal(row[16], 0.25);
-  assert.match(row[19], /会社 簡易トイレ/);
+  assert.equal(row[19], '');
+  assert.equal(JSON.stringify(row).includes('会社 簡易トイレ'), false);
   assert.match(row[21], /toilet-office/);
   assert.equal(JSON.stringify(row).includes('private_key'), false);
 });
@@ -116,4 +117,11 @@ test('creates private Sheet rows without credentials or personal data', () => {
   assert.equal(rows[0][10], 2);
   assert.equal(rows[0][12], 'snippet_gap');
   assert.equal(/private_key|client_email|村上|誠治/i.test(JSON.stringify(rows)), false);
+});
+
+
+test('requires exact Sheet headers before appending', () => {
+  assert.equal(headersMatch(['A', 'B'], ['A', 'B']), true);
+  assert.equal(headersMatch(['A', 'C'], ['A', 'B']), false);
+  assert.equal(headersMatch(['A'], ['A', 'B']), false);
 });
