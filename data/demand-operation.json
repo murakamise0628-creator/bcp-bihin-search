@@ -225,7 +225,6 @@
       ]
     }
   ],
-  "templateVersion": 1,
   "cooldownDays": 60,
   "threadsPublishingEnabled": false,
   "trustedDomains": [
