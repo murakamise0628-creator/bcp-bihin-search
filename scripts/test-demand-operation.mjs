@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildThreadsDrafts, containsUnsafeContent, normalizeVerifiedSignals, planDemandOperation } from './plan-demand-operation.mjs';
+import { buildThreadsDrafts, containsUnsafeContent, normalizeVerifiedSignals, planDemandOperation, safeSheetCell } from './plan-demand-operation.mjs';
 
 const config = {
   minImpressions: 20,
   minSessions: 5,
   signalMaxAgeDays: 21,
+  trustedDomains: ['jma.go.jp'],
   pages: [
     {
       path: '/pages/toilet-office.html',
@@ -69,9 +70,9 @@ test('does not repeat an existing fingerprint', () => {
 
 test('accepts recent verified official signals and rejects emergency alerts', () => {
   const signals = [
-    { id: 'guide', status: 'verified', kind: 'official_guidance', label: '公式資料更新', topics: ['停電'], observedAt: '2026-09-01T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/guide', weight: 30 }
+    { id: 'guide', status: 'verified', sourceVerified: true, kind: 'official_guidance', label: '公式資料更新', topics: ['停電'], observedAt: '2026-09-01T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/guide', weight: 30 }
   ];
-  const normalized = normalizeVerifiedSignals(signals, new Date('2026-09-03T00:00:00Z'), 21);
+  const normalized = normalizeVerifiedSignals(signals, new Date('2026-09-03T00:00:00Z'), 21, ['jma.go.jp']);
   assert.deepEqual(normalized.map((item) => item.id), ['guide']);
   const result = planDemandOperation({ pagePriorities: [page('/pages/blackout-power.html', 'visibility_gap', { impressions: 0, sessions: 0 })] }, config, signals, [], new Date('2026-09-03T00:00:00Z'));
   assert.equal(result.status, 'ACTION');
@@ -84,7 +85,7 @@ test('rejects stale, unverified and non-HTTPS signals', () => {
     { id: 'guess', status: 'unverified', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'https://www.jma.go.jp/guess' },
     { id: 'http', status: 'verified', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z', sourceUrl: 'http://example.go.jp/http' }
   ];
-  assert.equal(normalizeVerifiedSignals(signals, new Date('2026-09-03T00:00:00Z'), 21).length, 0);
+  assert.equal(normalizeVerifiedSignals(signals, new Date('2026-09-03T00:00:00Z'), 21, ['jma.go.jp']).length, 0);
 });
 
 test('drafts include disclosure, a site URL and stay within Threads length', () => {
@@ -113,7 +114,7 @@ test('does not treat visibility alone as demand', () => {
 
 test('blocks all commercial drafts during a verified active emergency', () => {
   const signals = [{
-    id: 'active-alert', status: 'verified', kind: 'emergency_alert', label: '緊急警報',
+    id: 'active-alert', status: 'verified', sourceVerified: true, kind: 'emergency_alert', label: '緊急警報',
     topics: ['台風'], observedAt: '2026-09-03T00:00:00Z',
     sourceUrl: 'https://www.jma.go.jp/alert', weight: 50
   }];
@@ -127,7 +128,7 @@ test('blocks all commercial drafts during a verified active emergency', () => {
 
 test('rejects non-official signal domains when a trust list is configured', () => {
   const signals = [{
-    id: 'unknown', status: 'verified', kind: 'official_guidance', label: '不明な情報',
+    id: 'unknown', status: 'verified', sourceVerified: true, kind: 'official_guidance', label: '不明な情報',
     topics: ['停電'], observedAt: '2026-09-02T00:00:00Z',
     sourceUrl: 'https://example.com/guide', weight: 50
   }];
@@ -148,4 +149,37 @@ test('skips the page used by the latest action', () => {
   }];
   const result = planDemandOperation(report, { ...config, cooldownDays: 60 }, [], history, new Date('2026-09-03T00:00:00Z'));
   assert.equal(result.page, '/pages/blackout-power.html');
+});
+
+test('requires a non-empty trusted domain list and rejects future signals', () => {
+  const signal = {
+    id: 'future', status: 'verified', sourceVerified: true, kind: 'official_guidance',
+    label: '公式資料', topics: ['停電'], observedAt: '2026-09-04T00:00:00Z',
+    sourceUrl: 'https://www.jma.go.jp/guide', weight: 30
+  };
+  assert.equal(normalizeVerifiedSignals([signal], new Date('2026-09-03T00:00:00Z'), 21, []).length, 0);
+  assert.equal(normalizeVerifiedSignals([signal], new Date('2026-09-03T00:00:00Z'), 21, ['jma.go.jp']).length, 0);
+});
+
+test('deduplicates signal IDs before scoring', () => {
+  const signal = {
+    id: 'same', status: 'verified', sourceVerified: true, kind: 'official_guidance',
+    label: '公式資料', topics: ['停電'], observedAt: '2026-09-02T00:00:00Z',
+    sourceUrl: 'https://www.jma.go.jp/guide', weight: 50
+  };
+  const result = normalizeVerifiedSignals([signal, signal], new Date('2026-09-03T00:00:00Z'), 21, ['jma.go.jp']);
+  assert.equal(result.length, 1);
+});
+
+test('fingerprint follows the actual drafts rather than the opportunity label', () => {
+  const base = { impressions: 100, sessions: 10, priorityScore: 80 };
+  const a = planDemandOperation({ pagePriorities: [page('/pages/toilet-office.html', 'winner', base)] }, config, [], [], new Date('2026-09-03T00:00:00Z'));
+  const b = planDemandOperation({ pagePriorities: [page('/pages/toilet-office.html', 'conversion_gap', base)] }, config, [], [], new Date('2026-09-03T00:00:00Z'));
+  assert.equal(a.fingerprint, b.fingerprint);
+});
+
+test('neutralizes Sheet formula prefixes', () => {
+  assert.equal(safeSheetCell('=IMPORTXML("https://example.com")'), `'=IMPORTXML("https://example.com")`);
+  assert.equal(safeSheetCell('+1'), `'+1`);
+  assert.equal(safeSheetCell('通常文'), '通常文');
 });
