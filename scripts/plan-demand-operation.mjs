@@ -65,6 +65,11 @@ export function safeSheetCell(value) {
   return /^[=+\-@]/.test(text) ? `'${text}` : value;
 }
 
+function signalTrigger(signal) {
+  if (!signal) return 'Search Console・GA4・楽天クリックの実測';
+  return signal.kind === 'regulatory_update' ? '公式制度情報の更新' : '公式防災情報の更新';
+}
+
 function pageSignals(page, signals) {
   return signals.filter((signal) => page.topics.some((topic) => signal.topics.includes(topic)));
 }
@@ -127,7 +132,8 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
     if (!measuredDemand && matchedSignals.length === 0) continue;
     if (row.primary === 'monitor') continue;
     if (row.primary === 'visibility_gap' && matchedSignals.length === 0) continue;
-    if (latestAction?.path === row.path) continue;
+    const theme = matchedSignals[0]?.topics[0] || page.topics[0];
+    if (latestAction?.path === row.path || (latestAction?.theme && latestAction.theme === theme)) continue;
 
     const drafts = buildThreadsDrafts(page);
     const fingerprint = hash([
@@ -142,7 +148,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
       + Math.min(Number(row.sessions || 0), 100)
       + Math.min(Number(row.rakutenClicks || 0), 20) * 10
       + matchedSignals.reduce((sum, item) => sum + item.weight, 0);
-    candidates.push({ row, page, matchedSignals, drafts, fingerprint, score: Math.round(score * 10) / 10 });
+    candidates.push({ row, page, matchedSignals, drafts, fingerprint, theme, score: Math.round(score * 10) / 10 });
   }
 
   candidates.sort((a, b) => b.score - a.score || a.page.path.localeCompare(b.page.path));
@@ -163,7 +169,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
     path: selected.page.path,
     primary: selected.row.primary,
     instruction: improvement(selected.row.primary, selected.page),
-    trigger: selected.matchedSignals[0]?.label || 'Search Console・GA4・楽天クリックの実測',
+    trigger: signalTrigger(selected.matchedSignals[0]),
     sourceUrls: selected.matchedSignals.map((item) => item.sourceUrl),
     drafts
   });
@@ -186,8 +192,9 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
     pageTitle: selected.page.title,
     primary: selected.row.primary,
     reasonCode: `${selected.row.primary.toUpperCase()}_WITH_DEMAND`,
+    theme: selected.theme,
     score: selected.score,
-    trigger: selected.matchedSignals[0]?.label || 'Search Console・GA4・楽天クリックの実測',
+    trigger: signalTrigger(selected.matchedSignals[0]),
     evidence: {
       impressions: Number(selected.row.impressions || 0),
       searchClicks: Number(selected.row.searchClicks || 0),
@@ -217,7 +224,7 @@ async function googleJson(url, token, options = {}, fetchImpl = fetch) {
 
 const sheetTitle = 'Demand Actions';
 const sheetHeaders = [
-  '取得日時', '開始日', '終了日', 'ページ', '判定', '優先度', 'reasonCode', '需要トリガー',
+  '取得日時', '開始日', '終了日', 'ページ', '判定', 'テーマ', '優先度', 'reasonCode', '需要トリガー',
   '公式根拠URL', '観測日時', '検索表示回数', '検索クリック', '自然検索セッション', '自然検索PV',
   '自然検索楽天クリック', 'ページ改善指示', 'Threads下書き1', 'Threads下書き2', 'Threads下書き3',
   'fingerprint', '投稿前確認', '状態'
@@ -246,7 +253,7 @@ async function planAndAppend(report, config, signals, options = {}) {
   const token = options.token || await accessToken(account, fetchImpl);
   await ensureDemandSheet(sheetId, token, fetchImpl);
   const base = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values`;
-  const headerRange = `'${sheetTitle}'!A1:V1`;
+  const headerRange = `'${sheetTitle}'!A1:W1`;
   const current = await googleJson(`${base}/${encodeURIComponent(headerRange)}`, token, {}, fetchImpl);
   if (!current.values?.length) {
     await googleJson(
@@ -256,27 +263,27 @@ async function planAndAppend(report, config, signals, options = {}) {
   } else if (JSON.stringify(current.values[0]) !== JSON.stringify(sheetHeaders)) {
     throw new Error('Unexpected Demand Actions headers; append cancelled.');
   }
-  const prior = await googleJson(`${base}/${encodeURIComponent(`'${sheetTitle}'!A2:V5000`)}`, token, {}, fetchImpl);
+  const prior = await googleJson(`${base}/${encodeURIComponent(`'${sheetTitle}'!A2:W5000`)}`, token, {}, fetchImpl);
   const history = (prior.values || []).map((row) => ({
-    createdAt: row[0], path: row[3], primary: row[4], fingerprint: row[19], status: row[21]
+    createdAt: row[0], path: row[3], primary: row[4], theme: row[5], fingerprint: row[20], status: row[22]
   }));
   const operation = planDemandOperation(report, config, signals, history, options.now || new Date());
   const period = report.periods?.current || {};
   const row = operation.status === 'ACTION'
-    ? [operation.generatedAt, period.startDate || '', period.endDate || '', operation.page, operation.primary,
+    ? [operation.generatedAt, period.startDate || '', period.endDate || '', operation.page, operation.primary, operation.theme,
       operation.score, operation.reasonCode, operation.trigger, operation.evidence.sourceUrls.join(' | '),
       operation.evidence.observedAt.join(' | '), operation.evidence.impressions, operation.evidence.searchClicks,
       operation.evidence.sessions, operation.evidence.pageViews, operation.evidence.rakutenClicks,
       operation.improvementInstruction, ...operation.drafts, operation.fingerprint,
       '投稿直前に警報・避難情報、媒体登録、価格・在庫を再確認', operation.status]
     : [operation.generatedAt, period.startDate || '', period.endDate || '', '', '', '', operation.reasonCode || '',
-      operation.reason, '', '', '', '', '', '', '', '', '', '', '', operation.fingerprint, '', operation.status];
+      operation.reason, '', '', '', '', '', '', '', '', '', '', '', '', operation.fingerprint, '', operation.status];
   const safeRow = row.map(safeSheetCell);
   if (safeRow.some((value) => containsUnsafeContent(value))) {
     throw new Error('Demand Actions row failed privacy and secret checks.');
   }
   await googleJson(
-    `${base}/${encodeURIComponent(`'${sheetTitle}'!A:V`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+    `${base}/${encodeURIComponent(`'${sheetTitle}'!A:W`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
     token, { method: 'POST', body: JSON.stringify({ values: [safeRow] }) }, fetchImpl
   );
   return operation;
