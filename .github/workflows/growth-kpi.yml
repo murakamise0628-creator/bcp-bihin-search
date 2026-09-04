@@ -61,7 +61,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
           GOOGLE_KPI_SHEET_ID: ${{ secrets.GOOGLE_KPI_SHEET_ID }}
-          SEARCH_CONSOLE_SITE_URL: sc-domain:jigyousho-bousai.com
+          SEARCH_CONSOLE_SITE_URL: https://jigyousho-bousai.com/
           KPI_OUTPUT_PATH: ${{ runner.temp }}/growth-kpi.json
         run: node scripts/collect-growth-kpis.mjs
       - name: Fetch official JMA safety signals
