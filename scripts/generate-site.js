@@ -623,7 +623,7 @@ function quantityEstimateSection(slug = '') {
     <div class="calc-grid">
       <label>従業員・職員数<input class="calc-input" id="staffCount" type="number" min="0" value="10"></label>
       <label>待機日数<input class="calc-input" id="daysCount" type="number" min="1" value="${defaultDays}"></label>
-      <label>来客・利用者数<input class="calc-input" id="visitorCount" type="number" min="0" value="0"></label>
+      <label>${slug === 'hoikuen-bousai' ? '成人の来訪者数（園児を除く）' : '来客・利用者数'}<input class="calc-input" id="visitorCount" type="number" min="0" value="0"></label>
     </div>
     <div class="estimate-grid" aria-live="polite">
       <div><span>水</span><strong id="waterEstimate">${initialWater}L</strong><small>1人1日3Lの目安</small></div>
