@@ -1,12 +1,20 @@
-name: KPI unit tests
+name: KPI and demand operation checks
 
 on:
   pull_request:
     paths:
       - '.github/workflows/kpi-tests.yml'
+      - '.github/workflows/growth-kpi.yml'
       - 'data/kpi-config.json'
+      - 'data/demand-operation.json'
+      - 'data/demand-signals.json'
       - 'scripts/collect-growth-kpis.mjs'
+      - 'scripts/plan-demand-operation.mjs'
+      - 'scripts/fetch-official-safety-signals.mjs'
       - 'scripts/test-growth-kpis.mjs'
+      - 'scripts/test-demand-operation.mjs'
+      - 'scripts/test-official-safety-signals.mjs'
+      - 'package.json'
   workflow_dispatch:
 
 permissions:
@@ -15,11 +23,21 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Test KPI collector
-        run: node --test scripts/test-growth-kpis.mjs
+      - name: Test KPI collector and demand planner
+        run: node --test scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs scripts/test-official-safety-signals.mjs
+      - name: Verify live JMA safety feed
+        env:
+          OFFICIAL_SIGNAL_PATH: ${{ runner.temp }}/official-safety-signals.json
+        run: node scripts/fetch-official-safety-signals.mjs "$OFFICIAL_SIGNAL_PATH"
+      - name: Build generated site
+        run: npm run build
+      - name: Run complete verification
+        run: npm run verify
+      - name: Run browser verification
+        run: npm run verify:browser
