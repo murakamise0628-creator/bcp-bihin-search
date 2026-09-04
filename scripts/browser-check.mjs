@@ -436,6 +436,7 @@ try {
   for (const width of [320, 375, 414, 768]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
     await navigateFresh(send, nurseryPage);
+    await sleep(1200);
     const nursery = await evaluate(send, `(() => {
       const graphs = [...document.querySelectorAll('script[type="application/ld+json"]')].flatMap(el => { const data = JSON.parse(el.textContent); return data['@graph'] || [data]; });
       return { width: document.documentElement.scrollWidth, headings: document.querySelectorAll('h1').length, adultNote: document.querySelector('#quantity').textContent.includes('成人のみ'), faqCount: graphs.find(x => x['@type'] === 'FAQPage')?.mainEntity.length, affiliateLinks: [...document.querySelectorAll('a')].filter(a => a.href.includes('hb.afl.rakuten.co.jp')).length };
