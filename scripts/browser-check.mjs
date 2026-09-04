@@ -432,6 +432,24 @@ try {
   const homeScreenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(path.join(screenshotDir, 'home-mobile-cdp.png'), Buffer.from(homeScreenshot.data, 'base64'));
 
+  const nurseryPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'hoikuen-bousai.html')).href;
+  for (const width of [320, 375, 414, 768]) {
+    await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
+    await navigateFresh(send, nurseryPage);
+    await sleep(1200);
+    const nursery = await evaluate(send, `(() => {
+      const graphs = [...document.querySelectorAll('script[type="application/ld+json"]')].flatMap(el => { const data = JSON.parse(el.textContent); return data['@graph'] || [data]; });
+      return { width: document.documentElement.scrollWidth, headings: document.querySelectorAll('h1').length, adultNote: document.querySelector('#quantity').textContent.includes('成人のみ'), faqCount: graphs.find(x => x['@type'] === 'FAQPage')?.mainEntity.length, affiliateLinks: [...document.querySelectorAll('a')].filter(a => a.href.includes('hb.afl.rakuten.co.jp')).length };
+    })()`);
+    assert.ok(nursery.width <= width, 'nursery page overflow at ' + width);
+    assert.equal(nursery.headings, 1);
+    assert.equal(nursery.adultNote, true);
+    assert.equal(nursery.faqCount, 5);
+    assert.ok(nursery.affiliateLinks >= 8);
+    const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    fs.writeFileSync(path.join(screenshotDir, 'nursery-' + width + '.png'), Buffer.from(shot.data, 'base64'));
+  }
+
   assert.deepEqual(browserErrors, [], `browser errors: ${browserErrors.join(' / ')}`);
 
   const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
