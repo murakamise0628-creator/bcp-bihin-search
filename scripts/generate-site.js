@@ -607,20 +607,18 @@ function restaurantWaterOutageSection() {
 function quantityEstimateSection(slug = '') {
   if (slug === 'portable-power-kaigo') return powerEstimateSection();
   if (slug === 'restaurant-dansui') return restaurantWaterOutageSection();
-  if (slug === 'hoikuen-bousai') return `<section class="section card" id="quantity">
-    <h2>園児用と職員用を分けて、必要な食数を数える</h2>
-    <p>園児用は「食事形態ごとの人数 × 提供する食事の回数」を出発点にします。例として、同じ食事を提供する園児30人に2回配るなら60食です。ミルク・離乳食・個別食と職員分は別に数えます。袋数をそのまま食数に置き換えず、内容量と配布方法を確認してください。</p>
-    <ul class="checklist"><li>授乳・離乳食・幼児食それぞれの人数と提供回数</li><li>個別対応が必要な食品と、職員用の食料</li><li>飲用・調理用の水、使い捨て食器、おむつなどの不足数</li><li>保管場所、到着時の賞味期限、入れ替え時期</li></ul>
-    <p class="notice">数量は園の計画に合わせるための目安です。成人向けの水・食料の計算を、乳幼児の飲食量としてそのまま使わないでください。</p>
-    <p><a href="https://www.maff.go.jp/j/zyukyu/foodstock/guidebook.html">農林水産省の食品ストックガイドを見る</a>。家庭向けの資料であり、園の備蓄基準を定めるものではありません。</p>
-    <a class="small-button" href="#comparison">食数・容量を比較表で確認する</a>
-  </section>`;
   const defaultDays = slug ? 3 : 1;
   const initialPeople = 10;
   const initialWater = initialPeople * defaultDays * 3;
   const initialFood = initialPeople * defaultDays * 3;
   const initialToilet = initialPeople * defaultDays * 5;
   return `<section class="section card calc-card" id="quantity">
+    ${slug === 'hoikuen-bousai' ? `<h2>園児用と職員用を分けて、必要な食数を数える</h2>
+    <p>園児用は「食事形態ごとの人数 × 提供する食事の回数」を出発点にします。例として、同じ食事を提供する園児30人に2回配るなら60食です。ミルク・離乳食・個別食と職員分は別に数えます。袋数をそのまま食数に置き換えず、内容量と配布方法を確認してください。</p>
+    <ul class="checklist"><li>授乳・離乳食・幼児食それぞれの人数と提供回数</li><li>個別対応が必要な食品と、職員用の食料</li><li>飲用・調理用の水、使い捨て食器、おむつなどの不足数</li><li>保管場所、到着時の賞味期限、入れ替え時期</li></ul>
+    <p class="notice">数量は園の計画に合わせるための目安です。成人向けの水・食料の計算を、乳幼児の飲食量としてそのまま使わないでください。</p>
+    <p><a href="https://www.maff.go.jp/j/zyukyu/foodstock/guidebook.html">農林水産省の食品ストックガイドを見る</a>。家庭向けの資料であり、園の備蓄基準を定めるものではありません。</p>
+<h3>職員・成人の来訪者用の備蓄目安</h3><p>下の入力欄には成人のみを入れてください。園児分は上の手順で別に数えます。</p>` : ''}
     <div class="section-title"><div><p class="eyebrow">必要数量の目安</p><h2>人数と日数から、まず必要量をざっくり確認</h2></div><p class="notice">目安です。施設条件に合わせて調整してください。</p></div>
     <div class="calc-grid">
       <label>従業員・職員数<input class="calc-input" id="staffCount" type="number" min="0" value="10"></label>
