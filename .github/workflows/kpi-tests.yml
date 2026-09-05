@@ -19,6 +19,7 @@ on:
       - 'scripts/browser-check.mjs'
       - 'scripts/test-product-fit.mjs'
       - 'scripts/verify-site.js'
+      - 'scripts/sync-public.js'
       - 'package.json'
   workflow_dispatch:
 
