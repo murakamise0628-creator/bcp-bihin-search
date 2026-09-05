@@ -291,7 +291,7 @@ try {
   }
 
   const quantityResults = [];
-  for (const width of [320, 375, 768]) {
+  for (const width of [320, 375, 414, 768]) {
     await send('Emulation.setDeviceMetricsOverride', {
       width,
       height: 900,
@@ -299,6 +299,9 @@ try {
       mobile: width < 768
     });
     await navigateFresh(send, `${quantityPage}?audit=quantity-${width}`);
+    await sleep(1200);
+    const quantityScreenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    fs.writeFileSync(path.join(screenshotDir, 'quantity-' + width + '.png'), Buffer.from(quantityScreenshot.data, 'base64'));
     const result = await evaluate(send, `(() => {
       window.__quantityEvents = [];
       window.gtag = (...args) => window.__quantityEvents.push(args);
@@ -331,6 +334,33 @@ try {
     assert.ok(result.events.includes('rakuten_click'), `${width}px rakuten_click event missing`);
     quantityResults.push(result);
   }
+
+  await navigateFresh(send, quantityPage);
+  const quantityPlan = await evaluate(send, `(() => {
+    window.__planEvents = [];
+    window.gtag = (...args) => window.__planEvents.push(args);
+    for (const [id, value] of [['staffCount', '30'], ['daysCount', '7'], ['visitorCount', '5']]) {
+      const input = document.getElementById(id);
+      input.value = value;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    const link = document.querySelector('[data-stock-plan=toilet]');
+    link.addEventListener('click', e => e.preventDefault(), { once: true });
+    link.click();
+    return { href: link.href, water: document.getElementById('waterEstimate').textContent, toilet: document.getElementById('toiletEstimate').textContent, events: window.__planEvents.map(args => args[1]) };
+  })()`);
+  assert.equal(quantityPlan.water, '735L');
+  assert.equal(quantityPlan.toilet, '1,225回分');
+  const carriedPlan = new URL(quantityPlan.href);
+  assert.equal(carriedPlan.searchParams.get('staff'), '30');
+  assert.equal(carriedPlan.searchParams.get('days'), '7');
+  assert.equal(carriedPlan.searchParams.get('visitors'), '5');
+  assert.ok(quantityPlan.events.includes('stock_plan_compare_click'));
+  assert.ok(quantityPlan.events.includes('quantity_calculator_use'));
+  await navigateFresh(send, toiletPage + carriedPlan.search);
+  assert.equal(await evaluate(send, `document.getElementById('toiletEstimate').textContent`), '1,225回分');
+  await navigateFresh(send, quantityPage + carriedPlan.search);
+  assert.equal(await evaluate(send, `document.getElementById('waterEstimate').textContent`), '735L');
 
   const homeResults = [];
   for (const width of [320, 375, 414, 768, 1440]) {

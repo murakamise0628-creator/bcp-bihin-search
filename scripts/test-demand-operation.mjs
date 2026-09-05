@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import fs from 'node:fs';
 import { buildThreadsDrafts, containsUnsafeContent, demandSheetRow, normalizeVerifiedSignals, planDemandOperation, safeSheetCell, validateOfficialSafetyResult } from './plan-demand-operation.mjs';
 
 const config = {
@@ -34,6 +35,14 @@ const config = {
 const page = (path, primary, overrides = {}) => ({
   path, primary, priorityScore: 50, impressions: 50, searchClicks: 2, sessions: 6,
   pageViews: 10, rakutenClicks: 0, ...overrides
+});
+
+test('production configuration can act on demand for the quantity guide', () => {
+  const production = JSON.parse(fs.readFileSync(new URL('../data/demand-operation.json', import.meta.url), 'utf8'));
+  const result = planDemandOperation({ pagePriorities: [page('/pages/office-stockpile-quantity.html', 'ranking_opportunity', { impressions: 36, sessions: 3, searchClicks: 0 })] }, production, [], [], new Date('2026-09-05T00:00:00Z'));
+  assert.equal(result.status, 'ACTION');
+  assert.equal(result.page, '/pages/office-stockpile-quantity.html');
+  assert.equal(production.threadsPublishingEnabled, false);
 });
 
 test('returns NO_ACTION without measured or verified demand', () => {

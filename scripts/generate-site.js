@@ -4,6 +4,7 @@ const net = require('net');
 const crypto = require('crypto');
 const {
   hasAmbiguousToiletQuantity,
+  hasVariablePrice,
   toiletUseCount,
   titleShort,
   productDisplayTitle,
@@ -635,8 +636,8 @@ function quantityEstimateSection(slug = '') {
     <div class="stock-plan-actions" aria-labelledby="stock-plan-title">
       <div><p class="eyebrow">この条件で比較</p><h3 id="stock-plan-title">必要量を持ったまま、商品候補を見る</h3></div>
       <div class="stock-plan-grid">
-        <a class="stock-plan-link" data-stock-plan="toilet" data-plan-path="${siteUrl}/pages/toilet-office.html" href="${siteUrl}/pages/toilet-office.html#comparison"><span>簡易トイレ</span><strong id="toiletPlanLabel">50回分を比較</strong><small>回数・保存年数・袋の構成を見る</small></a>
-        <a class="stock-plan-link" data-stock-plan="water_food" data-plan-path="${siteUrl}/pages/water-food-stock.html" href="${siteUrl}/pages/water-food-stock.html#comparison"><span>保存水・非常食</span><strong id="waterFoodPlanLabel">10人・1日分を比較</strong><small>水量・食数・保存年数を見る</small></a>
+        <a class="stock-plan-link" data-stock-plan="toilet" data-plan-path="${siteUrl}/pages/toilet-office.html" href="${siteUrl}/pages/toilet-office.html?staff=${initialPeople}&amp;days=${defaultDays}&amp;visitors=0#comparison"><span>簡易トイレ</span><strong id="toiletPlanLabel">${initialToilet}回分を比較</strong><small>回数・保存年数・袋の構成を見る</small></a>
+        <a class="stock-plan-link" data-stock-plan="water_food" data-plan-path="${siteUrl}/pages/water-food-stock.html" href="${siteUrl}/pages/water-food-stock.html?staff=${initialPeople}&amp;days=${defaultDays}&amp;visitors=0#comparison"><span>保存水・非常食</span><strong id="waterFoodPlanLabel">${initialPeople}人・${defaultDays}日分を比較</strong><small>水量・食数・保存年数を見る</small></a>
         <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="${siteUrl}/pages/office-bichiku.html" href="${siteUrl}/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
       </div>
     </div>
@@ -1845,19 +1846,19 @@ function clientScript() {
 }
 
 function productTrackingAttrs(product, category = '', position = '') {
-  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}" data-product-position="${esc(position)}" data-variable-price="${hasAmbiguousToiletQuantity(product) ? 'true' : 'false'}"`;
+  return `data-product-id="${esc(product.itemCode || displayTitle(product))}" data-product-name="${esc(displayTitle(product))}" data-product-price="${esc(product.price || '')}" data-product-category="${esc(category)}" data-product-position="${esc(position)}" data-variable-price="${hasVariablePrice(product) ? 'true' : 'false'}"`;
 }
 
 function displayPrice(product) {
   const price = yen(product.price);
-  return hasAmbiguousToiletQuantity(product)
+  return hasVariablePrice(product)
     ? `${price}〜（選択肢で変動）`
     : price;
 }
 
 function productJsonLd(products) {
   const graph = products
-    .filter((product) => product.name && product.url && !hasAmbiguousToiletQuantity(product))
+    .filter((product) => product.name && product.url && !hasVariablePrice(product))
     .slice(0, 12)
     .map((product) => ({
     '@type': 'Product',
@@ -2926,7 +2927,8 @@ const quantityGuideFaq = [
   ['会社の防災備蓄は何日分から考えますか？', 'まず3日分を出発点に、従業員、来客、施設利用者を含む最大人数で計算します。地域や建物、物流の条件によっては7日分も比較してください。'],
   ['30人分の保存水はどれくらい必要ですか？', '1人1日3Lを目安にすると、30人では3日分で270L、7日分で630Lです。保管場所と持ち運びやすさもあわせて確認します。'],
   ['50人分の簡易トイレは何回分ですか？', '1人1日5回を目安にすると、50人では3日分で750回、7日分で1,750回です。凝固剤、処理袋、防臭袋の数も確認してください。'],
-  ['毛布や保温シートは日数分必要ですか？', 'この早見表では1人1枚を出発点にしています。季節、建物の断熱性、夜間待機の有無に合わせて追加を検討してください。']
+  ['毛布や保温シートは日数分必要ですか？', 'この早見表では1人1枚を出発点にしています。季節、建物の断熱性、夜間待機の有無に合わせて追加を検討してください。'],
+  ['必要量から購入する箱数をどう計算しますか？', '必要量を1箱の内容量で割り、端数を切り上げます。例えば30人・3日分の水270Lを、2L入り6本で12Lの箱でそろえるなら23箱（276L）が目安です。食料とトイレも、販売単位の食数・回数で計算します。既存在庫の使用期限と不足量を確認してから発注してください。']
 ];
 const quantityRows = [
   [10, 90, 90, 150, 10, 210, 210, 350],
@@ -2979,12 +2981,16 @@ const quantityGuideBody = `<section class="hero">
   <p class="eyebrow">会社・店舗・施設の数量早見表</p>
   <h1>会社の防災備蓄量早見表</h1>
   <p class="lead">10人、30人、50人、100人の事業所を想定し、保存水、非常食、簡易トイレ、毛布・保温シートの3日分と7日分を比較できます。従業員だけでなく、来客や施設利用者が残る場合は人数に加えてください。</p>
-  <div class="hero-actions"><a class="button orange" href="#quantity-table">人数別の数量を見る</a><a class="button secondary" href="${siteUrl}/pages/bcp-stockpile-checklist.html">自社の人数で計算する</a></div>
+  <div class="hero-actions"><a class="button orange" href="#quantity">自社の人数で計算する</a><a class="button secondary" href="#quantity-table">人数別の早見表を見る</a></div>
 </section>
 <section class="section card"><p class="eyebrow">このページの結論</p><h2>まず3日分を出発点に、人数と保管場所の両方で確認します</h2><p>水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回、毛布または保温シートは1人1枚を目安に計算しています。7日分は物流やライフラインの復旧に時間がかかる場合の比較用です。施設条件や自治体の方針に合わせて調整してください。</p></section>
+${quantityEstimateSection('office-stockpile-quantity')}
 <section class="section" id="quantity-table"><div class="section-title"><div><p class="eyebrow">人数別</p><h2>3日分・7日分の備蓄量</h2></div><p class="notice">横にスクロールして比較できます</p></div>
   <div class="compare-scroll"><table class="compare-table"><thead><tr><th rowspan="2">人数</th><th colspan="4">3日分</th><th colspan="3">7日分</th></tr><tr><th>保存水</th><th>食料</th><th>簡易トイレ</th><th>毛布・保温</th><th>保存水</th><th>食料</th><th>簡易トイレ</th></tr></thead><tbody>${quantityTableRows}</tbody></table></div>
   <p class="notice">数値は購入量を決めるための目安です。箱数、1箱あたりの本数・食数・回数は販売ページで確認してください。</p>
+  <h3>30人・3日分を箱数にすると？</h3>
+  <p>水270Lは、2L入り6本（12L）の箱なら23箱で276L。食料270食は50食入りなら6箱で300食、トイレ450回分は100回分入りなら5セットで500回分になります。販売単位を仮定した計算例で、特定の商品内容を保証するものではありません。</p>
+  <p>発注前に、期限内で使用できる在庫を差し引いて不足量を数えてください。箱の寸法、保管場所の耐荷重、送料、納期も確認します。水270Lだけでも約270kgになり、容器や箱の重さが加わります。</p>
 </section>
 <section class="section"><div class="section-title"><div><p class="eyebrow">次に比較</p><h2>必要量が分かったら、箱数と仕様を確認</h2></div></div><div class="grid">
   <article class="card"><h3>保存水・非常食</h3><p>水量、食数、保存年数、アレルギー表示、箱サイズを確認します。</p><a class="small-button" href="${siteUrl}/pages/water-food-stock.html">保存水・非常食を比較</a></article>

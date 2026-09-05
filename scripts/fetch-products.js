@@ -286,6 +286,13 @@ function fixedToiletPack(source) {
   return { perPack, packCount, total: perPack * packCount };
 }
 
+function hasVariablePrice(product) {
+  if (product?.priceIsFromVariant === true || hasAmbiguousToiletQuantity(product)) return true;
+  const source = String(product?.titleRaw || product?.name || product || '').normalize('NFKC');
+  const options = source.match(/(\d+(?:\.\d+)?)\s*(ケース|箱|セット|個|本|袋|食|回(?:分)?|m?l|wh)\s*[\/・]\s*(\d+(?:\.\d+)?)\s*\2/i);
+  return Boolean(options && Number(options[1]) !== Number(options[3]));
+}
+
 function hasAmbiguousToiletQuantity(product) {
   const source = String(product?.titleRaw || product?.name || product || '')
     .replace(/1回あたり[^／/\s]*/g, '');
@@ -603,7 +610,7 @@ function normalizeProducts(items, sourceKeyword = '') {
         fetchedAt,
         sourceKeyword,
         availability: item.availability === 0 ? 0 : 1,
-        priceIsFromVariant: hasAmbiguousToiletQuantity(item.itemName),
+        priceIsFromVariant: hasVariablePrice(item.itemName),
         score: score(item),
         affiliateRate: affiliateRateValue(item)
       };
@@ -772,6 +779,7 @@ module.exports = {
   titleShort,
   productDisplayTitle,
   hasAmbiguousToiletQuantity,
+  hasVariablePrice,
   toiletUseCount,
   matchesPageType,
   candidateTier,

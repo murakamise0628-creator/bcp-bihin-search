@@ -14,6 +14,12 @@ on:
       - 'scripts/test-growth-kpis.mjs'
       - 'scripts/test-demand-operation.mjs'
       - 'scripts/test-official-safety-signals.mjs'
+      - 'scripts/generate-site.js'
+      - 'scripts/fetch-products.js'
+      - 'scripts/browser-check.mjs'
+      - 'scripts/test-product-fit.mjs'
+      - 'scripts/verify-site.js'
+      - 'scripts/sync-public.js'
       - 'package.json'
   workflow_dispatch:
 
@@ -37,6 +43,8 @@ jobs:
         run: node scripts/fetch-official-safety-signals.mjs "$OFFICIAL_SIGNAL_PATH"
       - name: Build generated site
         run: npm run build
+      - name: Prepare generated public files for verification
+        run: npm run sync:public
       - name: Run complete verification
         run: npm run verify
       - name: Run browser verification

@@ -17,6 +17,17 @@ const {
   toiletUseCount
 } = productTools;
 
+test('variable prices include explicit non-toilet quantity options without flagging fixed packs', () => {
+  const { hasVariablePrice } = productTools;
+  assert.equal(hasVariablePrice({ titleRaw: '保存水 2L×6本 [1ケース / 2ケース]', priceIsFromVariant: false }), true);
+  assert.equal(hasVariablePrice('非常食 30食／60食'), true);
+  assert.equal(hasVariablePrice('簡易トイレ 20回／50回／100回から選べる'), true);
+  assert.equal(hasVariablePrice({ name: '保存水', priceIsFromVariant: true }), true);
+  assert.equal(hasVariablePrice('保存水 1.8L 6本入 2ケース 12本'), false);
+  assert.equal(hasVariablePrice('非常食 4人用/3日分 36食 パンが選べる'), false);
+  assert.equal(hasVariablePrice('防災セット 選べる9カラー 1人用30点'), false);
+});
+
 test('detectProductType distinguishes a helmet multipack from a disaster set containing a helmet', () => {
   const helmetMultipack = '【2個セット】防災ヘルメット 保護帽 安全帽 防災用品 防災セット';
   assert.equal(
