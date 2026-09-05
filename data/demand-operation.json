@@ -5,6 +5,16 @@
   "signalMaxAgeDays": 21,
   "pages": [
     {
+      "path": "/pages/office-stockpile-quantity.html",
+      "title": "会社の防災備蓄量早見表",
+      "audience": "必要な備蓄量を調べる会社や事業所",
+      "problem": "人数分の必要量を何箱でそろえるか",
+      "checks": ["人数と待機日数", "1箱の内容量", "在庫と保管場所"],
+      "caution": "数量は目安です。販売単位、使用期限、箱の寸法や重さを確認してください。",
+      "quantityBasis": "成人向けに水は1人1日3L、食料は3食、トイレは5回を目安に計算します",
+      "topics": ["地震", "台風", "帰宅困難者"]
+    },
+    {
       "path": "/pages/portable-power-kaigo.html",
       "title": "介護施設向けポータブル電源比較",
       "audience": "介護施設",

@@ -6,6 +6,7 @@ const {
   detectProductType,
   titleShort,
   hasAmbiguousToiletQuantity,
+  hasVariablePrice,
   toiletUseCount,
   matchesPageType,
   candidateTier,
@@ -414,13 +415,18 @@ for (const page of data.pages || []) {
     issues.push(`${page.slug}: internal affiliate value data leaked into the public page`);
   }
   for (const product of page.products || []) {
-    if (hasAmbiguousToiletQuantity(product) && displayedIds.has(product.itemCode)) {
+    if (hasVariablePrice(product) && displayedIds.has(product.itemCode)) {
       const marker = `data-product-id="${product.itemCode}"`;
       const start = pageHtml.indexOf(marker);
       const end = start >= 0 ? pageHtml.indexOf('>', start) : -1;
       const attrs = start >= 0 && end >= 0 ? pageHtml.slice(start, end) : '';
       if (!attrs.includes('data-variable-price="true"')) {
-        issues.push(`${page.slug}: ambiguous toilet quantity lacks variable-price marker (${product.itemCode})`);
+        issues.push(`${page.slug}: variable quantity lacks variable-price marker (${product.itemCode})`);
+      }
+      const graphs = [...pageHtml.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+        .flatMap(match => { const value = JSON.parse(match[1]); return value['@graph'] || [value]; });
+      if (graphs.some(value => value['@type'] === 'Product' && value.offers?.url === product.url)) {
+        issues.push(`${page.slug}: variable-price product has an exact Offer (${product.itemCode})`);
       }
     }
   }
