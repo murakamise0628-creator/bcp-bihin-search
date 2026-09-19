@@ -192,6 +192,31 @@ try {
   assert.match(zeroPlan.text, /1人以上/);
   assert.equal(zeroPlan.hasUnitRecommendation, false);
 
+  const ineligiblePlan = await evaluate(send, `(() => {
+    const source = document.querySelector('.compare-table tbody [data-product-fit]');
+    const row = source.cloneNode(true);
+    row.dataset.productKey = 'audit-unknown-contents';
+    row.dataset.toiletPurchaseEligible = 'false';
+    row.dataset.toiletUses = '100';
+    row.dataset.unitPrice = '100';
+    row.dataset.fitTier = 'preferred';
+    source.parentNode.append(row);
+    const staff = document.getElementById('staffCount');
+    staff.value = '10';
+    staff.dispatchEvent(new Event('input', { bubbles: true }));
+    const result = {
+      text: row.querySelector('[data-fit-result]')?.textContent || '',
+      eligible: [...document.querySelectorAll('.compare-table tbody [data-product-fit]')]
+        .filter(node => node.dataset.toiletPurchaseEligible === 'true')
+        .map(node => node.querySelector('[data-fit-result]')?.textContent || '')
+    };
+    row.remove();
+    return result;
+  })()`);
+  assert.match(ineligiblePlan.text, /同梱品・選択数量・価格を販売ページで確認/);
+  assert.doesNotMatch(ineligiblePlan.text, /概算|を[0-9,]+点/);
+  assert.ok(ineligiblePlan.eligible.some(text => /150回分の目安/.test(text)), 'eligible kits must retain quantity estimates');
+
   const powerResults = [];
   for (const width of [320, 375, 768]) {
     await send('Emulation.setDeviceMetricsOverride', {
@@ -480,10 +505,17 @@ try {
     fs.writeFileSync(path.join(screenshotDir, 'nursery-' + width + '.png'), Buffer.from(shot.data, 'base64'));
   }
 
+  for (const width of [375, 1440]) {
+    await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
+    await navigateFresh(send, toiletPage);
+    for (const section of ['purchase-units', 'comparison']) {
+      await evaluate(send, `document.getElementById('${section}').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+      await sleep(400);
+      const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+      fs.writeFileSync(path.join(screenshotDir, `toilet-${section}-${width}.png`), Buffer.from(screenshot.data, 'base64'));
+    }
+  }
   assert.deepEqual(browserErrors, [], `browser errors: ${browserErrors.join(' / ')}`);
-
-  const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  fs.writeFileSync(path.join(screenshotDir, 'toilet-mobile-cdp.png'), Buffer.from(screenshot.data, 'base64'));
   console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, office: officeResults, emergencyFood: emergencyFoodResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
 } catch (error) {
   if (process.env.GITHUB_ACTIONS === 'true') {

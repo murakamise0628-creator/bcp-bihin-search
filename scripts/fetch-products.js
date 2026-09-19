@@ -396,14 +396,20 @@ function decisionFacts(product) {
   const productType = product?.productType || detectProductType(source);
   const toiletUses = toiletUseCount(source);
   const verifiedCompleteKit = /(?:\bBOS\b.{0,48}(?:非常用|簡易)トイレセット|(?:非常用|簡易)トイレセット.{0,48}\bBOS\b|SAFETY\s*TOILET\s+BCP\s*\d+)/i.test(source);
-  const hasCoagulant = /凝固剤|固形剤|吸水ポリマー/.test(source) || verifiedCompleteKit;
-  const hasWasteBag = /汚物袋|排便袋|処理袋|防臭袋|消臭袋|臭わない袋|においバイバイ袋|BOS/.test(source) || verifiedCompleteKit;
-  const hasDeodorizingBag = /防臭袋|消臭袋|臭わない袋|においバイバイ袋|BOS/.test(source) || verifiedCompleteKit;
+  // Missing keywords do not establish missing contents. Only explicit exclusions justify "only".
+  const bagOnly = /(?:汚物|排便|処理|防臭)?袋(?:のみ|だけ|単品)(?:[\s、。・()（）]|$)|凝固剤\s*(?:は|が)?\s*(?:別売|別途購入|付属しません|付属なし|なし|無し)/.test(source);
+  const coagulantOnly = /凝固剤(?:のみ|だけ|単品)(?:[\s、。・()（）]|$)|(?<!防臭|消臭)(?:汚物|排便|処理)?袋\s*(?:は|が)?\s*(?:別売|別途購入|付属しません|付属なし|なし|無し)/.test(source);
+  const hasCoagulant = !bagOnly && (/凝固剤|固形剤|吸水ポリマー/.test(source) || verifiedCompleteKit);
+  const includedBagSource = source.replace(/(?:防臭|消臭)袋\s*(?:は|が)?\s*(?:別売|別途購入|付属しません|付属なし|なし|無し)/g, '');
+  const hasWasteBag = !coagulantOnly && (/汚物袋|排便袋|処理袋|防臭袋|消臭袋|臭わない袋|においバイバイ袋|BOS/.test(includedBagSource) || verifiedCompleteKit);
+  const deodorizingBagExcluded = /(?:防臭|消臭)袋\s*(?:は|が)?\s*(?:別売|別途購入|付属しません|付属なし|なし|無し)/.test(source);
+  const hasDeodorizingBag = !deodorizingBagExcluded && !coagulantOnly && (/防臭袋|消臭袋|臭わない袋|においバイバイ袋|BOS/.test(source) || verifiedCompleteKit);
   let toiletSupplyType = '';
   if (productType === 'toilet') {
-    if (hasCoagulant && hasWasteBag) toiletSupplyType = 'complete-kit';
-    else if (hasCoagulant) toiletSupplyType = 'coagulant-only';
-    else if (hasWasteBag || /汚物処理袋/.test(source)) toiletSupplyType = 'bag-only';
+    if (bagOnly && coagulantOnly) toiletSupplyType = 'contents-unclear';
+    else if (coagulantOnly && hasCoagulant) toiletSupplyType = 'coagulant-only';
+    else if (bagOnly && hasWasteBag) toiletSupplyType = 'bag-only';
+    else if (hasCoagulant && hasWasteBag) toiletSupplyType = 'complete-kit';
     else toiletSupplyType = 'contents-unclear';
   }
 
@@ -432,6 +438,13 @@ function decisionFacts(product) {
     storageYears: Number(source.match(/(\d{1,2})\s*年保存/)?.[1] || 0) || null,
     includedCategories
   };
+}
+
+function isToiletPurchaseCandidate(product) {
+  const facts = decisionFacts(product);
+  const price = Number(product.price);
+  return facts.productType === 'toilet' && facts.toiletSupplyType === 'complete-kit' &&
+    facts.toiletUses > 0 && Number.isFinite(price) && price > 0 && !hasVariablePrice(product);
 }
 
 function decisionSummary(product, row = {}) {
@@ -787,6 +800,7 @@ module.exports = {
   prioritizeProductVariety,
   decisionFacts,
   decisionSummary,
+  isToiletPurchaseCandidate,
   isEmergencyFoodSetCandidate,
   isExcluded,
   sanitizeProductDataset,

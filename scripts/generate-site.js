@@ -13,6 +13,7 @@ const {
   prioritizeProductVariety,
   decisionFacts,
   decisionSummary,
+  isToiletPurchaseCandidate,
   isEmergencyFoodSetCandidate
 } = require('./fetch-products');
 const { isApprovedBaseProductUrl } = require('./paid-checkout-url.cjs');
@@ -464,7 +465,8 @@ function rawTitle(product) {
 }
 
 function productDecisionFacts(product) {
-  return product.decisionFacts || decisionFacts(product);
+  const current = decisionFacts(product);
+  return current.productType === 'toilet' ? current : (product.decisionFacts || current);
 }
 
 function productDecisionSummary(product, note = {}) {
@@ -1360,6 +1362,9 @@ function clientScript() {
           if(plan.people<=0){
             text='従業員・職員または来客・利用者を1人以上入力';
             score+=900000000;
+          }else if(element.dataset.toiletPurchaseEligible!=='true'){
+            text='必要な'+plan.toilet.toLocaleString('ja-JP')+'回分に対し、同梱品・選択数量・価格を販売ページで確認';
+            score+=900000000;
           }else if(uses>0){
             var units=Math.max(1,Math.ceil(plan.toilet/uses));
             var supplied=units*uses;
@@ -1974,6 +1979,7 @@ function productFitAttrs(product, note = {}) {
     `data-product-key="${esc(product.itemCode || product.url || rawTitle(product))}"`,
     `data-fit-tier="${esc(tier)}"`,
     `data-toilet-uses="${esc(facts.toiletUses || '')}"`,
+    `data-toilet-purchase-eligible="${isToiletPurchaseCandidate(product)}"`,
     `data-people-capacity="${esc(facts.peopleCapacity || '')}"`,
     `data-stock-days="${esc(facts.stockDays || '')}"`,
     `data-power-wh="${esc(facts.powerWh || '')}"`,
@@ -1983,6 +1989,7 @@ function productFitAttrs(product, note = {}) {
 }
 
 function fitTierLabel(product, note = {}) {
+  if (note.slug === 'toilet-office' && productDecisionFacts(product).toiletSupplyType === 'contents-unclear') return '同梱品を販売ページで要確認';
   const tier = candidateTier(product, { slug: note.slug || '' });
   if (tier === 'preferred') return '条件が読み取りやすい候補';
   if (tier === 'supplementary') return '単品補充・組み合わせ候補';
@@ -1990,6 +1997,13 @@ function fitTierLabel(product, note = {}) {
 }
 
 function recommendationClass(product, note = {}) {
+  if (note.slug === 'toilet-office') {
+    const supply = productDecisionFacts(product).toiletSupplyType;
+    if (supply === 'complete-kit') return '凝固剤・袋のセット';
+    if (supply === 'coagulant-only') return '凝固剤の補充';
+    if (supply === 'bag-only') return '袋の補充';
+    return '同梱品を要確認';
+  }
   if (note.slug !== 'office-bichiku') return fitTierLabel(product, note);
   const type = product.productType || recommendedType(product, note);
   const people = Number(productDecisionFacts(product).peopleCapacity || 0);
@@ -2009,7 +2023,7 @@ function comparisonRows(products, note) {
   return products.map((product, index) => `<tr ${productFitAttrs(product, note)}>
     <td class="table-product">${esc(displayTitle(product, 46))}</td>
     <td>${esc(product.relatedCandidate ? '関連候補' : recommendationClass(product, note))}</td>
-    <td>${esc(displayPrice(product))}</td>
+    <td>${esc(displayPrice(product))}${note.slug === 'toilet-office' && isToiletPurchaseCandidate(product) ? `<br><small>1回あたり約${Math.ceil(Number(product.price) / productDecisionFacts(product).toiletUses).toLocaleString('ja-JP')}円（送料除く）</small>` : ''}</td>
     <td>${esc(product.reviewAverage || '-')}</td>
     <td>${esc(product.reviewCount || 0)}</td>
     <td>${esc(storageYears(product))}</td>
@@ -2081,9 +2095,9 @@ function toiletPurchasePlans(products, note) {
   if (note.slug !== 'toilet-office') return '';
   const candidates = products
     .map((product) => ({ product, uses: Number(productDecisionFacts(product).toiletUses || 0) }))
-    .filter(({ product, uses }) => uses > 0 && Number(product.price || 0) > 0 && !hasAmbiguousToiletQuantity(product))
+    .filter(({ product }) => isToiletPurchaseCandidate(product))
     .sort((a, b) => a.uses - b.uses || Number(b.product.reviewCount || 0) - Number(a.product.reviewCount || 0) || Number(a.product.price || 0) - Number(b.product.price || 0));
-  if (!candidates.length) return '';
+  if (!candidates.length) return `<section class="section" id="purchase-units"><h2>発注前に、同梱品と購入単位を確認</h2><p>10人・3日分は150回分、30人なら450回分、50人なら750回分が目安です。以下の比較表で凝固剤と処理袋の同梱数を確認し、販売ページで必要な購入点数と送料を見積もってください。</p><a class="small-button" href="#comparison">同梱品・回数を比較する</a></section>`;
 
   const plans = [
     { people: 10, days: 3 },
@@ -2099,16 +2113,16 @@ function toiletPurchasePlans(products, note) {
     return `<article class="card procurement-card">
       <p class="pill orange">${plan.people}人・${plan.days}日</p>
       <h3>必要目安 ${requiredUses.toLocaleString('ja-JP')}回分</h3>
-      <p><strong>${esc(displayTitle(candidate.product))}</strong>を${boxes}箱で、合計${suppliedUses.toLocaleString('ja-JP')}回分になる組み方です。</p>
-      <p class="price">概算 ${yen(totalPrice)}</p>
+      <p><strong>${esc(displayTitle(candidate.product))}</strong>を${boxes}点で、合計${suppliedUses.toLocaleString('ja-JP')}回分になる組み方です。</p>
+      <p class="price">概算 ${yen(totalPrice)}（送料除く）</p>
       <p class="notice">不足を避ける購入単位の一例です。袋・凝固剤・防臭袋の内訳、配送単位、価格、在庫は販売ページで確認してください。</p>
-      <a class="button orange" href="${esc(candidate.product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(candidate.product, `${note.title} ${plan.people}人${plan.days}日`, index + 1)}>${boxes}箱分の内容を楽天で確認</a>
+      <a class="button orange" href="${esc(candidate.product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(candidate.product, `${note.title} ${plan.people}人${plan.days}日`, index + 1)}>${boxes}点分の内容を楽天で確認</a>
     </article>`;
   }).join('');
 
   return `<section class="section" id="purchase-units">
     <div class="section-title"><div><p class="eyebrow">発注前の数量確認</p><h2>10・30・50人の購入単位を商品に当てはめる</h2></div><p class="notice">1人1日5回、3日分で算出</p></div>
-    <p class="lead">必要回数だけでなく、実際に何箱になるかまで確認します。商品データが更新されると、この組み方も掲載中の商品から自動で選び直します。</p>
+    <p class="lead">凝固剤と処理袋の同梱表記がある商品で、必要回数を満たす購入点数と費用の目安を確認できます。防臭袋の枚数、保管場所、送料もあわせて確認してください。</p>
     <div class="grid">${plans}</div>
   </section>`;
 }

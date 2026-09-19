@@ -199,7 +199,7 @@ if (!hasAmbiguousToiletQuantity('選べる3サイズ 最大120回分 簡易ト�
 if (!hasAmbiguousToiletQuantity('防災セット 選べる3サイズ 最大120回分 簡易トイレ')) {
   issues.push('product variant detection failed: toilet variant must not depend on product-type order');
 }
-if (!titleShort('トイレ凝固剤 100回分 10年保存').includes('トイレ用凝固剤')) {
+if (!titleShort('トイレ凝固剤のみ 100回分 10年保存').includes('トイレ用凝固剤')) {
   issues.push('product title classification failed: coagulant-only product label');
 }
 
