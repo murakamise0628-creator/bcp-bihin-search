@@ -590,7 +590,13 @@ if (!fs.existsSync(quantityGuidePath)) {
   const quantityGuideHtml = fs.readFileSync(quantityGuidePath, 'utf8');
   const requiredQuantityMarkers = [
     '<link rel="canonical" href="https://jigyousho-bousai.com/pages/office-stockpile-quantity.html">',
-    '<h1>会社の防災備蓄量早見表</h1>',
+    '<h1>会社の防災備蓄量を計算する</h1>',
+    'id="procurement"',
+    'id="procurementTotal"',
+    'data-procurement="water"',
+    'data-procurement="food"',
+    'data-procurement="toilet"',
+    'data-procurement="blankets"',
     '<th scope="row">10人</th><td>90L</td><td>90食</td><td>150回</td>',
     '<th scope="row">30人</th><td>270L</td><td>270食</td><td>450回</td>',
     '<th scope="row">50人</th><td>450L</td><td>450食</td><td>750回</td>',
