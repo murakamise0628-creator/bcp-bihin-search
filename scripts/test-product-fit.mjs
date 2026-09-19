@@ -54,16 +54,51 @@ test('decisionFacts distinguishes complete toilet kits from replenishment items'
     titleRaw: 'BOS 非常用トイレセット 50回分 凝固剤 汚物袋 防臭袋'
   });
   const coagulant = decisionFacts({
-    titleRaw: 'トイレ凝固剤 100回分 10年保存 個包装'
+    titleRaw: 'トイレ凝固剤のみ 100回分 10年保存 個包装'
   });
   const bags = decisionFacts({
-    titleRaw: '汚物処理袋 サニタクリーンワンズケア 業務用 240枚組 非常用トイレ'
+    titleRaw: '汚物処理袋のみ 業務用 240枚組 非常用トイレ 凝固剤は別売'
   });
 
   assert.equal(full.toiletUses, 50);
   assert.equal(full.toiletSupplyType, 'complete-kit');
   assert.equal(coagulant.toiletSupplyType, 'coagulant-only');
   assert.equal(bags.toiletSupplyType, 'bag-only');
+});
+
+test('missing component words are unknown, not evidence of a component-only product', () => {
+  for (const titleRaw of [
+    '非常用トイレ KO370 100回分 汚物袋付き',
+    '大容量 100回分 簡易トイレ 15年保存 防臭 凝固剤',
+    '汚物処理袋 サニタクリーンワンズケア 業務用 240枚組 非常用トイレ'
+  ]) {
+    const product = { titleRaw, decisionFacts: { toiletSupplyType: 'bag-only' } };
+    assert.equal(decisionFacts(product).toiletSupplyType, 'contents-unclear');
+    assert.doesNotMatch(decisionSummary(product), /相当の袋用品|の凝固剤です/);
+    assert.doesNotMatch(titleShort(titleRaw), /トイレ用袋|トイレ用凝固剤/);
+  }
+});
+
+test('explicit exclusions override keyword mentions and known-kit names', () => {
+  assert.equal(decisionFacts({ titleRaw: '簡易トイレ 汚物袋100枚 凝固剤は付属しません' }).toiletSupplyType, 'bag-only');
+  assert.equal(decisionFacts({ titleRaw: '簡易トイレ 凝固剤100回分 処理袋は別売' }).toiletSupplyType, 'coagulant-only');
+  assert.equal(decisionFacts({ titleRaw: 'SAFETYTOILET BCP 100 補充用 凝固剤のみ 汚物袋なし' }).toiletSupplyType, 'coagulant-only');
+  const kitWithoutOuterBag = decisionFacts({ titleRaw: '簡易トイレ100回分 凝固剤 汚物袋付き 防臭袋は別売' });
+  assert.equal(kitWithoutOuterBag.toiletSupplyType, 'complete-kit');
+  assert.equal(kitWithoutOuterBag.hasDeodorizingBag, false);
+  assert.equal(decisionFacts({ titleRaw: '簡易トイレ 凝固剤100回分 防臭袋は別売' }).toiletSupplyType, 'contents-unclear');
+});
+
+test('purchase estimates accept only complete, fixed-price toilet kits', () => {
+  const kit = { titleRaw: '簡易トイレ100回分 凝固剤 汚物袋', price: 6000 };
+  assert.equal(productTools.isToiletPurchaseCandidate(kit), true);
+  for (const product of [
+    { ...kit, priceIsFromVariant: true },
+    { ...kit, price: 0 }, { ...kit, price: -1 }, { ...kit, price: Infinity },
+    { ...kit, titleRaw: '簡易トイレ100回分 凝固剤のみ' },
+    { ...kit, titleRaw: '簡易トイレ100回分 汚物袋付き' },
+    { ...kit, titleRaw: '簡易トイレ 100回/200回 凝固剤 汚物袋' }
+  ]) assert.equal(productTools.isToiletPurchaseCandidate(product), false, product.titleRaw);
 });
 
 test('candidateTier prioritizes readable business quantities', () => {
