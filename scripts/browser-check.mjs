@@ -387,6 +387,42 @@ try {
   await navigateFresh(send, quantityPage + carriedPlan.search);
   assert.equal(await evaluate(send, `document.getElementById('waterEstimate').textContent`), '735L');
 
+  await navigateFresh(send, quantityPage + '?staff=30&days=3&visitors=0');
+  const procurement = await evaluate(send, `(() => {
+    window.__budgetEvents=[];
+    window.gtag=(...args)=>window.__budgetEvents.push(args);
+    const row=document.querySelector('[data-procurement="water"]');
+    const read=()=>({missing:row.querySelector('[data-missing]').textContent, count:row.querySelector('[data-packages]').textContent,cost:row.querySelector('[data-cost]').textContent,total:document.getElementById('procurementTotal').textContent});
+    const set=(id,value)=>{const el=document.getElementById(id);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};
+    const initial=read();
+    set('waterStock','30');set('waterPack','12');set('waterPrice','1800');
+    const priced=read();
+    set('waterPrice','');const unknown=read();
+    set('waterStock','300');const enough=read();
+    set('waterStock','30');set('waterPrice','1800');set('staffCount','50');
+    const changed=read();
+    return {initial,priced,unknown,enough,changed,events:window.__budgetEvents.filter(args=>args[1]==='quantity_calculator_use' && args[2]?.calculator_type==='procurement').map(args=>args[2])};
+  })()`);
+  assert.equal(procurement.initial.cost, '価格を確認');
+  assert.equal(procurement.priced.missing, '240L');
+  assert.equal(procurement.priced.count, '20点');
+  assert.equal(procurement.priced.cost, '36,000円');
+  assert.match(procurement.priced.total, /小計.*未入力/);
+  assert.equal(procurement.unknown.cost, '価格を確認');
+  assert.equal(procurement.enough.count, '0点');
+  assert.equal(procurement.enough.cost, '0円');
+  assert.equal(procurement.changed.missing, '420L');
+  assert.equal(procurement.changed.count, '35点');
+  assert.ok(procurement.events.length > 0);
+  assert.ok(procurement.events.every(event=>!('stock' in event) && !('price' in event)), 'Do not transmit inventory or budgets to analytics');
+  for (const width of [375,1440]) {
+    await send('Emulation.setDeviceMetricsOverride', {width,height:900,deviceScaleFactor:1,mobile:width<768});
+    await evaluate(send, `document.getElementById('procurement').scrollIntoView({behavior:'instant'})`);
+    assert.ok(Math.abs(await evaluate(send, `document.getElementById('procurement').getBoundingClientRect().top`)) < 100);
+    const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+    fs.writeFileSync(path.join(screenshotDir,'procurement-'+width+'.png'),Buffer.from(screenshot.data,'base64'));
+  }
+
   const homeResults = [];
   for (const width of [320, 375, 414, 768, 1440]) {
     await send('Emulation.setDeviceMetricsOverride', {

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
+const { procurementEstimate } = require('./procurement-estimate');
 const {
   hasAmbiguousToiletQuantity,
   hasVariablePrice,
@@ -857,6 +858,13 @@ ${socialImage}
     /* worksheet calculator */
     .calc-card{border:1px solid var(--rule-2);background:var(--card);background-image:repeating-linear-gradient(0deg,rgba(14,61,73,.045) 0 1px,transparent 1px 26px),repeating-linear-gradient(90deg,rgba(14,61,73,.045) 0 1px,transparent 1px 26px)}
     .calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .procurement-row{padding:20px 0;border-top:1px solid var(--rule)}
+    .procurement-row h3{margin:0 0 12px}
+    .procurement-row .calc-grid label{font-size:16px;letter-spacing:0}
+    .procurement-row input{min-width:0;width:100%;box-sizing:border-box}
+    .procurement-result{display:flex;flex-wrap:wrap;gap:12px 24px;margin:16px 0}
+    .procurement-result strong{color:var(--main)}
+    .procurement-total{font-size:20px;font-weight:700;padding-top:16px;border-top:2px solid var(--rule)}
     .calc-grid label{display:grid;gap:6px;font-weight:700;font-size:14px}
     .calc-input{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;font-size:17px;font-family:var(--font-body);font-weight:700;color:var(--main);background:#fff}
     .calc-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,113,28,.18)}
@@ -1543,7 +1551,34 @@ function clientScript() {
           summaryText.textContent=plan.people.toLocaleString('ja-JP')+'人 × '+plan.days.toLocaleString('ja-JP')+'日：水 '+plan.water.toLocaleString('ja-JP')+'L、食料 '+plan.food.toLocaleString('ja-JP')+'食、簡易トイレ '+plan.toilet.toLocaleString('ja-JP')+'回分';
         }
         updateProductFit(plan);
+        updateProcurement(plan);
       }
+      ${procurementEstimate.toString()}
+      function updateProcurement(plan){
+        var rows=document.querySelectorAll('[data-procurement]');
+        if(!rows.length) return;
+        var total=0, complete=true, counted=0;
+        rows.forEach(function(row){
+          var kind=row.dataset.procurement;
+          var result=procurementEstimate(plan[kind],row.querySelector('[data-stock]').value,row.querySelector('[data-pack]').value,row.querySelector('[data-price]').value,kind!=='water');
+          var unit=row.dataset.unit;
+          row.querySelector('[data-required]').textContent=plan[kind].toLocaleString('ja-JP')+unit;
+          row.querySelector('[data-missing]').textContent=result.missing===null ? '要確認' : result.missing.toLocaleString('ja-JP')+unit;
+          row.querySelector('[data-packages]').textContent=result.packages===null ? '内容量を入力' : result.packages.toLocaleString('ja-JP')+'点';
+          row.querySelector('[data-cost]').textContent=result.cost===null ? '価格を確認' : yen(result.cost);
+          row.querySelector('[data-procurement-note]').textContent=result.error || (result.missing===0 ? '入力した在庫で計算上の目安に達しています。状態・使用期限は別に確認してください。' : '購入数量は販売単位ごとに切り上げています。');
+          if(result.cost===null) complete=false;
+          else {total+=result.cost;counted++;}
+        });
+        document.getElementById('procurementTotal').textContent=complete ? '4品目の概算合計（送料別）：'+yen(total) : counted ? '計算できた'+counted+'品目の小計（送料別）：'+yen(total)+'。未入力の品目は含みません。' : '内容量と税込価格を入力すると、概算予算を計算できます。';
+      }
+      document.querySelectorAll('[data-procurement] input').forEach(function(input){
+        input.addEventListener('input',function(){updateProcurement(stockPlanValues());});
+        input.addEventListener('change',function(){
+          updateProcurement(stockPlanValues());
+          trackEvent('quantity_calculator_use',{calculator_type:'procurement',product_category:input.closest('[data-procurement]').dataset.procurement});
+        });
+      });
       setPlanInputsFromUrl();
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
       updateEstimate();
@@ -2937,12 +2972,14 @@ ${structuredData(
 )}`;
 
 const quantityGuideCanonical = `${siteUrl}/pages/office-stockpile-quantity.html`;
+const quantityGuideTitle = '会社の防災備蓄量を計算｜人数別早見表・在庫差引・購入予算';
+const quantityGuideDescription = '会社の防災備蓄は何人分・何日分必要？水・非常食・簡易トイレの必要量を計算し、在庫を差し引いた購入個数と概算予算を確認。10・30・50・100人の3日分・7日分の早見表、商品の内容量・価格の確認先も掲載しています。';
 const quantityGuideFaq = [
   ['会社の防災備蓄は何日分から考えますか？', 'まず3日分を出発点に、従業員、来客、施設利用者を含む最大人数で計算します。地域や建物、物流の条件によっては7日分も比較してください。'],
   ['30人分の保存水はどれくらい必要ですか？', '1人1日3Lを目安にすると、30人では3日分で270L、7日分で630Lです。保管場所と持ち運びやすさもあわせて確認します。'],
   ['50人分の簡易トイレは何回分ですか？', '1人1日5回を目安にすると、50人では3日分で750回、7日分で1,750回です。凝固剤、処理袋、防臭袋の数も確認してください。'],
   ['毛布や保温シートは日数分必要ですか？', 'この早見表では1人1枚を出発点にしています。季節、建物の断熱性、夜間待機の有無に合わせて追加を検討してください。'],
-  ['必要量から購入する箱数をどう計算しますか？', '必要量を1箱の内容量で割り、端数を切り上げます。例えば30人・3日分の水270Lを、2L入り6本で12Lの箱でそろえるなら23箱（276L）が目安です。食料とトイレも、販売単位の食数・回数で計算します。既存在庫の使用期限と不足量を確認してから発注してください。']
+  ['備蓄の在庫がある場合、購入箱数と予算はどう計算しますか？', '必要量から期限内で使える在庫を引き、不足量を1箱の内容量で割って端数を切り上げます。30人・3日分の水270Lに対し、在庫30L、1箱12Lなら追加は20箱です。1箱1,800円と仮定した概算は36,000円（送料別）です。実際の内容量・価格を販売ページで確認して計算してください。']
 ];
 const quantityRows = [
   [10, 90, 90, 150, 10, 210, 210, 350],
@@ -2993,12 +3030,32 @@ const quantityProductSections = quantityProductGroups.map((group) => {
 
 const quantityGuideBody = `<section class="hero">
   <p class="eyebrow">会社・店舗・施設の数量早見表</p>
-  <h1>会社の防災備蓄量早見表</h1>
-  <p class="lead">10人、30人、50人、100人の事業所を想定し、保存水、非常食、簡易トイレ、毛布・保温シートの3日分と7日分を比較できます。従業員だけでなく、来客や施設利用者が残る場合は人数に加えてください。</p>
+  <h1>会社の防災備蓄量を計算する</h1>
+  <p class="lead">人数・日数から水、食料、簡易トイレの目安を計算し、使える在庫を引いて買い足す個数と予算を確認できます。10・30・50・100人の3日分・7日分の早見表も掲載。来客や施設利用者が残る場合は人数に加えてください。</p>
   <div class="hero-actions"><a class="button orange" href="#quantity">自社の人数で計算する</a><a class="button secondary" href="#quantity-table">人数別の早見表を見る</a></div>
 </section>
 <section class="section card"><p class="eyebrow">このページの結論</p><h2>まず3日分を出発点に、人数と保管場所の両方で確認します</h2><p>水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回、毛布または保温シートは1人1枚を目安に計算しています。7日分は物流やライフラインの復旧に時間がかかる場合の比較用です。施設条件や自治体の方針に合わせて調整してください。</p></section>
 ${quantityEstimateSection('office-stockpile-quantity')}
+<section class="section card" id="procurement" aria-labelledby="procurement-heading">
+  <h2 id="procurement-heading">在庫を引いて、買い足す個数と予算を確認</h2>
+  <p>上で計算した必要量から、期限内で使える在庫だけを差し引きます。候補の販売ページで「1箱・1セットの内容量」と「その販売単位の税込価格」を確認して入力してください。水と食料が混在するセットの価格を二重に入力しないでください。</p>
+  <p><a href="#products">候補商品の内容量・価格を確認する</a></p>
+  ${[
+    ['water','保存水','L','例：2L × 6本なら12','0.001'],
+    ['food','非常食','食','例：50食入りなら50','1'],
+    ['toilet','簡易トイレ','回分','例：100回分なら100','1'],
+    ['blankets','毛布・保温シート','枚','例：10枚入りなら10','1']
+  ].map(([key,label,unit,example,step]) => `<div class="procurement-row" data-procurement="${key}" data-unit="${unit}">
+    <h3>${label}</h3><div class="calc-grid">
+      <label for="${key}Stock">使える在庫（${unit}）<input class="calc-input" id="${key}Stock" data-stock type="number" min="0" max="100000000" step="${step}" value="0"></label>
+      <label for="${key}Pack">販売単位の内容量（${unit}）<input class="calc-input" id="${key}Pack" data-pack type="number" min="${step}" max="100000000" step="${step}" placeholder="${example}"></label>
+      <label for="${key}Price">販売単位の税込価格（円）<input class="calc-input" id="${key}Price" data-price type="number" min="0" max="100000000" step="1" placeholder="販売ページの価格"></label>
+    </div><div class="procurement-result" aria-live="polite"><span>必要量 <strong data-required>上の人数から計算</strong></span><span>不足量 <strong data-missing>在庫から計算</strong></span><span>購入数量 <strong data-packages>内容量を入力</strong></span><span>概算金額 <strong data-cost>価格を確認</strong></span></div><p class="notice" data-procurement-note>内容量と税込価格を確認してください。</p>
+  </div>`).join('')}
+  <p class="procurement-total" id="procurementTotal" aria-live="polite">内容量と税込価格を入力すると、概算予算を計算できます。</p>
+  <p class="notice">送料・クーポン・ポイント還元は含みません。価格と販売単位は購入前に再確認してください。トイレは凝固剤と処理袋がそろう回数、食料は配れる食数で数えます。調理用の追加水、衛生用品、電源などの費用は別に見積もってください。</p>
+  <noscript><p>自動計算にはJavaScriptが必要です。不足量＝必要量−使用できる在庫、購入数量＝不足量÷販売単位の内容量（端数切り上げ）、概算金額＝購入数量×税込価格です。</p></noscript>
+</section>
 <section class="section" id="quantity-table"><div class="section-title"><div><p class="eyebrow">人数別</p><h2>3日分・7日分の備蓄量</h2></div><p class="notice">横にスクロールして比較できます</p></div>
   <div class="compare-scroll"><table class="compare-table"><thead><tr><th rowspan="2">人数</th><th colspan="4">3日分</th><th colspan="3">7日分</th></tr><tr><th>保存水</th><th>食料</th><th>簡易トイレ</th><th>毛布・保温</th><th>保存水</th><th>食料</th><th>簡易トイレ</th></tr></thead><tbody>${quantityTableRows}</tbody></table></div>
   <p class="notice">数値は購入量を決めるための目安です。箱数、1箱あたりの本数・食数・回数は販売ページで確認してください。</p>
@@ -3015,7 +3072,7 @@ ${quantityEstimateSection('office-stockpile-quantity')}
 ${sourceSection('home')}
 <section class="section faq" id="faq"><h2>よくある質問</h2>${quantityGuideFaq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
 ${structuredData(
-  webPageJsonLd('会社の防災備蓄量早見表｜10・30・50・100人の3日・7日分', '会社や事業所の防災備蓄量を、10人、30人、50人、100人の3日分・7日分で一覧化。保存水、非常食、簡易トイレ、毛布・保温シートの必要量を確認し、商品比較へ進めます。', quantityGuideCanonical, sourceUrlsFor('home')),
+  webPageJsonLd(quantityGuideTitle, quantityGuideDescription, quantityGuideCanonical, sourceUrlsFor('home')),
   breadcrumbJsonLd([{ name: '会社の防災備蓄量早見表', url: quantityGuideCanonical }]),
   itemListJsonLd(quantityGuideProducts, quantityGuideCanonical),
   productJsonLd(quantityGuideProducts),
@@ -3055,9 +3112,9 @@ writeGenerated(path.join(dist, 'CNAME'), 'jigyousho-bousai.com\n');
 writeGenerated(path.join(dist, 'google2ec9ab5d0fbf2c67.html'), 'google-site-verification: google2ec9ab5d0fbf2c67.html\n');
 fs.mkdirSync(path.join(dist, 'pages'), { recursive: true });
 writeGenerated(path.join(dist, 'pages', 'office-stockpile-quantity.html'), layout(
-  '会社の防災備蓄量早見表｜10・30・50・100人の3日・7日分',
+  quantityGuideTitle,
   quantityGuideBody,
-  '会社や事業所の防災備蓄量を、10人、30人、50人、100人の3日分・7日分で一覧化。保存水、非常食、簡易トイレ、毛布・保温シートの必要量を確認し、商品比較へ進めます。',
+  quantityGuideDescription,
   quantityGuideCanonical,
   { crumbs: ['会社の防災備蓄量早見表'] }
 ));
