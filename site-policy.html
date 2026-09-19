@@ -203,6 +203,13 @@
     /* worksheet calculator */
     .calc-card{border:1px solid var(--rule-2);background:var(--card);background-image:repeating-linear-gradient(0deg,rgba(14,61,73,.045) 0 1px,transparent 1px 26px),repeating-linear-gradient(90deg,rgba(14,61,73,.045) 0 1px,transparent 1px 26px)}
     .calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .procurement-row{padding:20px 0;border-top:1px solid var(--rule)}
+    .procurement-row h3{margin:0 0 12px}
+    .procurement-row .calc-grid label{font-size:16px;letter-spacing:0}
+    .procurement-row input{min-width:0;width:100%;box-sizing:border-box}
+    .procurement-result{display:flex;flex-wrap:wrap;gap:12px 24px;margin:16px 0}
+    .procurement-result strong{color:var(--main)}
+    .procurement-total{font-size:20px;font-weight:700;padding-top:16px;border-top:2px solid var(--rule)}
     .calc-grid label{display:grid;gap:6px;font-weight:700;font-size:14px}
     .calc-input{min-height:46px;border:1px solid var(--rule-2);border-radius:4px;padding:0 12px;font-size:17px;font-family:var(--font-body);font-weight:700;color:var(--main);background:#fff}
     .calc-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,113,28,.18)}
@@ -562,7 +569,7 @@
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
 <section class="section card"><h2>選定と更新</h2><p>商品名、価格、レビュー、容量、回数、保存年数など、販売ページから確認できる情報を比較項目として整理しています。対象人数や備蓄日数を読み取れない商品は、上位候補として扱わず、確認が必要な候補として分けます。商品情報は定期取得時に更新し、表示条件に合わない商品は掲載順を見直します。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-09-19T12:01:02.453Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-09-19T12:29:05.726Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;
@@ -821,7 +828,60 @@
           summaryText.textContent=plan.people.toLocaleString('ja-JP')+'人 × '+plan.days.toLocaleString('ja-JP')+'日：水 '+plan.water.toLocaleString('ja-JP')+'L、食料 '+plan.food.toLocaleString('ja-JP')+'食、簡易トイレ '+plan.toilet.toLocaleString('ja-JP')+'回分';
         }
         updateProductFit(plan);
+        updateProcurement(plan);
       }
+      function procurementEstimate(required, stock, pack, price, discrete = false) {
+  const result = { missing: null, packages: null, cost: null, error: '' };
+  const read = (raw, integer = false) => {
+    if (String(raw).trim() === '') return null;
+    const value = Number(raw);
+    return Number.isFinite(value) && value >= 0 && value <= 100000000 &&
+      (!integer || Number.isInteger(value)) ? value : null;
+  };
+  const need = read(required);
+  const available = read(stock, discrete);
+  if (need === null || available === null) {
+    return { ...result, error: '必要量と使用できる在庫数を確認してください。' };
+  }
+  result.missing = Math.max(0, Math.round((need - available) * 1e6) / 1e6);
+  if (result.missing === 0) return { ...result, packages: 0, cost: 0 };
+  const quantity = read(pack, discrete);
+  if (quantity === null || quantity === 0) {
+    return { ...result, error: '販売単位の内容量を入力してください。' };
+  }
+  result.packages = Math.max(1, Math.ceil(Math.round(result.missing / quantity * 1e9) / 1e9));
+  const unitPrice = read(price, true);
+  if (unitPrice === null || !Number.isSafeInteger(result.packages * unitPrice)) {
+    return { ...result, error: '販売単位の税込価格を確認してください。' };
+  }
+  result.cost = result.packages * unitPrice;
+  return result;
+}
+      function updateProcurement(plan){
+        var rows=document.querySelectorAll('[data-procurement]');
+        if(!rows.length) return;
+        var total=0, complete=true, counted=0;
+        rows.forEach(function(row){
+          var kind=row.dataset.procurement;
+          var result=procurementEstimate(plan[kind],row.querySelector('[data-stock]').value,row.querySelector('[data-pack]').value,row.querySelector('[data-price]').value,kind!=='water');
+          var unit=row.dataset.unit;
+          row.querySelector('[data-required]').textContent=plan[kind].toLocaleString('ja-JP')+unit;
+          row.querySelector('[data-missing]').textContent=result.missing===null ? '要確認' : result.missing.toLocaleString('ja-JP')+unit;
+          row.querySelector('[data-packages]').textContent=result.packages===null ? '内容量を入力' : result.packages.toLocaleString('ja-JP')+'点';
+          row.querySelector('[data-cost]').textContent=result.cost===null ? '価格を確認' : yen(result.cost);
+          row.querySelector('[data-procurement-note]').textContent=result.error || (result.missing===0 ? '入力した在庫で計算上の目安に達しています。状態・使用期限は別に確認してください。' : '購入数量は販売単位ごとに切り上げています。');
+          if(result.cost===null) complete=false;
+          else {total+=result.cost;counted++;}
+        });
+        document.getElementById('procurementTotal').textContent=complete ? '4品目の概算合計（送料別）：'+yen(total) : counted ? '計算できた'+counted+'品目の小計（送料別）：'+yen(total)+'。未入力の品目は含みません。' : '内容量と税込価格を入力すると、概算予算を計算できます。';
+      }
+      document.querySelectorAll('[data-procurement] input').forEach(function(input){
+        input.addEventListener('input',function(){updateProcurement(stockPlanValues());});
+        input.addEventListener('change',function(){
+          updateProcurement(stockPlanValues());
+          trackEvent('quantity_calculator_use',{calculator_type:'procurement',product_category:input.closest('[data-procurement]').dataset.procurement});
+        });
+      });
       setPlanInputsFromUrl();
       ['staffCount','daysCount','visitorCount'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('input', updateEstimate); });
       updateEstimate();
