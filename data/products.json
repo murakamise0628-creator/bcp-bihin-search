@@ -2447,8 +2447,8 @@
       ],
       "products": [
         {
-          "name": "500回分 15年保存 非常用トイレ",
-          "titleShort": "500回分 15年保存 非常用トイレ",
+          "name": "15年保存 回数選択式 非常用トイレ",
+          "titleShort": "15年保存 回数選択式 非常用トイレ",
           "titleRaw": "【DEAL15％還元＋300円OFF】楽天総合1位 愛知県企業開発 専用硬紙箱 簡易トイレ 非常用トイレ 防災トイレ 携帯トイレ 防災士監修 15年保存 凝固剤10g 抗菌消臭 20～500回分 防臭袋・便座カバー付 断水 地震 災害 備蓄 防災用品 停電 法人・大口購入OK",
           "price": 1380,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/hiromifashionhouse/cabinet/12169031/12169039/imgrc0129550500.jpg",
@@ -2465,11 +2465,11 @@
           "fetchedAt": "2026-09-20T22:47:00.342Z",
           "sourceKeyword": "非常用トイレ 企業 備蓄",
           "availability": 1,
-          "priceIsFromVariant": false,
+          "priceIsFromVariant": true,
           "score": 509.44,
           "decisionFacts": {
             "productType": "toilet",
-            "toiletUses": 500,
+            "toiletUses": null,
             "toiletSupplyType": "complete-kit",
             "hasCoagulant": true,
             "hasWasteBag": true,
@@ -2483,7 +2483,7 @@
               "toilet"
             ]
           },
-          "decisionSummary": "500回分。凝固剤・処理袋・防臭袋の同梱表記があります。",
+          "decisionSummary": "回数は販売ページで確認。凝固剤・処理袋・防臭袋の同梱表記があります。",
           "relevance": 232
         },
         {
@@ -2987,8 +2987,8 @@
           "relevance": 164
         },
         {
-          "name": "500回分 15年保存 非常用トイレ",
-          "titleShort": "500回分 15年保存 非常用トイレ",
+          "name": "15年保存 回数選択式 非常用トイレ",
+          "titleShort": "15年保存 回数選択式 非常用トイレ",
           "titleRaw": "【DEAL15％還元＋300円OFF】楽天総合1位 愛知県企業開発 専用硬紙箱 簡易トイレ 非常用トイレ 防災トイレ 携帯トイレ 防災士監修 15年保存 凝固剤10g 抗菌消臭 20～500回分 防臭袋・便座カバー付 断水 地震 災害 備蓄 防災用品 停電 法人・大口購入OK",
           "price": 1380,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/hiromifashionhouse/cabinet/12169031/12169039/imgrc0129550500.jpg",
@@ -3005,11 +3005,11 @@
           "fetchedAt": "2026-09-20T22:47:12.952Z",
           "sourceKeyword": "企業 防災用品 地震",
           "availability": 1,
-          "priceIsFromVariant": false,
+          "priceIsFromVariant": true,
           "score": 509.44,
           "decisionFacts": {
             "productType": "toilet",
-            "toiletUses": 500,
+            "toiletUses": null,
             "toiletSupplyType": "complete-kit",
             "hasCoagulant": true,
             "hasWasteBag": true,
@@ -3023,7 +3023,7 @@
               "toilet"
             ]
           },
-          "decisionSummary": "500回分。凝固剤・処理袋・防臭袋の同梱表記があります。",
+          "decisionSummary": "回数は販売ページで確認。凝固剤・処理袋・防臭袋の同梱表記があります。",
           "relevance": 101
         },
         {

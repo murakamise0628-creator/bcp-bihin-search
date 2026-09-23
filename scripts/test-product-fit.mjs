@@ -53,6 +53,19 @@ test('variable prices include explicit non-toilet quantity options without flagg
   assert.equal(hasVariablePrice('防災セット 選べる9カラー 1人用30点'), false);
 });
 
+test('range quantities never become a fixed-price toilet purchase estimate', () => {
+  for (const separator of ['～', '〜', '~', '-', '－', '–']) {
+    const titleRaw = `簡易トイレ 凝固剤 防臭袋 20${separator}500回分 15年保存`;
+    assert.equal(productTools.hasAmbiguousToiletQuantity(titleRaw), true);
+    assert.equal(productTools.hasVariablePrice({ titleRaw, priceIsFromVariant: false }), true);
+    assert.equal(toiletUseCount(titleRaw), null);
+    assert.equal(productTools.isToiletPurchaseCandidate({ titleRaw, price: 1380 }), false);
+    assert.doesNotMatch(titleShort(titleRaw), /500回分/);
+  }
+  assert.equal(toiletUseCount('簡易トイレ 凝固剤 防臭袋 20～500回分 × 2箱'), null);
+  assert.equal(toiletUseCount('簡易トイレ 15回分 × 2箱'), 30);
+});
+
 test('detectProductType distinguishes a helmet multipack from a disaster set containing a helmet', () => {
   const helmetMultipack = '【2個セット】防災ヘルメット 保護帽 安全帽 防災用品 防災セット';
   assert.equal(

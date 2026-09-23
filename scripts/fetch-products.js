@@ -306,6 +306,7 @@ function hasAmbiguousToiletQuantity(product) {
     .replace(/1回あたり[^／/\s]*/g, '');
   if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/.test(source)) return false;
   if (/\d{1,3}\s*P.{0,20}\d{1,4}\s*個セット/i.test(source)) return true;
+  if (/\d{1,4}\s*(?:回(?:分)?)?\s*[～〜~－–-]\s*\d{1,4}\s*回(?:分)?/.test(source)) return true;
   if (/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) return true;
   const counts = new Set([...source.matchAll(/(\d{1,4})\s*回(?:分)?/g)].map((match) => Number(match[1])));
   const fixedPack = fixedToiletPack(source);
@@ -323,6 +324,7 @@ function toiletUseCount(product) {
   const source = String(product?.titleRaw || product?.name || product || '')
     .replace(/1回あたり[^／/\s]*/g, '');
   if (!/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤|汚物処理袋|サニタクリーン/.test(source)) return null;
+  if (hasAmbiguousToiletQuantity(source)) return null;
   const fixedPack = fixedToiletPack(source);
   if (fixedPack && !/\d{1,4}\s*[\/／・]\s*\d{1,4}\s*回(?:分)?/.test(source)) {
     const { perPack, packCount, total } = fixedPack;

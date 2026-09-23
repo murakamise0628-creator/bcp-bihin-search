@@ -3008,7 +3008,7 @@ const quantityProductGroups = [
     slug: 'toilet-office',
     heading: '簡易トイレ',
     intro: '必要回数に対して、凝固剤、処理袋、防臭袋がそろうかを確認してください。',
-    products: (pageBySlug('toilet-office')?.products || []).filter((product) => productDecisionFacts(product).toiletSupplyType === 'complete-kit').slice(0, 2)
+    products: (pageBySlug('toilet-office')?.products || []).filter(isToiletPurchaseCandidate).slice(0, 2)
   },
   {
     slug: 'office-bichiku',
