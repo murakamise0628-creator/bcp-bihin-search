@@ -1,5 +1,50 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { inspectPriorityUrls, appendIndexSheet, indexHeaders, indexPaths } from './collect-growth-kpis.mjs';
+
+test('index inspection is bounded and retains only safe diagnostic fields', async () => {
+  const calls = [];
+  const rows = await inspectPriorityUrls('https://jigyousho-bousai.com/', 'test-token', async (url, options) => {
+    calls.push({ url, body: JSON.parse(options.body) });
+    return { ok: true, json: async () => ({ inspectionResult: { indexStatusResult: { verdict: 'PASS', coverageState: 'Submitted and indexed', googleCanonical: 'https://jigyousho-bousai.com/pages/water-food-stock.html', userCanonical: 'https://example.org/?private=data', referringUrls: ['private-data'], sitemap: ['private-sitemap'] } } }) };
+  }, '2026-09-23T00:00:00Z');
+  assert.equal(calls.length, 5);
+  assert.deepEqual(rows.map(row => row[1]), indexPaths);
+  assert.ok(calls.every(call => call.url === 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect'));
+  assert.ok(rows.every(row => row.length === indexHeaders.length && row[2] === 'OK' && row[3] === 'PASS'));
+  assert.equal(rows[0][10], 'OTHER_URL');
+  assert.doesNotMatch(JSON.stringify(rows), /private-data|private-sitemap|test-token/);
+});
+
+test('index failures and missing results remain unknown without leaking errors', async () => {
+  let call = 0;
+  const rows = await inspectPriorityUrls('sc-domain:jigyousho-bousai.com', 'token', async () => {
+    call++;
+    if (call === 1) return { ok: false, status: 403 };
+    if (call === 2) throw new Error('secret error');
+    return { ok: true, json: async () => ({}) };
+  });
+  assert.deepEqual(rows.slice(0, 3).map(row => row[2]), ['HTTP_403', 'REQUEST_FAILED', 'MISSING_RESULT']);
+  assert.ok(rows.every(row => row[3] === 'UNKNOWN'));
+  assert.doesNotMatch(JSON.stringify(rows), /secret/);
+  await assert.rejects(inspectPriorityUrls('https://example.com/', 'token'), /Unexpected inspection property/);
+});
+
+test('index sheet appends RAW values and rejects an unexpected existing header', async () => {
+  const writes = [];
+  const response = (body) => ({ ok: true, text: async () => JSON.stringify(body) });
+  const mock = async (url, options) => {
+    if (url.includes('?fields=')) return response({ sheets: [{ properties: { title: 'Index Status' } }] });
+    if (!options.method) return response({ values: [indexHeaders] });
+    writes.push({ url, body: JSON.parse(options.body) });
+    return response({});
+  };
+  await appendIndexSheet('test-sheet', 'token', [['=unsafe']], mock);
+  assert.equal(writes.length, 1);
+  assert.match(writes[0].url, /valueInputOption=RAW/);
+  assert.deepEqual(writes[0].body.values, [['=unsafe']]);
+  await assert.rejects(appendIndexSheet('test-sheet', 'token', [['row']], async (url) => response(url.includes('?fields=') ? { sheets: [{ properties: { title: 'Index Status' } }] } : { values: [['unexpected']] })), /append cancelled/);
+});
 import { buildPagePriorities, classifyPageOpportunity, comparison, eventCounts, headersMatch, normalizePagePath, pagePrioritySheetRows, parseServiceAccount, priorityMarkdown, reportingPeriods, sheetRow } from './collect-growth-kpis.mjs';
 
 test('uses complete delayed 28-day windows', () => {

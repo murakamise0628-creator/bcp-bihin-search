@@ -152,6 +152,53 @@ export function comparison(current, previous) {
   return Number.isFinite(previous) ? (current - previous) / previous : null;
 }
 
+// Persist only bounded index diagnostics, never query text or raw API responses.
+export const indexPaths = ['/pages/water-food-stock.html', '/pages/emergency-food-office.html', '/pages/office-stockpile-quantity.html', '/pages/toilet-office.html', '/pages/portable-power-kaigo.html'];
+export const indexHeaders = ['取得日時', 'ページ', '取得状態', 'Google判定', '登録状況', 'robots', 'indexing', '取得結果', '最終クロール', 'Google正規URL', '指定正規URL'];
+
+export async function inspectPriorityUrls(site, token, fetchImpl = fetch, collectedAt = new Date().toISOString()) {
+  const base = 'https://jigyousho-bousai.com';
+  if (!['https://jigyousho-bousai.com/', 'sc-domain:jigyousho-bousai.com'].includes(site)) throw new Error('Unexpected inspection property.');
+  const rows = [];
+  for (const page of indexPaths) {
+    try {
+      const response = await fetchImpl('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', {
+        method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ inspectionUrl: base + page, siteUrl: site, languageCode: 'en-US' }),
+        signal: AbortSignal.timeout(20000)
+      });
+      if (!response.ok) {
+        rows.push([collectedAt, page, `HTTP_${response.status}`, 'UNKNOWN', '', '', '', '', '', '', '']);
+        continue;
+      }
+      const result = (await response.json()).inspectionResult?.indexStatusResult;
+      const text = (value) => typeof value === 'string' ? value.slice(0, 500) : '';
+      const canonical = (value) => {
+        try { const url = new URL(value); return url.origin === base && !url.search && !url.hash ? url.href : value ? 'OTHER_URL' : ''; }
+        catch { return ''; }
+      };
+      rows.push([collectedAt, page, result ? 'OK' : 'MISSING_RESULT', text(result?.verdict) || 'UNKNOWN', text(result?.coverageState), text(result?.robotsTxtState), text(result?.indexingState), text(result?.pageFetchState), text(result?.lastCrawlTime), canonical(result?.googleCanonical), canonical(result?.userCanonical)]);
+    } catch {
+      rows.push([collectedAt, page, 'REQUEST_FAILED', 'UNKNOWN', '', '', '', '', '', '', '']);
+    }
+  }
+  return rows;
+}
+
+export async function appendIndexSheet(id, token, rows, fetchImpl = fetch) {
+  const title = 'Index Status';
+  await ensureSheet(id, token, title, fetchImpl);
+  const base = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values`;
+  const range = encodeURIComponent(`'${title}'!A1:K1`);
+  const current = await googleJson(`${base}/${range}`, token, {}, fetchImpl);
+  if (!current.values?.length) {
+    await googleJson(`${base}/${range}?valueInputOption=RAW`, token, { method: 'PUT', body: JSON.stringify({ values: [indexHeaders] }) }, fetchImpl);
+  } else if (!headersMatch(current.values[0], indexHeaders)) {
+    throw new Error('Unexpected Index Status headers; append cancelled.');
+  }
+  if (rows.length) await googleJson(`${base}/${encodeURIComponent(`'${title}'!A:K`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, token, { method: 'POST', body: JSON.stringify({ values: rows }) }, fetchImpl);
+}
+
 export function normalizePagePath(value, siteUrl = 'https://jigyousho-bousai.com') {
   const raw = String(value || '').trim();
   if (!raw || /^\(not set\)$/i.test(raw) || /^not set$/i.test(raw)) return null;
@@ -376,6 +423,8 @@ export async function collectGrowthKpis(options = {}) {
   if (sheetId) {
     await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
     await appendPrioritySheet(sheetId, token, report, fetchImpl);
+    const indexRows = await inspectPriorityUrls(site, token, fetchImpl, report.collectedAt);
+    await appendIndexSheet(sheetId, token, indexRows, fetchImpl);
   }
   if (process.env.KPI_OUTPUT_PATH) {
     fs.mkdirSync(path.dirname(path.resolve(process.env.KPI_OUTPUT_PATH)), { recursive: true });
