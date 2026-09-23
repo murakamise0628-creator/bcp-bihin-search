@@ -3,6 +3,7 @@ const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
 const { procurementEstimate } = require('./procurement-estimate');
+const { comparisonUnit } = require('./comparison-unit');
 const {
   hasAmbiguousToiletQuantity,
   hasVariablePrice,
@@ -974,6 +975,8 @@ ${socialImage}
     .compare-table tbody tr:nth-child(even){background:rgba(14,61,73,.035)}
     .compare-table tr:last-child td{border-bottom:0}
     .table-product{font-weight:700;max-width:260px;overflow-wrap:anywhere}
+    .compare-table:has(th:last-child:nth-child(-n+7)) .table-product{min-width:210px}
+    .compare-table:has(th:last-child:nth-child(-n+7)) td:last-child{min-width:200px}
     [hidden]{display:none!important}
 
     /* subpage: product cards */
@@ -1124,6 +1127,15 @@ ${socialImage}
       .compare-table td:nth-child(3)::before{content:"価格：";font-size:12px;color:var(--ink-3)}
       .compare-table td:nth-child(7)::before{content:"容量・回数：";font-size:12px;color:var(--ink-3)}
       .compare-table td:nth-child(10){padding-top:10px;border-top:1px solid var(--rule)}
+      /* Category-specific tables retain all columns and scroll within their container. */
+      .compare-scroll:has(th:last-child:nth-child(-n+7)){overflow-x:auto;border:1px solid var(--rule);background:var(--card)}
+      .compare-table:has(th:last-child:nth-child(-n+7)){display:table;min-width:700px}
+      .compare-table:has(th:nth-child(6)):has(th:last-child:nth-child(-n+7)){min-width:1200px}
+      .compare-table:has(th:last-child:nth-child(-n+7)) thead{display:table-header-group}
+      .compare-table:has(th:last-child:nth-child(-n+7)) tbody{display:table-row-group}
+      .compare-table:has(th:last-child:nth-child(-n+7)) tr{display:table-row;padding:0;border:0}
+      .compare-table:has(th:last-child:nth-child(-n+7)) td{display:table-cell;padding:12px;font-size:16px;border-bottom:1px solid var(--rule)}
+      .compare-table:has(th:last-child:nth-child(-n+7)) td::before{content:none}
       .hero-stats{gap:14px}
       .search-box{grid-template-columns:1fr}
       .hero-shopping{padding:22px 4px;border-left:0;border-top:1px solid var(--rule)}
@@ -2207,6 +2219,12 @@ function webPageJsonLd(title, description, canonical, citationUrls = []) {
 }
 
 function comparisonTable(products, note) {
+  if (['water-food-stock', 'emergency-food-office'].includes(note.slug)) {
+    return `<section class="section" id="comparison"><div class="section-title"><h2>販売単位の水量・食数と単価を比較</h2></div><div class="plan-summary" id="planSummary" hidden><span>今回の目安</span><strong id="planSummaryText"></strong><small>販売単位の水量・食数と照らして確認してください。</small></div><p class="notice">単価は表示価格から切り上げた目安です。送料・クーポン・ポイントは含みません。食数が同じでも内容量や栄養は異なります。選択式や内訳不明のセットは単価を出していません。</p><div class="compare-scroll"><table class="compare-table"><thead><tr><th>商品</th><th>販売単位の水量・食数</th><th>価格 / 単価の目安</th><th>保存年数</th><th>レビュー（件数）</th><th>購入前の確認</th><th>販売ページ</th></tr></thead><tbody>${products.map((product, index) => {
+      const unit = comparisonUnit(product);
+      return `<tr ${productFitAttrs(product, note)}><td class="table-product">${esc(displayTitle(product, 46))}</td><td>${unit.quantity ? `${unit.quantity.toLocaleString('ja-JP')}${unit.unit}` : '内訳・販売単位を要確認'}</td><td>${esc(displayPrice(product))}${unit.unitPrice !== null ? `<br><small>1${unit.unit}あたり約${unit.unitPrice.toLocaleString('ja-JP')}円（送料除く）</small>` : '<br><small>単価は要確認</small>'}</td><td>${esc(storageYears(product))}</td><td>${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</td><td>${esc(cautionForProduct(product))}<br><strong data-fit-result>${esc(fitTierLabel(product, note))}</strong></td><td><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>内容量・価格を楽天で確認</a></td></tr>`;
+    }).join('')}</tbody></table></div></section>`;
+  }
   if (note.slug === 'portable-power-kaigo') {
     return `<section class="section" id="comparison"><div class="section-title"><h2>容量・出力・価格を比較</h2><p class="notice">本体のみ・パネル同梱などの販売単位、重量、保証は販売ページで確認</p></div><div class="compare-scroll"><table class="compare-table"><thead><tr><th>商品</th><th>容量（Wh）</th><th>出力（W・商品名表記）</th><th>価格</th><th>レビュー（件数）</th><th>条件の照合・販売ページ</th></tr></thead><tbody>${products.map((product, index) => {
       const facts = productDecisionFacts(product);
@@ -2567,6 +2585,47 @@ function marketSnapshotSection(products, note) {
     <div class="estimate-grid">${stats.map(([label, value, detail]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(detail)}</small></div>`).join('')}</div>
   </section>`;
 }
+function purchaseDecisionGuide(slug) {
+  const guides = {
+    'water-food-stock': {
+      title: '保存水は総水量・持ち運び・保管場所で選ぶ',
+      rows: [
+        ['配布しやすさを優先', '小容量ボトルの本数と、1人へ何本渡すか', '本数だけでなく、容量 × 本数の総水量を確認'],
+        ['共有して使う', '大容量ボトルと紙コップ、開封後の扱い', '重さ、階段での運搬、注ぎやすさも確認'],
+        ['食品と一緒に備える', '飲用・調理に使う水と、生活用水を区別', '食品セットの水量を確認し、別売の水と二重計上しない']
+      ],
+      note: '3Lは1人1日の飲料・調理用水の目安です。手洗い・清掃などに必要な水は別に検討してください。',
+      source: 'https://www.maff.go.jp/j/syokuiku/plan/4_plan/togo/html/part8.html'
+    },
+    'emergency-food-office': {
+      title: '非常食は食数だけでなく、配れる状態かを確認',
+      rows: [
+        ['水や熱源を使いにくい', '開封して食べられるものか、調理方法の表示', '缶切り・スプーン・ごみ袋が必要かも確認'],
+        ['アルファ米を備える', '必要な水量、湯と水それぞれの待ち時間', '配布開始までの時間と、作る人数を見積もる'],
+        ['まとめて購入する', '総食数と主食・おかず・菓子の内訳', '「点数」「種類数」を食数として数えない'],
+        ['個別の食事配慮が必要', '原材料・アレルギー表示・食事形態', '商品名だけで適合を判断せず、対象者と施設管理者に確認']
+      ],
+      note: '1食単価は価格比較の補助です。1袋で必要な栄養が満たせるとは限りません。主食だけに偏らず、組み合わせと配布方法を確認してください。',
+      source: 'https://www.maff.go.jp/j/zyukyu/foodstock/chapter06.html'
+    },
+    'toilet-office': {
+      title: '携帯トイレは回数と袋の構成をそろえて比較',
+      rows: [
+        ['初めてそろえる', '凝固剤・処理袋・保管用の袋の同梱数', '「100回分」でも各袋が100枚あるとは限らない'],
+        ['備蓄の不足分を補充', '今ある凝固剤と袋の数量・使用条件', '凝固剤のみ、袋のみの商品をセットと混同しない'],
+        ['使用後を保管する', '一時保管場所、密閉方法、自治体の処分方法', '臭い対策だけでなく、動線と衛生管理を確認']
+      ],
+      note: '1人1日5回は備蓄計画の目安です。職員・来客・利用者の人数、滞在日数、施設の事情に合わせて調整してください。',
+      source: 'https://www.bousai.go.jp/kohou/kouhoubousai/r06/111/news_08.html'
+    }
+  };
+  const guide = guides[slug];
+  if (!guide) return '';
+  const toilet = slug === 'toilet-office';
+  const quantityGuide = toilet ? '' : `<h3>10人・30人・50人・100人の3日分の目安</h3><div class="compare-scroll"><table class="compare-table"><thead><tr><th>職員・来客などの合計</th><th>水量</th><th>食数</th></tr></thead><tbody>${[10,30,50,100].map(people => `<tr><td>${people}人</td><td>${(people * 9).toLocaleString('ja-JP')}L</td><td>${(people * 9).toLocaleString('ja-JP')}食</td></tr>`).join('')}</tbody></table></div><p class="notice">成人を想定した計画用の概算です。乳幼児や食事制限がある方の必要量・内容は別に確認してください。</p>`;
+  return `<section class="section" id="purchase-checks"><h2>${guide.title}</h2><div class="compare-scroll"><table class="compare-table"><thead><tr><th>用途・状況</th><th>比較する点</th><th>注文前に確認</th></tr></thead><tbody>${guide.rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p>${guide.note}</p><p><a href="${guide.source}">数量・食品備蓄の公的資料を確認する</a></p>${quantityGuide}<a class="small-button" href="#quantity">施設の人数・日数で計算する</a></section>`;
+}
+
 function pageHtml(page) {
   if (page.slug === 'bcp-stockpile-checklist') return checklistPageHtml(page);
   const baseNote = pageNotes[page.slug] || {
@@ -2635,6 +2694,7 @@ function pageHtml(page) {
     ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : page.slug === 'emergency-food-office' ? `<article class="card"><h2>このページで比べるもの</h2><p>非常食セットの食数、保存年数、調理方法を比べます。保存水を含む全体量は早見表で確認してください。</p><a class="small-button" href="${siteUrl}/pages/office-stockpile-quantity.html">人数別の備蓄量を見る</a></article>` : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
   </section>
   ${powerFirst ? '' : quantityEstimateSection(page.slug)}
+  ${purchaseDecisionGuide(page.slug)}
   ${toiletPurchasePlans(products, note)}
   ${marketSnapshotSection(products, note)}
   ${sourceSection(page.slug)}

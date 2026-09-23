@@ -1,6 +1,28 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import productTools from './fetch-products.js';
+import unitTools from './comparison-unit.js';
+
+test('comparison units use explicit fixed food counts and bottled-water totals', () => {
+  const compare = (titleRaw, price = 3600) => unitTools.comparisonUnit({ titleRaw, price });
+  assert.deepEqual(compare('非常食セット 36食 5年保存'), { quantity: 36, unit: '食', unitPrice: 100 });
+  assert.deepEqual(compare('保存水 400ml 24本入 1ケース'), { quantity: 9.6, unit: 'L', unitPrice: 375 });
+  assert.deepEqual(compare('5年保存水 2L×6本 1ケース', 1000), { quantity: 12, unit: 'L', unitPrice: 84 });
+  assert.deepEqual(compare('保存水 500ml×1ケース（24本）'), { quantity: 12, unit: 'L', unitPrice: 300 });
+});
+
+test('unit comparisons abstain for ambiguous quantities, mixed kits and invalid prices', () => {
+  for (const titleRaw of [
+    '非常食セット 1人3日分 16点', '非常食セット 12個', '非常食セット 1日3食 3日分', '非常食セット 12袋 1食あたり300kcal',
+    '非常食セット 9食 18食 選べる', '非常食セット 9～18食', '非常食セット 約9食',
+    '非常食セット 9食 3セット', '非常食セット 9食×3箱', '非常食セット 9食 おまけ付き',
+    '非常食 保存水セット 9食 500ml 3本', '保存水 1.8L 6本入 2ケース 12本',
+    '保存水 500ml/2L 24本', '保存水 500ml 24本 2ケース', '保存水 2L',
+    '保存水 500ml 24本 追加プレゼント'
+  ]) assert.equal(unitTools.comparisonUnit({ titleRaw, price: 1000 }).unitPrice, null, titleRaw);
+  for (const price of [0, -1, Infinity, 'unknown']) assert.equal(unitTools.comparisonUnit({ titleRaw: '非常食セット 9食', price }).unitPrice, null);
+  assert.equal(unitTools.comparisonUnit({ titleRaw: '非常食セット 9食', price: 1000, priceIsFromVariant: true }).unitPrice, null);
+});
 
 const {
   candidateTier,
