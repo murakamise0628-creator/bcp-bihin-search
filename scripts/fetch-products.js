@@ -135,7 +135,15 @@ function relevanceScore(product, row) {
 
 function isExcluded(product) {
   const text = `${product.titleRaw || product.name || ''} ${product.summary || ''}`;
-  return excludePattern.test(text);
+  return excludePattern.test(text) || isRawWoodAbsorbent(product.titleRaw || product.name);
+}
+
+function isRawWoodAbsorbent(raw) {
+  return /^\s*(?:おがくず|おが屑|オガクズ|木くず|木屑)(?:\s|[（(]|$)/.test(String(raw || ''));
+}
+
+function withoutExcludedWater(raw) {
+  return String(raw || '').replace(/(?:長期保存水|保存水|飲料水)\s*(?:は|が)?\s*(?:含まれません|付属しません|別売|付属なし|無し|なし|無(?=$|[\s）)\]】、。]))/g, '');
 }
 
 function normalizeImageUrl(value) {
@@ -330,7 +338,8 @@ function toiletUseCount(product) {
 }
 
 function detectProductType(raw) {
-  const source = String(raw || '');
+  if (isRawWoodAbsorbent(raw)) return 'other';
+  const source = withoutExcludedWater(raw);
   const setIndex = source.search(/防災(?:備蓄)?セット|避難セット|防災リュック/);
   const toiletIndex = source.search(/簡易トイレ|簡単トイレ|非常用トイレ|携帯トイレ|災害用トイレ|凝固剤/);
   const safetyIndex = source.search(/防災ヘルメット|ヘルメット|転倒防止|家具固定|飛散防止/);
@@ -355,7 +364,7 @@ function detectProductType(raw) {
     ['safety', /防災ヘルメット|ヘルメット|転倒防止|家具固定|飛散防止/],
     ['communication', /防災ラジオ|手回しラジオ|非常用ラジオ/],
     ['water', /保存水|長期保存水|長期保存.{0,4}(?:天然水|飲料水)|保存用.{0,4}(?:天然水|飲料水)|(?:5年|7年|10年)保存.{0,4}(?:天然水|飲料水)/],
-    ['food', /非常食|保存食|アルファ米|備蓄食/],
+    ['food', /非常食|保存食|アルファ米|備蓄食|防災食/],
     ['blanket', /ブランケット|毛布|防寒シート/]
   ];
   return candidates
@@ -393,7 +402,7 @@ function powerOutputSpec(source) {
 
 function decisionFacts(product) {
   const source = String(product?.titleRaw || product?.name || product || '').normalize('NFKC');
-  const productType = product?.productType || detectProductType(source);
+  const productType = detectProductType(source);
   const toiletUses = toiletUseCount(source);
   const verifiedCompleteKit = /(?:\bBOS\b.{0,48}(?:非常用|簡易)トイレセット|(?:非常用|簡易)トイレセット.{0,48}\bBOS\b|SAFETY\s*TOILET\s+BCP\s*\d+)/i.test(source);
   // Missing keywords do not establish missing contents. Only explicit exclusions justify "only".
@@ -418,8 +427,8 @@ function decisionFacts(product) {
   const wh = source.match(/(\d{3,5})\s*Wh/i);
   const output = powerOutputSpec(source).match(/(\d{2,5})\s*W/i);
   const includedCategories = [];
-  if (/保存水|長期保存水|飲料水/.test(source)) includedCategories.push('water');
-  if (/非常食|保存食|アルファ米|備蓄食/.test(source)) includedCategories.push('food');
+  if (/保存水|長期保存水|飲料水/.test(withoutExcludedWater(source))) includedCategories.push('water');
+  if (/非常食|保存食|アルファ米|備蓄食|防災食/.test(source)) includedCategories.push('food');
   if (/簡易トイレ|非常用トイレ|携帯トイレ|凝固剤/.test(source)) includedCategories.push('toilet');
   if (/ライト|ランタン|懐中電灯/.test(source)) includedCategories.push('lighting');
   if (/ブランケット|毛布|防寒シート/.test(source)) includedCategories.push('blanket');

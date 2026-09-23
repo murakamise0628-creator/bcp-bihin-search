@@ -14,6 +14,7 @@ const {
   prioritizeProductVariety,
   decisionFacts,
   decisionSummary,
+  isExcluded,
   isToiletPurchaseCandidate,
   isEmergencyFoodSetCandidate
 } = require('./fetch-products');
@@ -32,6 +33,13 @@ const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
 const data = fs.existsSync(dataPath)
   ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
   : { generatedAt: new Date().toISOString(), pages: [] };
+// Recompute derived facts from the original title when rendering cached API data.
+for (const page of data.pages) {
+  page.products = (page.products || []).filter((product) => !isExcluded(product)).map((product) => {
+    const facts = decisionFacts(product);
+    return { ...product, productType: facts.productType, decisionFacts: facts };
+  });
+}
 const editorialUpdatedAt = '2026-08-03T00:00:00+09:00';
 const contentUpdatedIso = new Date(Math.max(
   Number.isFinite(Date.parse(data.generatedAt)) ? Date.parse(data.generatedAt) : 0,
