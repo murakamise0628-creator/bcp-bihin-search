@@ -16,6 +16,7 @@ on:
       - 'scripts/test-official-safety-signals.mjs'
       - 'scripts/generate-site.js'
       - 'scripts/fetch-products.js'
+      - 'scripts/comparison-unit.js'
       - 'scripts/browser-check.mjs'
       - 'scripts/test-product-fit.mjs'
       - 'scripts/verify-site.js'

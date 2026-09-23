@@ -313,6 +313,12 @@ for (const file of files) {
     if (!html.includes('断水時の判断順') || !html.includes('1. 営業可否') || !html.includes('4. 清掃・復旧')) issues.push(`${relative}: water-outage decision flow missing`);
     if (!html.includes('用途・在庫を楽天で確認')) issues.push(`${relative}: water-outage-specific CTA missing`);
   }
+  if (['pages/water-food-stock.html', 'pages/emergency-food-office.html', 'pages/toilet-office.html'].includes(relative.replace(/\\/g, '/'))) {
+    if (!html.includes('id="purchase-checks"')) issues.push(`${relative}: purchase decision guide missing`);
+  }
+  if (['pages/water-food-stock.html', 'pages/emergency-food-office.html'].includes(relative.replace(/\\/g, '/'))) {
+    if (!html.includes('販売単位の水量・食数') || !html.includes('単価は要確認') || !html.includes('送料・クーポン・ポイントは含みません') || !html.includes('10人・30人・50人・100人の3日分の目安')) issues.push(`${relative}: bounded unit comparison missing`);
+  }
 
   for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try {

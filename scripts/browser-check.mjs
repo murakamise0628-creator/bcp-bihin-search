@@ -153,8 +153,8 @@ try {
         scrollWidth: document.documentElement.scrollWidth,
         h1: rect('.hero h1'),
         primaryCta: rect('.hero-actions .button'),
-        table: rect('.compare-table'),
-        firstRow: rect('.compare-table tbody tr'),
+        table: rect('#comparison .compare-table'),
+        firstRow: rect('#comparison .compare-table tbody tr'),
         quickVisible: quick.filter((node) => !node.hidden).length,
         quickHidden: quick.filter((node) => node.hidden).length,
         productCards: document.querySelectorAll('#products .product').length,
@@ -591,6 +591,30 @@ try {
   fs.writeFileSync(path.join(screenshotDir, 'home-mobile-cdp.png'), Buffer.from(homeScreenshot.data, 'base64'));
 
   const nurseryPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'hoikuen-bousai.html')).href;
+  for (const slug of ['water-food-stock', 'emergency-food-office', 'toilet-office', 'portable-power-kaigo']) {
+    for (const width of [320, 375, 1440]) {
+      await send('Emulation.setDeviceMetricsOverride', { width, height:900, deviceScaleFactor:1, mobile:width<768 });
+      await navigateFresh(send, pathToFileURL(path.join(projectRoot, 'dist', 'pages', slug+'.html')).href);
+      const comparison = await evaluate(send, `(() => {
+        const table=document.querySelector('#comparison table');
+        const row=table.querySelector('tbody tr');
+        table.scrollIntoView({behavior:'instant'});
+        return { width:document.documentElement.scrollWidth, headers:table.querySelectorAll('th').length, visibleCells:[...row.cells].filter(cell=>getComputedStyle(cell).display!=='none').length, visibleCta:!![...row.querySelectorAll('a[data-product-id]')].find(link=>link.getBoundingClientRect().width>0), scrollable:table.parentElement.scrollWidth>table.parentElement.clientWidth, hasGuide:!!document.querySelector('#purchase-checks'), text:table.textContent };
+      })()`);
+      assert.ok(comparison.width<=width, slug+' page overflow '+width);
+      assert.equal(comparison.visibleCta,true, slug+' purchase CTA hidden');
+      if(slug!=='toilet-office') {
+        assert.equal(comparison.visibleCells,comparison.headers,slug+' comparison cells hidden');
+        assert.ok(await evaluate(send, `document.querySelector('#comparison tbody td').getBoundingClientRect().width>=200`),slug+' product name column too narrow');
+      }
+      if(width<768 && slug!=='toilet-office') assert.equal(comparison.scrollable,true);
+      if(slug!=='portable-power-kaigo') assert.equal(comparison.hasGuide,true);
+      if(['water-food-stock','emergency-food-office'].includes(slug)) assert.match(comparison.text,/1(?:L|食)あたり約/);
+      await sleep(800);
+      const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+      fs.writeFileSync(path.join(screenshotDir,slug+'-comparison-'+width+'.png'),Buffer.from(shot.data,'base64'));
+    }
+  }
   for (const width of [320, 375, 414, 768]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
     await navigateFresh(send, nurseryPage);
