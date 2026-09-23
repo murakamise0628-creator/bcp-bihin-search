@@ -309,6 +309,8 @@
     .compare-table tbody tr:nth-child(even){background:rgba(14,61,73,.035)}
     .compare-table tr:last-child td{border-bottom:0}
     .table-product{font-weight:700;max-width:260px;overflow-wrap:anywhere}
+    .compare-table:has(th:last-child:nth-child(-n+7)) .table-product{min-width:210px}
+    .compare-table:has(th:last-child:nth-child(-n+7)) td:last-child{min-width:200px}
     [hidden]{display:none!important}
 
     /* subpage: product cards */
@@ -459,6 +461,15 @@
       .compare-table td:nth-child(3)::before{content:"価格：";font-size:12px;color:var(--ink-3)}
       .compare-table td:nth-child(7)::before{content:"容量・回数：";font-size:12px;color:var(--ink-3)}
       .compare-table td:nth-child(10){padding-top:10px;border-top:1px solid var(--rule)}
+      /* Category-specific tables retain all columns and scroll within their container. */
+      .compare-scroll:has(th:last-child:nth-child(-n+7)){overflow-x:auto;border:1px solid var(--rule);background:var(--card)}
+      .compare-table:has(th:last-child:nth-child(-n+7)){display:table;min-width:700px}
+      .compare-table:has(th:nth-child(6)):has(th:last-child:nth-child(-n+7)){min-width:1200px}
+      .compare-table:has(th:last-child:nth-child(-n+7)) thead{display:table-header-group}
+      .compare-table:has(th:last-child:nth-child(-n+7)) tbody{display:table-row-group}
+      .compare-table:has(th:last-child:nth-child(-n+7)) tr{display:table-row;padding:0;border:0}
+      .compare-table:has(th:last-child:nth-child(-n+7)) td{display:table-cell;padding:12px;font-size:16px;border-bottom:1px solid var(--rule)}
+      .compare-table:has(th:last-child:nth-child(-n+7)) td::before{content:none}
       .hero-stats{gap:14px}
       .search-box{grid-template-columns:1fr}
       .hero-shopping{padding:22px 4px;border-left:0;border-top:1px solid var(--rule)}
@@ -569,7 +580,7 @@
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
 <section class="section card"><h2>選定と更新</h2><p>商品名、価格、レビュー、容量、回数、保存年数など、販売ページから確認できる情報を比較項目として整理しています。対象人数や備蓄日数を読み取れない商品は、上位候補として扱わず、確認が必要な候補として分けます。商品情報は定期取得時に更新し、表示条件に合わない商品は掲載順を見直します。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-09-23T11:29:05.676Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-09-23T12:12:24.114Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;
