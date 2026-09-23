@@ -296,6 +296,13 @@ for (const file of files) {
   }
   if (relative.replace(/\\/g, '/') === 'pages/portable-power-kaigo.html') {
     if (!html.includes('id="powerWatts"') || !html.includes('id="powerEstimate"')) issues.push(`${relative}: power capacity calculator missing`);
+    const calculatorIndex = html.indexOf('id="quantity"');
+    const powerCandidatesIndex = html.indexOf('id="power-candidates"');
+    const powerComparisonIndex = html.indexOf('id="comparison"');
+    if (!(calculatorIndex > 0 && powerCandidatesIndex > calculatorIndex && powerCandidatesIndex < powerComparisonIndex)) issues.push(`${relative}: calculator must lead directly to power candidates`);
+    if (!html.includes('必要な容量から候補を絞る')) issues.push(`${relative}: power-specific main CTA missing`);
+    if (!html.includes('id="powerMatchStatus"')) issues.push(`${relative}: power match/empty status missing`);
+    if (!html.includes('容量（Wh）') || !html.includes('出力（W・商品名表記）')) issues.push(`${relative}: power-specific comparison columns missing`);
     if (!html.includes("trackEvent('power_calculator_use'")) issues.push(`${relative}: power calculator analytics missing`);
     if (!html.includes("slug==='portable-power-kaigo'")) issues.push(`${relative}: power product-fit ranking missing`);
     if (!html.includes('required_power_wh') || !html.includes('required_output_w')) issues.push(`${relative}: power-fit analytics dimensions missing`);

@@ -599,12 +599,13 @@ function powerEstimateSection() {
   return `<section class="section card calc-card" id="quantity">
     <div class="section-title"><div><p class="eyebrow">必要容量の目安</p><h2>何を何時間動かすかで、必要Whを確認</h2></div><p class="notice">医療・介護機器はメーカーや専門業者にも確認してください。</p></div>
     <div class="calc-grid">
-      <label>同時に使う機器の合計<input class="calc-input" id="powerWatts" type="number" min="1" value="300"><small>消費電力の合計（W）</small></label>
-      <label>動かしたい時間<input class="calc-input" id="powerHours" type="number" min="0.5" step="0.5" value="4"><small>使用時間（時間）</small></label>
-      <label>変換ロス・余裕<input class="calc-input" id="powerMargin" type="number" min="0" max="100" value="20"><small>上乗せ率（%）</small></label>
+      <label>同時に使う機器の合計<input class="calc-input" id="powerWatts" type="number" min="1" max="100000" value="300" required><small>機器の表示で確認した消費電力（W）</small></label>
+      <label>動かしたい時間<input class="calc-input" id="powerHours" type="number" min="0.5" max="168" step="0.5" value="4" required><small>使用時間（時間）</small></label>
+      <label>見積もりの余裕分<input class="calc-input" id="powerMargin" type="number" min="0" max="100" value="20" required><small>必要電力量への上乗せ率（%）</small></label>
     </div>
     <div class="estimate-grid power-estimate" aria-live="polite"><div><span>容量の計算目安</span><strong id="powerEstimate">1,500Wh以上</strong><small>W × 時間 ＋ 余裕分。定格出力Wも別に確認</small></div></div>
-    <div class="hero-actions"><a class="button orange" href="#comparison">この容量帯の商品を見る</a></div>
+    <p class="notice">計算例は300W × 4時間 × 1.2を100Wh単位で切り上げた値です。実際の使用時間は変換効率、温度、機器の動作で変わります。起動時電力・波形・切替時間は別途確認してください。医療・生命維持機器の適合判定には使えません。</p>
+    <div class="hero-actions"><a class="button orange" href="#power-candidates">計算条件に合う候補を見る</a><a class="button secondary" href="#comparison">全候補の容量・出力を比較</a></div>
   </section>`;
 }
 
@@ -1463,7 +1464,7 @@ function clientScript() {
         var isQuickPicks=Boolean(parent.closest('.quick-picks'));
         children.forEach(function(child,index){
           parent.appendChild(child);
-          child.hidden=isQuickPicks && index>=3;
+          child.hidden=isQuickPicks && (index>=3 || (currentPageSlug()==='portable-power-kaigo' && child.dataset.fitMatched!=='true'));
           child.querySelectorAll('a[data-product-position]').forEach(function(anchor){
             anchor.dataset.productPosition=String(index+1);
           });
@@ -1476,11 +1477,12 @@ function clientScript() {
         document.querySelectorAll('[data-product-fit]').forEach(function(element){
           var result=productFitFor(element,plan,slug);
           element.dataset.fitScore=String(result.score);
+          element.dataset.fitMatched=String(result.matched);
           var label=element.querySelector('[data-fit-result]');
           if(label) label.textContent=result.text;
           if(slug==='portable-power-kaigo'){
             element.querySelectorAll('a[data-product-id]').forEach(function(anchor){
-              anchor.textContent=result.matched
+              anchor.textContent=plan.requiredWh<=0 || plan.watts<=0 ? '出力・容量を楽天で確認' : result.matched
                 ? plan.requiredWh.toLocaleString('ja-JP')+'Wh以上・'+plan.watts.toLocaleString('ja-JP')+'W対応候補を楽天で確認'
                 : plan.requiredWh.toLocaleString('ja-JP')+'Wh・'+plan.watts.toLocaleString('ja-JP')+'W条件を楽天で確認';
             });
@@ -1489,6 +1491,11 @@ function clientScript() {
         });
         document.querySelectorAll('.compare-table tbody,.product-list').forEach(sortProductChildren);
         var matchedCount=matchedProducts.size;
+        var powerStatus=document.getElementById('powerMatchStatus');
+        if(powerStatus){
+          var shown=document.querySelectorAll('#power-candidates .quick-pick-candidate:not([hidden])').length;
+          powerStatus.textContent=shown>0 ? '入力した容量・出力の数値条件で、'+shown+'候補を表示。起動時電力や接続機器との適合は購入前に確認してください。' : '入力した数値条件に合う先頭候補はありません。機器の消費電力と使用時間を確認し、全候補の仕様や別の容量帯を販売店に相談してください。';
+        }
         if(!productFitTracked && matchedCount>0){
           productFitTracked=true;
           trackEvent('matched_candidate_view',{
@@ -1596,6 +1603,14 @@ function clientScript() {
         var margin=Number(document.getElementById('powerMargin')?.value || 0);
         var output=document.getElementById('powerEstimate');
         if(!output) return;
+        var valid=['powerWatts','powerHours','powerMargin'].every(function(id){ var input=document.getElementById(id); return input && input.value.trim()!=='' && input.validity.valid && Number.isFinite(Number(input.value)); });
+        if(!valid){
+          output.textContent='入力値を確認してください';
+          updateProductFit({ active:true, requiredWh:0, watts:0, people:0, days:0 });
+          var status=document.getElementById('powerMatchStatus');
+          if(status) status.textContent='消費電力は1～100,000W、使用時間は0.5～168時間、余裕分は0～100%で入力してください。';
+          return;
+        }
         var wh=Math.ceil((watts*hours*(1+margin/100))/100)*100;
         output.textContent=wh.toLocaleString('ja-JP')+'Wh以上';
         updateProductFit({ active:watts>0 && hours>0, requiredWh:wh, watts:watts, people:0, days:0 });
@@ -2083,7 +2098,7 @@ function quickPicks(products, note) {
     const tier = candidateTier(product, { slug: note.slug || '' });
     return !hasAmbiguousToiletQuantity(product) &&
     (tier === 'preferred' || (note.slug === 'office-bichiku' && tier === 'supplementary')) &&
-    Number(product.reviewCount || 0) >= 5 &&
+    (note.slug === 'portable-power-kaigo' ? Number(product.price) > 0 && !hasVariablePrice(product) : Number(product.reviewCount || 0) >= 5) &&
     (
       note.slug !== 'toilet-office' ||
       (
@@ -2130,8 +2145,8 @@ function quickPicks(products, note) {
     <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a></div>
   </article>`).join('');
   const eyebrow = note.slug === 'office-bichiku' ? '個人配布・共有・補充' : `先に見る${visibleCount}候補`;
-  const heading = note.slug === 'office-bichiku' ? '買い方別に、最初の候補を確認' : '比較条件が読み取りやすい商品';
-  return `<section class="section quick-picks" aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">${eyebrow}</p><h2 id="quick-picks-title">${heading}</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div><div class="product-list">${cards}</div></section>`;
+  const heading = note.slug === 'office-bichiku' ? '買い方別に、最初の候補を確認' : note.slug === 'portable-power-kaigo' ? '容量・出力を照合して、価格を確認' : '比較条件が読み取りやすい商品';
+  return `<section class="section quick-picks" ${note.slug === 'portable-power-kaigo' ? 'id="power-candidates"' : ''} aria-labelledby="quick-picks-title"><div class="section-title"><div><p class="eyebrow">${eyebrow}</p><h2 id="quick-picks-title">${heading}</h2></div><p class="notice">価格・仕様は販売ページで最終確認</p></div>${note.slug === 'portable-power-kaigo' ? '<p id="powerMatchStatus" role="status">上の消費電力・使用時間と、商品の容量・出力を照合してください。数値の一致は機器への適合を保証しません。</p>' : ''}<div class="product-list">${cards}</div></section>`;
 }
 
 function toiletPurchasePlans(products, note) {
@@ -2189,6 +2204,12 @@ function webPageJsonLd(title, description, canonical, citationUrls = []) {
 }
 
 function comparisonTable(products, note) {
+  if (note.slug === 'portable-power-kaigo') {
+    return `<section class="section" id="comparison"><div class="section-title"><h2>容量・出力・価格を比較</h2><p class="notice">本体のみ・パネル同梱などの販売単位、重量、保証は販売ページで確認</p></div><div class="compare-scroll"><table class="compare-table"><thead><tr><th>商品</th><th>容量（Wh）</th><th>出力（W・商品名表記）</th><th>価格</th><th>レビュー（件数）</th><th>条件の照合・販売ページ</th></tr></thead><tbody>${products.map((product, index) => {
+      const facts = productDecisionFacts(product);
+      return `<tr ${productFitAttrs(product, note)}><td class="table-product">${esc(displayTitle(product, 46))}</td><td>${esc(facts.powerWh ? `${facts.powerWh.toLocaleString('ja-JP')}Wh` : '要確認')}</td><td>${esc(facts.outputW ? `${facts.outputW.toLocaleString('ja-JP')}W` : '要確認')}</td><td>${esc(displayPrice(product))}</td><td>${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</td><td><strong class="fit-result" data-fit-result>容量・出力を販売ページで照合</strong><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>出力・容量を楽天で確認</a></td></tr>`;
+    }).join('')}</tbody></table></div></section>`;
+  }
   return `<section class="section" id="comparison">
     <div class="section-title"><div><p class="eyebrow">比較表</p><h2>価格・レビュー・用途を横並びで確認</h2></div><p class="notice">スマホでは横にスクロールできます</p></div>
     <div class="plan-summary" id="planSummary" hidden><span>今回の目安</span><strong id="planSummaryText"></strong><small>商品ごとの容量・回数と照らして確認してください。</small></div>
@@ -2560,14 +2581,15 @@ function pageHtml(page) {
   const products = effectiveProducts(page, note, 8);
   const canonical = `${siteUrl}/pages/${page.slug}.html`;
   const description = pageDescription(page, note);
-  const quantityFirst = ['toilet-office', 'office-bichiku', 'water-food-stock', 'emergency-food-office'].includes(page.slug);
+  const powerFirst = page.slug === 'portable-power-kaigo';
+  const quantityFirst = powerFirst || ['toilet-office', 'office-bichiku', 'water-food-stock', 'emergency-food-office'].includes(page.slug);
   const primaryAction = page.slug === 'toilet-office'
     ? '必要回数を計算する'
     : page.slug === 'office-bichiku'
       ? '人数から必要数を確認する'
       : ['water-food-stock', 'emergency-food-office'].includes(page.slug)
         ? '人数と日数から必要量を確認する'
-        : '比較候補を見る';
+        : powerFirst ? '必要な容量から候補を絞る' : '比較候補を見る';
   const checks = note.checks.map((item) => `<li>${esc(item)}</li>`).join('');
   const mustHave = note.mustHave.map((item) => `<span class="pill orange">${esc(item)}</span>`).join('');
   const body = `<section class="hero">
@@ -2588,7 +2610,7 @@ function pageHtml(page) {
     <nav class="jump-nav" aria-label="ページ内目次">
       <span>このページの流れ</span>
       <a class="chip" href="#conclusion">結論</a>
-      <a class="chip" href="#quantity">必要数量</a>
+      <a class="chip" href="#quantity">${powerFirst ? '必要容量' : '必要数量'}</a>
       <a class="chip" href="#comparison">比較表</a>
       <a class="chip" href="#products">商品カード</a>
       <a class="chip" href="#faq">FAQ</a>
@@ -2598,22 +2620,23 @@ function pageHtml(page) {
     <article class="card"><p class="eyebrow">このページの結論</p><h2>${esc(note.conclusion)}</h2><p>${esc(note.avoid)}</p></article>
     <article class="card"><p class="eyebrow">まず揃えるべきもの</p><div class="chip-row">${mustHave}</div></article>
   </section>
-  <section class="section decision-strip flow" aria-label="購入までの流れ">
+  ${powerFirst ? `${powerEstimateSection()}${quickPicks(products, note)}${comparisonTable(products, note)}` : ''}
+  ${powerFirst ? '' : `<section class="section decision-strip flow" aria-label="購入までの流れ">
     <div><strong>人数と日数を決める</strong><span>下の目安計算で必要量を出す</span></div>
     <div><strong>比較表で候補を絞る</strong><span>価格、回数、保存年数で見る</span></div>
     <div><strong>商品カードで確認</strong><span>向き不向きと注意点を見る</span></div>
     <div><strong>販売ページで揃える</strong><span>最新の価格と在庫を確認して購入</span></div>
-  </section>
+  </section>`}
   <section class="section two">
     <article class="card"><h2>選び方</h2><ul class="checklist">${checks}</ul></article>
     ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : page.slug === 'emergency-food-office' ? `<article class="card"><h2>このページで比べるもの</h2><p>非常食セットの食数、保存年数、調理方法を比べます。保存水を含む全体量は早見表で確認してください。</p><a class="small-button" href="${siteUrl}/pages/office-stockpile-quantity.html">人数別の備蓄量を見る</a></article>` : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
   </section>
-  ${quantityEstimateSection(page.slug)}
+  ${powerFirst ? '' : quantityEstimateSection(page.slug)}
   ${toiletPurchasePlans(products, note)}
   ${marketSnapshotSection(products, note)}
   ${sourceSection(page.slug)}
   ${['toilet-office', 'office-bichiku', 'blackout-power', 'water-food-stock', 'emergency-food-office'].includes(page.slug) ? quickPicks(products, note) : ''}
-  ${comparisonTable(products, note)}
+  ${powerFirst ? '' : comparisonTable(products, note)}
   <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>上位候補の向き・注意点を見る</h2></div><p class="notice">比較表から上位6件を詳しく掲載</p></div><div class="product-list">${productCards(products.slice(0, 6), note)}</div></section>
   ${stockCheckSection(page.slug)}
   <section class="section card"><h2>注意点</h2><p>${esc(requiredNotice)}</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
