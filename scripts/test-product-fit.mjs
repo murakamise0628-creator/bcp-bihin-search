@@ -17,6 +17,31 @@ const {
   toiletUseCount
 } = productTools;
 
+test('food sets excluding water do not claim included water', () => {
+  for (const exclusion of ['保存水無', '保存水なし', '保存水無し', '保存水は含まれません', '保存水は別売']) {
+    const titleRaw = `アルファフーズ株式会社美味しい防災食ファミリーセット（${exclusion}）FS34`;
+    assert.equal(detectProductType(titleRaw), 'food');
+    const facts = decisionFacts({ titleRaw, productType: 'water' });
+    assert.equal(facts.productType, 'food');
+    assert.deepEqual(facts.includedCategories, ['food']);
+    assert.match(titleShort(titleRaw), /非常食/);
+  }
+  assert.equal(detectProductType('保存水無 ファミリーセット'), 'other');
+  assert.equal(detectProductType('保存水 2L 6本 7年保存'), 'water');
+  assert.equal(detectProductType('保存水無添加 2L 6本'), 'water');
+  assert.equal(detectProductType('保存水無料付き 防災食セット'), 'water');
+  assert.deepEqual(decisionFacts('防災セット 調理・水不要の非常食 保存水付き').includedCategories, ['water', 'food']);
+});
+
+test('raw sawdust is not a toilet product', () => {
+  const titleRaw = 'おがくず 広葉樹 針葉樹 小粒 100L (50L×2袋) グリーンクロス 木くず 工場用油吸着材 飲食店 嘔吐物処理 防災 簡易トイレ';
+  assert.equal(isExcluded({ titleRaw }), true);
+  assert.equal(candidateTier({ titleRaw }, { slug: 'restaurant-dansui' }), 'exclude');
+  assert.equal(detectProductType(titleRaw), 'other');
+  assert.equal(isExcluded({ titleRaw: '簡易トイレセット 凝固剤 汚物袋100回分 おがくず不要' }), false);
+  assert.equal(detectProductType('簡易トイレセット 凝固剤 汚物袋100回分 おがくず不要'), 'toilet');
+});
+
 test('variable prices include explicit non-toilet quantity options without flagging fixed packs', () => {
   const { hasVariablePrice } = productTools;
   assert.equal(hasVariablePrice({ titleRaw: '保存水 2L×6本 [1ケース / 2ケース]', priceIsFromVariant: false }), true);
@@ -26,6 +51,19 @@ test('variable prices include explicit non-toilet quantity options without flagg
   assert.equal(hasVariablePrice('保存水 1.8L 6本入 2ケース 12本'), false);
   assert.equal(hasVariablePrice('非常食 4人用/3日分 36食 パンが選べる'), false);
   assert.equal(hasVariablePrice('防災セット 選べる9カラー 1人用30点'), false);
+});
+
+test('range quantities never become a fixed-price toilet purchase estimate', () => {
+  for (const separator of ['～', '〜', '~', '-', '－', '–']) {
+    const titleRaw = `簡易トイレ 凝固剤 防臭袋 20${separator}500回分 15年保存`;
+    assert.equal(productTools.hasAmbiguousToiletQuantity(titleRaw), true);
+    assert.equal(productTools.hasVariablePrice({ titleRaw, priceIsFromVariant: false }), true);
+    assert.equal(toiletUseCount(titleRaw), null);
+    assert.equal(productTools.isToiletPurchaseCandidate({ titleRaw, price: 1380 }), false);
+    assert.doesNotMatch(titleShort(titleRaw), /500回分/);
+  }
+  assert.equal(toiletUseCount('簡易トイレ 凝固剤 防臭袋 20～500回分 × 2箱'), null);
+  assert.equal(toiletUseCount('簡易トイレ 15回分 × 2箱'), 30);
 });
 
 test('detectProductType distinguishes a helmet multipack from a disaster set containing a helmet', () => {
