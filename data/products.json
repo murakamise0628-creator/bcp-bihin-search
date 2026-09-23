@@ -1237,8 +1237,8 @@
           "relevance": 170
         },
         {
-          "name": "アルファフーズ株式会社美味しい ファミリー FS34 保存水",
-          "titleShort": "アルファフーズ株式会社美味しい ファミリー FS34 保存水",
+          "name": "アルファフーズ株式会社美味しい ファミリー FS34 非常食",
+          "titleShort": "アルファフーズ株式会社美味しい ファミリー FS34 非常食",
           "titleRaw": "アルファフーズ株式会社美味しい防災食ファミリーセット（保存水無）FS34(商品発送まで6-10日間程度かかります)",
           "price": 35400,
           "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/supplement-fan/cabinet/dp201906/dp201906_5/4580399813062.jpg",
@@ -1248,7 +1248,7 @@
           "reviewAverage": 0,
           "shopName": "サプリメントファン",
           "itemCode": "supplement-fan:10028723",
-          "productType": "water",
+          "productType": "food",
           "genreId": 565671,
           "saleStartAt": "",
           "saleEndAt": "",
@@ -1258,7 +1258,7 @@
           "priceIsFromVariant": false,
           "score": 0,
           "decisionFacts": {
-            "productType": "water",
+            "productType": "food",
             "toiletUses": null,
             "toiletSupplyType": "",
             "hasCoagulant": false,
@@ -1270,7 +1270,7 @@
             "outputW": null,
             "storageYears": null,
             "includedCategories": [
-              "water"
+              "food"
             ]
           },
           "decisionSummary": "容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。",
@@ -1806,46 +1806,6 @@
           },
           "decisionSummary": "容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。",
           "relevance": 154
-        },
-        {
-          "name": "100L 非常用トイレ",
-          "titleShort": "100L 非常用トイレ",
-          "titleRaw": "おがくず 広葉樹 針葉樹 小粒 100L (50L×2袋) グリーンクロス 木くず チップ 木屑 工事現場 建築現場 粉塵処理 工場用油吸着材 水分吸収 クッション材 吸収材 駅 飲食店 嘔吐物処理 掃除 防災 簡易トイレ おが屑 *",
-          "price": 5621,
-          "image": "https://thumbnail.image.rakuten.co.jp/@0_mall/insair/cabinet/tasya142/7303020-p.jpg",
-          "summary": "木くず ウッドチップ ウッド 緩衝材 使い道 ネコトイレ 園芸 家畜用 消臭効果 庭用 島田小割製材所",
-          "url": "https://hb.afl.rakuten.co.jp/hgc/g00sr5an.oroxz359.g00sr5an.oroy0b64/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Finsair%2F7303020%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Finsair%2Fi%2F10061052%2F&rafcid=wsc_i_is_6281c43b-13e3-4e12-ab0e-56b274fcf2f3",
-          "reviewCount": 0,
-          "reviewAverage": 0,
-          "shopName": "照明とエアコン イエプロ",
-          "itemCode": "insair:10061052",
-          "productType": "toilet",
-          "genreId": 112843,
-          "saleStartAt": "",
-          "saleEndAt": "",
-          "fetchedAt": "2026-09-20T22:46:49.884Z",
-          "sourceKeyword": "簡易トイレ 飲食店",
-          "availability": 1,
-          "priceIsFromVariant": false,
-          "score": 0,
-          "decisionFacts": {
-            "productType": "toilet",
-            "toiletUses": null,
-            "toiletSupplyType": "contents-unclear",
-            "hasCoagulant": false,
-            "hasWasteBag": false,
-            "hasDeodorizingBag": false,
-            "peopleCapacity": null,
-            "stockDays": null,
-            "powerWh": null,
-            "outputW": null,
-            "storageYears": null,
-            "includedCategories": [
-              "toilet"
-            ]
-          },
-          "decisionSummary": "回数は販売ページで確認。凝固剤・処理袋・防臭袋の内訳を確認してください。",
-          "relevance": 128
         },
         {
           "name": "28L 非常用トイレ",
