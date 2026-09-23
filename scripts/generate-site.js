@@ -650,6 +650,7 @@ function quantityEstimateSection(slug = '') {
       <div class="stock-plan-grid">
         <a class="stock-plan-link" data-stock-plan="toilet" data-plan-path="${siteUrl}/pages/toilet-office.html" href="${siteUrl}/pages/toilet-office.html?staff=${initialPeople}&amp;days=${defaultDays}&amp;visitors=0#comparison"><span>簡易トイレ</span><strong id="toiletPlanLabel">${initialToilet}回分を比較</strong><small>回数・保存年数・袋の構成を見る</small></a>
         <a class="stock-plan-link" data-stock-plan="water_food" data-plan-path="${siteUrl}/pages/water-food-stock.html" href="${siteUrl}/pages/water-food-stock.html?staff=${initialPeople}&amp;days=${defaultDays}&amp;visitors=0#comparison"><span>保存水・非常食</span><strong id="waterFoodPlanLabel">${initialPeople}人・${defaultDays}日分を比較</strong><small>水量・食数・保存年数を見る</small></a>
+        <a class="stock-plan-link" data-stock-plan="food" data-plan-path="${siteUrl}/pages/emergency-food-office.html" href="${siteUrl}/pages/emergency-food-office.html?staff=${initialPeople}&amp;days=${defaultDays}&amp;visitors=0#comparison"><span>会社向け非常食セット</span><strong id="foodPlanLabel">${initialFood}食分の候補を比較</strong><small>食数・調理に必要な水・アレルギー表示を確認</small></a>
         <a class="stock-plan-link" data-stock-plan="office_stock" data-plan-path="${siteUrl}/pages/office-bichiku.html" href="${siteUrl}/pages/office-bichiku.html#comparison"><span>まとめて確認</span><strong id="officePlanLabel">10人分の備蓄を見る</strong><small>セットだけで不足しないか確認</small></a>
       </div>
     </div>
@@ -1538,8 +1539,10 @@ function clientScript() {
         if(blanket) blanket.textContent=plan.blankets.toLocaleString('ja-JP')+'枚';
         var toiletLabel=document.getElementById('toiletPlanLabel');
         var waterFoodLabel=document.getElementById('waterFoodPlanLabel');
+        var foodLabel=document.getElementById('foodPlanLabel');
         var officeLabel=document.getElementById('officePlanLabel');
         if(toiletLabel) toiletLabel.textContent=plan.toilet.toLocaleString('ja-JP')+'回分を比較';
+        if(foodLabel) foodLabel.textContent=plan.food.toLocaleString('ja-JP')+'食分の候補を比較';
         if(waterFoodLabel) waterFoodLabel.textContent=plan.people.toLocaleString('ja-JP')+'人・'+plan.days.toLocaleString('ja-JP')+'日分を比較';
         if(officeLabel) officeLabel.textContent=plan.people.toLocaleString('ja-JP')+'人分の備蓄を見る';
         document.querySelectorAll('[data-stock-plan][data-plan-path]').forEach(function(link){

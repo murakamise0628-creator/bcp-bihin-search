@@ -441,6 +441,14 @@ try {
   assert.equal(carriedPlan.searchParams.get('visitors'), '5');
   assert.ok(quantityPlan.events.includes('stock_plan_compare_click'));
   assert.ok(quantityPlan.events.includes('quantity_calculator_use'));
+  const foodPlan = await evaluate(send, `({ href: document.querySelector('[data-stock-plan=food]').href, label: document.getElementById('foodPlanLabel').textContent })`);
+  const foodTarget = new URL(foodPlan.href);
+  assert.equal(foodTarget.pathname, '/pages/emergency-food-office.html');
+  assert.equal(foodTarget.search, carriedPlan.search);
+  assert.equal(foodTarget.hash, '#comparison');
+  assert.equal(foodPlan.label, '735食分の候補を比較');
+  await navigateFresh(send, emergencyFoodPage + foodTarget.search);
+  assert.equal(await evaluate(send, `document.getElementById('foodEstimate').textContent`), '735食');
   await navigateFresh(send, toiletPage + carriedPlan.search);
   assert.equal(await evaluate(send, `document.getElementById('toiletEstimate').textContent`), '1,225回分');
   await navigateFresh(send, quantityPage + carriedPlan.search);
