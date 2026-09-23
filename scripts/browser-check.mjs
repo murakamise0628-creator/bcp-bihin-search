@@ -218,7 +218,7 @@ try {
   assert.ok(ineligiblePlan.eligible.some(text => /150回分の目安/.test(text)), 'eligible kits must retain quantity estimates');
 
   const powerResults = [];
-  for (const width of [320, 375, 768]) {
+  for (const width of [320, 375, 414, 768, 1440]) {
     await send('Emulation.setDeviceMetricsOverride', {
       width,
       height: 900,
@@ -228,6 +228,10 @@ try {
     await navigateFresh(send, `${powerPage}?audit=power-${width}`);
     const result = await evaluate(send, `(() => {
       const first = document.querySelector('.compare-table tbody [data-product-fit]');
+      const quick = [...document.querySelectorAll('#power-candidates .quick-pick-candidate')].filter(node => !node.hidden);
+      const quantity = document.getElementById('quantity');
+      const candidates = document.getElementById('power-candidates');
+      const comparison = document.getElementById('comparison');
       return {
         width: innerWidth,
         scrollWidth: document.documentElement.scrollWidth,
@@ -235,7 +239,15 @@ try {
         fit: first?.querySelector('[data-fit-result]')?.textContent || '',
         cta: first?.querySelector('a[data-product-id]')?.textContent || '',
         powerWh: Number(first?.dataset.powerWh || 0),
-        outputW: Number(first?.dataset.outputW || 0)
+        outputW: Number(first?.dataset.outputW || 0),
+        visibleCandidates: quick.length,
+        validCandidates: quick.every(node => Number(node.dataset.powerWh) >= 1500 && Number(node.dataset.outputW) >= 300 && node.dataset.fitMatched === 'true'),
+        candidateImages: quick.filter(node => node.querySelector('img')).length,
+        trackedSponsoredLinks: quick.every(node => node.querySelector('a[data-product-id][rel~="sponsored"]')),
+        ordered: Boolean(quantity && candidates && comparison && (quantity.compareDocumentPosition(candidates) & Node.DOCUMENT_POSITION_FOLLOWING) && (candidates.compareDocumentPosition(comparison) & Node.DOCUMENT_POSITION_FOLLOWING)),
+        primaryHref: document.querySelector('.hero-actions a')?.getAttribute('href'),
+        powerHeaders: [...document.querySelectorAll('.compare-table th')].map(node => node.textContent),
+        medicalCaution: document.body.textContent.includes('医療・生命維持機器の適合判定には使えません')
       };
     })()`);
     assert.ok(result.scrollWidth <= result.width + 1, `${width}px power page overflow: ${result.scrollWidth}px`);
@@ -244,6 +256,53 @@ try {
     assert.ok(result.outputW >= 300, `${width}px first power candidate output is insufficient`);
     assert.match(result.fit, /1,500Wh以上・300W対応候補/);
     assert.match(result.cta, /1,500Wh以上・300W対応候補を楽天で確認/);
+    assert.ok(result.visibleCandidates > 0 && result.visibleCandidates <= 3);
+    assert.equal(result.validCandidates, true);
+    assert.equal(result.candidateImages, result.visibleCandidates);
+    assert.equal(result.trackedSponsoredLinks, true);
+    assert.equal(result.ordered, true);
+    assert.equal(result.primaryHref, '#quantity');
+    assert.ok(result.powerHeaders.includes('容量（Wh）'));
+    assert.ok(!result.powerHeaders.includes('対象人数の目安'));
+    assert.equal(result.medicalCaution, true);
+    await sleep(900);
+    const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    fs.writeFileSync(path.join(screenshotDir, 'power-' + width + '.png'), Buffer.from(shot.data, 'base64'));
+    const imageCheck = await evaluate(send, `(async () => {
+      const candidates = document.getElementById('power-candidates');
+      candidates.scrollIntoView({ block:'start', behavior:'instant' });
+      const images = [...candidates.querySelectorAll('.quick-pick-candidate:not([hidden]) img')];
+      images.forEach(image => { image.loading='eager'; });
+      await Promise.race([Promise.all(images.map(image => image.decode().catch(() => {}))), new Promise(resolve => setTimeout(resolve, 8000))]);
+      return images.every(image => image.complete && image.naturalWidth > 0);
+    })()`);
+    assert.equal(imageCheck, true, 'Power candidate images must load');
+    const candidateShot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    fs.writeFileSync(path.join(screenshotDir, 'power-candidates-' + width + '.png'), Buffer.from(candidateShot.data, 'base64'));
+    const states = await evaluate(send, `(() => {
+      const set = (id, value) => { const input=document.getElementById(id); input.value=value; input.dispatchEvent(new Event('input', { bubbles:true })); };
+      const visible = () => [...document.querySelectorAll('#power-candidates .quick-pick-candidate')].filter(node => !node.hidden).length;
+      set('powerWatts', '100000'); set('powerHours', '168');
+      const empty = { count:visible(), text:document.getElementById('powerMatchStatus').textContent };
+      set('powerWatts', '-1');
+      const invalid = { count:visible(), estimate:document.getElementById('powerEstimate').textContent };
+      set('powerWatts', '100'); set('powerHours', '2');
+      const restored = { count:visible(), estimate:document.getElementById('powerEstimate').textContent };
+      set('powerMargin', '101');
+      const invalidMargin = visible();
+      set('powerMargin', '20'); set('powerWatts', '');
+      const emptyInput = visible();
+      return { empty, invalid, restored, invalidMargin, emptyInput };
+    })()`);
+    assert.equal(states.empty.count, 0);
+    assert.match(states.empty.text, /合う先頭候補はありません/);
+    assert.equal(states.invalid.count, 0);
+    assert.match(states.invalid.estimate, /入力値を確認/);
+    assert.ok(states.restored.count > 0);
+    assert.equal(states.restored.estimate, '300Wh以上');
+    assert.equal(states.invalidMargin, 0);
+    assert.equal(states.emptyInput, 0);
+    result.states = states;
     powerResults.push(result);
   }
 
