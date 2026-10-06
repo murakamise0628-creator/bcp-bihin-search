@@ -147,6 +147,24 @@ const publicSources = {
     url: 'https://www.maff.go.jp/j/zyukyu/foodstock/imadoki/imadoki11.html',
     note: '食物アレルギーに配慮した備蓄食品と、原材料表示を確認する考え方を確認できます。'
   },
+  nurseryFoodGuide: {
+    title: '要配慮者のための災害時に備えた食品ストックガイド',
+    publisher: '農林水産省',
+    url: 'https://www.maff.go.jp/j/zyukyu/foodstock/guidebook.html',
+    note: '乳幼児などの食べ方に合わせた備蓄の参考資料です。家庭向けの資料であり、園の備蓄基準を定めるものではありません。'
+  },
+  nurseryAllergyGuide: {
+    title: '食物アレルギー表示について',
+    publisher: '消費者庁',
+    url: 'https://www.caa.go.jp/policies/policy/food_labeling/food_sanitation/allergy/',
+    note: 'アレルギー表示の制度と確認方法。商品の現物表示と園児ごとの除去対象を照合してください。'
+  },
+  childChoking: {
+    title: '子どもの窒息事故への注意喚起',
+    publisher: '消費者庁',
+    url: 'https://www.caa.go.jp/policies/policy/consumer_safety/caution/caution_015/',
+    note: 'あめなどの食品がのどに詰まる危険についての注意喚起。備蓄食品も年齢や食べ方に合うか確認してください。'
+  },
   stockpilePortal: {
     title: '東京都防災 備蓄ナビ',
     publisher: '東京都',
@@ -244,13 +262,16 @@ const pageNotes = {
     disasters: ['断水', '地震', '台風'],
     conclusion: '簡易トイレは人数分ではなく回数分で確認します。1人1日5回を目安に、まず3日分、可能なら7日分まで計算します。',
     mustHave: ['凝固剤', '汚物袋', '防臭袋', '手袋', '目隠し用品'],
-    problem: '断水や排水不可のときに、最低限のトイレ環境を維持するための比較ページです。',
-    checks: ['回数表記で必要量を見る', '凝固剤と袋のセット内容を確認', '保管年数と箱サイズを見る', '消臭袋や目隠し用品も合わせて考える'],
+    problem: '会社の職員・来客が使う簡易トイレを、必要回数、凝固剤と処理袋の同梱数、購入点数、価格で比較します。初めてそろえるセットと、今ある備蓄の補充品を分けて確認してください。',
+    checks: ['職員・来客・利用者の人数と日数から必要回数を計算する', '初回購入は凝固剤と処理袋の同梱数を確認し、単品の補充用品と分ける', '必要回数を1箱の回数で割り、端数を切り上げた購入点数と送料を確認する', '到着時の保存期限、箱サイズ、使用後の保管場所を確認する'],
     avoid: '人数分ではなく回数分で計算します。水や食料より不足が表面化しやすい用品です。',
     related: ['office-bichiku', 'restaurant-dansui', 'kitaku-konnansha'],
     faq: [
-      ['簡易トイレは何回分必要ですか？', '目安として1人1日5回で計算します。利用者数や待機日数が増える場合は余裕を見ます。'],
-      ['防臭袋は必要ですか？', '保管や一時置きが発生する場合、防臭袋や消臭用品があると負担を減らしやすいです。']
+      ['会社の簡易トイレは何回分備蓄すればよいですか？', '職員・来客・利用者の合計人数×待機日数×1日5回を目安に計算します。10人・3日なら150回分、7日なら350回分です。経済産業省の案内では1人35回分・1週間の備蓄例を示しています。施設の滞在人数や利用状況に合わせて調整してください。'],
+      ['100回分の簡易トイレは、何人・何日分ですか？', '1人1日5回で計算すると100回分は20人日で、10人なら2日分、5人なら4日分の目安です。利用回数には個人差があります。「100回分」という表記だけで判断せず、凝固剤と処理袋のそれぞれの同梱数を確認してください。'],
+      ['凝固剤だけの商品とトイレセットはどう違いますか？', '凝固剤だけの商品では処理袋などを別に用意する必要があります。初めて購入する場合は凝固剤と処理袋がそろうセットかを確認してください。すでに備蓄がある場合は数量・使用条件を照合し、不足する袋や凝固剤は別に補充します。防臭袋や手袋の同梱も販売ページで確認してください。'],
+      ['10人・3日分なら100回分の商品を何箱買いますか？', '現在庫がない計算例では、10人×3日×5回で150回分が目安です。100回分入りなら2箱で200回分になります。既存の備蓄が使える場合はその分を差し引き、凝固剤と処理袋が必要回数分そろうかを確認してください。販売ページで同じセット内容の価格・送料・在庫を確認してから発注します。'],
+      ['防臭袋も使用回数と同じ枚数が必要ですか？', '処理袋と使用後の保管用袋は用途が異なり、製品によって構成や入れ方が違います。100回分セットでも防臭袋が100枚とは限りません。1袋に入れられる量、交換の目安、使用後の密閉・一時保管方法をメーカーの説明で確認し、職場の保管場所と合わせて購入枚数を決めてください。']
     ]
   },
   'earthquake-office': {
@@ -518,6 +539,7 @@ function recommendedType(product, note) {
 }
 
 function suitedFacility(product, note) {
+  if (note.slug === 'hoikuen-bousai') return '園児・職員への使用可否を確認';
   const name = String(rawTitle(product));
   if (/法人|企業|事業所|業務用/.test(name)) return '事業所・施設';
   if (/保育園|子供|園児|幼稚園/.test(name)) return '保育園・学校';
@@ -526,7 +548,18 @@ function suitedFacility(product, note) {
   return note.audience;
 }
 
-function cautionForProduct(product) {
+function isSupplementalCandy(product) {
+  const title = String(rawTitle(product));
+  return product.productType === 'food' && /キャンディ|キャンデー|飴|あめ|ドロップ/.test(title) && !/米|パン|ご飯|粥|麺|主食|ミルク/.test(title);
+}
+
+function cautionForProduct(product, note = {}) {
+  if (note.slug === 'hoikuen-bousai') {
+    if (isSupplementalCandy(product)) return 'あめはのどに詰まるおそれ。園児用は年齢・食べ方を確認し、食事の食数には含めない';
+    if (product.productType === 'food') return '対象年齢・原材料・食べ方・調理用の水を確認';
+    if (product.productType === 'disaster-set') return '園児用と職員用で内容・重さ・配布人数を確認';
+    if (product.productType === 'water') return '飲用・調乳の用途に合う水か、製品とミルクの表示を確認';
+  }
   if (hasAmbiguousToiletQuantity(product)) return '回数と価格は選択肢により変動';
   const facts = productDecisionFacts(product);
   const name = String(rawTitle(product));
@@ -552,7 +585,8 @@ function recommendationBasis(product) {
   return basis.length ? basis.slice(0, 4).join('・') : '要確認';
 }
 
-function targetPeople(product) {
+function targetPeople(product, note = {}) {
+  if (note.slug === 'hoikuen-bousai' && product.productType === 'food') return isSupplementalCandy(product) ? '食事用の食数には含めない' : '園児の食数は年齢・食べ方別に確認';
   if (hasAmbiguousToiletQuantity(product)) return '販売ページで回数を選択';
   const facts = productDecisionFacts(product);
   const name = String(rawTitle(product));
@@ -618,6 +652,49 @@ function restaurantWaterOutageSection() {
   </section>`;
 }
 
+function nurseryMealEstimate() {
+  return `<div data-nursery-meal-plan>
+    <h3>園児用の食事は、食事形態ごとに数える</h3>
+    <div class="calc-grid">
+      <label>同じ食事形態の園児数（人）<input class="calc-input" id="nursery-children" type="number" min="0" max="3000" step="1" placeholder="例: 30" aria-describedby="nursery-meal-note"></label>
+      <label>1人に提供する回数（回）<input class="calc-input" id="nursery-servings" type="number" min="1" max="100" step="1" placeholder="例: 2" aria-describedby="nursery-meal-note"></label>
+    </div>
+    <p aria-live="polite" aria-atomic="true">食事の提供予定数: <strong id="nursery-meal-total">未入力</strong></p>
+    <p id="nursery-meal-note">提供予定数を確認するための目安です。1袋が園児1人の1食分とは限りません。ミルク・離乳食・幼児食・個別食は別に数え、対象年齢、内容量、原材料と調理方法を確認してください。</p>
+    <p><a id="nursery-meal-comparison" href="#comparison">対象年齢・内容量を確認して食事の候補を比較</a></p>
+    <script data-nursery-meal-script>
+      (function(){
+        var children=document.getElementById('nursery-children');
+        var servings=document.getElementById('nursery-servings');
+        var result=document.getElementById('nursery-meal-total');
+        function value(input){
+          if(input.value.trim()==='') return null;
+          var number=Number(input.value);
+          return Number.isInteger(number)&&number>=Number(input.min)&&number<=Number(input.max)?number:NaN;
+        }
+        function update(){
+          var people=value(children),times=value(servings);
+          children.setAttribute('aria-invalid',String(Number.isNaN(people)));
+          servings.setAttribute('aria-invalid',String(Number.isNaN(times)));
+          if(Number.isNaN(people)||Number.isNaN(times)){
+            result.textContent='人数・提供回数の値を確認';
+            result.dataset.state='invalid';
+          }else if(people===null||times===null){
+            result.textContent='未入力';
+            result.dataset.state='empty';
+          }else{
+            result.textContent=(people*times).toLocaleString('ja-JP')+'食（提供予定）';
+            result.dataset.state='valid';
+          }
+        }
+        children.addEventListener('input',update);
+        servings.addEventListener('input',update);
+        update();
+      })();
+    </script>
+  </div>`;
+}
+
 function quantityEstimateSection(slug = '') {
   if (slug === 'portable-power-kaigo') return powerEstimateSection();
   if (slug === 'restaurant-dansui') return restaurantWaterOutageSection();
@@ -630,6 +707,7 @@ function quantityEstimateSection(slug = '') {
     ${slug === 'hoikuen-bousai' ? `<h2>園児用と職員用を分けて、必要な食数を数える</h2>
     <p>園児用は「食事形態ごとの人数 × 提供する食事の回数」を出発点にします。例として、同じ食事を提供する園児30人に2回配るなら60食です。ミルク・離乳食・個別食と職員分は別に数えます。袋数をそのまま食数に置き換えず、内容量と配布方法を確認してください。</p>
     <ul class="checklist"><li>授乳・離乳食・幼児食それぞれの人数と提供回数</li><li>個別対応が必要な食品と、職員用の食料</li><li>飲用・調理用の水、使い捨て食器、おむつなどの不足数</li><li>保管場所、到着時の賞味期限、入れ替え時期</li></ul>
+    ${nurseryMealEstimate()}
     <p class="notice">数量は園の計画に合わせるための目安です。成人向けの水・食料の計算を、乳幼児の飲食量としてそのまま使わないでください。</p>
     <p><a href="https://www.maff.go.jp/j/zyukyu/foodstock/guidebook.html">農林水産省の食品ストックガイドを見る</a>。家庭向けの資料であり、園の備蓄基準を定めるものではありません。</p>
 <h3>職員・成人の来訪者用の備蓄目安</h3><p>下の入力欄には成人のみを入れてください。園児分は上の手順で別に数えます。</p>` : ''}
@@ -1287,6 +1365,7 @@ function stockCheckSection(currentSlug) {
 }
 
 function sourceKeysFor(slug = '') {
+  if (slug === 'hoikuen-bousai') return ['nurseryFoodGuide', 'nurseryAllergyGuide', 'childChoking', 'workplaceGuideline', 'stockpilePortal'];
   if (/toilet/.test(slug)) return ['toiletStockpileGuide', 'toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
   if (/dansui|water-outage/.test(slug)) return ['toiletGuideline', 'workplaceGuideline', 'stockpilePortal'];
   if (/portable-power|blackout|power-outage|typhoon/.test(slug)) return ['batterySafety', 'workplaceGuideline', 'stockpilePortal'];
@@ -1301,9 +1380,14 @@ function sourceUrlsFor(slug = '') {
 function sourceSection(slug = '') {
   const items = sourceKeysFor(slug).map((key) => {
     const source = publicSources[key];
-    return `<li><a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.title)}</a><span>${esc(source.publisher)}</span><small>${esc(source.note)}</small></li>`;
+    const note = slug === 'hoikuen-bousai' && key === 'workplaceGuideline'
+      ? '職員・成人の備蓄を考えるための参考資料です。園児の食数や飲水量の基準ではありません。'
+      : source.note;
+    return `<li><a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.title)}</a><span>${esc(source.publisher)}</span><small>${esc(note)}</small></li>`;
   }).join('');
-  const intro = /emergency-food/.test(slug)
+  const intro = slug === 'hoikuen-bousai'
+    ? '年齢別の食べ方、原材料表示、のどに詰まる危険を確認できる公的資料です。園の備蓄計画と園児ごとの食事条件に合わせて確認してください。'
+    : /emergency-food/.test(slug)
     ? '事業所の3日分の食数、アルファ米などの調理方法、食物アレルギーへの配慮を確認できる公的資料です。施設の人数と運用に合わせて確認してください。'
     : '3日分、水量、食数、トイレや毛布の考え方を確認できる公的資料です。地域、建物、施設運用によって必要量は変わるため、自治体や施設の計画とあわせて確認してください。';
   return `<section class="section source-references" aria-labelledby="public-sources-title">
@@ -2062,6 +2146,8 @@ function productFitAttrs(product, note = {}) {
 }
 
 function fitTierLabel(product, note = {}) {
+  if (note.slug === 'hoikuen-bousai' && product.productType === 'food') return isSupplementalCandy(product) ? '補助食品・のど詰まりに注意' : '対象年齢・食べ方は要確認';
+  if (note.slug === 'hoikuen-bousai' && product.productType === 'disaster-set') return '園児用・職員用の内容を確認';
   if (note.slug === 'toilet-office' && productDecisionFacts(product).toiletSupplyType === 'contents-unclear') return '同梱品を販売ページで要確認';
   const tier = candidateTier(product, { slug: note.slug || '' });
   if (tier === 'preferred') return '条件が読み取りやすい候補';
@@ -2070,6 +2156,12 @@ function fitTierLabel(product, note = {}) {
 }
 
 function recommendationClass(product, note = {}) {
+  if (note.slug === 'hoikuen-bousai') {
+    if (isSupplementalCandy(product)) return '補助食品（食事用とは別）';
+    if (product.productType === 'food') return '食料（年齢・原材料を確認）';
+    if (product.productType === 'water') return '保存水（用途を確認）';
+    if (product.productType === 'disaster-set') return '持出しセット（内容・重さを確認）';
+  }
   if (note.slug === 'toilet-office') {
     const supply = productDecisionFacts(product).toiletSupplyType;
     if (supply === 'complete-kit') return '凝固剤・袋のセット';
@@ -2101,9 +2193,9 @@ function comparisonRows(products, note) {
     <td>${esc(product.reviewCount || 0)}</td>
     <td>${esc(storageYears(product))}</td>
     <td>${esc(extractSpec(product))}</td>
-    <td>${esc(targetPeople(product))}</td>
+    <td>${esc(targetPeople(product, note))}</td>
     <td>${esc(suitedFacility(product, note))}</td>
-    <td><strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong><br>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong><br>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product, note))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認</a></td>
   </tr>`).join('');
 }
 
@@ -2111,7 +2203,7 @@ function quickPicks(products, note) {
   if (!products.length) return '';
   const clearProducts = products.filter((product) => {
     const tier = candidateTier(product, { slug: note.slug || '' });
-    return !hasAmbiguousToiletQuantity(product) &&
+    return !(note.slug === 'hoikuen-bousai' && isSupplementalCandy(product)) && !hasAmbiguousToiletQuantity(product) &&
     (tier === 'preferred' || (note.slug === 'office-bichiku' && tier === 'supplementary')) &&
     (note.slug === 'portable-power-kaigo' ? Number(product.price) > 0 && !hasVariablePrice(product) : Number(product.reviewCount || 0) >= 5) &&
     (
@@ -2156,7 +2248,8 @@ function quickPicks(products, note) {
     <div><p class="pill navy">${esc(recommendationClass(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
     <p>${esc(productDecisionSummary(product, note))}</p>
     <p class="price">${esc(displayPrice(product))}</p><p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
-    <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>
+    <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>${note.slug === 'hoikuen-bousai' ? `
+    <p class="notice">${esc(cautionForProduct(product, note))}</p>` : ''}
     <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a></div>
   </article>`).join('');
   const eyebrow = note.slug === 'office-bichiku' ? '個人配布・共有・補充' : `先に見る${visibleCount}候補`;
@@ -2219,6 +2312,17 @@ function webPageJsonLd(title, description, canonical, citationUrls = []) {
 }
 
 function comparisonTable(products, note) {
+  if (note.slug === 'hoikuen-bousai') {
+    return `<section class="section" id="comparison"><div class="section-title"><div><p class="eyebrow">比較表</p><h2>食料・持出し品を用途別に比較</h2></div><p class="notice">スマホでは横にスクロールできます</p></div><div class="plan-summary" id="planSummary" hidden><span>職員・成人の備蓄目安</span><strong id="planSummaryText"></strong><small>園児分は食事形態ごとに別に確認してください。</small></div><div class="compare-scroll"><table class="compare-table"><thead><tr><th>商品</th><th>用途の分類</th><th>価格</th><th>レビュー（点数・件数）</th><th>保存年数・容量</th><th>人数・利用者の確認</th><th>購入前の確認 / 詳細</th></tr></thead><tbody>${products.map((product, index) => `<tr ${productFitAttrs(product, note)}>
+      <td class="table-product">${esc(displayTitle(product, 46))}</td>
+      <td>${esc(product.relatedCandidate ? '関連候補' : recommendationClass(product, note))}</td>
+      <td>${esc(displayPrice(product))}</td>
+      <td>${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</td>
+      <td>${esc(storageYears(product))}<br>${esc(extractSpec(product))}</td>
+      <td>${esc(targetPeople(product, note))}<br>${esc(suitedFacility(product, note))}</td>
+      <td><strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong><br>${esc(cautionForProduct(product, note))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>${product.productType === 'food' ? '年齢・原材料を楽天で確認' : '内容・価格を楽天で確認'}</a></td>
+    </tr>`).join('')}</tbody></table></div></section>`;
+  }
   if (['water-food-stock', 'emergency-food-office'].includes(note.slug)) {
     return `<section class="section" id="comparison"><div class="section-title"><h2>販売単位の水量・食数と単価を比較</h2></div><div class="plan-summary" id="planSummary" hidden><span>今回の目安</span><strong id="planSummaryText"></strong><small>販売単位の水量・食数と照らして確認してください。</small></div><p class="notice">単価は表示価格から切り上げた目安です。送料・クーポン・ポイントは含みません。食数が同じでも内容量や栄養は異なります。選択式や内訳不明のセットは単価を出していません。</p><div class="compare-scroll"><table class="compare-table"><thead><tr><th>商品</th><th>販売単位の水量・食数</th><th>価格 / 単価の目安</th><th>保存年数</th><th>レビュー（件数）</th><th>購入前の確認</th><th>販売ページ</th></tr></thead><tbody>${products.map((product, index) => {
       const unit = comparisonUnit(product);
@@ -2264,8 +2368,8 @@ function productCards(products, note) {
       <div class="spec-grid">
         <div><span>主要スペック</span><strong>${esc(extractSpec(product))}</strong></div>
         <div><span>おすすめ度の根拠</span><strong>${esc(recommendationBasis(product))}</strong></div>
-        <div><span>注意点</span><strong>${esc(cautionForProduct(product))}</strong></div>
-        <div><span>向いている施設</span><strong>${esc(suitedFacility(product, note))}</strong></div>
+        <div><span>注意点</span><strong>${esc(cautionForProduct(product, note))}</strong></div>
+        <div><span>${note.slug === 'hoikuen-bousai' ? '利用者・用途の確認' : '向いている施設'}</span><strong>${esc(suitedFacility(product, note))}</strong></div>
       </div>
       <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>${esc(note.slug === 'toilet-office' ? '回数・袋の構成を楽天で確認' : note.slug === 'portable-power-kaigo' ? '出力・容量を楽天で確認' : note.slug === 'restaurant-dansui' ? '用途・在庫を楽天で確認' : '数量・価格を楽天で確認')}</a>
     </div>

@@ -204,6 +204,10 @@ function matchesPageType(product, row) {
   const source = String(product.titleRaw || product.name || '');
   const productType = detectProductType(source);
   if (allowedTypes && !allowedTypes.includes(productType)) return false;
+  if (row.slug === 'portable-power-kaigo' && /オルタネーターチャージャー|走行充電器(?!対応)/.test(source)) {
+    const powerStationWithChargerBundle = /(?:ポータブル電源|蓄電池|非常用電源).{0,80}\d{3,5}\s*Wh.{0,80}(?:オルタネーターチャージャー|走行充電器).{0,24}(?:セット|同梱|付き)|(?:オルタネーターチャージャー|走行充電器).{0,24}(?:セット|同梱|付き).{0,80}(?:ポータブル電源|蓄電池|非常用電源).{0,80}\d{3,5}\s*Wh/;
+    if (!powerStationWithChargerBundle.test(source)) return false;
+  }
   if (row.slug === 'portable-power-kaigo' && /ソーラーパネル|太陽光パネル|ソーラーチャージャー/.test(source)) {
     const withoutCompatibility = source.replace(/\d{3,5}\s*Wh\s*(?:対応|用)/gi, '');
     if (!/\d{3,5}\s*Wh|蓄電池|バッテリー(?:容量)?/.test(withoutCompatibility)) return false;
@@ -500,8 +504,17 @@ function decisionSummary(product, row = {}) {
   return '容量・数量・保存年数と、事業所での使用条件を販売ページで確認してください。';
 }
 
+function withoutDeliveryCountLimits(raw) {
+  const method = '(?:メール便|ネコポス|ゆうパケット|クリックポスト|ゆうメール|定形外(?:郵便)?)';
+  const limit = '[0-9０-９]{1,4}\\s*(?:個|点|袋|箱|本|枚|食)\\s*(?:まで|迄|以下|以内)';
+  // A delivery ceiling is not the quantity included in the sale unit.
+  return String(raw || '')
+    .replace(new RegExp(`${method}\\s*(?:(?:対応|発送|配送|は|なら|可)\\s*)*[:：]?\\s*${limit}`, 'g'), ' ')
+    .replace(new RegExp(`${limit}\\s*(?:は|なら)?\\s*${method}(?:対応|可|OK)?`, 'g'), ' ');
+}
+
 function titleShort(raw, maxLength = 58) {
-  const source = String(raw || '')
+  const source = withoutDeliveryCountLimits(raw)
     .replace(/[【】\[\]■◆★☆◎〇○●◇<>＜＞]/g, ' ')
     .replace(/送料無料|ポイント\d+倍|ランキング(?:総合)?(?:第?\s*\d+\s*位|入賞|受賞)?(?:獲得)?|セール|最安|激安|お買い物マラソン|スーパーSALE|クーポン|あす楽/g, ' ')
     .replace(/防災グッズ|災害対策|非常時|備蓄用品/g, ' ')
@@ -588,7 +601,7 @@ function productDisplayTitle(raw, summary = '', maxLength = 58) {
   if (!genericProductLabels.has(base)) return base;
   const enriched = titleShort(`${raw || ''} ${summary || ''}`, maxLength);
   if (!genericProductLabels.has(enriched)) return enriched;
-  const descriptor = String(raw || '')
+  const descriptor = withoutDeliveryCountLimits(raw)
     .replace(/\u975e\u5e38\u98df(?:\u30bb\u30c3\u30c8)?|\u4fdd\u5b58\u98df(?:\u30bb\u30c3\u30c8)?|\u9632\u707d\u98df(?:\u30bb\u30c3\u30c8)?|\u5099\u84c4\u98df|\u9632\u707d\u30b0\u30c3\u30ba|\u9632\u707d\u30bb\u30c3\u30c8|\u4fdd\u5b58\u6c34|\u975e\u5e38\u7528\u30c8\u30a4\u30ec|\u30c8\u30a4\u30ec\u7528(?:\u888b|\u51dd\u56fa\u5264)|\u7d66\u6c34\u7528\u54c1|\u885b\u751f\u7528\u54c1|\u5b89\u5168\u5bfe\u7b56\u7528\u54c1|\u975e\u5e38\u7528\u30e9\u30a4\u30c8|\u9632\u707d\u30e9\u30b8\u30aa|\u30dd\u30fc\u30bf\u30d6\u30eb\u96fb\u6e90|\u9632\u5bd2\u7528\u54c1|\u6d78\u6c34\u5bfe\u7b56\u7528\u54c1|\u707d\u5bb3\u5bfe\u7b56|\u5099\u84c4\u54c1|\u9577\u671f\u4fdd\u5b58|\u8a70\u3081\u5408\u308f\u305b|\u30bb\u30c3\u30c8|\u975e\u5e38\u7528|\u9632\u707d|\u707d\u5bb3|\u7528\u54c1|\u5099\u84c4/g, ' ')
     .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
     .replace(/\s+/g, ' ')

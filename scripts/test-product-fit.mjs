@@ -33,11 +33,25 @@ const {
   decisionSummary,
   isEmergencyFoodSetCandidate,
   isExcluded,
+  matchesPageType,
   sanitizeProductDataset,
   titleShort,
   productDisplayTitle,
   toiletUseCount
 } = productTools;
+
+test('portable power page excludes standalone vehicle chargers but keeps charger bundles', () => {
+  const row = { slug: 'portable-power-kaigo' };
+  assert.equal(matchesPageType({
+    titleRaw: 'EcoFlow 800W オルタネーターチャージャー 走行充電器 ポータブル電源 急速充電 1.3時間で1000Wh 逆充電 他社ポータブル電源対応'
+  }, row), false);
+  assert.equal(matchesPageType({
+    titleRaw: 'FOSSiBOT F1800 ポータブル電源 1024Wh 定格1500W 走行充電器580W セット'
+  }, row), true);
+  assert.equal(matchesPageType({
+    titleRaw: 'EcoFlow DELTA 3 Plus ポータブル電源 1024Wh 定格1500W 800W走行充電器対応'
+  }, row), true);
+});
 
 test('food sets excluding water do not claim included water', () => {
   for (const exclusion of ['保存水無', '保存水なし', '保存水無し', '保存水は含まれません', '保存水は別売']) {
@@ -301,6 +315,19 @@ test('generic product labels retain quantities or model names', () => {
     productDisplayTitle('\u30b5\u30f3\u30a8\u30a4 \u9632\u707d\u30de\u30eb\u30c1\u30e9\u30a4\u30c8 A\u30bf\u30a4\u30d7 BMR-1', ''),
     /BMR-1|\u30b5\u30f3\u30a8\u30a4/
   );
+});
+
+test('display titles do not treat postal delivery limits as pack quantities', () => {
+  const raw = '6年保存 非常食 パワーフルーツキャンディプラス アレルギー対応食 (メール便3個まで)';
+  assert.equal(titleShort(raw), '6年保存 アレルギー配慮 非常食');
+  assert.equal(productDisplayTitle(raw), '6年保存 アレルギー配慮 非常食');
+  for (const delivery of ['メール便は3個まで', 'ネコポス対応：2点以内', '3個までメール便', 'ゆうパケット 4袋以下', 'クリックポストは2箱迄']) {
+    assert.equal(titleShort(`非常食セット 9食 5年保存 ${delivery}`), '5年保存 9食 非常食', delivery);
+  }
+  assert.equal(titleShort('防災ヘルメット 3個セット メール便1個まで'), '3個 防災ヘルメット');
+  assert.equal(titleShort('非常食セット 3個セット 5年保存'), '5年保存 3個 非常食');
+  assert.equal(titleShort('非常用トイレ 100回分 凝固剤 処理袋 メール便2個まで'), '100回分 非常用トイレ');
+  assert.doesNotMatch(productDisplayTitle('非常食 米粉クッキー メール便3個まで'), /メール便|3個/);
 });
 
 test('ranking copy removal does not erase the product type', () => {

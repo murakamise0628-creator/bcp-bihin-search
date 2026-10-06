@@ -42,12 +42,18 @@ export function parseServiceAccount(value) {
   return account;
 }
 
-export async function accessToken(account, fetchImpl = fetch) {
+export async function accessToken(account, fetchImpl = fetch, mode = 'collect') {
+  const scopes = {
+    collect: 'https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/spreadsheets',
+    'read-only': 'https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly',
+    'search-only': 'https://www.googleapis.com/auth/webmasters.readonly'
+  };
+  if (!Object.hasOwn(scopes, mode)) throw new Error('Invalid KPI authentication mode.');
   const now = Math.floor(Date.now() / 1000);
   const encode = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
   const unsigned = `${encode({ alg: 'RS256', typ: 'JWT' })}.${encode({
     iss: account.client_email,
-    scope: 'https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/spreadsheets',
+    scope: scopes[mode],
     aud: account.token_uri,
     iat: now,
     exp: now + 3600
@@ -145,6 +151,58 @@ async function searchPeriod(site, token, period, fetchImpl) {
   const normalize = (rows) => (rows || []).map((row) => ({ key: row.keys?.[0] || '', clicks: Number(row.clicks || 0), impressions: Number(row.impressions || 0), ctr: Number(row.ctr || 0), position: Number(row.position || 0) }));
   const row = total.rows?.[0] || {};
   return { clicks: Number(row.clicks || 0), impressions: Number(row.impressions || 0), ctr: Number(row.ctr || 0), position: Number(row.position || 0), queries: normalize(queries.rows), pages: normalize(pages.rows) };
+}
+
+function validDiagnosticPage(pagePath) {
+  return typeof pagePath === 'string' && /^\/pages\/[a-z0-9]+(?:-[a-z0-9]+)*\.html$/.test(pagePath);
+}
+
+// Query text stays in the returned object only, never in Sheets, files or CLI logs.
+export async function readPageSearchQueries(options = {}) {
+  if (!validDiagnosticPage(options.pagePath)) throw new Error('Invalid diagnostic page.');
+  const config = JSON.parse(fs.readFileSync(options.configPath || configPath, 'utf8'));
+  const site = process.env.SEARCH_CONSOLE_SITE_URL || config.searchConsoleSiteUrl;
+  if (config.siteUrl !== 'https://jigyousho-bousai.com' || !['https://jigyousho-bousai.com/', 'sc-domain:jigyousho-bousai.com'].includes(site)) {
+    throw new Error('Unexpected diagnostic property.');
+  }
+  const periods = reportingPeriods(options.now || new Date(), config.reportDays, config.dataDelayDays);
+  const fetchImpl = options.fetchImpl || fetch;
+  const token = await accessToken(parseServiceAccount(options.serviceAccount || process.env.GOOGLE_SERVICE_ACCOUNT_JSON), fetchImpl, 'search-only');
+  const pageUrl = config.siteUrl + options.pagePath;
+  const rowLimit = 500;
+  const search = {};
+  const metrics = row => Object.fromEntries(['clicks', 'impressions', 'ctr', 'position'].map(key => [key,
+    typeof row?.[key] === 'number' && Number.isFinite(row[key]) ? row[key] : null
+  ]));
+  for (const [name, period] of Object.entries(periods)) {
+    const base = { ...period, type: 'web', dataState: 'final', aggregationType: 'auto', dimensionFilterGroups: [
+      { groupType: 'and', filters: [{ dimension: 'page', operator: 'equals', expression: pageUrl }] }
+    ] };
+    let total;
+    let result;
+    try {
+      const timedFetch = (url, request) => fetchImpl(url, { ...request, signal: AbortSignal.timeout(20000) });
+      total = await searchQuery(site, token, base, timedFetch);
+      result = await searchQuery(site, token, { ...base, dimensions: ['query'], rowLimit }, timedFetch);
+    } catch (error) {
+      const status = /Google API failed \((\d+)\)/.exec(error.message)?.[1];
+      throw new Error(`Search Console page query read failed${status ? ` (${status})` : ''}.`);
+    }
+    const rows = Array.isArray(result.rows) ? result.rows : [];
+    const queries = rows.filter(row => typeof row.keys?.[0] === 'string').map(row => ({ query: row.keys[0], ...metrics(row) }));
+    search[name] = {
+      totals: total.rows?.[0] ? metrics(total.rows[0]) : null,
+      queries,
+      returnedQueryImpressions: queries.reduce((sum, row) => sum + (row.impressions ?? 0), 0),
+      queryVisibility: queries.length ? 'limited' : 'not_returned',
+      possiblyTruncated: rows.length >= rowLimit,
+      allQueriesAvailable: false
+    };
+  }
+  return {
+    schemaVersion: 1, mode: 'read-only-page-queries', collectedAt: new Date().toISOString(), pageUrl, periods, search,
+    limitations: ['Search Console returns top rows, not a complete query list. Unreturned or anonymized queries do not mean zero demand. Query totals are not page totals. Dates follow Search Console reporting conventions.']
+  };
 }
 
 export function comparison(current, previous) {
@@ -300,18 +358,20 @@ export function buildPagePriorities(report, thresholds = {}) {
 export function priorityMarkdown(report, limit = 10) {
   const esc = (value) => String(value ?? '').replace(/\|/g, '\\|');
   const percent = (value) => value === null || value === undefined ? '-' : `${(value * 100).toFixed(1)}%`;
+  const eventsPerView = (value) => value === null || value === undefined ? '-' : value.toFixed(3);
   const rows = (report.pagePriorities || []).slice(0, limit).map((row) =>
-    `| ${esc(row.path)} | ${row.impressions} | ${row.searchClicks} | ${percent(row.ctr)} | ${row.position ? row.position.toFixed(1) : '-'} | ${row.pageViews} | ${row.sessions} | ${row.rakutenClicks} | ${percent(row.rakutenClickRate)} | ${row.primary} | ${esc(row.action)} |`
+    `| ${esc(row.path)} | ${row.impressions} | ${row.searchClicks} | ${percent(row.ctr)} | ${row.position ? row.position.toFixed(1) : '-'} | ${row.pageViews} | ${row.sessions} | ${row.rakutenClicks} | ${eventsPerView(row.rakutenClickRate)} | ${row.primary} | ${esc(row.action)} |`
   );
   return [
     '# 週次ページ改善優先度',
     '',
     `対象期間: ${report.periods.current.startDate} - ${report.periods.current.endDate}`,
     '',
-    '| ページ | 表示 | 検索クリック | CTR | 順位 | PV | ランディングセッション | 楽天クリック | 楽天クリック率 | 判定 | 次の作業 |',
+    '| ページ | 表示 | 検索クリック | CTR | 順位 | PV | ランディングセッション | 楽天クリックイベント | 楽天クリックイベント/PV | 判定 | 次の作業 |',
     '|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---|',
     ...(rows.length ? rows : ['| データなし | 0 | 0 | - | - | 0 | 0 | 0 | - | monitor | 計測設定を確認する |']),
     '',
+    '楽天クリックイベント/PVはイベント数の比であり、購入率・ユニーク利用者のクリック率ではありません。同じ利用者の複数クリックを含み、1を超えることがあります。',
     '判定は優先順位付けの補助です。楽天の注文・確定報酬は楽天公式レポートで別途確認してください。',
     ''
   ].join('\n');
@@ -406,12 +466,14 @@ async function appendPrioritySheet(id, token, report, fetchImpl) {
 }
 
 export async function collectGrowthKpis(options = {}) {
+  if (options.readOnly !== undefined && typeof options.readOnly !== 'boolean') throw new Error('readOnly must be boolean.');
+  const readOnly = options.readOnly === true;
   const config = JSON.parse(fs.readFileSync(options.configPath || configPath, 'utf8'));
   const propertyId = options.propertyId || process.env.GA4_PROPERTY_ID;
   const sheetId = options.sheetId || process.env.GOOGLE_KPI_SHEET_ID;
   if (!/^\d+$/.test(propertyId || '')) throw new Error('GA4_PROPERTY_ID must contain digits only.');
   const fetchImpl = options.fetchImpl || fetch;
-  const token = await accessToken(parseServiceAccount(options.serviceAccount || process.env.GOOGLE_SERVICE_ACCOUNT_JSON), fetchImpl);
+  const token = await accessToken(parseServiceAccount(options.serviceAccount || process.env.GOOGLE_SERVICE_ACCOUNT_JSON), fetchImpl, readOnly ? 'read-only' : 'collect');
   const periods = reportingPeriods(options.now || new Date(), config.reportDays, config.dataDelayDays);
   const site = process.env.SEARCH_CONSOLE_SITE_URL || config.searchConsoleSiteUrl;
   const [gaCurrent, gaPrevious, searchCurrent, searchPrevious] = await Promise.all([
@@ -420,24 +482,39 @@ export async function collectGrowthKpis(options = {}) {
   ]);
   const report = { schemaVersion: 2, collectedAt: new Date().toISOString(), siteUrl: config.siteUrl, periods, ga: { current: gaCurrent, previous: gaPrevious }, search: { current: searchCurrent, previous: searchPrevious } };
   report.pagePriorities = buildPagePriorities(report, config.decisionThresholds);
-  if (sheetId) {
+  if (sheetId && !readOnly) {
     await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
     await appendPrioritySheet(sheetId, token, report, fetchImpl);
     const indexRows = await inspectPriorityUrls(site, token, fetchImpl, report.collectedAt);
     await appendIndexSheet(sheetId, token, indexRows, fetchImpl);
   }
-  if (process.env.KPI_OUTPUT_PATH) {
+  if (process.env.KPI_OUTPUT_PATH && !readOnly) {
     fs.mkdirSync(path.dirname(path.resolve(process.env.KPI_OUTPUT_PATH)), { recursive: true });
     fs.writeFileSync(process.env.KPI_OUTPUT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   }
-  if (process.env.KPI_SUMMARY_PATH) {
+  if (process.env.KPI_SUMMARY_PATH && !readOnly) {
     fs.mkdirSync(path.dirname(path.resolve(process.env.KPI_SUMMARY_PATH)), { recursive: true });
     fs.writeFileSync(process.env.KPI_SUMMARY_PATH, priorityMarkdown(report));
   }
   return report;
 }
 
+export function parseKpiArgs(args) {
+  const options = { readOnly: false };
+  for (const arg of args) {
+    if (arg === '--read-only' && !options.readOnly) options.readOnly = true;
+    else if (arg.startsWith('--page=') && !options.pagePath && validDiagnosticPage(arg.slice(7))) options.pagePath = arg.slice(7);
+    else throw new Error('Invalid KPI arguments. Use --read-only [--page=/pages/example.html].');
+  }
+  if (options.pagePath && !options.readOnly) throw new Error('Invalid KPI arguments. Page queries require --read-only.');
+  return options;
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  collectGrowthKpis().then((report) => console.log(`Weekly KPI appended for ${report.periods.current.startDate} to ${report.periods.current.endDate}.`)).catch((error) => { console.error(error.message); process.exitCode = 1; });
+  Promise.resolve().then(async () => {
+    const options = parseKpiArgs(process.argv.slice(2));
+    const report = options.pagePath ? await readPageSearchQueries(options) : await collectGrowthKpis(options);
+    console.log(`${options.readOnly ? 'Read-only KPI read completed; no Sheet or file writes' : 'Weekly KPI collection completed'} for ${report.periods.current.startDate} to ${report.periods.current.endDate}.`);
+  }).catch((error) => { console.error(error.message); process.exitCode = 1; });
 }
 
