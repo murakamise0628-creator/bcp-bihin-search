@@ -52,6 +52,12 @@ export function auditRefreshData(data, options = {}) {
     if (page?.staleReason) {
       issues.push(`${slug}: fresh API data was not available (${page.staleReason})`);
     }
+    const fetchErrors = page?.fetchErrors;
+    if (fetchErrors !== undefined && !Array.isArray(fetchErrors)) {
+      issues.push(`${slug}: invalid fetchErrors metadata`);
+    } else if (fetchErrors?.length) {
+      issues.push(`${slug}: ${fetchErrors.length} API keyword searches failed; candidate coverage is incomplete`);
+    }
     if (products.length < requiredCount) {
       issues.push(`${slug}: only ${products.length} products; ${requiredCount} required`);
     }

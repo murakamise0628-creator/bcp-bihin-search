@@ -2,6 +2,142 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import productTools from './fetch-products.js';
 import unitTools from './comparison-unit.js';
+import { readFileSync } from 'node:fs';
+import nurseryTools from './nursery-comparison.cjs';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import vm from 'node:vm';
+import { auditRefreshData } from './verify-refresh.mjs';
+
+const nurseryMealSearches = ['非常食 米粉パン', '非常食 アレルギー', '非常食 おかゆ', '非常食 水不要'];
+function nurserySearchRow() {
+  const lines = readFileSync(new URL('../data/keywords.csv', import.meta.url), 'utf8').trim().split(/\r?\n/);
+  const headers = lines[0].split(',');
+  const values = lines.find(line => line.startsWith('hoikuen-bousai,')).split(',');
+  return Object.fromEntries(headers.map((key, index) => [key, values[index]]));
+}
+
+async function simulateNurseryFetch(mode = 'success') {
+  const filename = fileURLToPath(new URL('./fetch-products.js', import.meta.url));
+  const source = readFileSync(filename, 'utf8');
+  const loaded = { exports: {} };
+  const requests = [];
+  const item = (itemCode, itemName, reviewCount = 1000) => ({
+    itemCode, itemName, itemPrice: 3000, reviewCount, reviewAverage: 4.5, genreId: '501122', availability: 1,
+    itemCaption: '防災備蓄用。年齢、原材料、内容量、調理方法は販売ページで確認してください。',
+    itemUrl: `https://example.invalid/${itemCode}`, mediumImageUrls: [{ imageUrl: 'https://example.invalid/image.jpg' }]
+  });
+  vm.runInNewContext(source + '\nmodule.exports.fetchForTest = fetchForKeyword;', {
+    module: loaded, require: createRequire(filename), __dirname: path.dirname(filename), process: { env: {} }, URL,
+    setTimeout: callback => callback(),
+    fetch: async url => {
+      requests.push(new URL(url));
+      const keyword = url.searchParams.get('keyword');
+      if (mode === 'partial' && keyword === nurseryMealSearches[0]) return { ok: false, status: 503, text: async () => 'simulated-private-api-error' };
+      const mealIndex = nurseryMealSearches.indexOf(keyword);
+      const items = mode === 'empty' ? [] : mealIndex >= 0
+        ? Array.from({ length: 2 }, (_, i) => item(`food:${mealIndex * 2 + i}`, `献立${mealIndex * 2 + i} 非常食 おかゆ 5年保存 20食`, 1))
+        : [...Array.from({ length: 12 }, (_, i) => item(`set:${i}`, `ブランド${i} 子供 防災セット`)), item('water:1', '保存水 500ml 24本 7年保存')];
+      return { ok: true, json: async () => ({ items }) };
+    }
+  });
+  const page = JSON.parse(JSON.stringify(await loaded.exports.fetchForTest(nurserySearchRow())));
+  return { page, requests };
+}
+
+test('nursery fetch integrates all eleven searches and preserves actual source metadata', async () => {
+  const { page, requests } = await simulateNurseryFetch();
+  assert.equal(requests.length, 11);
+  assert.deepEqual(requests.map(url => url.searchParams.get('keyword')), page.searchedKeywords);
+  assert.ok(requests.every(url => url.hostname === 'openapi.rakuten.co.jp' && url.searchParams.get('hits') === '30' && url.searchParams.get('availability') === '1'));
+  assert.equal(page.products.length, 12);
+  assert.equal(new Set(page.products.map(product => product.itemCode)).size, 12);
+  assert.equal(page.products.slice(0, 6).filter(product => nurseryTools.nurseryPurpose(product) === 'food').length, 6);
+  for (const product of page.products.filter(product => nurseryTools.nurseryPurpose(product) === 'food')) assert.ok(nurseryMealSearches.includes(product.sourceKeyword));
+  assert.ok(page.products.every(product => Number.isFinite(Date.parse(product.fetchedAt)) && product.genreId));
+  assert.deepEqual(auditRefreshData({ schemaVersion: 2, pages: [page] }), []);
+});
+
+test('nursery fetch retains failed searches and freshness rejects partial coverage even with twelve products', async () => {
+  const { page, requests } = await simulateNurseryFetch('partial');
+  assert.equal(requests.length, 11);
+  assert.equal(page.products.length, 12);
+  assert.equal(page.fetchErrors.length, 1);
+  const issues = auditRefreshData({ schemaVersion: 2, pages: [page] });
+  assert.ok(issues.some(issue => /API keyword searches failed/.test(issue)));
+  assert.ok(!issues.join(' ').includes('simulated-private-api-error'));
+  const empty = await simulateNurseryFetch('empty');
+  assert.equal(empty.requests.length, 11);
+  assert.equal(empty.page.products.length, 0);
+  assert.ok(auditRefreshData({ schemaVersion: 2, pages: [empty.page] }).some(issue => /only 0 products/.test(issue)));
+});
+
+function selectionCandidate(itemCode, titleRaw, score = 500) {
+  return {
+    itemCode, titleRaw, titleShort: titleRaw,
+    productType: productTools.detectProductType(titleRaw), score,
+    summary: '防災備蓄用の商品。内容量、食事形態、準備方法は購入前に確認。',
+    price: 3000, reviewCount: 100, reviewAverage: 4.5
+  };
+}
+
+test('nursery selection reserves distinct meal candidates despite high-review carry-out sets', () => {
+  const row = { slug: 'hoikuen-bousai' };
+  const sets = Array.from({ length: 12 }, (_, i) => selectionCandidate(`sets:${i}`, `ブランド${i} 子供 防災セット`, 600));
+  const foods = Array.from({ length: 8 }, (_, i) => selectionCandidate(`food:${i}`, `献立${i} 非常食 おかゆ 5年保存 20食`, 20));
+  const water = selectionCandidate('water:1', '保存水 500ml 24本 7年保存', 30);
+  const pool = [...sets, water, selectionCandidate('toilet:1', '非常用トイレ 100回分', 450), ...foods];
+  const before = structuredClone(pool);
+  const result = productTools.selectPageProducts(pool, row);
+  assert.equal(result.length, 12);
+  assert.equal(result.slice(0, 6).filter(p => nurseryTools.nurseryPurpose(p) === 'food').length, 6);
+  assert.ok(result.some(p => p.itemCode === water.itemCode));
+  assert.deepEqual(pool, before);
+});
+
+test('nursery selection does not fill meal slots with candy, used items or duplicates', () => {
+  const food = selectionCandidate('food:1', '米粉パン 非常食 7年保存 4食', 10);
+  const secondFood = selectionCandidate('food:2', 'おかゆ 非常食 5年保存 20食', 20);
+  const sameFoodDifferentShop = { ...food, itemCode: 'shop2:1', score: 900 };
+  const candy = selectionCandidate('candy:1', '非常食 パワーフルーツキャンディ 6年保存', 900);
+  const pool = [candy, food, food, sameFoodDifferentShop, secondFood, selectionCandidate('used:1', '中古 非常食セット 20食')];
+  const result = productTools.selectPageProducts(pool, { slug: 'hoikuen-bousai' });
+  assert.equal(result.length, 3);
+  assert.deepEqual(result.map(p => nurseryTools.nurseryPurpose(p)), ['food', 'food', 'supplement']);
+  assert.equal(result[0].itemCode, sameFoodDifferentShop.itemCode);
+  assert.equal(result.at(-1).itemCode, candy.itemCode);
+  assert.equal(productTools.selectPageProducts([], { slug: 'hoikuen-bousai' }).length, 0);
+  assert.equal(productTools.selectPageProducts([food], { slug: 'hoikuen-bousai' }).length, 1);
+});
+
+test('other pages retain variety selection and type exclusions', () => {
+  const products = [
+    selectionCandidate('water:1', '保存水 2L 6本 7年保存', 500),
+    selectionCandidate('water:2', '保存水 500ml 24本 5年保存', 400),
+    selectionCandidate('food:1', '非常食 おかゆ 5年保存 20食', 30),
+    selectionCandidate('set:1', '防災セット 子供用', 600)
+  ];
+  assert.deepEqual(productTools.selectPageProducts(products, { slug: 'water-food-stock' }).map(p => p.itemCode), ['water:1', 'food:1', 'water:2']);
+  assert.deepEqual(productTools.selectPageProducts(products, { slug: 'earthquake-office' }).map(p => p.itemCode), ['set:1', 'water:1', 'food:1', 'water:2']);
+});
+
+test('nursery selection preserves distinct brands and menus with the same shortened label', () => {
+  const products = ['ブランドA 米粉パン', 'ブランドB 米粉パン', 'ブランドB 米粉クッキー'].map((name, i) => ({
+    ...selectionCandidate(`food:${i}`, `${name} 非常食 7年保存 4食`), titleShort: '7年保存 4食 非常食'
+  }));
+  const result = productTools.selectPageProducts(products, { slug: 'hoikuen-bousai' });
+  assert.equal(result.length, 3);
+  assert.deepEqual(new Set(result.map(p => p.titleRaw)), new Set(products.map(p => p.titleRaw)));
+});
+
+test('nursery searches cover meals without requiring both child and seven-year keywords', () => {
+  const lines = readFileSync(new URL('../data/keywords.csv', import.meta.url), 'utf8').trim().split(/\r?\n/);
+  const row = lines.find(line => line.startsWith('hoikuen-bousai,')).split(',');
+  const searches = [row[2], ...row[3].split('|')];
+  for (const keyword of ['非常食 米粉パン', '非常食 アレルギー', '非常食 おかゆ', '非常食 水不要']) assert.ok(searches.includes(keyword), keyword);
+  assert.equal(new Set(searches).size, searches.length);
+});
 
 test('comparison units use explicit fixed food counts and bottled-water totals', () => {
   const compare = (titleRaw, price = 3600) => unitTools.comparisonUnit({ titleRaw, price });

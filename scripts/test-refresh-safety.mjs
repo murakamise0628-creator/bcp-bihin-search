@@ -20,6 +20,16 @@ test('accepts a complete fresh page', () => {
   assert.deepEqual(auditRefreshData(data, { now, maxAgeHours: 12 }), []);
 });
 
+test('rejects failed or malformed search metadata without exposing raw API errors', () => {
+  const page = { slug: 'hoikuen-bousai', products: products(12) };
+  const audit = fetchErrors => auditRefreshData({ schemaVersion: 2, pages: [{ ...page, fetchErrors }] }, { now });
+  assert.deepEqual(audit([]), []);
+  const failed = audit(['simulated-private-api-error']);
+  assert.ok(failed.some(issue => /API keyword searches failed/.test(issue)));
+  assert.ok(!failed.join(' ').includes('simulated-private-api-error'));
+  assert.ok(audit('malformed-private-api-error').some(issue => /invalid fetchErrors/.test(issue)));
+});
+
 test('requires 12 fresh emergency food sets in a full refresh audit', () => {
   const foodProducts = products(12).map((product, index) => ({
     ...product,

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { nurseryPurpose } = require('./nursery-comparison.cjs');
 
 const appId = String(process.env.RAKUTEN_APP_ID || '').trim();
 const accessKey = String(process.env.RAKUTEN_ACCESS_KEY || '').trim();
@@ -698,6 +699,18 @@ async function fetchForKeyword(row) {
     await new Promise((resolve) => setTimeout(resolve, 800));
   }
 
+  const deduped = selectPageProducts(products, row);
+
+  return {
+    ...row,
+    searchedKeywords,
+    products: deduped,
+    fetchErrors: errors.length ? errors : undefined,
+    error: deduped.length ? undefined : errors.join(' / ')
+  };
+}
+
+function selectPageProducts(products, row) {
   const seen = new Set();
   const ranked = products
     .filter((product) => !isExcluded(product))
@@ -713,15 +726,30 @@ async function fetchForKeyword(row) {
   const preferred = ranked.filter((product) => candidateTier(product, row) === 'preferred');
   const supplementary = ranked.filter((product) => candidateTier(product, row) === 'supplementary');
   const demoted = ranked.filter((product) => candidateTier(product, row) === 'demoted');
-  const deduped = prioritizeProductVariety([...preferred, ...supplementary, ...demoted]).slice(0, 12);
+  const candidates = [...preferred, ...supplementary, ...demoted];
+  return (row.slug === 'hoikuen-bousai'
+    ? prioritizeNurseryProducts(candidates)
+    : prioritizeProductVariety(candidates)).slice(0, 12);
+}
 
-  return {
-    ...row,
-    searchedKeywords,
-    products: deduped,
-    fetchErrors: errors.length ? errors : undefined,
-    error: deduped.length ? undefined : errors.join(' / ')
-  };
+function prioritizeNurseryProducts(products) {
+  const seenTitles = new Set();
+  const distinct = products.filter((product) => {
+    // Short titles can omit brands or flavors, so do not deduplicate on them.
+    const key = String(product.titleRaw || product.name || product.titleShort || '')
+      .normalize('NFKC').toLowerCase().replace(/\s+/g, '');
+    if (key && seenTitles.has(key)) return false;
+    if (key) seenTitles.add(key);
+    return true;
+  });
+  const meals = distinct.filter((product) => nurseryPurpose(product) === 'food');
+  const water = distinct.filter((product) => nurseryPurpose(product) === 'water');
+  // Reserve the six detailed-card slots for meals when the search pool allows it.
+  const reserved = [...meals.slice(0, 6), ...water.slice(0, 1)];
+  const reservedProducts = new Set(reserved);
+  const remaining = distinct.filter((product) => !reservedProducts.has(product) && nurseryPurpose(product) !== 'supplement');
+  const supplements = distinct.filter((product) => nurseryPurpose(product) === 'supplement');
+  return [...reserved, ...prioritizeProductVariety(remaining), ...supplements];
 }
 
 async function main() {
@@ -822,6 +850,7 @@ module.exports = {
   candidateTier,
   compareRankedProducts,
   prioritizeProductVariety,
+  selectPageProducts,
   decisionFacts,
   decisionSummary,
   isToiletPurchaseCandidate,

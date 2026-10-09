@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import nurseryComparison from './nursery-comparison.cjs';
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptsDir, '..');
@@ -90,6 +93,77 @@ for (const product of candies) {
   assert.ok(row, 'supplementary candy remains in the full comparison, while detail cards retain their six-item limit');
   assert.match(row, /補助食品（食事用とは別）/);
   assert.match(row, /のどに詰まるおそれ/);
+}
+
+const nurseryMeals = nurseryData.products.filter(product => product.productType === 'food' && !candies.includes(product));
+const nurseryWater = nurseryData.products.filter(product => product.productType === 'water');
+const nurserySupplies = nurseryData.products.filter(product => !['food', 'water'].includes(product.productType));
+const nurseryPurposes = { food: nurseryMeals, water: nurseryWater, supplies: nurserySupplies, supplement: candies };
+const nurseryLinks = nursery.match(/<nav class="chip-row" aria-label="備蓄品の用途"[\s\S]*?<\/nav>/)?.[0] || '';
+for (const [purpose, products] of Object.entries(nurseryPurposes)) {
+  if (!products.length) {
+    assert.ok(!nurseryLinks.includes(`href="#nursery-purpose-${purpose}"`), 'empty purpose must not have a link');
+    continue;
+  }
+  assert.match(nurseryLinks, new RegExp(`href="#nursery-purpose-${purpose}"[^>]*>[^<]*${products.length}件`));
+  assert.ok(nursery.includes(`id="nursery-purpose-${purpose}"`), 'purpose must have a comparison target');
+}
+const nurseryRows = [...nursery.matchAll(/<tr [^>]*data-product-fit[\s\S]*?<\/tr>/g)].map(match => match[0]);
+const nurseryCards = nursery.match(/<section class="section" id="products">[\s\S]*?<\/section>/)?.[0] || '';
+for (const product of nurseryMeals.slice(0, 6)) {
+  assert.ok(nurseryCards.includes(`data-product-key="${product.itemCode}"`), 'first food candidates need detailed cards, not only a table row');
+}
+assert.ok(nurseryRows.slice(0, nurseryMeals.length).every(row => row.includes('data-nursery-purpose="food"')), 'food must precede unrelated supplies');
+assert.match(nursery, /href="#quantity">園児の食数を数える<\/a>/);
+assert.match(nursery, /https:\/\/www\.pref\.osaka\.lg\.jp\/documents\/22910\/guid\.pdf/);
+
+const { nurseryGroups, nurseryPurpose } = nurseryComparison;
+const purposeFixture = [
+  { itemCode: 'fixture:bag', productType: 'disaster-set', titleRaw: '防災セット' },
+  { itemCode: 'fixture:candy', productType: 'food', titleRaw: '保存用キャンディ' },
+  { itemCode: 'fixture:water', productType: 'water', titleRaw: '保存水' },
+  { itemCode: 'fixture:meal', productType: 'food', titleRaw: '非常食 アルファ米' }
+];
+const originalPurposeOrder = purposeFixture.map(product => product.itemCode);
+assert.deepEqual(nurseryGroups([]), []);
+assert.equal(nurseryPurpose({ productType: 'unknown', titleRaw: '用途不明' }), 'supplies');
+assert.deepEqual(nurseryGroups(purposeFixture).map(group => group.key), ['food', 'water', 'supplies', 'supplement']);
+assert.deepEqual(nurseryGroups(purposeFixture).flatMap(group => group.products).map(product => product.itemCode), ['fixture:meal', 'fixture:water', 'fixture:bag', 'fixture:candy']);
+assert.deepEqual(purposeFixture.map(product => product.itemCode), originalPurposeOrder, 'ordering must not mutate API data');
+
+const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'bcp-nursery-purpose-'));
+try {
+  fs.cpSync(path.join(root, 'scripts'), path.join(fixtureRoot, 'scripts'), { recursive: true });
+  fs.mkdirSync(path.join(fixtureRoot, 'data'));
+  for (const name of ['keywords.csv', 'paid-product.json', 'indexnow.json']) {
+    fs.copyFileSync(path.join(root, 'data', name), path.join(fixtureRoot, 'data', name));
+  }
+  const input = JSON.parse(fs.readFileSync(path.join(root, 'data', 'products.json'), 'utf8'));
+  const sample = { ...nurseryMeals[0], productType: 'food', titleRaw: '非常食 アルファ米 5年保存 9食', name: '非常食 アルファ米 5年保存 9食' };
+  for (const count of [0, 1, 9]) {
+    const products = Array.from({ length: count }, (_, index) => ({ ...sample, itemCode: `fixture:meal-${index}`, url: `https://example.invalid/meal-${index}` }));
+    const fixtureData = { ...input, pages: input.pages.map(page => ({ ...page, products: page.slug === 'hoikuen-bousai' ? products : [] })) };
+    fs.writeFileSync(path.join(fixtureRoot, 'data', 'products.json'), JSON.stringify(fixtureData));
+    execFileSync(process.execPath, [path.join(fixtureRoot, 'scripts', 'generate-site.js')], { stdio: 'pipe' });
+    const html = fs.readFileSync(path.join(fixtureRoot, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
+    const links = html.match(/<nav class="chip-row" aria-label="備蓄品の用途"[\s\S]*?<\/nav>/)?.[0] || '';
+    const table = html.match(/<section class="section" id="comparison">[\s\S]*?<\/section>/)?.[0] || '';
+    const cards = html.match(/<section class="section" id="products">[\s\S]*?<\/section>/)?.[0] || '';
+    assert.equal((html.match(/<h1>/g) || []).length, 1);
+    assert.equal((table.match(/data-nursery-purpose="food"/g) || []).length, count);
+    assert.equal((cards.match(/data-nursery-purpose="food"/g) || []).length, Math.min(count, 6));
+    if (!count) {
+      assert.equal(links, '', 'zero candidates must not produce dead purpose links');
+    } else {
+      assert.match(links, new RegExp(`非常食・保存食（${count}件）`));
+      assert.equal((html.match(/id="nursery-purpose-food"/g) || []).length, 1);
+      assert.doesNotMatch(links, /nursery-purpose-(?:water|supplies|supplement)/);
+    }
+  }
+} finally {
+  const relative = path.relative(os.tmpdir(), fixtureRoot);
+  assert.ok(relative.startsWith('bcp-nursery-purpose-') && !relative.includes(path.sep));
+  fs.rmSync(fixtureRoot, { recursive: true, force: true });
 }
 
 console.log('acquisition page verified');
