@@ -673,17 +673,41 @@ async function requestKeyword(keyword) {
   url.searchParams.set('sort', '-reviewCount');
   url.searchParams.set('availability', '1');
 
-  const res = await fetch(url, {
-    headers: {
-      accessKey,
-      Referer: referer,
-      Referrer: referer,
-      Origin: referer.replace(/\/$/, '')
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    let res;
+    try {
+      res = await fetch(url, {
+        signal: AbortSignal.timeout(20000),
+        headers: {
+          accessKey,
+          Referer: referer,
+          Referrer: referer,
+          Origin: referer.replace(/\/$/, '')
+        }
+      });
+    } catch (err) {
+      const transient = err?.name === 'TimeoutError' || err?.name === 'AbortError' || err instanceof TypeError;
+      if (!transient || attempt === 2) {
+        console.warn('Rakuten API request failed: network or timeout');
+        throw new Error('Rakuten API request failed: network or timeout');
+      }
+      console.warn(`Rakuten API retry ${attempt + 1}/2: network or timeout`);
+      await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
+      continue;
     }
-  });
-  if (!res.ok) throw new Error('Rakuten API failed: ' + res.status + ' ' + await res.text());
-  const json = await res.json();
-  return normalizeProducts(json.Items || json.items || [], keyword);
+    if (res.ok) {
+      const json = await res.json();
+      return normalizeProducts(json.Items || json.items || [], keyword);
+    }
+    await res.body?.cancel();
+    const transient = res.status === 429 || (res.status >= 500 && res.status <= 599);
+    if (!transient || attempt === 2) {
+      console.warn('Rakuten API failed: HTTP ' + res.status);
+      throw new Error('Rakuten API failed: HTTP ' + res.status);
+    }
+    console.warn(`Rakuten API retry ${attempt + 1}/2: HTTP ${res.status}`);
+    await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
+  }
 }
 
 async function fetchForKeyword(row) {
@@ -696,7 +720,7 @@ async function fetchForKeyword(row) {
     } catch (err) {
       errors.push(`${keyword}: ${err.message}`);
     }
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 1100));
   }
 
   const deduped = selectPageProducts(products, row);

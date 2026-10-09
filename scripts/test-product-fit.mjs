@@ -30,11 +30,17 @@ async function simulateNurseryFetch(mode = 'success') {
   });
   vm.runInNewContext(source + '\nmodule.exports.fetchForTest = fetchForKeyword;', {
     module: loaded, require: createRequire(filename), __dirname: path.dirname(filename), process: { env: {} }, URL,
-    setTimeout: callback => callback(),
+    setTimeout: callback => callback(), AbortSignal, TypeError, console: { warn() {} },
     fetch: async url => {
       requests.push(new URL(url));
       const keyword = url.searchParams.get('keyword');
-      if (mode === 'partial' && keyword === nurseryMealSearches[0]) return { ok: false, status: 503, text: async () => 'simulated-private-api-error' };
+      const keywordAttempt = requests.filter(request => request.searchParams.get('keyword') === keyword).length;
+      if (keyword === nurseryMealSearches[0]) {
+        if (mode === 'network' && keywordAttempt === 1) throw new TypeError('simulated-private-api-error');
+        if (mode === 'partial' || (mode === 'transient' && keywordAttempt === 1)) return { ok: false, status: 503, text: async () => 'simulated-private-api-error' };
+        if (mode === 'rate-limit' && keywordAttempt === 1) return { ok: false, status: 429, text: async () => 'simulated-private-api-error' };
+        if (mode === 'bad-request') return { ok: false, status: 400, text: async () => 'simulated-private-api-error' };
+      }
       const mealIndex = nurseryMealSearches.indexOf(keyword);
       const items = mode === 'empty' ? [] : mealIndex >= 0
         ? Array.from({ length: 2 }, (_, i) => item(`food:${mealIndex * 2 + i}`, `献立${mealIndex * 2 + i} 非常食 おかゆ 5年保存 20食`, 1))
@@ -61,9 +67,10 @@ test('nursery fetch integrates all eleven searches and preserves actual source m
 
 test('nursery fetch retains failed searches and freshness rejects partial coverage even with twelve products', async () => {
   const { page, requests } = await simulateNurseryFetch('partial');
-  assert.equal(requests.length, 11);
+  assert.equal(requests.length, 13, 'persistent transient failures stop after three attempts');
   assert.equal(page.products.length, 12);
   assert.equal(page.fetchErrors.length, 1);
+  assert.ok(!page.fetchErrors.join(' ').includes('simulated-private-api-error'));
   const issues = auditRefreshData({ schemaVersion: 2, pages: [page] });
   assert.ok(issues.some(issue => /API keyword searches failed/.test(issue)));
   assert.ok(!issues.join(' ').includes('simulated-private-api-error'));
@@ -71,6 +78,21 @@ test('nursery fetch retains failed searches and freshness rejects partial covera
   assert.equal(empty.requests.length, 11);
   assert.equal(empty.page.products.length, 0);
   assert.ok(auditRefreshData({ schemaVersion: 2, pages: [empty.page] }).some(issue => /only 0 products/.test(issue)));
+});
+
+test('temporary API failures recover complete coverage without weakening the publication gate', async () => {
+  for (const mode of ['transient', 'rate-limit', 'network']) {
+    const { page, requests } = await simulateNurseryFetch(mode);
+    assert.equal(requests.length, 12);
+    assert.equal(page.fetchErrors, undefined);
+    assert.equal(page.products.length, 12);
+    assert.equal(new Set(page.products.map(product => product.itemCode)).size, 12);
+    assert.deepEqual(auditRefreshData({ schemaVersion: 2, pages: [page] }), []);
+  }
+  const invalid = await simulateNurseryFetch('bad-request');
+  assert.equal(invalid.requests.length, 11, 'parameter errors must not be retried');
+  assert.equal(invalid.page.fetchErrors.length, 1);
+  assert.ok(auditRefreshData({ schemaVersion: 2, pages: [invalid.page] }).some(issue => /API keyword searches failed/.test(issue)));
 });
 
 function selectionCandidate(itemCode, titleRaw, score = 500) {
