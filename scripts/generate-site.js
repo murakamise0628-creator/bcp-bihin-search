@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const { procurementEstimate } = require('./procurement-estimate');
 const { comparisonUnit } = require('./comparison-unit');
 const { isSupplementalCandy, nurseryPurpose, nurseryGroups } = require('./nursery-comparison.cjs');
+const { displayProductName } = require('./display-product-name.cjs');
 const {
   hasAmbiguousToiletQuantity,
   hasVariablePrice,
@@ -495,7 +496,7 @@ function shortName(name, maxLength = 54) {
 
 function displayTitle(product, maxLength = 58) {
   const raw = product.titleRaw ? productDisplayTitle(product.titleRaw, product.summary || '', maxLength) : (product.titleShort || product.name || '');
-  return shortName(raw, maxLength);
+  return shortName(displayProductName(product, raw, maxLength), maxLength);
 }
 
 function rawTitle(product) {
@@ -2547,6 +2548,13 @@ function checklistQuantitySection() {
       <div><span>簡易トイレ</span><strong id="toiletEstimate">150回分</strong><small>1人1日5回の目安</small></div>
       <div><span>毛布・保温シート</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small></div>
     </div>
+    <h3>現在庫と照らし、不足する品目を比較</h3>
+    <p class="notice">表示量をそのまま買い足すのではなく、期限内の在庫を差し引いてください。園児の食事や介護施設の個別条件は、年齢・食事形態・施設の方針に合わせて確認してください。</p>
+    <nav class="stock-plan-grid" aria-label="不足品を比較">
+      <a class="stock-plan-link" data-stock-plan="water_food" data-plan-path="${siteUrl}/pages/water-food-stock.html" href="${siteUrl}/pages/water-food-stock.html?staff=10&amp;days=3&amp;visitors=0#comparison"><span>保存水・非常食</span><strong id="waterFoodPlanLabel">10人・3日分を比較</strong><small>水量・食数・保存年数・単価を確認</small></a>
+      <a class="stock-plan-link" data-stock-plan="food" data-plan-path="${siteUrl}/pages/emergency-food-office.html" href="${siteUrl}/pages/emergency-food-office.html?staff=10&amp;days=3&amp;visitors=0#comparison"><span>会社向け非常食セット</span><strong id="foodPlanLabel">90食分の候補を比較</strong><small>食数・調理用の水・原材料を確認</small></a>
+      <a class="stock-plan-link" data-stock-plan="toilet" data-plan-path="${siteUrl}/pages/toilet-office.html" href="${siteUrl}/pages/toilet-office.html?staff=10&amp;days=3&amp;visitors=0#comparison"><span>簡易トイレ</span><strong id="toiletPlanLabel">150回分を比較</strong><small>回数・保存年数・袋や凝固剤の構成を確認</small></a>
+    </nav>
   </section>`;
 }
 

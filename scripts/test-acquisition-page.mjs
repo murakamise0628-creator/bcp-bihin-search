@@ -27,6 +27,19 @@ assert.match(page, /data-stockpile-tool/);
 assert.match(page, /data-print-checklist/);
 assert.match(page, /window\.print\(\)/);
 assert.match(page, /data-download-checklist/);
+const checklistQuantity = page.match(/<section[^>]*id="quantity"[\s\S]*?<\/section>/)?.[0] || '';
+assert.match(checklistQuantity, /aria-label="不足品を比較"/, 'comparison entry must follow the quantity result, before the long checklist');
+for (const [type, slug, label] of [
+  ['water_food', 'water-food-stock', 'waterFoodPlanLabel'],
+  ['food', 'emergency-food-office', 'foodPlanLabel'],
+  ['toilet', 'toilet-office', 'toiletPlanLabel']
+]) {
+  assert.ok(checklistQuantity.includes(`data-stock-plan="${type}"`));
+  assert.ok(checklistQuantity.includes(`data-plan-path="https://jigyousho-bousai.com/pages/${slug}.html"`));
+  assert.ok(checklistQuantity.includes(`id="${label}"`));
+  assert.ok(checklistQuantity.includes(`href="https://jigyousho-bousai.com/pages/${slug}.html?staff=10&amp;days=3&amp;visitors=0#comparison"`));
+}
+assert.doesNotMatch(checklistQuantity, /hb\.afl\.rakuten/, 'checklist must offer comparison, not a blind affiliate jump');
 assert.match(page, /"@type":"WebApplication"/);
 assert.doesNotMatch(page, /"@type":"Product"/);
 assert.equal((page.match(/type="checkbox" data-stockpile-check/g) || []).length, 34);
