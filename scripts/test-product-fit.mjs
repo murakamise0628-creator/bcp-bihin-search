@@ -4,6 +4,7 @@ import productTools from './fetch-products.js';
 import unitTools from './comparison-unit.js';
 import { readFileSync } from 'node:fs';
 import nurseryTools from './nursery-comparison.cjs';
+import { displayProductName } from './display-product-name.cjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -473,6 +474,34 @@ test('generic product labels retain quantities or model names', () => {
     productDisplayTitle('\u30b5\u30f3\u30a8\u30a4 \u9632\u707d\u30de\u30eb\u30c1\u30e9\u30a4\u30c8 A\u30bf\u30a4\u30d7 BMR-1', ''),
     /BMR-1|\u30b5\u30f3\u30a8\u30a4/
   );
+});
+
+test('short titles retain Japanese brands next to Japanese product words', () => {
+  for (const [raw, brand] of [
+    ['尾西食品のアルファ米 非常食 5年保存 12食', '尾西食品'],
+    ['アイリスオーヤマ保存水 2L 5年保存', 'アイリスオーヤマ'],
+    ['サンワサプライ防災ラジオ', 'サンワサプライ'],
+    ['【公式 アルファー食品】安心米 非常食 5年保存 9食 送料無料', 'アルファー食品'],
+    ['【公式】石井食品 非常食 4年保存 調理不要 水不要', '石井食品'],
+    ['米粉パン 非常食 7年保存 4食 グリーンケミー', 'グリーンケミー'],
+    ['安心米 非常食 5年保存 9食', '安心米']
+  ]) {
+    const result = displayProductName({ titleRaw: raw }, productDisplayTitle(raw));
+    assert.ok(result.startsWith(`${brand} `), `${raw}: ${result}`);
+    assert.ok(result.length <= 58);
+    assert.doesNotMatch(result, /送料無料|【|】/);
+  }
+});
+
+test('English brand matching preserves boundaries without inventing brand names', () => {
+  const display = raw => displayProductName({ titleRaw: raw }, productDisplayTitle(raw));
+  assert.match(display('Anker ポータブル電源 1000Wh'), /^Anker /);
+  assert.match(display('BOS 非常用トイレ 50回分'), /^BOS /);
+  assert.doesNotMatch(display('BOSTON 非常用トイレ 50回分'), /^BOS /);
+  assert.doesNotMatch(display('非Ankerish ポータブル電源 1000Wh'), /^Anker /);
+  assert.equal(display('非常食セット 9食 5年保存'), '5年保存 9食 非常食');
+  assert.equal(displayProductName({ titleShort: '尾西食品 非常食' }, '非常食'), '非常食');
+  assert.equal(display('尾西食品 5年保存 12食 非常食').match(/尾西食品/g).length, 1);
 });
 
 test('display titles do not treat postal delivery limits as pack quantities', () => {
