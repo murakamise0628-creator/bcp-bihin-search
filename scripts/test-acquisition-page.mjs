@@ -59,6 +59,28 @@ assert.ok(sitemapDates.length > 0, 'sitemap must include lastmod dates');
 assert.ok(sitemapDates.every((date) => Date.parse(`${date}T00:00:00+09:00`) >= Date.parse('2026-08-03T00:00:00+09:00')), 'sitemap lastmod must include the editorial update');
 
 const power = fs.readFileSync(path.join(root, 'dist', 'pages', 'portable-power-kaigo.html'), 'utf8');
+const quantityGuide = fs.readFileSync(path.join(root, 'dist', 'pages', 'office-stockpile-quantity.html'), 'utf8');
+const method = quantityGuide.match(/<section[^>]*id="calculation-method"[\s\S]*?<\/section>/)?.[0] || '';
+assert.match(method, /会社の防災備蓄量の計算方法/, 'calculation method must be visible, not only inside noscript');
+assert.doesNotMatch(method, /<noscript/);
+for (const formula of ['対象人数 × 日数 × 3L', '対象人数 × 日数 × 3食', '対象人数 × 日数 × 5回', '対象人数 × 1枚']) {
+  assert.ok(method.includes(formula), `missing visible formula: ${formula}`);
+}
+assert.match(method, /来客・利用者/);
+assert.match(method, /二重/);
+assert.match(method, /園児/);
+assert.match(method, /270L/);
+assert.match(method, /450回/);
+assert.match(method, /href="#quantity"/);
+assert.ok(quantityGuide.indexOf('id="calculation-method"') < quantityGuide.indexOf('id="quantity"'), 'explanation should lead into the existing calculator');
+const quantityFaq = [...quantityGuide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+  .map(match => JSON.parse(match[1])).find(graph => graph['@type'] === 'FAQPage')?.mainEntity;
+assert.equal(quantityFaq.length, 5);
+assert.equal(quantityFaq[0].name, '会社の防災備蓄量はどう計算しますか？');
+for (const item of quantityFaq) {
+  assert.ok(quantityGuide.includes(`<summary>${item.name}</summary>`));
+  assert.ok(quantityGuide.includes(`<p>${item.acceptedAnswer.text}</p>`));
+}
 assert.doesNotMatch(power, /doops:10035046|doops%2Fzzt4260015d41d|doops%2Fi%2F10035046/, 'standalone vehicle charger must not be offered as a power station, including cached-data builds');
 
 const toilet = fs.readFileSync(path.join(root, 'dist', 'pages', 'toilet-office.html'), 'utf8');
