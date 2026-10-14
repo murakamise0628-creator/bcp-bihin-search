@@ -3193,7 +3193,7 @@ const quantityGuideCanonical = `${siteUrl}/pages/office-stockpile-quantity.html`
 const quantityGuideTitle = '会社の防災備蓄量を計算｜人数別早見表・在庫差引・購入予算';
 const quantityGuideDescription = '会社の防災備蓄は何人分・何日分必要？水・非常食・簡易トイレの必要量を計算し、在庫を差し引いた購入個数と概算予算を確認。10・30・50・100人の3日分・7日分の早見表、商品の内容量・価格の確認先も掲載しています。';
 const quantityGuideFaq = [
-  ['会社の防災備蓄は何日分から考えますか？', 'まず3日分を出発点に、従業員、来客、施設利用者を含む最大人数で計算します。地域や建物、物流の条件によっては7日分も比較してください。'],
+  ['会社の防災備蓄量はどう計算しますか？', '対象人数×待機日数×1人1日あたりの量で計算します。成人向けの計画では水3L、食料3食、簡易トイレ5回を目安にし、毛布・保温シートは日数に関係なく1人1枚を出発点にします。まず3日分を確認し、施設条件に応じて日数を調整してください。購入量は必要量から期限内で使える在庫を差し引いて決めます。園児や個別食は別に計画してください。'],
   ['30人分の保存水はどれくらい必要ですか？', '1人1日3Lを目安にすると、30人では3日分で270L、7日分で630Lです。保管場所と持ち運びやすさもあわせて確認します。'],
   ['50人分の簡易トイレは何回分ですか？', '1人1日5回を目安にすると、50人では3日分で750回、7日分で1,750回です。凝固剤、処理袋、防臭袋の数も確認してください。'],
   ['毛布や保温シートは日数分必要ですか？', 'この早見表では1人1枚を出発点にしています。季節、建物の断熱性、夜間待機の有無に合わせて追加を検討してください。'],
@@ -3253,6 +3253,21 @@ const quantityGuideBody = `<section class="hero">
   <div class="hero-actions"><a class="button orange" href="#quantity">自社の人数で計算する</a><a class="button secondary" href="#quantity-table">人数別の早見表を見る</a></div>
 </section>
 <section class="section card"><p class="eyebrow">このページの結論</p><h2>まず3日分を出発点に、人数と保管場所の両方で確認します</h2><p>水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回、毛布または保温シートは1人1枚を目安に計算しています。7日分は物流やライフラインの復旧に時間がかかる場合の比較用です。施設条件や自治体の方針に合わせて調整してください。</p></section>
+<section class="section" id="calculation-method" aria-labelledby="calculation-method-heading">
+  <h2 id="calculation-method-heading">会社の防災備蓄量の計算方法</h2>
+  <p>必要量は「対象人数 × 待機日数 × 1人1日あたりの量」で計算します。対象人数には従業員・職員に加え、施設内で待機する想定の来客・利用者を含めます。拠点や勤務帯ごとの人数を確認し、同じ人を二重に数えないようにしてください。</p>
+  <div class="compare-scroll"><table class="compare-table"><caption>成人30人が3日間待機する場合の計算例</caption><thead><tr><th scope="col">品目</th><th scope="col">計算式の目安</th><th scope="col">30人・3日分</th></tr></thead><tbody>
+    <tr><th scope="row">保存水</th><td>対象人数 × 日数 × 3L</td><td>30 × 3 × 3L = 270L</td></tr>
+    <tr><th scope="row">食料</th><td>対象人数 × 日数 × 3食</td><td>30 × 3 × 3食 = 270食</td></tr>
+    <tr><th scope="row">簡易トイレ</th><td>対象人数 × 日数 × 5回</td><td>30 × 3 × 5回 = 450回</td></tr>
+    <tr><th scope="row">毛布・保温シート</th><td>対象人数 × 1枚</td><td>30 × 1枚 = 30枚</td></tr>
+  </tbody></table></div>
+  <p>毛布・保温シートは日数倍にせず、季節や待機場所に合わせて追加を検討します。水と食料は成人向けの計画の目安です。園児の飲水量・食数、ミルク、離乳食、個別食は施設の計画に合わせて別に数えてください。</p>
+  <p>内閣府の<a href="https://www.bousai.go.jp/jishin/kitakukonnan/pdf/kitakukonnan_guideline.pdf" target="_blank" rel="noopener">帰宅困難者ガイドライン（参考資料2）</a>を水・主食・毛布の目安に、<a href="https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf" target="_blank" rel="noopener">トイレ確保・管理ガイドライン</a>の使用回数を参考にしています。事業所ごとの必要量や義務を断定するものではありません。</p>
+  <p>来客分は下の入力欄に想定人数を入れます。来客数を含めて計算した後に、同じ分を一律10%でも上乗せすると二重計上になります。受入方針や混雑時の人数に合わせて調整してください。</p>
+  <p><strong>必要量がそのまま購入量とは限りません。</strong>期限内で使える在庫を引き、不足量を1箱の内容量で割って端数を切り上げます。例として水270Lに対し在庫30L、1箱12Lなら不足240L、購入は20箱です。箱の内容量は販売ページで確認してください。</p>
+  <a class="small-button" href="#quantity">自社の人数で必要量を計算</a>
+</section>
 ${quantityEstimateSection('office-stockpile-quantity')}
 <section class="section card" id="procurement" aria-labelledby="procurement-heading">
   <h2 id="procurement-heading">在庫を引いて、買い足す個数と予算を確認</h2>
