@@ -13,7 +13,63 @@
       "verifiedAt": "2026-10-15T00:00:00+09:00",
       "expiresAt": "2026-11-14T00:00:00+09:00",
       "manufacturerSource": "https://bos-bos.com/product/toilet/",
-      "amazonSource": "https://www.amazon.co.jp/dp/B088BKW851?ref=myi_title_dp"
+      "amazonSource": "https://www.amazon.co.jp/dp/B088BKW851"
+    },
+    {
+      "itemCode": "jackery-japan:10000025",
+      "asin": "B0D3HJM175",
+      "title": "Jackery ポータブル電源 1000 New 1070Wh 1500W 本体",
+      "productType": "power",
+      "pages": ["portable-power-kaigo", "typhoon-office", "blackout-power"],
+      "rawTitleSha256": "a0c6c15d1ffb7f713fd7f86f7d6cebaea74e97584dac25c8819cb834b947ac8e",
+      "summarySha256": "c24492aa80de92b38ae905150ad0df8b2ccfb4a0054e6b08e3e64daa7d31b798",
+      "verifiedAt": "2026-10-16T00:00:00+09:00",
+      "expiresAt": "2026-11-15T00:00:00+09:00",
+      "manufacturerSource": "https://www.jackery.jp/pages/news-20240625",
+      "rakutenSource": "https://item.rakuten.co.jp/jackery-japan/n-p-10001000-bkor-jk2/",
+      "amazonSource": "https://www.amazon.co.jp/dp/B0D3HJM175"
+    },
+    {
+      "itemCode": "jackery-japan:10000033",
+      "asin": "B0D3HLP1NM",
+      "title": "Jackery Solar Generator 1000 New 1070Wh + 100Wパネル1枚",
+      "productType": "power",
+      "pages": ["portable-power-kaigo", "typhoon-office", "blackout-power"],
+      "rawTitleSha256": "d0748b3294cbaef534c89c017f36f941d8aab2a744f86b56135b38baa2860ee2",
+      "summarySha256": "8e702fc4eced7e2d109fbe0a0b38d965b23cbe5c01ea9f67b7e3e3719257d77a",
+      "verifiedAt": "2026-10-16T00:00:00+09:00",
+      "expiresAt": "2026-11-15T00:00:00+09:00",
+      "manufacturerSource": "https://www.jackery.jp/pages/news-20240625",
+      "rakutenSource": "https://item.rakuten.co.jp/jackery-japan/n-p1000-s100-jk2/",
+      "amazonSource": "https://www.amazon.co.jp/dp/B0D3HLP1NM"
+    },
+    {
+      "itemCode": "jackery-japan:10000004",
+      "asin": "B0CZ7145K1",
+      "title": "Jackery ポータブル電源 240 New JE-240A 256Wh 300W 本体",
+      "productType": "power",
+      "pages": ["typhoon-office", "blackout-power"],
+      "rawTitleSha256": "c153f05a763d98a04dc0cd3cb3b84bada1ec1b08f3783136f1b312a6011c7958",
+      "summarySha256": "d18f4524b12bf35d249ebb60ce0c4fc937007098dc20c807cc8b82f3d74be8f4",
+      "verifiedAt": "2026-10-16T00:00:00+09:00",
+      "expiresAt": "2026-11-15T00:00:00+09:00",
+      "manufacturerSource": "https://www.jackery.jp/products/explorer-240-new",
+      "rakutenSource": "https://item.rakuten.co.jp/jackery-japan/n-p-240200-bkor-jk2/",
+      "amazonSource": "https://www.amazon.co.jp/dp/B0CZ7145K1"
+    },
+    {
+      "itemCode": "jackery-japan:10000120",
+      "asin": "B0D2HXKBF1",
+      "title": "Jackery Solar Generator 240 New 256Wh + 40 Miniパネル1枚",
+      "productType": "power",
+      "pages": ["typhoon-office", "blackout-power"],
+      "rawTitleSha256": "43b34fa7a4f77b14d0516cfc43124d352bed7ac0225fd4a54df8a104c3c73f22",
+      "summarySha256": "bf34ac798fa14f6b082b5bc39e1fa64e9e43705dce3e2818a77579f28c7ed30f",
+      "verifiedAt": "2026-10-16T00:00:00+09:00",
+      "expiresAt": "2026-11-15T00:00:00+09:00",
+      "manufacturerSource": "https://www.jackery.jp/blogs/power-station/jackery-240-vs-240new",
+      "rakutenSource": "https://item.rakuten.co.jp/jackery-japan/60-0304-jpb1a1/",
+      "amazonSource": "https://www.amazon.co.jp/dp/B0D2HXKBF1"
     }
   ]
 }

@@ -4,8 +4,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { amazonOfferFor } from './amazon-links.cjs';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
+const amazonConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data/amazon-links.json'), 'utf8'));
+const productData = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data/products.json'), 'utf8'));
 const chromeCandidates = process.platform === 'win32'
   ? [path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Google', 'Chrome', 'Application', 'chrome.exe')]
   : [
@@ -100,13 +103,51 @@ async function navigateFresh(send, url) {
   await send('Page.navigate', { url });
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
-    if (await evaluate(send, `document.readyState !== 'loading'`)) {
+    if (await evaluate(send, `window.location.href === ${JSON.stringify(url)} && document.readyState === 'complete'`)) {
       await sleep(100);
       return;
     }
     await sleep(100);
   }
   throw new Error(`Timed out while loading ${url}`);
+}
+
+async function verifyAmazonChoices(send, width, slug) {
+  const products = productData.pages.find(page => page.slug === slug)?.products || [];
+  const expectedAsins = [...new Set(products.map(product => amazonOfferFor(product, slug, amazonConfig)?.asin).filter(Boolean))].sort();
+  const ui = await evaluate(send, `(() => {
+    return [...document.querySelectorAll('a[data-affiliate-merchant="amazon"]')].map(link=>{
+      const box=link.getBoundingClientRect();const url=new URL(link.href);
+      return {asin:link.dataset.amazonAsin,placement:link.dataset.ctaLocation,host:url.hostname,path:url.pathname,
+        visible:link.getClientRects().length>0,height:box.height,right:box.right,font:parseFloat(getComputedStyle(link).fontSize),
+        source:link.closest('tr,.product').textContent.includes('楽天市場の価格・レビュー')};
+    });
+  })()`);
+  assert.deepEqual([...new Set(ui.map(link => link.asin))].sort(), expectedAsins, slug + ': verified Amazon coverage');
+  for (const link of ui) {
+    assert.equal(link.host, 'www.amazon.co.jp');
+    assert.equal(link.path, `/dp/${link.asin}`);
+    assert.equal(link.source, true);
+    if (!link.visible) continue;
+    assert.ok(link.height >= 44 && link.font >= 16, slug + ': touch-sized Amazon CTA');
+    if (link.placement !== 'comparison_table') assert.ok(link.right <= width + 1, slug + ': Amazon CTA overflow');
+  }
+  const events = await evaluate(send, `(() => {
+    const links=[...document.querySelectorAll('a[data-affiliate-merchant="amazon"]')].filter(link=>link.getClientRects().length>0);
+    const before=window.dataLayer.length;
+    links.forEach(link=>{document.addEventListener('click',event=>event.preventDefault(),{capture:true,once:true});link.click();});
+    return {links:links.length,events:window.dataLayer.slice(before).map(entry=>Array.from(entry)).filter(entry=>entry[0]==='event')};
+  })()`);
+  const clicks = events.events.filter(entry => entry[1] === 'amazon_click');
+  assert.equal(clicks.length, events.links);
+  assert.equal(events.events.filter(entry => entry[1] === 'rakuten_click').length, 0);
+  for (const event of clicks) {
+    assert.ok(expectedAsins.includes(event[2].product_id));
+    assert.equal(event[2].affiliate_merchant, 'amazon');
+    assert.equal(event[2].product_price, undefined);
+    assert.equal(event[2].destination, `https://www.amazon.co.jp/dp/${event[2].product_id}`);
+  }
+  return { slug, width, verifiedProducts: expectedAsins.length, renderedLinks: ui.length, testedVisibleLinks: events.links };
 }
 
 const toiletPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'toilet-office.html')).href;
@@ -134,6 +175,7 @@ try {
   ], { stdio: 'ignore', windowsHide: true });
   ({ socket, send, browserErrors } = await connectPage('about:blank'));
   const widthResults = [];
+  const amazonResults = [];
   for (const width of [320, 375, 414, 768]) {
     await send('Emulation.setDeviceMetricsOverride', {
       width,
@@ -142,31 +184,7 @@ try {
       mobile: width < 768
     });
     await navigateFresh(send, `${toiletPage}?staff=10&days=3&visitors=0&audit=${width}`);
-    const amazonUi = await evaluate(send, `(() => {
-      const links=[...document.querySelectorAll('a[data-affiliate-merchant="amazon"]')];
-      return links.map(link=>{const box=link.getBoundingClientRect();return {placement:link.dataset.ctaLocation,host:new URL(link.href).hostname,height:box.height,right:box.right,font:parseFloat(getComputedStyle(link).fontSize),source:link.closest('tr,.product').textContent.includes('楽天市場の価格・レビュー')};});
-    })()`);
-    for (const link of amazonUi) {
-      assert.equal(link.host, 'www.amazon.co.jp');
-      assert.equal(link.source, true);
-      assert.ok(link.height >= 44 && link.font >= 16, 'Amazon CTA must be readable and touch-sized');
-      if (link.placement === 'product_card') assert.ok(link.right <= width + 1, 'Amazon card CTA overflow at ' + width);
-    }
-    const amazonEvents = await evaluate(send, `(() => {
-      const links=[...document.querySelectorAll('a[data-affiliate-merchant="amazon"]')];
-      const before=window.dataLayer.length;
-      links.forEach(link=>{document.addEventListener('click',event=>event.preventDefault(),{capture:true,once:true});link.click();});
-      return {links:links.length,events:window.dataLayer.slice(before).map(entry=>Array.from(entry)).filter(entry=>entry[0]==='event')};
-    })()`);
-    const amazonClicks = amazonEvents.events.filter(entry => entry[1] === 'amazon_click');
-    assert.equal(amazonClicks.length, amazonEvents.links);
-    assert.equal(amazonEvents.events.filter(entry => entry[1] === 'rakuten_click').length, 0);
-    for (const event of amazonClicks) {
-      assert.equal(event[2].product_id, 'B088BKW851');
-      assert.equal(event[2].affiliate_merchant, 'amazon');
-      assert.equal(event[2].product_price, undefined);
-      assert.equal(new URL(event[2].destination).search, '');
-    }
+    amazonResults.push(await verifyAmazonChoices(send, width, 'toilet-office'));
     const result = await evaluate(send, `(() => {
       const rect = (selector) => {
         const node = document.querySelector(selector);
@@ -203,6 +221,26 @@ try {
     assert.match(result.firstFit, /150回分/);
     assert.deepEqual(result.positions, result.positions.map((_, index) => index + 1), `${width}px CTA positions are stale`);
     widthResults.push(result);
+  }
+
+  for (const slug of ['portable-power-kaigo', 'typhoon-office', 'blackout-power']) {
+    for (const width of [320, 375, 414, 768, 1440]) {
+      await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
+      await navigateFresh(send, pathToFileURL(path.join(projectRoot, 'dist', 'pages', slug + '.html')).href);
+      amazonResults.push(await verifyAmazonChoices(send, width, slug));
+      assert.equal(await evaluate(send, 'document.documentElement.scrollWidth <= innerWidth + 1'), true, slug + ': page overflow');
+      if (width === 375 || width === 1440) {
+        const hasVisibleAmazon = await evaluate(send, `(() => {
+          const link=[...document.querySelectorAll('.quick-picks a[data-affiliate-merchant="amazon"]')].find(link=>link.getClientRects().length>0);
+          if(!link)return false;link.closest('.product').scrollIntoView({behavior:'instant',block:'start'});return true;
+        })()`);
+        if (hasVisibleAmazon) {
+          await sleep(400);
+          const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+          fs.writeFileSync(path.join(screenshotDir, `amazon-${slug}-${width}.png`), Buffer.from(screenshot.data, 'base64'));
+        }
+      }
+    }
   }
 
   await send('Emulation.setDeviceMetricsOverride', {
@@ -747,7 +785,7 @@ try {
     }
   }
   assert.deepEqual(browserErrors, [], `browser errors: ${browserErrors.join(' / ')}`);
-  console.log(JSON.stringify({ status: 'PASS', widths: widthResults, zeroPlan, power: powerResults, office: officeResults, emergencyFood: emergencyFoodResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
+  console.log(JSON.stringify({ status: 'PASS', amazon: amazonResults, widths: widthResults, zeroPlan, power: powerResults, office: officeResults, emergencyFood: emergencyFoodResults, quantity: quantityResults, home: homeResults, checklist: checklistResults }, null, 2));
 } catch (error) {
   if (process.env.GITHUB_ACTIONS === 'true') {
     const message = String(error?.message || error)

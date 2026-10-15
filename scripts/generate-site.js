@@ -2270,10 +2270,10 @@ function quickPicks(products, note) {
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : ''}
     <div><p class="pill navy">${esc(recommendationClass(product, note))}</p><h2>${esc(displayTitle(product))}</h2>
     <p>${esc(productDecisionSummary(product, note))}</p>
-    <p class="price">${esc(displayPrice(product))}</p><p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
+    <p class="price">${esc(displayPrice(product))}</p>${amazonOfferFor(product, note.slug, amazonConfig) ? '<p>楽天市場の価格・レビュー</p>' : ''}<p class="notice">${esc(extractSpec(product))} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
     <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>${note.slug === 'hoikuen-bousai' ? `
     <p class="notice">${esc(cautionForProduct(product, note))}</p>` : ''}
-    <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a></div>
+    <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認する</a>${amazonPurchaseLink(product, note, 'quick_pick')}</div>
   </article>`).join('');
   const eyebrow = note.slug === 'office-bichiku' ? '個人配布・共有・補充' : `先に見る${visibleCount}候補`;
   const heading = note.slug === 'office-bichiku' ? '買い方別に、最初の候補を確認' : note.slug === 'portable-power-kaigo' ? '容量・出力を照合して、価格を確認' : '比較条件が読み取りやすい商品';
@@ -2356,7 +2356,7 @@ function comparisonTable(products, note) {
   if (note.slug === 'portable-power-kaigo') {
     return `<section class="section" id="comparison"><div class="section-title"><h2>容量・出力・価格を比較</h2><p class="notice">本体のみ・パネル同梱などの販売単位、重量、保証は販売ページで確認</p></div><div class="compare-scroll"><table class="compare-table"><thead><tr><th>商品</th><th>容量（Wh）</th><th>出力（W・商品名表記）</th><th>価格</th><th>レビュー（件数）</th><th>条件の照合・販売ページ</th></tr></thead><tbody>${products.map((product, index) => {
       const facts = productDecisionFacts(product);
-      return `<tr ${productFitAttrs(product, note)}><td class="table-product">${esc(displayTitle(product, 46))}</td><td>${esc(facts.powerWh ? `${facts.powerWh.toLocaleString('ja-JP')}Wh` : '要確認')}</td><td>${esc(facts.outputW ? `${facts.outputW.toLocaleString('ja-JP')}W` : '要確認')}</td><td>${esc(displayPrice(product))}</td><td>${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</td><td><strong class="fit-result" data-fit-result>容量・出力を販売ページで照合</strong><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>出力・容量を楽天で確認</a></td></tr>`;
+      return `<tr ${productFitAttrs(product, note)}><td class="table-product">${esc(displayTitle(product, 46))}</td><td>${esc(facts.powerWh ? `${facts.powerWh.toLocaleString('ja-JP')}Wh` : '要確認')}</td><td>${esc(facts.outputW ? `${facts.outputW.toLocaleString('ja-JP')}W` : '要確認')}</td><td>${esc(displayPrice(product))}${amazonOfferFor(product, note.slug, amazonConfig) ? '<br><small>楽天市場の価格・レビュー</small>' : ''}</td><td>${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</td><td><strong class="fit-result" data-fit-result>容量・出力を販売ページで照合</strong><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>出力・容量を楽天で確認</a>${amazonPurchaseLink(product, note, 'comparison_table')}</td></tr>`;
     }).join('')}</tbody></table></div></section>`;
   }
   return `<section class="section" id="comparison">
