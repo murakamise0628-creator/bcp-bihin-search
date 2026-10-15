@@ -80,7 +80,7 @@ async function connectPage(targetUrl) {
   await send('Page.enable');
   await send('Runtime.enable');
   await send('Network.enable');
-  await send('Network.setBlockedURLs', { urls: ['*googletagmanager.com/*', '*google-analytics.com/*', '*analytics.google.com/*', '*hb.afl.rakuten.co.jp/*'] });
+  await send('Network.setBlockedURLs', { urls: ['*googletagmanager.com/*', '*google-analytics.com/*', '*analytics.google.com/*', '*hb.afl.rakuten.co.jp/*', '*amazon.co.jp/*', '*amzn.to/*', '*link.amazon/*', '*amzlinks.in/*'] });
   return { socket, send, browserErrors };
 }
 
@@ -142,6 +142,31 @@ try {
       mobile: width < 768
     });
     await navigateFresh(send, `${toiletPage}?staff=10&days=3&visitors=0&audit=${width}`);
+    const amazonUi = await evaluate(send, `(() => {
+      const links=[...document.querySelectorAll('a[data-affiliate-merchant="amazon"]')];
+      return links.map(link=>{const box=link.getBoundingClientRect();return {placement:link.dataset.ctaLocation,host:new URL(link.href).hostname,height:box.height,right:box.right,font:parseFloat(getComputedStyle(link).fontSize),source:link.closest('tr,.product').textContent.includes('楽天市場の価格・レビュー')};});
+    })()`);
+    for (const link of amazonUi) {
+      assert.equal(link.host, 'www.amazon.co.jp');
+      assert.equal(link.source, true);
+      assert.ok(link.height >= 44 && link.font >= 16, 'Amazon CTA must be readable and touch-sized');
+      if (link.placement === 'product_card') assert.ok(link.right <= width + 1, 'Amazon card CTA overflow at ' + width);
+    }
+    const amazonEvents = await evaluate(send, `(() => {
+      const links=[...document.querySelectorAll('a[data-affiliate-merchant="amazon"]')];
+      const before=window.dataLayer.length;
+      links.forEach(link=>{document.addEventListener('click',event=>event.preventDefault(),{capture:true,once:true});link.click();});
+      return {links:links.length,events:window.dataLayer.slice(before).map(entry=>Array.from(entry)).filter(entry=>entry[0]==='event')};
+    })()`);
+    const amazonClicks = amazonEvents.events.filter(entry => entry[1] === 'amazon_click');
+    assert.equal(amazonClicks.length, amazonEvents.links);
+    assert.equal(amazonEvents.events.filter(entry => entry[1] === 'rakuten_click').length, 0);
+    for (const event of amazonClicks) {
+      assert.equal(event[2].product_id, 'B088BKW851');
+      assert.equal(event[2].affiliate_merchant, 'amazon');
+      assert.equal(event[2].product_price, undefined);
+      assert.equal(new URL(event[2].destination).search, '');
+    }
     const result = await evaluate(send, `(() => {
       const rect = (selector) => {
         const node = document.querySelector(selector);
@@ -703,6 +728,17 @@ try {
   for (const width of [375, 1440]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
     await navigateFresh(send, toiletPage);
+    const amazonCard = await evaluate(send, `(() => {
+      const link=document.querySelector('#products a[data-affiliate-merchant="amazon"]');
+      if(!link)return false;
+      link.closest('.product').scrollIntoView({behavior:'instant',block:'start'});
+      return true;
+    })()`);
+    if (amazonCard) {
+      await sleep(400);
+      const amazonScreenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+      fs.writeFileSync(path.join(screenshotDir, `amazon-choice-${width}.png`), Buffer.from(amazonScreenshot.data, 'base64'));
+    }
     for (const section of ['purchase-units', 'comparison']) {
       await evaluate(send, `document.getElementById('${section}').scrollIntoView({ behavior: 'instant', block: 'start' })`);
       await sleep(400);
