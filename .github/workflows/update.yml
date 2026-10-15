@@ -9,6 +9,7 @@ on:
       - 'data/keywords.csv'
       - 'data/paid-product.json'
       - 'data/indexnow.json'
+      - 'data/amazon-links.json'
       - '.github/workflows/update.yml'
   schedule:
     - cron: '0 21 * * 0'

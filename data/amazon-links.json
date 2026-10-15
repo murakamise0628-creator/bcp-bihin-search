@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "tag": "fuma0628-22",
+  "products": [
+    {
+      "itemCode": "hashbaby:10005832",
+      "asin": "B088BKW851",
+      "title": "BOS 非常用トイレ Bセット 50回分",
+      "productType": "toilet",
+      "pages": ["toilet-office"],
+      "rawTitleSha256": "74c8fa461ae181bda01e5ea91bf319d18677925e9a4f44fa85da2162833ea749",
+      "summarySha256": "db1e317555a26ae62aaf98771b06ec82860fdb497215ef669d21bfff0bc14de8",
+      "verifiedAt": "2026-10-15T00:00:00+09:00",
+      "expiresAt": "2026-11-14T00:00:00+09:00",
+      "manufacturerSource": "https://bos-bos.com/product/toilet/",
+      "amazonSource": "https://www.amazon.co.jp/dp/B088BKW851?ref=myi_title_dp"
+    }
+  ]
+}

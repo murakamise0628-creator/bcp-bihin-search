@@ -6,6 +6,7 @@ const { procurementEstimate } = require('./procurement-estimate');
 const { comparisonUnit } = require('./comparison-unit');
 const { isSupplementalCandy, nurseryPurpose, nurseryGroups } = require('./nursery-comparison.cjs');
 const { displayProductName } = require('./display-product-name.cjs');
+const { amazonOfferFor, amazonClickParams } = require('./amazon-links.cjs');
 const {
   hasAmbiguousToiletQuantity,
   hasVariablePrice,
@@ -32,6 +33,9 @@ const keywordsPath = path.join(root, 'data', 'keywords.csv');
 const paidProductPath = path.join(root, 'data', 'paid-product.json');
 const indexNowPath = path.join(root, 'data', 'indexnow.json');
 const paidProductPreview = process.env.PAID_KIT_PREVIEW === '1';
+const amazonConfigPath = path.join(root, 'data', 'amazon-links.json');
+const amazonConfig = fs.existsSync(amazonConfigPath) ? JSON.parse(fs.readFileSync(amazonConfigPath, 'utf8')) : { enabled: false };
+const amazonDisclosure = 'Amazonのアソシエイトとして、事業所防災ナビは適格販売により収入を得ています。';
 
 const data = fs.existsSync(dataPath)
   ? JSON.parse(fs.readFileSync(dataPath, 'utf8'))
@@ -751,10 +755,11 @@ function disasterChips(items, active = '') {
 }
 
 function layout(title, body, description, canonical, options = {}) {
+  const hasAmazonLinks = body.includes('data-affiliate-merchant="amazon"');
   const crumbs = options.crumbs || [];
   const socialImage = options.ogImage ? `<meta property="og:image" content="${esc(options.ogImage)}"><meta name="twitter:image" content="${esc(options.ogImage)}">` : '';
   const breadcrumb = crumbs.length ? `<nav class="breadcrumb" aria-label="パンくず"><a href="${siteUrl}/">ホーム</a>${crumbs.map((item) => `<span>/</span><span>${esc(item)}</span>`).join('')}</nav>` : '';
-  const affiliateDisclosure = options.hideAffiliateDisclosure ? '' : '<p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。</p>';
+  const affiliateDisclosure = options.hideAffiliateDisclosure ? '' : `<p class="affiliate-disclosure">このサイトにはアフィリエイト広告を含みます。${hasAmazonLinks ? ` ${amazonDisclosure}` : ''}</p>`;
   const sharing = options.hideShare ? '' : shareSection(title, canonical);
   const robots = options.robots ? `<meta name="robots" content="${esc(options.robots)}">` : '';
   return `<!doctype html>
@@ -832,7 +837,7 @@ ${socialImage}
     .affiliate-disclosure{margin:10px 0 0;color:var(--muted);font-size:12px}
 
     /* primitives */
-    .button{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:12px 20px;background:var(--main);color:#fdfbf4;border-radius:4px;text-decoration:none;font-weight:700;letter-spacing:.03em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.22);transition:transform .18s ease,filter .18s ease}
+    ${hasAmazonLinks ? '.amazon-link{font-size:16px}\n    ' : ''}.button{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:12px 20px;background:var(--main);color:#fdfbf4;border-radius:4px;text-decoration:none;font-weight:700;letter-spacing:.03em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.22);transition:transform .18s ease,filter .18s ease}
     .button::after{content:"→";font-weight:400;transition:transform .18s ease}
     .button:hover{transform:translateY(-1px);filter:brightness(1.06)}
     .button:hover::after{transform:translateX(3px)}
@@ -1324,7 +1329,7 @@ ${socialImage}
     }
   </style>
 </head>
-<body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">よく使う比較</a></nav></header>${affiliateDisclosure}${breadcrumb}${body}${sharing}${siteFooter()}${clientScript()}</main></body>
+<body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">よく使う比較</a></nav></header>${affiliateDisclosure}${breadcrumb}${body}${sharing}${siteFooter()}${clientScript(hasAmazonLinks)}</main></body>
 </html>`;
 }
 
@@ -1406,7 +1411,7 @@ function sourceSection(slug = '') {
   </section>`;
 }
 
-function clientScript() {
+function clientScript(hasAmazonLinks = false) {
   return `<script>
     (function(){
       function trackEvent(name, params){
@@ -1990,7 +1995,15 @@ function clientScript() {
           });
           return;
         }
-        if(url.indexOf('hb.afl.rakuten.co.jp') !== -1){
+        ${hasAmazonLinks ? `if(anchor.dataset && anchor.dataset.affiliateMerchant === 'amazon'){
+          var amazonParams = (${amazonClickParams.toString()})(anchor);
+          if(amazonParams){
+            trackEvent('select_item', {item_list_name:amazonParams.cta_location,items:[{item_id:amazonParams.product_id,item_name:amazonParams.product_name,affiliation:'Amazon.co.jp'}]});
+            trackEvent('amazon_click', amazonParams);
+          }
+          return;
+        }
+        ` : ''}if(url.indexOf('hb.afl.rakuten.co.jp') !== -1){
           var params = productParams(anchor);
           trackEvent('select_item', {
             currency: 'JPY',
@@ -2198,14 +2211,14 @@ function comparisonRows(products, note) {
   return products.map((product, index) => `<tr ${productFitAttrs(product, note)}>
     <td class="table-product">${esc(displayTitle(product, 46))}</td>
     <td>${esc(product.relatedCandidate ? '関連候補' : recommendationClass(product, note))}</td>
-    <td>${esc(displayPrice(product))}${note.slug === 'toilet-office' && isToiletPurchaseCandidate(product) ? `<br><small>1回あたり約${Math.ceil(Number(product.price) / productDecisionFacts(product).toiletUses).toLocaleString('ja-JP')}円（送料除く）</small>` : ''}</td>
+    <td>${esc(displayPrice(product))}${amazonOfferFor(product, note.slug, amazonConfig) ? '<br><small>楽天市場の価格・レビュー</small>' : ''}${note.slug === 'toilet-office' && isToiletPurchaseCandidate(product) ? `<br><small>1回あたり約${Math.ceil(Number(product.price) / productDecisionFacts(product).toiletUses).toLocaleString('ja-JP')}円（送料除く）</small>` : ''}</td>
     <td>${esc(product.reviewAverage || '-')}</td>
     <td>${esc(product.reviewCount || 0)}</td>
     <td>${esc(storageYears(product))}</td>
     <td>${esc(extractSpec(product))}</td>
     <td>${esc(targetPeople(product, note))}</td>
     <td>${esc(suitedFacility(product, note))}</td>
-    <td><strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong><br>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product, note))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認</a></td>
+    <td><strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong><br>${esc(product.relatedCandidate ? `関連候補: ${product.relatedFrom || '関連ページ'}から補完` : cautionForProduct(product, note))}<br><span class="notice">根拠: ${esc(recommendationBasis(product))}</span><br><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>楽天で数量・価格を確認</a>${amazonPurchaseLink(product, note, 'comparison_table')}</td>
   </tr>`).join('');
 }
 
@@ -2358,6 +2371,12 @@ function comparisonTable(products, note) {
   </section>`;
 }
 
+function amazonPurchaseLink(product, note, placement) {
+  const offer = amazonOfferFor(product, note.slug, amazonConfig);
+  if (!offer) return '';
+  return `<p><a class="button amazon-link" href="${esc(offer.url)}" target="_blank" rel="nofollow sponsored noopener" data-affiliate-merchant="amazon" data-amazon-asin="${esc(offer.asin)}" data-product-name="${esc(offer.title)}" data-cta-location="${esc(placement)}">Amazonで数量・価格を確認</a></p><p class="notice">Amazonの価格・送料・販売元は移動先で確認してください。</p>`;
+}
+
 function productCards(products, note) {
   if (!products.length) {
     return `<article class="card empty"><p class="pill orange">候補を確認中</p><h2>条件を広げて確認してください</h2><p>人数、用途、保管場所、必要回数を先に確認し、関連する備蓄品もあわせて見てください。</p></article>`;
@@ -2370,7 +2389,7 @@ function productCards(products, note) {
       ${product.relatedCandidate ? `<p class="notice">この商品は「${esc(product.relatedFrom || '関連ページ')}」から補完した関連候補です。用途の一致度は販売ページで確認してください。</p>` : ''}
       <p class="summary">${esc(productDecisionSummary(product, note))}</p>
       <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>
-      <p class="price">${esc(displayPrice(product))}</p>
+      <p class="price">${esc(displayPrice(product))}</p>${amazonOfferFor(product, note.slug, amazonConfig) ? '<p>楽天市場の価格・レビュー</p>' : ''}
       <div class="facts">
         <span class="fact">レビュー ${esc(product.reviewAverage || '-')}</span>
         <span class="fact">件数 ${esc(product.reviewCount || 0)}</span>
@@ -2382,7 +2401,7 @@ function productCards(products, note) {
         <div><span>注意点</span><strong>${esc(cautionForProduct(product, note))}</strong></div>
         <div><span>${note.slug === 'hoikuen-bousai' ? '利用者・用途の確認' : '向いている施設'}</span><strong>${esc(suitedFacility(product, note))}</strong></div>
       </div>
-      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>${esc(note.slug === 'toilet-office' ? '回数・袋の構成を楽天で確認' : note.slug === 'portable-power-kaigo' ? '出力・容量を楽天で確認' : note.slug === 'restaurant-dansui' ? '用途・在庫を楽天で確認' : '数量・価格を楽天で確認')}</a>
+      <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>${esc(note.slug === 'toilet-office' ? '回数・袋の構成を楽天で確認' : note.slug === 'portable-power-kaigo' ? '出力・容量を楽天で確認' : note.slug === 'restaurant-dansui' ? '用途・在庫を楽天で確認' : '数量・価格を楽天で確認')}</a>${amazonPurchaseLink(product, note, 'product_card')}
     </div>
   </article>`).join('');
 }
@@ -3318,7 +3337,7 @@ const policyBody = `<nav class="breadcrumbs" aria-label="パンくず"><a href="
   <article class="card"><h2>サイト情報</h2><dl class="spec-grid"><div><span>サイト名</span><strong>事業所防災ナビ</strong></div><div><span>編集主体</span><strong>事業所防災ナビ編集部</strong></div><div><span>サイトURL</span><strong>${siteUrl}/</strong></div><div><span>更新日</span><strong>2026年7月23日</strong></div></dl></article>
   <article class="card"><h2>掲載情報について</h2><p>当サイトは、事業所向け防災用品を比較しやすくするための情報サイトです。価格、在庫、レビュー、商品仕様は変動する場合があります。購入前に必ず販売ページで最新情報を確認してください。</p><p>医療機器、介護機器、食品アレルギー、施設運用に関わる備蓄については、メーカー、専門業者、施設管理者に確認してください。</p></article>
 </section>
-<section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p></section>
+<section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトとAmazonアソシエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p><p>${esc(amazonDisclosure)}</p><p>比較表と商品カードに表示する価格・レビューは楽天市場の情報です。Amazonの価格・送料・販売元・セット内容は、Amazonの販売ページで確認してください。</p></section>
 <section class="section card"><h2>選定と更新</h2><p>商品名、価格、レビュー、容量、回数、保存年数など、販売ページから確認できる情報を比較項目として整理しています。対象人数や備蓄日数を読み取れない商品は、上位候補として扱わず、確認が必要な候補として分けます。商品情報は定期取得時に更新し、表示条件に合わない商品は掲載順を見直します。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
 ${structuredData(webPageJsonLd('サイト情報・広告掲載・プライバシー', '事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。', policyCanonical))}`;
