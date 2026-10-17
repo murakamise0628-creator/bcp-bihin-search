@@ -73,33 +73,58 @@ test('Amazon click params reject spoofed host, userinfo, ports, unrelated ASIN a
   assert.equal(amazonClickParams({ ...anchor(), dataset: {} }), null);
 });
 
-test('pilot build renders only verified Amazon links, without Amazon offers in JSON-LD', () => {
+test('verified expansion config keeps each model and bundle distinct', () => {
+  const liveConfig = JSON.parse(fs.readFileSync(new URL('../data/amazon-links.json', import.meta.url), 'utf8'));
+  const expected = {
+    'hashbaby:10005832': ['B088BKW851', ['toilet-office']],
+    'jackery-japan:10000025': ['B0D3HJM175', ['portable-power-kaigo', 'typhoon-office', 'blackout-power']],
+    'jackery-japan:10000033': ['B0D3HLP1NM', ['portable-power-kaigo', 'typhoon-office', 'blackout-power']],
+    'jackery-japan:10000004': ['B0CZ7145K1', ['typhoon-office', 'blackout-power']],
+    'jackery-japan:10000120': ['B0D2HXKBF1', ['typhoon-office', 'blackout-power']]
+  };
+  assert.deepEqual(Object.fromEntries(liveConfig.products.map(item => [item.itemCode, [item.asin, item.pages]])), expected);
+  for (const item of liveConfig.products) {
+    assert.equal(item.amazonSource, `https://www.amazon.co.jp/dp/${item.asin}`);
+    assert.match(item.manufacturerSource, /^https:\/\/(?:www\.jackery\.jp|bos-bos\.com)\//);
+    assert.ok(Date.parse(item.expiresAt) - Date.parse(item.verifiedAt) <= 31 * 86400000);
+  }
+});
+
+test('build renders only exact verified Amazon mappings, without Amazon offers in JSON-LD', () => {
   const root = new URL('../', import.meta.url);
-  const html = fs.readFileSync(new URL('dist/pages/toilet-office.html', root), 'utf8');
   const input = JSON.parse(fs.readFileSync(new URL('data/products.json', root), 'utf8'));
   const liveConfig = JSON.parse(fs.readFileSync(new URL('data/amazon-links.json', root), 'utf8'));
-  const candidate = input.pages.find(page => page.slug === 'toilet-office')?.products.find(item => item.itemCode === liveConfig.products?.[0]?.itemCode);
-  const offer = amazonOfferFor(candidate, 'toilet-office', liveConfig);
-  const cards = html.match(/<section[^>]*id="products"[\s\S]*?<\/section>/)?.[0] || '';
-  const expected = offer ? 1 + Number(cards.includes(`data-product-key="${candidate.itemCode}"`)) : 0;
-  assert.equal((html.match(/data-affiliate-merchant="amazon"/g) || []).length, expected);
-  if (offer) assert.match(html, /Amazonのアソシエイトとして、事業所防災ナビは適格販売により収入を得ています。/);
-  for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
-    const graph = JSON.parse(match[1]);
-    assert.doesNotMatch(JSON.stringify(graph), /amazon\.co\.jp/);
-  }
-  const amazonLinks = [...html.matchAll(/<a[^>]+data-affiliate-merchant="amazon"[^>]*>/g)].map(match => match[0]);
-  assert.ok(amazonLinks.every(link => /rel="nofollow sponsored noopener"/.test(link)));
-  assert.ok(amazonLinks.every(link => !/data-product-price/.test(link)));
-  if (offer) assert.match(html, /楽天市場の価格・レビュー/);
-  assert.equal(html.includes("trackEvent('amazon_click'"), Boolean(offer));
-  assert.ok(html.includes("trackEvent('rakuten_click'"));
   const policy = fs.readFileSync(new URL('dist/site-policy.html', root), 'utf8');
   assert.match(policy, /Amazonのアソシエイトとして/);
   for (const dir of ['pages', 'topics']) {
     for (const name of fs.readdirSync(new URL(`dist/${dir}/`, root)).filter(name => name.endsWith('.html'))) {
-      if (dir === 'pages' && name === 'toilet-office.html') continue;
-      assert.doesNotMatch(fs.readFileSync(new URL(`dist/${dir}/${name}`, root), 'utf8'), /data-affiliate-merchant="amazon"/, `${dir}/${name}: pilot must not spread to experiments`);
+      const html = fs.readFileSync(new URL(`dist/${dir}/${name}`, root), 'utf8');
+      const slug = name.replace(/\.html$/, '');
+      const page = dir === 'pages' ? input.pages.find(item => item.slug === slug) : undefined;
+      const offers = (page?.products || []).map(candidate => ({ candidate, offer: amazonOfferFor(candidate, slug, liveConfig) })).filter(item => item.offer);
+      const cards = html.match(/<section[^>]*id="products"[\s\S]*?<\/section>/)?.[0] || '';
+      const quickPicks = html.match(/<section[^>]*class="section quick-picks"[\s\S]*?<\/section>/)?.[0] || '';
+      const expectedAsins = offers.flatMap(({ candidate, offer }) => Array(1 + Number(cards.includes(`data-product-key="${candidate.itemCode}"`)) + Number(quickPicks.includes(`data-product-key="${candidate.itemCode}"`))).fill(offer.asin)).sort();
+      const links = [...html.matchAll(/<a[^>]+data-affiliate-merchant="amazon"[^>]*>/g)].map(match => match[0]);
+      assert.deepEqual(links.map(link => link.match(/data-amazon-asin="([^"]+)"/)[1]).sort(), expectedAsins, `${dir}/${name}: exact mapping coverage`);
+      for (const link of links) {
+        assert.match(link, /rel="nofollow sponsored noopener"/);
+        assert.doesNotMatch(link, /data-product-price/);
+        const asin = link.match(/data-amazon-asin="([^"]+)"/)[1];
+        const url = new URL(link.match(/href="([^"]+)"/)[1].replaceAll('&amp;', '&'));
+        assert.equal(url.origin, 'https://www.amazon.co.jp');
+        assert.equal(url.pathname, `/dp/${asin}`);
+        assert.equal(url.searchParams.get('tag'), liveConfig.tag);
+      }
+      for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+        assert.doesNotMatch(JSON.stringify(JSON.parse(match[1])), /amazon\.co\.jp/);
+      }
+      if (links.length) {
+        assert.match(html, /Amazonのアソシエイトとして、事業所防災ナビは適格販売により収入を得ています。/);
+        assert.match(html, /楽天市場の価格・レビュー/);
+      }
+      assert.equal(html.includes("trackEvent('amazon_click'"), links.length > 0);
+      assert.ok(html.includes("trackEvent('rakuten_click'"));
     }
   }
 });
