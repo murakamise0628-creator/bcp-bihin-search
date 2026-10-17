@@ -2300,8 +2300,8 @@ function toiletPurchasePlans(products, note) {
       <p class="pill orange">${plan.people}人・${plan.days}日</p>
       <h3>必要目安 ${requiredUses.toLocaleString('ja-JP')}回分</h3>
       <p><strong>${esc(displayTitle(candidate.product))}</strong>を${boxes}点で、合計${suppliedUses.toLocaleString('ja-JP')}回分になる組み方です。</p>
-      <p class="price">概算 ${yen(totalPrice)}（送料除く）</p>
-      <p class="notice">掲載候補のうち、必要回数を満たす同一商品の購入点数で概算総額を比較した一例です。袋の構成・性能は商品で異なります。送料、購入上限、価格、在庫は販売ページで確認してください。</p>
+      <p class="price">概算 ${yen(totalPrice)}</p>
+      <p class="notice">送料別の目安です。袋の構成・性能は商品で異なります。送料、購入上限、価格、在庫は販売ページで確認してください。</p>
       <a class="button orange" href="${esc(candidate.product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(candidate.product, `${note.title} ${plan.people}人${plan.days}日`, index + 1)}>${boxes}点分の内容を楽天で確認</a>
     </article>`;
   }).join('');
