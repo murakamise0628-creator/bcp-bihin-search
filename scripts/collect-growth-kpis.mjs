@@ -89,6 +89,33 @@ export function eventCounts(report) {
   return Object.fromEntries((report.rows || []).map((row) => [row.dimensionValues?.[0]?.value, Number(row.metricValues?.[0]?.value || 0)]));
 }
 
+export function eventReportComplete(report, dimensions) {
+  const rows = report.rows || [];
+  const metadata = report.metadata || {};
+  if (metadata.timeZone !== 'Asia/Tokyo' || metadata.subjectToThresholding || metadata.dataLossFromOtherRow
+    || metadata.samplingMetadatas?.length || metadata.dataTruncationReasons?.length || metadata.emptyReason
+    || metadata.schemaRestrictionResponse?.activeMetricRestrictions?.length
+    || !Number.isInteger(report.rowCount) || report.rowCount !== rows.length
+    || JSON.stringify((report.dimensionHeaders || []).map(item => item.name)) !== JSON.stringify(dimensions)
+    || report.metricHeaders?.length !== 1 || report.metricHeaders[0].name !== 'eventCount') return false;
+  const keys = new Set();
+  return rows.every(row => {
+    const values = row.dimensionValues?.map(item => item.value) || [];
+    const count = row.metricValues?.[0]?.value;
+    const key = JSON.stringify(values);
+    if (values.length !== dimensions.length || values.some(value => !value || value === '(other)' || value === '(not set)')
+      || typeof count !== 'string' || !/^\d+$/.test(count) || !Number.isSafeInteger(Number(count)) || keys.has(key)) return false;
+    keys.add(key);
+    return true;
+  });
+}
+
+function amazonEventCount(period, scope) {
+  if (!period?.eventCoverage?.requested?.includes('amazon_click') || period.eventCoverage[scope] !== true) return null;
+  return scope === 'all' ? Number(period.events?.amazon_click || 0)
+    : (period.eventPages || []).filter(row => row.eventName === 'amazon_click').reduce((sum, row) => sum + row.count, 0);
+}
+
 async function ga(propertyId, token, request, fetchImpl) {
   return googleJson(`https://analyticsdata.googleapis.com/v1beta/properties/${encodeURIComponent(propertyId)}:runReport`, token, {
     method: 'POST', body: JSON.stringify(request)
@@ -129,6 +156,10 @@ async function gaPeriod(propertyId, token, period, events, fetchImpl) {
   return {
     activeUsers: metric(summary, 'activeUsers'), sessions: metric(summary, 'sessions'), pageViews: metric(summary, 'screenPageViews'),
     organicSessions: metric(organic, 'sessions'), events: eventCounts(eventReport),
+    eventCoverage: {
+      requested: [...events], all: eventReportComplete(eventReport, ['eventName']),
+      organic: eventReportComplete(eventPages, ['eventName', 'pagePath'])
+    },
     landingPages: (landing.rows || []).map((row) => ({ path: row.dimensionValues?.[0]?.value || '', sessions: Number(row.metricValues?.[0]?.value || 0), activeUsers: Number(row.metricValues?.[1]?.value || 0) })),
     pageViewsByPage: (pageViewsByPage.rows || []).map((row) => ({ path: row.dimensionValues?.[0]?.value || '', pageViews: Number(row.metricValues?.[0]?.value || 0), activeUsers: Number(row.metricValues?.[1]?.value || 0) })),
     eventPages: (eventPages.rows || []).map((row) => ({ eventName: row.dimensionValues?.[0]?.value || '', path: row.dimensionValues?.[1]?.value || '', count: Number(row.metricValues?.[0]?.value || 0) }))
@@ -283,7 +314,9 @@ export function classifyPageOpportunity(row, thresholds = {}) {
   };
   const candidates = [];
   const add = (type, score, action) => candidates.push({ type, score: Math.round(score), action });
-  if (row.pageViews >= limits.minPageViews && row.impressions >= limits.minImpressions && row.rakutenClicks === 0) {
+  const observedClicks = row.merchantClicks ?? row.rakutenClicks;
+  if (row.pageViews >= limits.minPageViews && row.impressions >= limits.minImpressions
+    && row.merchantClicks !== null && observedClicks === 0) {
     add('conversion_gap', 40 + Math.min(row.pageViews, 100) * 1.5 + Math.min(row.impressions, 1000) * 0.05, '商品比較・価格確認CTA・商品との一致を見直す');
   }
   if (row.impressions >= limits.minImpressions && row.position > 0 && row.position <= limits.topResultPosition && row.ctr < limits.lowCtr) {
@@ -295,8 +328,8 @@ export function classifyPageOpportunity(row, thresholds = {}) {
   if (row.impressions < limits.lowVisibilityImpressions) {
     add('visibility_gap', 20 + Math.min(row.pageViews, 20), '検索需要とインデックス状況を確認し、対象クエリを絞る');
   }
-  if (row.rakutenClicks > 0) {
-    add('winner', 10 + Math.min(row.rakutenClicks, 20), '流入クエリと楽天クリック導線を維持し、近いページへ展開する');
+  if (observedClicks > 0) {
+    add('winner', 10 + Math.min(observedClicks, 20), '楽天・Amazonへの遷移を分けて確認し、流入意図に合う導線を維持する（購入実績ではない）');
   }
   if (!candidates.length) add('monitor', 0, '急いで変更せず、次回データまで推移を確認する');
   candidates.sort((a, b) => b.score - a.score);
@@ -309,13 +342,14 @@ export function classifyPageOpportunity(row, thresholds = {}) {
 }
 export function buildPagePriorities(report, thresholds = {}) {
   const siteUrl = report.siteUrl || 'https://jigyousho-bousai.com';
+  const amazonKnown = amazonEventCount(report.ga?.current, 'organic') !== null;
   const pages = new Map();
   const ensure = (value) => {
     const pagePath = normalizePagePath(value, siteUrl);
     if (!pagePath) return null;
     if (!pages.has(pagePath)) pages.set(pagePath, {
       path: pagePath, impressions: 0, searchClicks: 0, ctr: 0, position: 0,
-      sessions: 0, activeUsers: 0, pageViews: 0, rakutenClicks: 0
+      sessions: 0, activeUsers: 0, pageViews: 0, rakutenClicks: 0, amazonClicks: amazonKnown ? 0 : null
     });
     return pages.get(pagePath);
   };
@@ -343,15 +377,19 @@ export function buildPagePriorities(report, thresholds = {}) {
     page.activeUsers = Math.max(page.activeUsers, Number(row.activeUsers || 0));
   }
   for (const row of report.ga?.current?.eventPages || []) {
-    if (row.eventName !== 'rakuten_click') continue;
+    if (row.eventName !== 'rakuten_click' && row.eventName !== 'amazon_click') continue;
     const page = ensure(row.path);
     if (!page) continue;
-    page.rakutenClicks += Number(row.count || 0);
+    if (row.eventName === 'rakuten_click') page.rakutenClicks += Number(row.count || 0);
+    else if (amazonKnown) page.amazonClicks += Number(row.count || 0);
   }
 
   return [...pages.values()].map((page) => {
     const rakutenClickRate = page.pageViews > 0 ? page.rakutenClicks / page.pageViews : null;
-    return { ...page, rakutenClickRate, ...classifyPageOpportunity({ ...page, rakutenClickRate }, thresholds) };
+    const amazonClickRate = page.amazonClicks !== null && page.pageViews > 0 ? page.amazonClicks / page.pageViews : null;
+    const merchantClicks = page.amazonClicks === null ? null : page.rakutenClicks + page.amazonClicks;
+    return { ...page, rakutenClickRate, amazonClickRate, merchantClicks,
+      ...classifyPageOpportunity({ ...page, merchantClicks }, thresholds) };
   }).sort((a, b) => b.priorityScore - a.priorityScore || b.impressions - a.impressions || b.sessions - a.sessions);
 }
 
@@ -360,19 +398,19 @@ export function priorityMarkdown(report, limit = 10) {
   const percent = (value) => value === null || value === undefined ? '-' : `${(value * 100).toFixed(1)}%`;
   const eventsPerView = (value) => value === null || value === undefined ? '-' : value.toFixed(3);
   const rows = (report.pagePriorities || []).slice(0, limit).map((row) =>
-    `| ${esc(row.path)} | ${row.impressions} | ${row.searchClicks} | ${percent(row.ctr)} | ${row.position ? row.position.toFixed(1) : '-'} | ${row.pageViews} | ${row.sessions} | ${row.rakutenClicks} | ${eventsPerView(row.rakutenClickRate)} | ${row.primary} | ${esc(row.action)} |`
+    `| ${esc(row.path)} | ${row.impressions} | ${row.searchClicks} | ${percent(row.ctr)} | ${row.position ? row.position.toFixed(1) : '-'} | ${row.pageViews} | ${row.sessions} | ${row.rakutenClicks} | ${eventsPerView(row.rakutenClickRate)} | ${row.amazonClicks ?? '未確認'} | ${eventsPerView(row.amazonClickRate)} | ${row.primary} | ${esc(row.action)} |`
   );
   return [
     '# 週次ページ改善優先度',
     '',
     `対象期間: ${report.periods.current.startDate} - ${report.periods.current.endDate}`,
     '',
-    '| ページ | 表示 | 検索クリック | CTR | 順位 | PV | ランディングセッション | 楽天クリックイベント | 楽天クリックイベント/PV | 判定 | 次の作業 |',
-    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---|',
-    ...(rows.length ? rows : ['| データなし | 0 | 0 | - | - | 0 | 0 | 0 | - | monitor | 計測設定を確認する |']),
+    '| ページ | 表示 | 検索クリック | CTR | 順位 | PV | ランディングセッション | 楽天クリックイベント | 楽天クリックイベント/PV | Amazonクリックイベント | Amazonクリックイベント/PV | 判定 | 次の作業 |',
+    '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|',
+    ...(rows.length ? rows : ['| データなし | - | - | - | - | - | - | - | - | 未確認 | - | monitor | 計測設定を確認する |']),
     '',
-    '楽天クリックイベント/PVはイベント数の比であり、購入率・ユニーク利用者のクリック率ではありません。同じ利用者の複数クリックを含み、1を超えることがあります。',
-    '判定は優先順位付けの補助です。楽天の注文・確定報酬は楽天公式レポートで別途確認してください。',
+    '楽天・Amazonのページ別イベントとPVは自然検索に帰属する値です。楽天クリックイベント/PVおよびAmazonクリックイベント/PVはイベント数の比であり、購入率・ユニーク利用者のクリック率ではありません。同じ利用者の複数クリックを含み、1を超えることがあります。',
+    'Amazonの未取得・制限付き応答は未確認と表示します。判定は優先順位付けの補助です。楽天・Amazonの注文・確定報酬は各公式レポートで別途確認してください。',
     ''
   ].join('\n');
 }
@@ -385,12 +423,13 @@ export function sheetRow(report) {
   const querySummary = '';
   const searchPageSummary = summarizeTopRows(report.search.current.pages, (row) => `${row.key} (${row.clicks}クリック)`);
   const rakutenPageSummary = summarizeTopRows((report.ga.current.eventPages || []).filter((row) => row.eventName === 'rakuten_click'), (row) => `${row.path} (${row.count})`);
+  const amazonClicks = amazonEventCount(report.ga.current, 'all');
   return [report.collectedAt, report.periods.current.startDate, report.periods.current.endDate, report.ga.current.activeUsers,
     report.ga.current.sessions, report.ga.current.organicSessions, report.ga.current.pageViews, events.rakuten_click || 0,
     events.quantity_calculator_use || 0, events.stockpile_check_use || 0, events.stockpile_csv_download || 0,
     events.paid_kit_checkout_click || 0, report.search.current.clicks, report.search.current.impressions, report.search.current.ctr,
     report.search.current.position, comparison(report.ga.current.organicSessions, report.ga.previous.organicSessions),
-    comparison(events.rakuten_click || 0, report.ga.previous.events.rakuten_click || 0), '楽天の注文・確定報酬は公式CSVで別途照合',
+    comparison(events.rakuten_click || 0, report.ga.previous.events.rakuten_click || 0), `Amazonクリックイベント（全流入）: ${amazonClicks ?? '未確認'}。楽天・Amazonの注文・確定報酬は各公式レポートで別途照合`,
     querySummary, searchPageSummary, rakutenPageSummary];
 }
 
@@ -419,7 +458,8 @@ export function pagePrioritySheetRows(report) {
   return (report.pagePriorities || []).map((row) => [
     report.collectedAt, report.periods.current.startDate, report.periods.current.endDate, row.path,
     row.impressions, row.searchClicks, row.ctr, row.position, row.pageViews, row.sessions,
-    row.rakutenClicks, row.rakutenClickRate ?? '', row.primary, row.action
+    row.rakutenClicks, row.rakutenClickRate ?? '', row.primary,
+    `${row.action} / Amazonクリックイベント（自然検索）: ${row.amazonClicks ?? '未確認'}`
   ]);
 }
 

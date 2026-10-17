@@ -110,7 +110,7 @@ function improvement(primary, page) {
     conversion_gap: `${page.title}の冒頭比較と価格確認CTAを、訪問者が確認する順番に合わせて点検する。`,
     snippet_gap: `${page.title}のtitleとdescriptionを、検索者の購入前質問に直接答える表現へ点検する。`,
     ranking_opportunity: `${page.title}で不足している選び方・数量・注意点を補い、関連ページから内部リンクを追加する。`,
-    winner: `${page.title}の流入意図と楽天クリック導線を維持し、同じ判断軸を近い比較ページへ展開する。`,
+    winner: `${page.title}の楽天・Amazonへの遷移を分けて確認し、流入意図に合う比較導線を維持する。遷移を購入実績とみなさない。`,
     visibility_gap: `${page.title}の需要シグナルとインデックス状況を確認し、検索意図が一致する場合だけ内容を補う。`
   };
   return actions[primary] || `${page.title}は変更せず、次の計測期間まで推移を確認する。`;
@@ -159,7 +159,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
     const matchedSignals = pageSignals(page, signals);
     const measuredDemand = Number(row.impressions || 0) >= Number(config.minImpressions || 20)
       || Number(row.sessions || 0) >= Number(config.minSessions || 5)
-      || Number(row.rakutenClicks || 0) > 0;
+      || Number(row.rakutenClicks || 0) > 0 || Number(row.amazonClicks || 0) > 0;
     if (!measuredDemand && matchedSignals.length === 0) continue;
     if (row.primary === 'monitor') continue;
     if (row.primary === 'visibility_gap' && matchedSignals.length === 0) continue;
@@ -176,7 +176,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
     const score = Number(row.priorityScore || 0)
       + Math.min(Number(row.impressions || 0), 1000) / 20
       + Math.min(Number(row.sessions || 0), 100)
-      + Math.min(Number(row.rakutenClicks || 0), 20) * 10
+      + Math.min(Number(row.rakutenClicks || 0) + Number(row.amazonClicks || 0), 20) * 10
       + matchedSignals.reduce((sum, item) => sum + item.weight, 0);
     candidates.push({ row, page, matchedSignals, drafts, fingerprint, theme, score: Math.round(score * 10) / 10 });
   }
@@ -231,6 +231,7 @@ export function planDemandOperation(report, config, rawSignals = [], history = [
       sessions: Number(selected.row.sessions || 0),
       pageViews: Number(selected.row.pageViews || 0),
       rakutenClicks: Number(selected.row.rakutenClicks || 0),
+      amazonClicks: selected.row.amazonClicks ?? null,
       signalIds: selected.matchedSignals.map((item) => item.id),
       sourceUrls: selected.matchedSignals.map((item) => item.sourceUrl),
       observedAt: selected.matchedSignals.map((item) => item.observedAt)
@@ -281,7 +282,8 @@ export function demandSheetRow(operation, period = {}) {
       operation.theme, operation.score, operation.reasonCode, operation.trigger, operation.evidence.sourceUrls.join(' | '),
       operation.evidence.observedAt.join(' | '), operation.evidence.impressions, operation.evidence.searchClicks,
       operation.evidence.sessions, operation.evidence.pageViews, operation.evidence.rakutenClicks,
-      operation.improvementInstruction, ...operation.drafts, operation.fingerprint,
+      `${operation.improvementInstruction} / Amazonクリックイベント（自然検索）: ${operation.evidence.amazonClicks ?? '未確認'}`,
+      ...operation.drafts, operation.fingerprint,
       '投稿直前に警報・避難情報、媒体登録、価格・在庫を再確認', operation.status];
   }
   return [operation.generatedAt, period.startDate || '', period.endDate || '', '', '', '', '', operation.reasonCode || '',

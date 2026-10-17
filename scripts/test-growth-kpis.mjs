@@ -70,6 +70,130 @@ test('normalizes GA event rows', () => {
   assert.deepEqual(eventCounts(report), { rakuten_click: 7 });
 });
 
+test('weekly collection requests Amazon separately from Rakuten', async () => {
+  const calls = [];
+  await kpi.collectGrowthKpis({ readOnly: true, propertyId: '123', serviceAccount: testAccount, fetchImpl: fakeGoogle(calls) });
+  const eventRequests = calls.filter(call => call.url.includes(':runReport'))
+    .map(call => JSON.parse(call.options.body))
+    .filter(body => body.dimensions?.[0]?.name === 'eventName');
+  assert.equal(eventRequests.length, 4);
+  for (const body of eventRequests) assert.match(JSON.stringify(body.dimensionFilter), /amazon_click/);
+});
+
+function merchantPeriod(amazon = 3, complete = true) {
+  return {
+    events: { rakuten_click: 0, amazon_click: amazon },
+    eventCoverage: { requested: ['rakuten_click', 'amazon_click'], all: complete, organic: complete },
+    pageViewsByPage: [{ path: '/pages/blackout-power.html', pageViews: 25 }],
+    eventPages: [{ eventName: 'amazon_click', path: '/pages/blackout-power.html', count: amazon }]
+  };
+}
+
+test('Amazon activity is not mistaken for a missing purchase-page route', () => {
+  const pages = buildPagePriorities({
+    ga: { current: merchantPeriod() },
+    search: { current: { pages: [{ key: '/pages/blackout-power.html', impressions: 50, position: 5, ctr: 0.1 }] } }
+  });
+  assert.equal(pages[0].rakutenClicks, 0);
+  assert.equal(pages[0].amazonClicks, 3);
+  assert.equal(pages[0].merchantClicks, 3);
+  assert.equal(pages[0].amazonClickRate, 3 / 25);
+  assert.ok(!pages[0].signals.includes('conversion_gap'));
+  assert.match(pages[0].action, /Amazon/);
+});
+
+test('unrequested or incomplete Amazon measurements remain unknown', () => {
+  for (const current of [{ ...merchantPeriod(), eventCoverage: undefined }, merchantPeriod(3, false)]) {
+    const row = buildPagePriorities({ ga: { current } })[0];
+    assert.equal(row.amazonClicks, null);
+    assert.equal(row.amazonClickRate, null);
+    assert.equal(row.merchantClicks, null);
+    assert.ok(!row.signals.includes('conversion_gap'));
+  }
+  const current = merchantPeriod(0);
+  current.eventPages = [];
+  const row = buildPagePriorities({ ga: { current } })[0];
+  assert.equal(row.amazonClicks, 0);
+  assert.equal(row.merchantClicks, 0);
+});
+
+test('event completeness requires full headers, row count and unrestricted unsampled results', () => {
+  const report = {
+    dimensionHeaders: [{ name: 'eventName' }], metricHeaders: [{ name: 'eventCount' }],
+    rowCount: 0, rows: [], metadata: { timeZone: 'Asia/Tokyo' }
+  };
+  assert.equal(kpi.eventReportComplete(report, ['eventName']), true);
+  for (const bad of [
+    {}, { ...report, rowCount: 1 }, { ...report, dimensionHeaders: [] },
+    { ...report, metadata: { timeZone: 'UTC' } },
+    { ...report, metadata: { ...report.metadata, subjectToThresholding: true } },
+    { ...report, metadata: { ...report.metadata, samplingMetadatas: [{}] } },
+    { ...report, metadata: { ...report.metadata, dataTruncationReasons: [{}] } },
+    { ...report, metadata: { ...report.metadata, emptyReason: 'restricted' } },
+    { ...report, metadata: { ...report.metadata, dataLossFromOtherRow: true } },
+    { ...report, metadata: { ...report.metadata, schemaRestrictionResponse: { activeMetricRestrictions: [{}] } } }
+  ]) assert.equal(kpi.eventReportComplete(bad, ['eventName']), false);
+});
+
+test('Amazon summary preserves existing Sheet dimensions and Rakuten-only cells', () => {
+  const report = {
+    collectedAt: '2026-10-18T00:00:00Z', periods: { current: { startDate: '2026-09-18', endDate: '2026-10-15' } },
+    ga: { current: merchantPeriod(), previous: { events: {} } }, search: { current: { pages: [] } }
+  };
+  report.pagePriorities = buildPagePriorities(report);
+  const row = sheetRow(report);
+  assert.equal(row.length, 22);
+  assert.equal(row[7], 0);
+  assert.match(row[18], /Amazon.*3/);
+  const pages = pagePrioritySheetRows(report);
+  assert.equal(pages[0].length, 14);
+  assert.equal(pages[0][10], 0);
+  assert.match(pages[0][13], /Amazon.*3/);
+  const markdown = priorityMarkdown(report);
+  assert.match(markdown, /Amazonクリックイベント/);
+  assert.match(markdown, /購入率・ユニーク利用者のクリック率ではありません/);
+  report.ga.current.eventCoverage = undefined;
+  assert.match(sheetRow(report)[18], /Amazon.*未確認/);
+});
+
+test('collection keeps all-channel and organic Amazon totals separate end to end', async () => {
+  const calls = [];
+  const fallback = fakeGoogle(calls);
+  const fetchImpl = async (url, options) => {
+    const request = url.includes(':runReport') ? JSON.parse(options.body) : {};
+    if (request.dimensions?.[0]?.name !== 'eventName') return fallback(url, options);
+    const organic = request.dimensions.length === 2;
+    const values = organic ? ['amazon_click', '/pages/blackout-power.html'] : ['amazon_click'];
+    const body = {
+      dimensionHeaders: request.dimensions, metricHeaders: [{ name: 'eventCount' }],
+      rows: [{ dimensionValues: values.map(value => ({ value })), metricValues: [{ value: organic ? '2' : '5' }] }],
+      rowCount: 1, metadata: { timeZone: 'Asia/Tokyo' }
+    };
+    return { ok: true, text: async () => JSON.stringify(body) };
+  };
+  const report = await kpi.collectGrowthKpis({ readOnly: true, propertyId: '123', serviceAccount: testAccount, fetchImpl });
+  assert.equal(report.ga.current.eventCoverage.all, true);
+  assert.equal(report.ga.current.eventCoverage.organic, true);
+  assert.equal(report.ga.current.events.amazon_click, 5);
+  assert.equal(report.pagePriorities.find(row => row.path === '/pages/blackout-power.html').amazonClicks, 2);
+  assert.match(sheetRow(report)[18], /全流入.*5/);
+  assert.ok(calls.every(call => !/sheets.googleapis.com/.test(call.url)));
+});
+
+test('duplicate, truncated and malformed event rows are not complete measurements', () => {
+  const row = { dimensionValues: [{ value: 'amazon_click' }], metricValues: [{ value: '2' }] };
+  const report = {
+    dimensionHeaders: [{ name: 'eventName' }], metricHeaders: [{ name: 'eventCount' }],
+    rowCount: 1, rows: [row], metadata: { timeZone: 'Asia/Tokyo' }
+  };
+  assert.equal(kpi.eventReportComplete(report, ['eventName']), true);
+  assert.equal(kpi.eventReportComplete({ ...report, rows: [row, row], rowCount: 2 }, ['eventName']), false);
+  assert.equal(kpi.eventReportComplete({ ...report, rowCount: 10001 }, ['eventName']), false);
+  for (const value of ['-1', 'NaN', '2.5', '', '9007199254740992']) {
+    assert.equal(kpi.eventReportComplete({ ...report, rows: [{ ...row, metricValues: [{ value }] }] }, ['eventName']), false);
+  }
+});
+
 test('handles comparisons with a zero baseline', () => {
   assert.equal(comparison(12, 8), 0.5);
   assert.equal(comparison(0, 0), 0);
@@ -113,6 +237,7 @@ test('joins GSC pages, GA landing sessions and Rakuten clicks by path', () => {
       { key: 'https://jigyousho-bousai.com/pages/blackout-power.html', clicks: 1, impressions: 60, ctr: 0.0167, position: 14 }
     ] } },
     ga: { current: {
+      eventCoverage: { requested: ['rakuten_click', 'amazon_click'], all: true, organic: true },
       landingPages: [
         { path: '/pages/toilet-office.html?source=google', sessions: 12, activeUsers: 10 },
         { path: '/pages/blackout-power.html', sessions: 7, activeUsers: 6 }

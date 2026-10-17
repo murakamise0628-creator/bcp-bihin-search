@@ -5,6 +5,7 @@
   "dataDelayDays": 3,
   "events": [
     "rakuten_click",
+    "amazon_click",
     "view_item_list",
     "select_item",
     "quantity_calculator_use",
