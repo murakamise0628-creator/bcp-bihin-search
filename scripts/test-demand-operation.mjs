@@ -70,6 +70,24 @@ test('supports ranking, conversion and winner evidence', () => {
   }
 });
 
+test('planner retains Amazon-only transition evidence without converting it to orders', () => {
+  const report = { pagePriorities: [page('/pages/blackout-power.html', 'winner', {
+    impressions: 2, sessions: 1, rakutenClicks: 0, amazonClicks: 3
+  })] };
+  const result = planDemandOperation(report, config, [], [], new Date('2026-10-18T00:00:00Z'));
+  assert.equal(result.status, 'ACTION');
+  assert.equal(result.evidence.rakutenClicks, 0);
+  assert.equal(result.evidence.amazonClicks, 3);
+  assert.match(result.improvementInstruction, /Amazon/);
+  const row = demandSheetRow(result);
+  assert.equal(row.length, 23);
+  assert.equal(row[15], 0);
+  assert.match(row[16], /Amazon.*3/);
+  assert.doesNotMatch(result.improvementInstruction, /購入実績がある|売れた/);
+  report.pagePriorities[0].amazonClicks = null;
+  assert.equal(planDemandOperation(report, config, [], [], new Date('2026-10-18T00:00:00Z')).status, 'NO_ACTION');
+});
+
 test('does not repeat an existing fingerprint', () => {
   const report = { pagePriorities: [page('/pages/toilet-office.html', 'conversion_gap')] };
   const first = planDemandOperation(report, config, [], [], new Date('2026-09-03T00:00:00Z'));
