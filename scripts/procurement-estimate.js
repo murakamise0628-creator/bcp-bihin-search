@@ -26,4 +26,20 @@ function procurementEstimate(required, stock, pack, price, discrete = false) {
   return result;
 }
 
-module.exports = { procurementEstimate };
+function selectPurchasePlan(required, candidates) {
+  if (!Number.isSafeInteger(required) || required <= 0 || required > 100000000) return null;
+  let best = null;
+  for (const candidate of candidates) {
+    if (!candidate || !Number.isSafeInteger(candidate.quantity) || candidate.quantity <= 0
+      || !Number.isSafeInteger(candidate.price) || candidate.price <= 0) continue;
+    const estimate = procurementEstimate(required, 0, candidate.quantity, candidate.price, true);
+    if (estimate.error || estimate.packages === null || estimate.cost === null) continue;
+    const plan = { candidate, packages: estimate.packages, supplied: candidate.quantity * estimate.packages, cost: estimate.cost };
+    if (!best || plan.cost < best.cost
+      || (plan.cost === best.cost && (plan.supplied < best.supplied
+        || (plan.supplied === best.supplied && plan.packages < best.packages)))) best = plan;
+  }
+  return best;
+}
+
+module.exports = { procurementEstimate, selectPurchasePlan };

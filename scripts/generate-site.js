@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const net = require('net');
 const crypto = require('crypto');
-const { procurementEstimate } = require('./procurement-estimate');
+const { procurementEstimate, selectPurchasePlan } = require('./procurement-estimate');
 const { comparisonUnit } = require('./comparison-unit');
 const { isSupplementalCandy, nurseryPurpose, nurseryGroups } = require('./nursery-comparison.cjs');
 const { displayProductName } = require('./display-product-name.cjs');
@@ -2283,9 +2283,8 @@ function quickPicks(products, note) {
 function toiletPurchasePlans(products, note) {
   if (note.slug !== 'toilet-office') return '';
   const candidates = products
-    .map((product) => ({ product, uses: Number(productDecisionFacts(product).toiletUses || 0) }))
-    .filter(({ product }) => isToiletPurchaseCandidate(product))
-    .sort((a, b) => a.uses - b.uses || Number(b.product.reviewCount || 0) - Number(a.product.reviewCount || 0) || Number(a.product.price || 0) - Number(b.product.price || 0));
+    .filter(isToiletPurchaseCandidate)
+    .map((product) => ({ product, quantity: Number(productDecisionFacts(product).toiletUses || 0), price: Number(product.price) }));
   if (!candidates.length) return `<section class="section" id="purchase-units"><h2>発注前に、同梱品と購入単位を確認</h2><p>10人・3日分は150回分、30人なら450回分、50人なら750回分が目安です。以下の比較表で凝固剤と処理袋の同梱数を確認し、販売ページで必要な購入点数と送料を見積もってください。</p><a class="small-button" href="#comparison">同梱品・回数を比較する</a></section>`;
 
   const plans = [
@@ -2294,24 +2293,22 @@ function toiletPurchasePlans(products, note) {
     { people: 50, days: 3 }
   ].map((plan, index) => {
     const requiredUses = plan.people * plan.days * 5;
-    const singlePack = candidates.find((candidate) => candidate.uses >= requiredUses);
-    const candidate = singlePack || candidates[candidates.length - 1];
-    const boxes = Math.ceil(requiredUses / candidate.uses);
-    const suppliedUses = candidate.uses * boxes;
-    const totalPrice = Number(candidate.product.price || 0) * boxes;
-    return `<article class="card procurement-card">
+    const purchase = selectPurchasePlan(requiredUses, candidates);
+    if (!purchase) return '';
+    const { candidate, packages: boxes, supplied: suppliedUses, cost: totalPrice } = purchase;
+    return `<article class="card procurement-card" data-required-uses="${requiredUses}" data-supplied-uses="${suppliedUses}" data-purchase-packages="${boxes}" data-purchase-cost="${totalPrice}" data-purchase-product="${esc(candidate.product.itemCode)}">
       <p class="pill orange">${plan.people}人・${plan.days}日</p>
       <h3>必要目安 ${requiredUses.toLocaleString('ja-JP')}回分</h3>
       <p><strong>${esc(displayTitle(candidate.product))}</strong>を${boxes}点で、合計${suppliedUses.toLocaleString('ja-JP')}回分になる組み方です。</p>
       <p class="price">概算 ${yen(totalPrice)}（送料除く）</p>
-      <p class="notice">不足を避ける購入単位の一例です。袋・凝固剤・防臭袋の内訳、配送単位、価格、在庫は販売ページで確認してください。</p>
+      <p class="notice">掲載候補のうち、必要回数を満たす同一商品の購入点数で概算総額を比較した一例です。袋の構成・性能は商品で異なります。送料、購入上限、価格、在庫は販売ページで確認してください。</p>
       <a class="button orange" href="${esc(candidate.product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(candidate.product, `${note.title} ${plan.people}人${plan.days}日`, index + 1)}>${boxes}点分の内容を楽天で確認</a>
     </article>`;
   }).join('');
 
   return `<section class="section" id="purchase-units">
     <div class="section-title"><div><p class="eyebrow">発注前の数量確認</p><h2>10・30・50人の購入単位を商品に当てはめる</h2></div><p class="notice">1人1日5回、3日分で算出</p></div>
-    <p class="lead">凝固剤と処理袋の同梱表記がある商品で、必要回数を満たす購入点数と費用の目安を確認できます。防臭袋の枚数、保管場所、送料もあわせて確認してください。</p>
+    <p class="lead">凝固剤と処理袋の同梱表記がある掲載商品について、1点だけでなく複数点を買う場合の総額も比べています。送料を含めた最安値や、施設への適合を保証するものではありません。防臭袋の枚数、保管場所も確認してください。</p>
     <div class="grid">${plans}</div>
   </section>`;
 }

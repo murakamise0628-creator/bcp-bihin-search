@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { amazonOfferFor } from './amazon-links.cjs';
+import productTools from './fetch-products.js';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
 const amazonConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data/amazon-links.json'), 'utf8'));
@@ -112,6 +113,29 @@ async function navigateFresh(send, url) {
   throw new Error(`Timed out while loading ${url}`);
 }
 
+async function verifyPurchasePlans(send, width) {
+  const plans = await evaluate(send, `(() => [...document.querySelectorAll('#purchase-units .procurement-card')].map(card => {
+    const link=card.querySelector('a'); const box=link.getBoundingClientRect();
+    return {...card.dataset, href:link.href, linkText:link.textContent, fits:box.left>=0&&box.right<=innerWidth+1};
+  }))()`);
+  assert.equal(plans.length, 3);
+  const candidates = productData.pages.find(page => page.slug === 'toilet-office').products.filter(productTools.isToiletPurchaseCandidate);
+  for (const [index, plan] of plans.entries()) {
+    const needed = [150, 450, 750][index];
+    const product = candidates.find(item => item.itemCode === plan.purchaseProduct);
+    assert.ok(product);
+    assert.equal(Number(plan.requiredUses), needed);
+    assert.equal(Number(plan.suppliedUses), productTools.decisionFacts(product).toiletUses * Number(plan.purchasePackages));
+    assert.ok(Number(plan.suppliedUses) >= needed);
+    const minimum = Math.min(...candidates.map(item => Math.ceil(needed / productTools.decisionFacts(item).toiletUses) * Number(item.price)));
+    assert.equal(Number(plan.purchaseCost), minimum);
+    assert.equal(plan.href, new URL(product.url).href);
+    assert.ok(plan.linkText.includes(plan.purchasePackages + '点分'));
+    assert.ok(plan.fits, 'purchase CTA overflows at ' + width);
+  }
+  return plans;
+}
+
 async function verifyAmazonChoices(send, width, slug) {
   const products = productData.pages.find(page => page.slug === slug)?.products || [];
   const expectedAsins = [...new Set(products.map(product => amazonOfferFor(product, slug, amazonConfig)?.asin).filter(Boolean))].sort();
@@ -184,6 +208,7 @@ try {
       mobile: width < 768
     });
     await navigateFresh(send, `${toiletPage}?staff=10&days=3&visitors=0&audit=${width}`);
+    await verifyPurchasePlans(send, width);
     amazonResults.push(await verifyAmazonChoices(send, width, 'toilet-office'));
     const result = await evaluate(send, `(() => {
       const rect = (selector) => {
@@ -766,6 +791,7 @@ try {
   for (const width of [375, 1440]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
     await navigateFresh(send, toiletPage);
+    await verifyPurchasePlans(send, width);
     const amazonCard = await evaluate(send, `(() => {
       const link=document.querySelector('#products a[data-affiliate-merchant="amazon"]');
       if(!link)return false;

@@ -5,6 +5,7 @@ import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import nurseryComparison from './nursery-comparison.cjs';
+import productTools from './fetch-products.js';
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptsDir, '..');
@@ -100,6 +101,26 @@ for (const item of toiletFaq) {
 }
 assert.match(toilet, /100回分入りなら2箱で200回分/);
 assert.match(toilet, /不足する袋や凝固剤は別に補充/);
+const toiletData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'products.json'), 'utf8')).pages.find(item => item.slug === 'toilet-office');
+const purchaseCards = [...toilet.matchAll(/<article class="card procurement-card"([^>]*)>([\s\S]*?)<\/article>/g)];
+assert.equal(purchaseCards.length, 3);
+for (const [index, match] of purchaseCards.entries()) {
+  const attr = name => match[1].match(new RegExp(`data-${name}="([^"]+)"`))?.[1];
+  const need = [150, 450, 750][index];
+  const candidate = toiletData.products.find(product => product.itemCode === attr('purchase-product'));
+  assert.ok(candidate && productTools.isToiletPurchaseCandidate(candidate));
+  const count = Number(attr('purchase-packages'));
+  const supplied = Number(attr('supplied-uses'));
+  assert.equal(Number(attr('required-uses')), need);
+  assert.equal(supplied, productTools.decisionFacts(candidate).toiletUses * count);
+  assert.ok(supplied >= need);
+  const costs = toiletData.products.filter(productTools.isToiletPurchaseCandidate).map(product =>
+    Math.ceil(need / productTools.decisionFacts(product).toiletUses) * Number(product.price));
+  assert.equal(Number(attr('purchase-cost')), Math.min(...costs));
+  assert.equal(Number(attr('purchase-cost')), Number(candidate.price) * count);
+  assert.ok(match[2].includes(`${count}点分の内容を楽天で確認`));
+  assert.match(match[2], /送料、購入上限、価格、在庫/);
+}
 
 const nursery = fs.readFileSync(path.join(root, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
 assert.match(nursery, /id="nursery-children"/);
