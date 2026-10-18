@@ -718,6 +718,17 @@ try {
     })()`);
     assert.equal(purposes.foodFirst, true);
     assert.equal(purposes.foodCards, true);
+    const foodEntry = await evaluate(send, `(() => {
+      const comparison=document.getElementById('comparison');
+      const quantity=document.getElementById('quantity');
+      const primary=document.querySelector('.hero-actions a');
+      return {comparisonFirst:!!(comparison.compareDocumentPosition(quantity)&Node.DOCUMENT_POSITION_FOLLOWING),primaryTarget:new URL(primary.href).hash,title:document.querySelector('h1').textContent,images:comparison.querySelectorAll('tr[data-nursery-purpose="food"] img').length,preparation:comparison.textContent.includes('準備方法')};
+    })()`);
+    assert.equal(foodEntry.comparisonFirst, true);
+    assert.equal(foodEntry.primaryTarget, '#comparison');
+    assert.match(foodEntry.title, /保育園の非常食比較/);
+    assert.ok(foodEntry.images > 0);
+    assert.equal(foodEntry.preparation, true);
     assert.ok(purposes.links.length > 0);
     for (const link of purposes.links) {
       assert.equal(link.target, true);
@@ -733,6 +744,21 @@ try {
     await evaluate(send, `document.querySelector('.hero').scrollIntoView({behavior:'instant',block:'start'})`);
     const entryShot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     fs.writeFileSync(path.join(screenshotDir, 'nursery-entry-' + width + '.png'), Buffer.from(entryShot.data, 'base64'));
+    await evaluate(send, `document.querySelector('.hero-actions a').click()`);
+    await sleep(1000);
+    const foodComparison = await evaluate(send, `(() => {
+      const scroll=document.querySelector('#comparison .compare-scroll');
+      const images=[...document.querySelectorAll('#comparison tr[data-nursery-purpose="food"] img')];
+      const link=document.querySelector('#comparison tbody .table-product a');
+      const box=link.getBoundingClientRect();
+      return {hash:location.hash,scrollable:scroll.scrollWidth>scroll.clientWidth,loaded:images[0]?.complete&&images[0]?.naturalWidth>0,purchaseFits:box.left>=0&&box.right<=window.innerWidth};
+    })()`);
+    assert.equal(foodComparison.hash, '#comparison');
+    if (width < 768) assert.equal(foodComparison.scrollable, true);
+    assert.equal(foodComparison.loaded, true, 'actual food image must render at ' + width);
+    assert.equal(foodComparison.purchaseFits, true, 'purchase link must not require horizontal scrolling at ' + width);
+    const comparisonShot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    fs.writeFileSync(path.join(screenshotDir, 'nursery-food-comparison-' + width + '.png'), Buffer.from(comparisonShot.data, 'base64'));
     const nursery = await evaluate(send, `(() => {
       const graphs = [...document.querySelectorAll('script[type="application/ld+json"]')].flatMap(el => { const data = JSON.parse(el.textContent); return data['@graph'] || [data]; });
       return { width: document.documentElement.scrollWidth, headings: document.querySelectorAll('h1').length, adultNote: document.querySelector('#quantity').textContent.includes('成人のみ'), faqCount: graphs.find(x => x['@type'] === 'FAQPage')?.mainEntity.length, affiliateLinks: [...document.querySelectorAll('a')].filter(a => a.href.includes('hb.afl.rakuten.co.jp')).length, summaryVisible: !document.getElementById('planSummary').hidden, summary: document.getElementById('planSummaryText').textContent, childState: document.getElementById('nursery-meal-total').dataset.state };
