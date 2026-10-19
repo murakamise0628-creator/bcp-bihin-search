@@ -123,6 +123,14 @@ for (const [index, match] of purchaseCards.entries()) {
 }
 
 const nursery = fs.readFileSync(path.join(root, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
+assert.match(nursery, /<h1>保育園の非常食比較｜水・加熱の要否と食数で選ぶ<\/h1>/);
+assert.match(nursery, /<title>保育園の非常食比較｜水・加熱の要否と食数で選ぶ/);
+assert.match(nursery, /<meta name="description" content="保育園の非常食を、調理に必要な水・熱源、保存期間、販売単位で比較/);
+assert.ok(nursery.indexOf('id="comparison"') < nursery.indexOf('id="quantity"'), 'buyers must reach actual food comparisons before the two long calculators');
+assert.equal((nursery.match(/id="comparison"/g) || []).length, 1);
+assert.match(nursery, /href="#comparison">非常食の候補を比較する<\/a>/);
+assert.match(home, /保育園の非常食/);
+assert.doesNotMatch(home, />保育園・介護施設(?:の備蓄)?</, 'nursery entry must not promise care-facility comparisons');
 assert.match(nursery, /id="nursery-children"/);
 assert.match(nursery, /id="nursery-servings"/);
 assert.match(nursery, /id="nursery-meal-total"/);
@@ -173,7 +181,34 @@ assert.ok(nurseryRows.slice(0, nurseryMeals.length).every(row => row.includes('d
 assert.match(nursery, /href="#quantity">園児の食数を数える<\/a>/);
 assert.match(nursery, /https:\/\/www\.pref\.osaka\.lg\.jp\/documents\/22910\/guid\.pdf/);
 
-const { nurseryGroups, nurseryPurpose } = nurseryComparison;
+const { nurseryGroups, nurseryPurpose, nurseryPreparation } = nurseryComparison;
+for (const [titleRaw, summary, expected] of [
+  ['非常食', '水や加熱が必要なく、そのまま食べられる食品', '水・加熱不要の表記'],
+  ['調理不要 水不要 非常食セット', '', '調理不要の表記'],
+  ['非常食', 'お湯か水を入れるだけで食べられる', '水またはお湯が必要の表記'],
+  ['非常食 水不要', '', '水不要の表記（加熱の要否は確認）'],
+  ['非常食 米粉パン 7年保存', '', '調理方法は販売ページで確認'],
+  ['レトルト おかゆ 20個', '簡単調理', '調理方法は販売ページで確認'],
+  ['調理不要ではない 非常食', '', '調理方法は販売ページで確認'],
+  ['非常食 水不要ではありません', '', '調理方法は販売ページで確認'],
+  ['調理不要ではございません', '', '調理方法は販売ページで確認'],
+  ['非常食 水不要 要調理', '', '調理方法は販売ページで確認'],
+  ['そのまま食べられるとは限らない食品', '', '調理方法は販売ページで確認'],
+  ['調理不要セット', 'お湯か水を入れる食品を含む', '調理方法は販売ページで確認'],
+  ['調理不要セット 一部要加熱', '', '調理方法は販売ページで確認'],
+  ['食品', '水や加熱が必要なく食べられる商品もあります', '調理方法は販売ページで確認'],
+  ['', '', '調理方法は販売ページで確認']
+]) {
+  assert.equal(nurseryPreparation({ productType: 'food', titleRaw, summary }), expected, titleRaw || summary);
+}
+assert.equal(nurseryPreparation({ productType: 'water', titleRaw: '水不要' }), '');
+for (const product of nurseryMeals) {
+  const row = nurseryRows.find(row => row.includes(`data-product-key="${product.itemCode}"`));
+  assert.ok(row.includes(nurseryPreparation(product)), 'food preparation must be visible beside each actual product');
+  const purchaseCell = row.match(/<td class="table-product">[\s\S]*?<\/td>/)?.[0] || '';
+  assert.ok(purchaseCell.includes(`data-product-id="${product.itemCode}"`) && purchaseCell.includes('data-product-price=') && purchaseCell.includes('楽天で確認'), 'price, product and purchase link must share the first mobile-visible cell');
+  if (product.image) assert.ok(row.includes(`src="${product.image.replaceAll('&', '&amp;')}"`), 'food comparison must show actual product images');
+}
 const purposeFixture = [
   { itemCode: 'fixture:bag', productType: 'disaster-set', titleRaw: '防災セット' },
   { itemCode: 'fixture:candy', productType: 'food', titleRaw: '保存用キャンディ' },
