@@ -4,6 +4,7 @@ import productTools from './fetch-products.js';
 import unitTools from './comparison-unit.js';
 import { readFileSync } from 'node:fs';
 import nurseryTools from './nursery-comparison.cjs';
+import waterContainerTools from './water-container-comparison.cjs';
 import { displayProductName } from './display-product-name.cjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +13,36 @@ import vm from 'node:vm';
 import { auditRefreshData } from './verify-refresh.mjs';
 
 const nurseryMealSearches = ['非常食 米粉パン', '非常食 アレルギー', '非常食 おかゆ', '非常食 水不要'];
+test('water containers distinguish per-container capacity from explicit pack count', () => {
+  const facts = waterContainerTools.containerFacts({productType:'water-container', titleRaw:'給水タンク 15リットル 15L 2個セット'});
+  assert.deepEqual(facts, {liters:15, containers:2, totalLiters:30});
+  assert.deepEqual(waterContainerTools.containerFacts({productType:'water-container',titleRaw:'給水タンク 10L 3個セット'}), {liters:10,containers:3,totalLiters:30});
+});
+test('unspecified pack count and alternate sets in summaries never become a sale quantity', () => {
+  assert.deepEqual(waterContainerTools.containerFacts({productType:'water-container',titleRaw:'給水タンク 20L WAT-20L',summary:'10個セット・30個セットはこちら'}), {liters:20,containers:null,totalLiters:null});
+});
+test('capacity choices, ranges, conflicting totals and approximate values abstain', () => {
+  for(const titleRaw of ['選べる 10L 20L 給水タンク','10～20L 給水タンク','10L×3個 合計30L','合計30L 3個セット','最大20L 給水タンク','給水タンク 10L/20L']) {
+    assert.equal(waterContainerTools.containerFacts({productType:'water-container',titleRaw}).liters,null,titleRaw);
+  }
+});
+test('water-container count does not include delivery limits, bonus items or chosen packs', () => {
+  for(const titleRaw of ['給水タンク 10L 3個まで同梱可','給水タンク 10L 2個+1個おまけ','給水タンク 10L 選べる2個/3個セット']) {
+    assert.equal(waterContainerTools.containerFacts({productType:'water-container',titleRaw}).containers,null,titleRaw);
+  }
+});
+test('flood-control bags and spare components never become drinking-water container capacity', () => {
+  for(const p of [{productType:'flood-control',titleRaw:'水のう 13L 5個'},{productType:'hygiene',titleRaw:'20L給水タンク用ウェット用品'},{productType:'water-container',titleRaw:'20L用 交換用コックのみ'}]) {
+    assert.deepEqual(waterContainerTools.containerFacts(p), {liters:null,containers:null,totalLiters:null});
+  }
+});
+test('restaurant product groups separate water, hygiene, toilets and flood control without mutating API data', () => {
+  const input=[{itemCode:'flood',productType:'flood-control'},{itemCode:'wipe',productType:'hygiene'},{itemCode:'tank',productType:'water-container'},{itemCode:'toilet',productType:'toilet'},{itemCode:'other',productType:'unknown'}];
+  assert.deepEqual(waterContainerTools.restaurantGroups(input).map(g=>g.key),['water','hygiene','toilet','flood','other']);
+  assert.deepEqual(waterContainerTools.restaurantGroups(input).flatMap(g=>g.products).map(p=>p.itemCode),['tank','wipe','toilet','flood','other']);
+  assert.deepEqual(input.map(p=>p.itemCode),['flood','wipe','tank','toilet','other']);
+  assert.deepEqual(waterContainerTools.restaurantGroups([]),[]);
+});
 function nurserySearchRow() {
   const lines = readFileSync(new URL('../data/keywords.csv', import.meta.url), 'utf8').trim().split(/\r?\n/);
   const headers = lines[0].split(',');

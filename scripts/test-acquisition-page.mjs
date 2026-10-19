@@ -5,6 +5,7 @@ import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import nurseryComparison from './nursery-comparison.cjs';
+import waterContainerTools from './water-container-comparison.cjs';
 import productTools from './fetch-products.js';
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url));
@@ -121,6 +122,39 @@ for (const [index, match] of purchaseCards.entries()) {
   assert.ok(match[2].includes(`${count}点分の内容を楽天で確認`));
   assert.match(match[2], /送料、購入上限、価格、在庫/);
 }
+
+const restaurant = fs.readFileSync(path.join(root, 'dist', 'pages', 'restaurant-dansui.html'), 'utf8');
+assert.match(restaurant, /<h1>飲食店の断水対策・給水タンク比較<\/h1>/);
+assert.match(restaurant, /<title>給水タンク10L・20Lと断水対策用品比較｜飲食店の備え/);
+assert.ok(restaurant.indexOf('id="comparison"') < restaurant.indexOf('id="quantity"'));
+assert.equal((restaurant.match(/id="comparison"/g) || []).length, 1);
+assert.match(restaurant, /給水タンクは10Lと20L、どちらを選ぶ/);
+assert.match(restaurant, /1個あたりの容量/);
+assert.match(restaurant, /飲用可否/);
+assert.match(restaurant, /営業できるとは限りません/);
+const restaurantData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'products.json'), 'utf8')).pages.find(item => item.slug === 'restaurant-dansui');
+const restaurantRows = [...restaurant.matchAll(/<tr [^>]*data-restaurant-purpose[\s\S]*?<\/tr>/g)].map(match => match[0]);
+assert.equal(restaurantRows.length, restaurantData.products.length);
+for (const group of waterContainerTools.restaurantGroups(restaurantData.products)) {
+  assert.ok(restaurant.includes(`href="#restaurant-purpose-${group.key}"`));
+  assert.equal((restaurant.match(new RegExp(`id="restaurant-purpose-${group.key}"`, 'g')) || []).length, 1);
+  for (const product of group.products) {
+    const row = restaurantRows.find(row => row.includes(`data-product-key="${product.itemCode}"`));
+    assert.ok(row.includes(`data-restaurant-purpose="${group.key}"`));
+    const firstCell = row.match(/<td class="table-product">[\s\S]*?<\/td>/)?.[0] || '';
+    assert.ok(firstCell.includes(`data-product-id="${product.itemCode}"`) && firstCell.includes('data-product-price='));
+    if (product.image) assert.ok(firstCell.includes(`src="${product.image.replaceAll('&', '&amp;')}"`));
+    if (group.key === 'flood') assert.ok(row.includes('飲用の給水容器とは分ける'));
+  }
+}
+const restaurantFaq = [...restaurant.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(match=>JSON.parse(match[1])).find(graph=>graph['@type']==='FAQPage');
+assert.equal(restaurantFaq.mainEntity.length,5);
+for(const item of restaurantFaq.mainEntity) {
+  assert.ok(restaurant.includes(`<summary>${item.name}</summary>`));
+  assert.ok(restaurant.includes(`<p>${item.acceptedAnswer.text}</p>`));
+}
+const waterTopic = fs.readFileSync(path.join(root, 'dist', 'topics', 'water-outage.html'), 'utf8');
+assert.match(waterTopic, /pages\/restaurant-dansui\.html#comparison">給水タンクを比較する/);
 
 const nursery = fs.readFileSync(path.join(root, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
 assert.match(nursery, /<h1>保育園の非常食比較｜水・加熱の要否と食数で選ぶ<\/h1>/);
