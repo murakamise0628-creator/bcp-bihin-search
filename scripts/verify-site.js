@@ -468,7 +468,7 @@ const expectedSearchTitles = {
   'pages/water-food-stock.html': '会社の保存水・非常食は何日分？備蓄量と商品比較',
   'pages/emergency-food-office.html': '会社向け非常食セット比較｜3日分の食数・保存年数で選ぶ',
   'pages/portable-power-kaigo.html': '介護施設向けポータブル電源比較｜容量・出力で選ぶ',
-  'pages/restaurant-dansui.html': '飲食店の断水対策用品比較｜給水・衛生・簡易トイレ'
+  'pages/restaurant-dansui.html': '給水タンク10L・20Lと断水対策用品比較｜飲食店の備え'
 };
 for (const [relative, expectedTitle] of Object.entries(expectedSearchTitles)) {
   const html = fs.readFileSync(path.join(root, relative), 'utf8');

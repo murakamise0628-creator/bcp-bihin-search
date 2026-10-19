@@ -6,6 +6,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { amazonOfferFor } from './amazon-links.cjs';
 import productTools from './fetch-products.js';
+import waterContainerTools from './water-container-comparison.cjs';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
 const amazonConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data/amazon-links.json'), 'utf8'));
@@ -704,6 +705,57 @@ try {
       const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
       fs.writeFileSync(path.join(screenshotDir,slug+'-comparison-'+width+'.png'),Buffer.from(shot.data,'base64'));
     }
+  }
+  const restaurantPage = pathToFileURL(path.join(projectRoot, 'dist', 'pages', 'restaurant-dansui.html')).href;
+  const expectedRestaurant = waterContainerTools.restaurantGroups(productData.pages.find(page=>page.slug==='restaurant-dansui').products).flatMap(group=>group.products);
+  for (const width of [320,375,414,768,1440]) {
+    await send('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width<768});
+    await navigateFresh(send,restaurantPage);
+    await sleep(1000);
+    const entry=await evaluate(send,`(() => {
+      const comparison=document.getElementById('comparison');
+      const rows=[...comparison.querySelectorAll('tr[data-restaurant-purpose]')];
+      const graphs=[...document.querySelectorAll('script[type="application/ld+json"]')].map(el=>JSON.parse(el.textContent));
+      return {overflow:document.documentElement.scrollWidth>innerWidth+1,h1:document.querySelectorAll('h1').length,primary:new URL(document.querySelector('.hero-actions a').href).hash,comparisonFirst:!!(comparison.compareDocumentPosition(document.getElementById('quantity'))&Node.DOCUMENT_POSITION_FOLLOWING),ids:rows.map(row=>row.dataset.productKey),purposes:rows.map(row=>row.dataset.restaurantPurpose),faq:graphs.find(g=>g['@type']==='FAQPage')?.mainEntity.length};
+    })()`);
+    assert.equal(entry.overflow,false,'restaurant overflow at '+width);
+    assert.equal(entry.h1,1);
+    assert.equal(entry.primary,'#comparison');
+    assert.equal(entry.comparisonFirst,true);
+    assert.equal(entry.faq,5);
+    assert.deepEqual(entry.ids,expectedRestaurant.map(p=>p.itemCode));
+    if(width===375||width===1440){
+      const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+      fs.writeFileSync(path.join(screenshotDir,'restaurant-entry-'+width+'.png'),Buffer.from(shot.data,'base64'));
+    }
+    await evaluate(send,`document.querySelector('.hero-actions a').click()`);
+    await sleep(400);
+    const purchase=await evaluate(send,`(async()=>{
+      const table=document.querySelector('[data-water-comparison]');
+      for(const image of table.querySelectorAll('img')){image.loading='eager';await Promise.race([image.decode(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Image timeout')),15000))]);if(!image.naturalWidth)throw new Error('Product image failed');}
+      table.querySelector('tbody tr').scrollIntoView({behavior:'instant',block:'start'});
+      const links=[...table.querySelectorAll('.table-product a')];
+      const before=window.dataLayer.length;
+      document.addEventListener('click',e=>e.preventDefault(),{capture:true,once:true});links[0].click();
+      return {hash:location.hash,scrollable:table.scrollWidth>table.clientWidth,links:links.map(link=>{const box=link.getBoundingClientRect();const range=document.createRange();range.selectNodeContents(link);return {id:link.dataset.productId,price:Number(link.dataset.productPrice),href:link.href,fits:box.left>=0&&box.right<=innerWidth,height:box.height,textLines:range.getClientRects().length};}),events:window.dataLayer.slice(before).map(e=>Array.from(e)).filter(e=>e[0]==='event'&&['rakuten_click','amazon_click'].includes(e[1]))};
+    })()`);
+    assert.equal(purchase.hash,'#comparison');
+    if(width<768)assert.equal(purchase.scrollable,true);
+    for(const link of purchase.links){
+      const product=expectedRestaurant.find(p=>p.itemCode===link.id);
+      assert.ok(product);
+      assert.equal(link.price,product.price);
+      assert.equal(link.href,new URL(product.url).href);
+      assert.equal(link.fits,true,'restaurant purchase CTA hidden horizontally at '+width);
+      assert.ok(link.height>=44);
+      assert.equal(link.textLines,1,'restaurant purchase CTA wraps at '+width);
+    }
+    assert.equal(purchase.events.length,1);
+    assert.equal(purchase.events[0][1],'rakuten_click');
+    assert.equal(purchase.events[0][2].product_id,expectedRestaurant[0].itemCode);
+    assert.equal(purchase.events[0][2].cta_location,'comparison_table');
+    const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+    fs.writeFileSync(path.join(screenshotDir,'restaurant-comparison-'+width+'.png'),Buffer.from(shot.data,'base64'));
   }
   for (const width of [320, 375, 414, 768, 1440]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
