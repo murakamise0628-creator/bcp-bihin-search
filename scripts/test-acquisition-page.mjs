@@ -62,6 +62,16 @@ assert.ok(sitemapDates.every((date) => Date.parse(`${date}T00:00:00+09:00`) >= D
 
 const power = fs.readFileSync(path.join(root, 'dist', 'pages', 'portable-power-kaigo.html'), 'utf8');
 const quantityGuide = fs.readFileSync(path.join(root, 'dist', 'pages', 'office-stockpile-quantity.html'), 'utf8');
+for (const kind of ['water','food','toilet']) {
+  assert.match(quantityGuide,new RegExp(`id="${kind}Candidate"[^>]*data-procurement-select`),'quantity calculator needs a bounded product choice');
+  assert.match(quantityGuide,new RegExp(`id="${kind}Candidates"`));
+}
+assert.ok(quantityGuide.indexOf('id="procurement"') < quantityGuide.indexOf('id="quantity-table"'));
+assert.match(quantityGuide,/内容量・掲載価格を計算に使う/);
+assert.match(quantityGuide,/data-procurement-candidate/);
+assert.ok(!/<option[^>]+\sdata-(?:pack|price)=/.test(quantityGuide), 'candidate metadata must not shadow calculator inputs');
+assert.match(quantityGuide,/手入力した内容量・価格/);
+assert.match(quantityGuide,/procurement_candidate/);
 const method = quantityGuide.match(/<section[^>]*id="calculation-method"[\s\S]*?<\/section>/)?.[0] || '';
 assert.match(method, /会社の防災備蓄量の計算方法/, 'calculation method must be visible, not only inside noscript');
 assert.doesNotMatch(method, /<noscript/);
@@ -270,6 +280,10 @@ try {
     const fixtureData = { ...input, pages: input.pages.map(page => ({ ...page, products: page.slug === 'hoikuen-bousai' ? products : [] })) };
     fs.writeFileSync(path.join(fixtureRoot, 'data', 'products.json'), JSON.stringify(fixtureData));
     execFileSync(process.execPath, [path.join(fixtureRoot, 'scripts', 'generate-site.js')], { stdio: 'pipe' });
+    const emptyQuantity = fs.readFileSync(path.join(fixtureRoot,'dist','pages','office-stockpile-quantity.html'),'utf8');
+    assert.ok(!emptyQuantity.includes('id="waterCandidate"')&&!emptyQuantity.includes('id="toiletCandidate"'),'empty water/toilet pools must not create dead selectors');
+    if(count===0) assert.ok(!/<select[^>]*data-procurement-select/.test(emptyQuantity),'empty safe pools must retain manual inputs, not dead selectors');
+    assert.ok(emptyQuantity.includes('id="waterPack"')&&emptyQuantity.includes('id="waterPrice"'));
     const html = fs.readFileSync(path.join(fixtureRoot, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
     const links = html.match(/<nav class="chip-row" aria-label="備蓄品の用途"[\s\S]*?<\/nav>/)?.[0] || '';
     const table = html.match(/<section class="section" id="comparison">[\s\S]*?<\/section>/)?.[0] || '';

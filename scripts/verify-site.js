@@ -14,6 +14,7 @@ const {
   isEmergencyFoodSetCandidate
 } = require('./fetch-products');
 const { isApprovedBaseProductUrl } = require('./paid-checkout-url.cjs');
+const { procurementCandidates } = require('./procurement-candidates.cjs');
 
 const projectRoot = path.resolve(__dirname, '..');
 const root = path.join(projectRoot, 'dist');
@@ -623,13 +624,19 @@ if (!fs.existsSync(quantityGuidePath)) {
   }
   const quantityProductCards = quantityGuideHtml.match(/<article class="card product(?:\s|\")/g) || [];
   const quantityProductIds = [...quantityGuideHtml.matchAll(/<article class="card product[\s\S]*?data-product-id="([^"]+)"[\s\S]*?<\/article>/g)].map((match) => match[1]);
-  if (quantityProductCards.length !== 6) issues.push(`${quantityGuideRelative}: expected 6 direct product cards, found ${quantityProductCards.length}`);
-  if (quantityProductIds.length !== 6) issues.push(`${quantityGuideRelative}: expected 6 tracked product cards, found ${quantityProductIds.length}`);
+  const pageProducts = slug => data.pages.find(page=>page.slug===slug)?.products || [];
+  const expectedQuantityIds = [...new Set([
+    ...procurementCandidates(pageProducts('water-food-stock'),'water'),
+    ...procurementCandidates(pageProducts('emergency-food-office'),'food'),
+    ...procurementCandidates(pageProducts('toilet-office'),'toilet')
+  ].map(candidate=>candidate.product.itemCode).concat(pageProducts('office-bichiku').filter(product=>product.productType==='disaster-set').slice(0,2).map(product=>product.itemCode)))];
+  if (quantityProductCards.length !== expectedQuantityIds.length) issues.push(`${quantityGuideRelative}: direct product card count differs from safe candidates`);
+  if (JSON.stringify(quantityProductIds) !== JSON.stringify(expectedQuantityIds)) issues.push(`${quantityGuideRelative}: tracked product cards differ from safe candidates`);
   if (new Set(quantityProductIds).size !== quantityProductIds.length) issues.push(`${quantityGuideRelative}: duplicate direct products found`);
-  if ((quantityGuideHtml.match(/<article class="card product[\s\S]*?<img /g) || []).length !== 6) issues.push(`${quantityGuideRelative}: every direct product needs an image`);
+  if ((quantityGuideHtml.match(/<article class="card product[\s\S]*?<img /g) || []).length !== expectedQuantityIds.length) issues.push(`${quantityGuideRelative}: every direct product needs an image`);
   if (!quantityGuideHtml.includes('数量・価格を楽天で確認')) issues.push(`${quantityGuideRelative}: direct Rakuten CTA missing`);
   if (!quantityGuideHtml.includes('"@type":"ItemList"')) issues.push(`${quantityGuideRelative}: ItemList schema missing`);
-  if ((quantityGuideHtml.match(/"@type":"Product"/g) || []).length !== 6) issues.push(`${quantityGuideRelative}: expected 6 Product schema entries`);
+  if ((quantityGuideHtml.match(/"@type":"Product"/g) || []).length !== expectedQuantityIds.length) issues.push(`${quantityGuideRelative}: Product schema must match direct products`);
 }
 if (!homeHtml.includes('href="https://jigyousho-bousai.com/pages/office-stockpile-quantity.html"')) {
   issues.push('index.html: quantity guide internal link missing');

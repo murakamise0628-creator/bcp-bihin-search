@@ -5,6 +5,7 @@ import unitTools from './comparison-unit.js';
 import { readFileSync } from 'node:fs';
 import nurseryTools from './nursery-comparison.cjs';
 import waterContainerTools from './water-container-comparison.cjs';
+import { procurementCandidates } from './procurement-candidates.cjs';
 import { displayProductName } from './display-product-name.cjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +14,30 @@ import vm from 'node:vm';
 import { auditRefreshData } from './verify-refresh.mjs';
 
 const nurseryMealSearches = ['非常食 米粉パン', '非常食 アレルギー', '非常食 おかゆ', '非常食 水不要'];
+test('procurement candidates use fixed sale units and preserve source data', () => {
+  const water = {itemCode:'water:1',productType:'water',titleRaw:'保存水 2L 6本 1ケース',price:1800};
+  const food = {itemCode:'food:1',productType:'food',titleRaw:'非常食 アルファ米 50食',price:15000};
+  assert.deepEqual(procurementCandidates([water, food], 'water'), [{product:water,quantity:12,unit:'L'}]);
+  assert.deepEqual(procurementCandidates([water, food], 'food'), [{product:food,quantity:50,unit:'食'}]);
+  assert.equal(water.titleRaw,'保存水 2L 6本 1ケース');
+});
+test('procurement candidates abstain for mixed, variable and unclear sale units', () => {
+  const titles=['非常食 保存水付き 9食','非常食 最大28食','非常食 9種類','非常食 18～36食'];
+  assert.deepEqual(procurementCandidates(titles.map((titleRaw,i)=>({itemCode:'food:'+i,productType:'food',titleRaw,price:5000})), 'food'),[]);
+  assert.deepEqual(procurementCandidates([{itemCode:'tank',productType:'water-container',titleRaw:'給水タンク20L',price:1000}], 'water'),[]);
+  assert.deepEqual(procurementCandidates([{itemCode:'water',productType:'water',titleRaw:'保存水 2L 6本',price:0}], 'water'),[]);
+});
+test('procurement candidates accept only complete toilet kits with fixed price', () => {
+  const complete={itemCode:'toilet:1',productType:'toilet',titleRaw:'簡易トイレ 100回分 凝固剤 排便袋 セット',name:'簡易トイレ100回分',price:6000};
+  const refill={...complete,itemCode:'refill',titleRaw:'トイレ 凝固剤のみ 100回分 排便袋は含みません'};
+  assert.deepEqual(procurementCandidates([refill,complete],'toilet'),[{product:complete,quantity:100,unit:'回分'}]);
+});
+test('procurement candidates remain bounded, deduplicated and empty-safe', () => {
+  const products=[1,2,3].map(i=>({itemCode:'water:'+i,productType:'water',titleRaw:'保存水 2L 6本',price:1800}));
+  assert.equal(procurementCandidates([products[0],...products],'water').length,2);
+  assert.deepEqual(procurementCandidates([],'water'),[]);
+  assert.deepEqual(procurementCandidates(products,'blankets'),[]);
+});
 test('water containers distinguish per-container capacity from explicit pack count', () => {
   const facts = waterContainerTools.containerFacts({productType:'water-container', titleRaw:'給水タンク 15リットル 15L 2個セット'});
   assert.deepEqual(facts, {liters:15, containers:2, totalLiters:30});
