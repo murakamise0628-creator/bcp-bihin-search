@@ -580,7 +580,7 @@
 <section class="section card"><h2>広告リンクについて</h2><p>当サイトは楽天アフィリエイトとAmazonアソシエイトを利用しています。リンクを経由して商品が購入された場合、当サイトが紹介料を受け取ることがあります。リンク先の商品価格に紹介料が加算されるものではありません。掲載順や分類は、価格、レビュー件数、商品情報の明確さ、事業所用途との一致度などをもとに整理しています。</p><p>Amazonのアソシエイトとして、事業所防災ナビは適格販売により収入を得ています。</p><p>比較表と商品カードに表示する価格・レビューは楽天市場の情報です。Amazonの価格・送料・販売元・セット内容は、Amazonの販売ページで確認してください。</p></section>
 <section class="section card"><h2>選定と更新</h2><p>商品名、価格、レビュー、容量、回数、保存年数など、販売ページから確認できる情報を比較項目として整理しています。対象人数や備蓄日数を読み取れない商品は、上位候補として扱わず、確認が必要な候補として分けます。商品情報は定期取得時に更新し、表示条件に合わない商品は掲載順を見直します。</p></section>
 <section class="section card"><h2>アクセス解析とCookie</h2><p>当サイトはGoogle Analytics 4を利用しています。Google AnalyticsはCookieを使い、閲覧ページ、利用端末やブラウザの種類、概略の地域、サイト内の操作、外部の商品ページへのクリックなどを計測します。Cookieにはブラウザを区別するためのクライアントIDが保存されます。計測データは、閲覧傾向と情報の見つけやすさを確認するために利用します。当サイトには、氏名やメールアドレスを入力するフォームはありません。Googleによるデータの取り扱いは、Googleの規約とプライバシーポリシーに基づきます。</p><p><a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener">Googleが収集した情報の利用</a> / <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Google プライバシーポリシー</a> / <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">Google Analytics オプトアウト</a></p></section>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-10-19T16:48:54.339Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"サイト情報・広告掲載・プライバシー","description":"事業所防災ナビの掲載内容、楽天アフィリエイトを含む広告リンク、Google Analytics 4によるアクセス解析、Cookieの取り扱い、掲載情報の確認事項を記載しています。","url":"https://jigyousho-bousai.com/site-policy.html","isPartOf":{"@type":"WebSite","name":"事業所防災ナビ","url":"https://jigyousho-bousai.com/"},"citation":[],"inLanguage":"ja","dateModified":"2026-10-23T12:22:39.313Z"}</script><footer class="site-footer"><span>© 2026 事業所防災ナビ</span><nav aria-label="サイト情報"><a href="https://jigyousho-bousai.com/site-policy.html">サイト情報・広告掲載・プライバシー</a></nav></footer><script>
     (function(){
       function trackEvent(name, params){
         if(typeof window.gtag !== 'function') return;
@@ -592,6 +592,7 @@
       function cleanText(value){ return String(value || '').replace(/\s+/g,' ').trim().slice(0,120); }
       function anchorText(anchor){ return cleanText(anchor.getAttribute('aria-label') || anchor.textContent || anchor.href); }
       function ctaLocation(anchor){
+        if(anchor.closest('[data-procurement-candidate]')) return 'procurement_candidate';
         if(anchor.closest('.compare-scroll')) return 'comparison_table';
         if(anchor.closest('.quick-picks')) return 'quick_pick';
         if(anchor.closest('.product')) return 'product_card';
@@ -889,16 +890,40 @@
           row.querySelector('[data-packages]').textContent=result.packages===null ? '内容量を入力' : result.packages.toLocaleString('ja-JP')+'点';
           row.querySelector('[data-cost]').textContent=result.cost===null ? '価格を確認' : yen(result.cost);
           row.querySelector('[data-procurement-note]').textContent=result.error || (result.missing===0 ? '入力した在庫で計算上の目安に達しています。状態・使用期限は別に確認してください。' : '購入数量は販売単位ごとに切り上げています。');
+          row.querySelectorAll('[data-procurement-candidate] a').forEach(function(link){link.hidden=result.missing===null || result.missing===0;});
+          row.querySelectorAll('[data-candidate-summary]').forEach(function(summary){
+            summary.textContent=result.missing===0 ? '入力した在庫では、計算上の追加購入は不要です。' : result.cost===null ? '購入個数と概算額は入力値を確認してください。' : '購入目安 '+result.packages.toLocaleString('ja-JP')+'点 / 概算 '+yen(result.cost)+'（送料別）';
+          });
           if(result.cost===null) complete=false;
           else {total+=result.cost;counted++;}
         });
         document.getElementById('procurementTotal').textContent=complete ? '4品目の概算合計（送料別）：'+yen(total) : counted ? '計算できた'+counted+'品目の小計（送料別）：'+yen(total)+'。未入力の品目は含みません。' : '内容量と税込価格を入力すると、概算予算を計算できます。';
       }
       document.querySelectorAll('[data-procurement] input').forEach(function(input){
-        input.addEventListener('input',function(){updateProcurement(stockPlanValues());});
+        input.addEventListener('input',function(){
+          var row=input.closest('[data-procurement]');
+          if(input.matches('[data-pack],[data-price]')){
+            var choice=row.querySelector('[data-procurement-select]');
+            if(choice) choice.value='';
+            row.querySelectorAll('[data-procurement-candidate]').forEach(function(panel){panel.hidden=true;});
+          }
+          updateProcurement(stockPlanValues());
+        });
         input.addEventListener('change',function(){
           updateProcurement(stockPlanValues());
           trackEvent('quantity_calculator_use',{calculator_type:'procurement',product_category:input.closest('[data-procurement]').dataset.procurement});
+        });
+      });
+      document.querySelectorAll('[data-procurement-select]').forEach(function(choice){
+        choice.addEventListener('change',function(){
+          var row=choice.closest('[data-procurement]');
+          var option=choice.selectedOptions[0];
+          var selected=option && option.dataset.candidatePack && option.dataset.candidatePrice;
+          row.querySelector('[data-pack]').value=selected ? option.dataset.candidatePack : '';
+          row.querySelector('[data-price]').value=selected ? option.dataset.candidatePrice : '';
+          row.querySelectorAll('[data-procurement-candidate]').forEach(function(panel){panel.hidden=!selected || panel.dataset.procurementCandidate!==choice.value;});
+          updateProcurement(stockPlanValues());
+          if(selected) trackEvent('quantity_calculator_use',{calculator_type:'procurement_candidate',product_category:row.dataset.procurement,product_id:choice.value});
         });
       });
       setPlanInputsFromUrl();
