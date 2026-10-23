@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { amazonOfferFor } from './amazon-links.cjs';
 import productTools from './fetch-products.js';
 import waterContainerTools from './water-container-comparison.cjs';
+import { procurementCandidates } from './procurement-candidates.cjs';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
 const amazonConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data/amazon-links.json'), 'utf8'));
@@ -466,6 +467,12 @@ try {
   }
 
   const quantityResults = [];
+  const quantityChoices = [
+    ...procurementCandidates(productData.pages.find(p=>p.slug==='water-food-stock').products,'water'),
+    ...procurementCandidates(productData.pages.find(p=>p.slug==='emergency-food-office').products,'food'),
+    ...procurementCandidates(productData.pages.find(p=>p.slug==='toilet-office').products,'toilet')
+  ];
+  const expectedQuantityIds = new Set(quantityChoices.map(c=>c.product.itemCode).concat(productData.pages.find(p=>p.slug==='office-bichiku').products.filter(p=>p.productType==='disaster-set').slice(0,2).map(p=>p.itemCode)));
   for (const width of [320, 375, 414, 768]) {
     await send('Emulation.setDeviceMetricsOverride', {
       width,
@@ -499,15 +506,73 @@ try {
       };
     })()`);
     assert.ok(result.scrollWidth <= result.width + 1, `${width}px quantity page overflow: ${result.scrollWidth}px`);
-    assert.equal(result.cards, 6, `${width}px quantity page product count changed`);
-    assert.equal(result.uniqueIds, 6, `${width}px quantity page contains duplicate products`);
-    assert.equal(result.images, 6, `${width}px quantity page has a product without an image`);
-    assert.equal(result.completeCards, 6, `${width}px quantity page has an incomplete product card`);
+    assert.equal(result.cards, expectedQuantityIds.size, `${width}px quantity page product count changed`);
+    assert.equal(result.uniqueIds, expectedQuantityIds.size, `${width}px quantity page contains duplicate products`);
+    assert.equal(result.images, expectedQuantityIds.size, `${width}px quantity page has a product without an image`);
+    assert.equal(result.completeCards, expectedQuantityIds.size, `${width}px quantity page has an incomplete product card`);
     assert.equal(result.itemListSchema, true);
-    assert.equal(result.productSchemaCount, 6);
+    assert.equal(result.productSchemaCount, expectedQuantityIds.size);
     assert.ok(result.events.includes('select_item'), `${width}px select_item event missing`);
     assert.ok(result.events.includes('rakuten_click'), `${width}px rakuten_click event missing`);
     quantityResults.push(result);
+  }
+
+  for(const width of [320,375,414,768,1440]){
+    await send('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width<768});
+    await navigateFresh(send,quantityPage+'?staff=30&days=3&visitors=0');
+    await sleep(900);
+    const choices=await evaluate(send,`(async()=>{
+      window.__candidateEvents=[];window.gtag=(...args)=>window.__candidateEvents.push(args);
+      const records=[];
+      for(const kind of ['water','food','toilet']){
+        const row=document.querySelector('[data-procurement="'+kind+'"]');
+        const select=row.querySelector('[data-procurement-select]');
+        if(!select)continue;
+        const initial={value:select.value,visible:row.querySelectorAll('[data-procurement-candidate]:not([hidden])').length};
+        for(const option of [...select.options].filter(o=>o.value)){
+          select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));
+          const panel=[...row.querySelectorAll('[data-procurement-candidate]')].find(p=>!p.hidden);
+          const image=panel.querySelector('img');if(image){image.loading='eager';await Promise.race([image.decode(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Candidate image timeout')),15000))]);if(!image.naturalWidth)throw new Error('Candidate image failed');}
+          const link=panel.querySelector('a');const box=link.getBoundingClientRect();
+          const before=window.__candidateEvents.length;
+          link.addEventListener('click',e=>e.preventDefault(),{once:true});link.click();
+          records.push({kind,id:option.value,initial,pack:Number(row.querySelector('[data-pack]').value),price:Number(row.querySelector('[data-price]').value),required:row.querySelector('[data-required]').textContent,count:row.querySelector('[data-packages]').textContent,cost:row.querySelector('[data-cost]').textContent,summary:panel.querySelector('[data-candidate-summary]').textContent,href:link.href,height:box.height,fits:box.left>=0&&box.right<=innerWidth,events:window.__candidateEvents.slice(before).filter(e=>['rakuten_click','amazon_click'].includes(e[1]))});
+        }
+      }
+      const row=document.querySelector('[data-procurement="water"]'),select=row.querySelector('select');
+      if(!select)return {records,events:[],overflow:document.documentElement.scrollWidth>innerWidth+1};
+      const input=(selector,value)=>{const el=row.querySelector(selector);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));};
+      input('[data-stock]','300');const enough={count:row.querySelector('[data-packages]').textContent,hidden:row.querySelector('[data-procurement-candidate]:not([hidden]) a').hidden};
+      input('[data-stock]','30');const deducted=row.querySelector('[data-missing]').textContent;
+      const staff=document.getElementById('staffCount');staff.value='50';staff.dispatchEvent(new Event('input',{bubbles:true}));const changed=row.querySelector('[data-missing]').textContent;
+      input('[data-pack]','12');input('[data-price]','1800');const manual={choice:select.value,visible:row.querySelectorAll('[data-procurement-candidate]:not([hidden])').length,count:row.querySelector('[data-packages]').textContent,cost:row.querySelector('[data-cost]').textContent};
+      select.value=select.options[1].value;select.dispatchEvent(new Event('change',{bubbles:true}));select.value='';select.dispatchEvent(new Event('change',{bubbles:true}));
+      const cleared={pack:row.querySelector('[data-pack]').value,price:row.querySelector('[data-price]').value,visible:row.querySelectorAll('[data-procurement-candidate]:not([hidden])').length};
+      select.value=select.options[1].value;select.dispatchEvent(new Event('change',{bubbles:true}));staff.value='0';staff.dispatchEvent(new Event('input',{bubbles:true}));const zero={count:row.querySelector('[data-packages]').textContent,hidden:row.querySelector('[data-procurement-candidate]:not([hidden]) a').hidden};
+      staff.value='30';staff.dispatchEvent(new Event('input',{bubbles:true}));input('[data-stock]','0');
+      row.querySelector('h3').scrollIntoView({behavior:'instant'});
+      return {records,enough,deducted,changed,manual,cleared,zero,overflow:document.documentElement.scrollWidth>innerWidth+1,events:window.__candidateEvents.filter(e=>e[1]==='quantity_calculator_use'&&e[2].calculator_type==='procurement_candidate').map(e=>e[2])};
+    })()`);
+    assert.equal(choices.records.length,quantityChoices.length);
+    for(const record of choices.records){
+      const expected=quantityChoices.find(c=>c.product.itemCode===record.id);
+      assert.deepEqual(record.initial,{value:'',visible:0});
+      assert.equal(record.pack,expected.quantity);assert.equal(record.price,expected.product.price);
+      const required=record.kind==='toilet'?450:270;
+      const count=Math.ceil(required/expected.quantity);
+      assert.equal(record.count,count.toLocaleString('ja-JP')+'点');assert.equal(record.cost,(count*expected.product.price).toLocaleString('ja-JP')+'円');
+      assert.ok(record.summary.includes(count.toLocaleString('ja-JP')+'点'));assert.ok(record.summary.includes(record.cost));
+      assert.equal(record.href,new URL(expected.product.url).href);assert.equal(record.fits,true);assert.ok(record.height>=44);
+      assert.equal(record.events.length,1);assert.equal(record.events[0][1],'rakuten_click');assert.equal(record.events[0][2].product_id,record.id);assert.equal(record.events[0][2].cta_location,'procurement_candidate');
+    }
+    if(choices.records.some(r=>r.kind==='water')){
+      assert.deepEqual(choices.enough,{count:'0点',hidden:true});assert.equal(choices.deducted,'240L');assert.equal(choices.changed,'420L');
+      assert.deepEqual(choices.manual,{choice:'',visible:0,count:'35点',cost:'63,000円'});
+      assert.deepEqual(choices.cleared,{pack:'',price:'',visible:0});assert.deepEqual(choices.zero,{count:'0点',hidden:true});
+    }
+    assert.equal(choices.overflow,false);
+    assert.ok(choices.events.every(event=>!('stock' in event)&&!('price' in event)), 'Inventory and budgets must not be sent');
+    if(width===375||width===1440){const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});fs.writeFileSync(path.join(screenshotDir,'procurement-choice-'+width+'.png'),Buffer.from(shot.data,'base64'));}
   }
 
   await navigateFresh(send, quantityPage);

@@ -4,6 +4,7 @@ const net = require('net');
 const crypto = require('crypto');
 const { procurementEstimate, selectPurchasePlan } = require('./procurement-estimate');
 const { comparisonUnit } = require('./comparison-unit');
+const { procurementCandidates } = require('./procurement-candidates.cjs');
 const { isSupplementalCandy, nurseryPurpose, nurseryGroups, nurseryPreparation } = require('./nursery-comparison.cjs');
 const { restaurantPurpose, restaurantGroups, containerFacts } = require('./water-container-comparison.cjs');
 const { displayProductName } = require('./display-product-name.cjs');
@@ -1426,6 +1427,7 @@ function clientScript(hasAmazonLinks = false) {
       function cleanText(value){ return String(value || '').replace(/\\s+/g,' ').trim().slice(0,120); }
       function anchorText(anchor){ return cleanText(anchor.getAttribute('aria-label') || anchor.textContent || anchor.href); }
       function ctaLocation(anchor){
+        if(anchor.closest('[data-procurement-candidate]')) return 'procurement_candidate';
         if(anchor.closest('.compare-scroll')) return 'comparison_table';
         if(anchor.closest('.quick-picks')) return 'quick_pick';
         if(anchor.closest('.product')) return 'product_card';
@@ -1697,16 +1699,40 @@ function clientScript(hasAmazonLinks = false) {
           row.querySelector('[data-packages]').textContent=result.packages===null ? '内容量を入力' : result.packages.toLocaleString('ja-JP')+'点';
           row.querySelector('[data-cost]').textContent=result.cost===null ? '価格を確認' : yen(result.cost);
           row.querySelector('[data-procurement-note]').textContent=result.error || (result.missing===0 ? '入力した在庫で計算上の目安に達しています。状態・使用期限は別に確認してください。' : '購入数量は販売単位ごとに切り上げています。');
+          row.querySelectorAll('[data-procurement-candidate] a').forEach(function(link){link.hidden=result.missing===null || result.missing===0;});
+          row.querySelectorAll('[data-candidate-summary]').forEach(function(summary){
+            summary.textContent=result.missing===0 ? '入力した在庫では、計算上の追加購入は不要です。' : result.cost===null ? '購入個数と概算額は入力値を確認してください。' : '購入目安 '+result.packages.toLocaleString('ja-JP')+'点 / 概算 '+yen(result.cost)+'（送料別）';
+          });
           if(result.cost===null) complete=false;
           else {total+=result.cost;counted++;}
         });
         document.getElementById('procurementTotal').textContent=complete ? '4品目の概算合計（送料別）：'+yen(total) : counted ? '計算できた'+counted+'品目の小計（送料別）：'+yen(total)+'。未入力の品目は含みません。' : '内容量と税込価格を入力すると、概算予算を計算できます。';
       }
       document.querySelectorAll('[data-procurement] input').forEach(function(input){
-        input.addEventListener('input',function(){updateProcurement(stockPlanValues());});
+        input.addEventListener('input',function(){
+          var row=input.closest('[data-procurement]');
+          if(input.matches('[data-pack],[data-price]')){
+            var choice=row.querySelector('[data-procurement-select]');
+            if(choice) choice.value='';
+            row.querySelectorAll('[data-procurement-candidate]').forEach(function(panel){panel.hidden=true;});
+          }
+          updateProcurement(stockPlanValues());
+        });
         input.addEventListener('change',function(){
           updateProcurement(stockPlanValues());
           trackEvent('quantity_calculator_use',{calculator_type:'procurement',product_category:input.closest('[data-procurement]').dataset.procurement});
+        });
+      });
+      document.querySelectorAll('[data-procurement-select]').forEach(function(choice){
+        choice.addEventListener('change',function(){
+          var row=choice.closest('[data-procurement]');
+          var option=choice.selectedOptions[0];
+          var selected=option && option.dataset.candidatePack && option.dataset.candidatePrice;
+          row.querySelector('[data-pack]').value=selected ? option.dataset.candidatePack : '';
+          row.querySelector('[data-price]').value=selected ? option.dataset.candidatePrice : '';
+          row.querySelectorAll('[data-procurement-candidate]').forEach(function(panel){panel.hidden=!selected || panel.dataset.procurementCandidate!==choice.value;});
+          updateProcurement(stockPlanValues());
+          if(selected) trackEvent('quantity_calculator_use',{calculator_type:'procurement_candidate',product_category:row.dataset.procurement,product_id:choice.value});
         });
       });
       setPlanInputsFromUrl();
@@ -3257,18 +3283,30 @@ const quantityRows = [
 ];
 const quantityTableRows = quantityRows.map(([people, water3, food3, toilet3, warm, water7, food7, toilet7]) => `<tr><th scope="row">${people}人</th><td>${water3.toLocaleString('ja-JP')}L</td><td>${food3.toLocaleString('ja-JP')}食</td><td>${toilet3.toLocaleString('ja-JP')}回</td><td>${warm.toLocaleString('ja-JP')}枚</td><td>${water7.toLocaleString('ja-JP')}L</td><td>${food7.toLocaleString('ja-JP')}食</td><td>${toilet7.toLocaleString('ja-JP')}回</td></tr>`).join('');
 
+const quantityCandidates = {
+  water: procurementCandidates(pageBySlug('water-food-stock')?.products || [], 'water'),
+  food: procurementCandidates(pageBySlug('emergency-food-office')?.products || [], 'food'),
+  toilet: procurementCandidates(pageBySlug('toilet-office')?.products || [], 'toilet')
+};
+function quantityCandidateChoice(kind) {
+  const candidates = quantityCandidates[kind] || [];
+  if (!candidates.length) return '';
+  const options=candidates.map(({product,quantity,unit})=>`<option value="${esc(product.itemCode)}" data-candidate-pack="${quantity}" data-candidate-price="${product.price}">${esc(displayTitle(product,36))} / ${quantity}${unit}・${esc(displayPrice(product))}</option>`).join('');
+  const previews=candidates.map(({product,quantity,unit},index)=>`<article class="procurement-candidate" data-procurement-candidate="${esc(product.itemCode)}" hidden>${product.image ? `<img src="${esc(product.image)}" width="80" height="80" alt="${esc(displayTitle(product))}" loading="lazy">` : ''}<div><h4>${esc(displayTitle(product))}</h4><p>${esc(product.shopName || '楽天市場')} / 1販売単位 ${quantity}${unit}<br>掲載価格 ${esc(displayPrice(product))}（送料別）</p><p><strong data-candidate-summary aria-live="polite">購入個数と概算額を確認してください。</strong></p><a class="button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product,'人数別備蓄量 '+kind,index+1)}>楽天で確認する</a></div></article>`).join('');
+  return `<div class="procurement-choice"><label for="${kind}Candidate">内容量・掲載価格を計算に使う<select id="${kind}Candidate" data-procurement-select aria-controls="${kind}Candidates"><option value="">候補を選ぶ / 手入力する</option>${options}</select></label><div id="${kind}Candidates">${previews}</div><p class="notice">セット内容・到着時の保存期限・送料・納期・購入上限を販売ページで確認してください。手入力した内容量・価格でも計算できます。</p></div>`;
+}
 const quantityProductGroups = [
   {
     slug: 'water-food-stock',
     heading: '保存水・非常食',
     intro: '保存年数だけでなく、1箱の水量・食数、箱サイズ、アレルギー表示を確認してください。',
-    products: ['water', 'food'].map((type) => pageBySlug('water-food-stock')?.products?.find((product) => product.productType === type)).filter(Boolean)
+    products: [...quantityCandidates.water, ...quantityCandidates.food].map(candidate=>candidate.product)
   },
   {
     slug: 'toilet-office',
     heading: '簡易トイレ',
     intro: '必要回数に対して、凝固剤、処理袋、防臭袋がそろうかを確認してください。',
-    products: (pageBySlug('toilet-office')?.products || []).filter(isToiletPurchaseCandidate).slice(0, 2)
+    products: quantityCandidates.toilet.map(candidate=>candidate.product)
   },
   {
     slug: 'office-bichiku',
@@ -3319,9 +3357,20 @@ const quantityGuideBody = `<section class="hero">
   <a class="small-button" href="#quantity">自社の人数で必要量を計算</a>
 </section>
 ${quantityEstimateSection('office-stockpile-quantity')}
+<style>
+  #procurement .procurement-choice{margin:0 0 20px}
+  #procurement .procurement-choice label{display:block;font-size:16px;font-weight:700}
+  #procurement select{display:block;width:100%;min-width:0;max-width:100%;min-height:48px;margin-top:8px;padding:10px;border:1px solid var(--rule-2);background:#fff;color:var(--ink);font:inherit;overflow:hidden;text-overflow:ellipsis}
+  #procurement .procurement-candidate:not([hidden]){display:grid;grid-template-columns:80px minmax(0,1fr);gap:16px;margin:16px 0}
+  #procurement .procurement-candidate img{width:80px;height:80px;object-fit:contain;background:#fff}
+  #procurement .procurement-candidate h4{margin:0;font-size:18px;line-height:1.6}
+  #procurement .procurement-candidate p{margin:8px 0;font-size:16px}
+  #procurement .procurement-candidate .button{min-height:48px;font-size:16px;padding:10px 12px}
+  @media(max-width:420px){#procurement .procurement-candidate:not([hidden]){grid-template-columns:1fr}#procurement .procurement-candidate .button{width:100%}}
+</style>
 <section class="section card" id="procurement" aria-labelledby="procurement-heading">
   <h2 id="procurement-heading">在庫を引いて、買い足す個数と予算を確認</h2>
-  <p>上で計算した必要量から、期限内で使える在庫だけを差し引きます。候補の販売ページで「1箱・1セットの内容量」と「その販売単位の税込価格」を確認して入力してください。水と食料が混在するセットの価格を二重に入力しないでください。</p>
+  <p>上で計算した必要量から、期限内で使える在庫だけを差し引きます。掲載候補を選ぶと、内容量と参考価格から買い足す個数を計算できます。別の商品は「1箱・1セットの内容量」と「その販売単位の税込価格」を入力してください。水と食料が混在するセットの価格を二重に入力しないでください。</p>
   <p><a href="#products">候補商品の内容量・価格を確認する</a></p>
   ${[
     ['water','保存水','L','例：2L × 6本なら12','0.001'],
@@ -3329,7 +3378,7 @@ ${quantityEstimateSection('office-stockpile-quantity')}
     ['toilet','簡易トイレ','回分','例：100回分なら100','1'],
     ['blankets','毛布・保温シート','枚','例：10枚入りなら10','1']
   ].map(([key,label,unit,example,step]) => `<div class="procurement-row" data-procurement="${key}" data-unit="${unit}">
-    <h3>${label}</h3><div class="calc-grid">
+    <h3>${label}</h3>${quantityCandidateChoice(key)}<div class="calc-grid">
       <label for="${key}Stock">使える在庫（${unit}）<input class="calc-input" id="${key}Stock" data-stock type="number" min="0" max="100000000" step="${step}" value="0"></label>
       <label for="${key}Pack">販売単位の内容量（${unit}）<input class="calc-input" id="${key}Pack" data-pack type="number" min="${step}" max="100000000" step="${step}" placeholder="${example}"></label>
       <label for="${key}Price">販売単位の税込価格（円）<input class="calc-input" id="${key}Price" data-price type="number" min="0" max="100000000" step="1" placeholder="販売ページの価格"></label>
