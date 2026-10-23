@@ -39,7 +39,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: '24.22.1'
+      - name: Verify patched Node.js runtime
+        run: |
+          node -e "const expected = '24.22.1'; if (process.versions.node !== expected) throw new Error('Expected Node.js ' + expected + ', got ' + process.versions.node); console.log('Verified Node.js ' + process.versions.node);"
       - name: Test KPI collector and demand planner
         run: node --test scripts/test-growth-kpis.mjs scripts/test-demand-operation.mjs scripts/test-official-safety-signals.mjs
       - name: Verify live JMA safety feed
