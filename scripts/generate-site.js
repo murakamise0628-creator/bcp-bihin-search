@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const { procurementEstimate, selectPurchasePlan } = require('./procurement-estimate');
 const { comparisonUnit } = require('./comparison-unit');
 const { procurementCandidates } = require('./procurement-candidates.cjs');
+const { totalPowerWatts } = require('./power-load.cjs');
 const { isSupplementalCandy, nurseryPurpose, nurseryGroups, nurseryPreparation } = require('./nursery-comparison.cjs');
 const { restaurantPurpose, restaurantGroups, containerFacts } = require('./water-container-comparison.cjs');
 const { displayProductName } = require('./display-product-name.cjs');
@@ -205,6 +206,7 @@ const pageNotes = {
     related: ['office-bichiku', 'hoikuen-bousai', 'kitaku-konnansha'],
     faq: [
       ['必要な容量（Wh）はどう計算しますか？', '使う機器の消費電力（W）に使用時間を掛け、変換ロスや余裕分を加えて見積もります。定格出力（W）が機器の起動時電力を上回るかも確認します。'],
+      ['機器を複数台使う場合、消費電力はどう計算しますか？', '同時に使う各機器の消費電力（W）に台数を掛け、それぞれを合計します。このページでは3種類まで入力して合計Wを容量計算に反映できます。消費電力は機器の表示や説明書で確認し、起動時電力、出力端子の上限、使う時間は別に確認してください。医療機器への適合を判断する計算ではありません。'],
       ['介護施設では何を優先しますか？', '照明、連絡手段、見守り機器、冷蔵が必要な物品などを施設内で洗い出し、生命やケアに関わる機器はメーカーや専門業者と別途確認します。'],
       ['医療機器に使えますか？', '医療機器への給電可否は商品ページの一般仕様だけで判断できません。機器メーカー、電源メーカー、施設の管理責任者に確認してください。'],
       ['保管中は何を点検しますか？', '充電残量、充電周期、ケーブル、保管温度、持ち出し経路を定期的に確認します。']
@@ -646,9 +648,52 @@ function effectiveProducts(page, note, minCount = 8) {
   return prioritizeProductVariety([...own, ...related]);
 }
 
+function powerLoadTool() {
+  return `<details data-power-load-tool>
+    <summary>機器のW数と台数から、合計消費電力を出す</summary>
+    <p id="powerLoadNotice">同時に使う機器の消費電力を、機器の表示・説明書で確認して入力してください。起動時電力は別に確認が必要です。未使用の行は空欄のままにしてください。</p>
+    ${[1, 2, 3].map(index => `<div class="calc-grid power-load-row">
+      <label>機器${index}の消費電力（W）<input class="calc-input" data-load-watts type="number" min="1" max="100000" step="1" inputmode="numeric" aria-describedby="powerLoadNotice"></label>
+      <label>機器${index}の台数<input class="calc-input" data-load-count type="number" min="1" max="1000" step="1" inputmode="numeric" value="1" aria-describedby="powerLoadNotice"></label>
+    </div>`).join('')}
+    <p id="powerLoadTotal" role="status">消費電力と台数を入力してください。</p>
+    <button class="button secondary" type="button" id="powerLoadApply" disabled>合計Wを容量計算に反映</button>
+    <p class="notice">消費電力は整数で1～100,000W、台数は1～1,000台、合計は100,000Wまでの計算補助です。<a href="https://community.jackery.jp/knowledge/portable-power-stations1/how-to-choose" target="_blank" rel="noopener">消費電力・定格出力の確認方法（Jackery）</a></p>
+    <noscript><p>各機器のW数に台数を掛けて足し合わせ、合計消費電力の欄へ入力してください。</p></noscript>
+  </details>
+  <style>[data-power-load-tool]{margin:16px 0;padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}[data-power-load-tool] summary{cursor:pointer;min-height:44px;font-size:16px;font-weight:700;line-height:1.6;padding:8px 0}[data-power-load-tool] .power-load-row{grid-template-columns:minmax(0,2fr) minmax(0,1fr);padding:8px 0}[data-power-load-tool] label{font-size:16px}[data-power-load-tool] button{display:flex;align-items:center;justify-content:center;width:340px;min-height:48px;max-width:100%;padding:12px;font-family:inherit;font-size:16px;line-height:1.5;white-space:normal;text-decoration:none;border:1px solid var(--main);background:#fff;color:var(--main)}[data-power-load-tool] button::after{content:none}[data-power-load-tool] button:disabled{opacity:.55;cursor:not-allowed}</style>
+  <script>(function(){
+    var totalPowerWatts=${totalPowerWatts.toString()};
+    var tool=document.querySelector('[data-power-load-tool]');
+    var output=document.getElementById('powerLoadTotal');
+    var apply=document.getElementById('powerLoadApply');
+    function readLoads(){
+      return Array.from(tool.querySelectorAll('.power-load-row')).map(function(row){
+        return {watts:row.querySelector('[data-load-watts]').value,count:row.querySelector('[data-load-count]').value};
+      });
+    }
+    function update(){
+      var total=totalPowerWatts(readLoads());
+      apply.disabled=total===null;
+      output.textContent=total===null ? '消費電力と台数を確認してください。合計は100,000Wまでです。' : '入力した機器の合計: '+total.toLocaleString('ja-JP')+'W';
+    }
+    tool.addEventListener('input',update);
+    apply.addEventListener('click',function(){
+      var total=totalPowerWatts(readLoads());
+      if(total===null) return;
+      var input=document.getElementById('powerWatts');
+      input.value=String(total);
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+      output.textContent='合計'+total.toLocaleString('ja-JP')+'Wを容量計算に反映しました。';
+    });
+  })();</script>`;
+}
+
 function powerEstimateSection() {
   return `<section class="section card calc-card" id="quantity">
     <div class="section-title"><div><p class="eyebrow">必要容量の目安</p><h2>何を何時間動かすかで、必要Whを確認</h2></div><p class="notice">医療・介護機器はメーカーや専門業者にも確認してください。</p></div>
+    ${powerLoadTool()}
     <div class="calc-grid">
       <label>同時に使う機器の合計<input class="calc-input" id="powerWatts" type="number" min="1" max="100000" value="300" required><small>機器の表示で確認した消費電力（W）</small></label>
       <label>動かしたい時間<input class="calc-input" id="powerHours" type="number" min="0.5" max="168" step="0.5" value="4" required><small>使用時間（時間）</small></label>

@@ -61,7 +61,16 @@ assert.ok(sitemapDates.length > 0, 'sitemap must include lastmod dates');
 assert.ok(sitemapDates.every((date) => Date.parse(`${date}T00:00:00+09:00`) >= Date.parse('2026-08-03T00:00:00+09:00')), 'sitemap lastmod must include the editorial update');
 
 const power = fs.readFileSync(path.join(root, 'dist', 'pages', 'portable-power-kaigo.html'), 'utf8');
+assert.match(power, /data-power-load-tool/);
+assert.equal((power.match(/data-load-watts type=/g) || []).length, 3);
+assert.equal((power.match(/data-load-count type=/g) || []).length, 3);
+assert.match(power, /id="powerLoadApply" disabled/);
+assert.match(power, /医療機器への適合を判断する計算ではありません/);
+const powerFaq = [...power.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+  .map(match => JSON.parse(match[1])).find(graph => graph['@type'] === 'FAQPage')?.mainEntity;
+assert.ok(powerFaq?.some(item => item.name === '機器を複数台使う場合、消費電力はどう計算しますか？'));
 const quantityGuide = fs.readFileSync(path.join(root, 'dist', 'pages', 'office-stockpile-quantity.html'), 'utf8');
+assert.doesNotMatch(quantityGuide, /data-power-load-tool/);
 for (const kind of ['water','food','toilet']) {
   assert.match(quantityGuide,new RegExp(`id="${kind}Candidate"[^>]*data-procurement-select`),'quantity calculator needs a bounded product choice');
   assert.match(quantityGuide,new RegExp(`id="${kind}Candidates"`));

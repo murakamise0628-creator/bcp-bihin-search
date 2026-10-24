@@ -395,6 +395,43 @@ try {
     assert.equal(states.invalidMargin, 0);
     assert.equal(states.emptyInput, 0);
     result.states = states;
+    const loadHelper = await evaluate(send, `(() => {
+      const tool=document.querySelector('[data-power-load-tool]');tool.open=true;
+      const rows=[...tool.querySelectorAll('.power-load-row')];
+      const set=(index,field,value)=>{const el=rows[index].querySelector(field);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));};
+      const button=document.getElementById('powerLoadApply');
+      const initialDisabled=button.disabled;
+      set(0,'[data-load-watts]','10');set(0,'[data-load-count]','3');
+      set(1,'[data-load-watts]','60');set(1,'[data-load-count]','2');
+      const beforeApply=document.getElementById('powerWatts').value;
+      const original=window.gtag;const events=[];window.gtag=function(){events.push(Array.from(arguments));};
+      button.click();button.click();
+      const applied={watts:document.getElementById('powerWatts').value,estimate:document.getElementById('powerEstimate').textContent,events:events.filter(e=>e[1]==='power_calculator_use')};
+      set(0,'[data-load-watts]','-1');const invalidDisabled=button.disabled;
+      const preserved=document.getElementById('powerWatts').value;
+      set(0,'[data-load-watts]','');set(0,'[data-load-count]','1');set(1,'[data-load-watts]','');set(1,'[data-load-count]','1');
+      const emptyDisabled=button.disabled;
+      set(0,'[data-load-watts]','10');set(0,'[data-load-count]','3');set(1,'[data-load-watts]','60');set(1,'[data-load-count]','2');
+      document.getElementById('powerWatts').value='99';document.getElementById('powerWatts').dispatchEvent(new Event('input',{bubbles:true}));
+      set(0,'[data-load-count]','4');const manualPreserved=document.getElementById('powerWatts').value;
+      set(0,'[data-load-count]','3');button.click();
+      window.gtag=original;
+      const rect=button.getBoundingClientRect();
+      const fits=[...tool.querySelectorAll('input,button,summary')].every(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;});
+      return {initialDisabled,beforeApply,applied,invalidDisabled,preserved,emptyDisabled,manualPreserved,fits,buttonHeight:rect.height,overflow:document.documentElement.scrollWidth>innerWidth+1};
+    })()`);
+    assert.equal(loadHelper.initialDisabled,true);assert.equal(loadHelper.beforeApply,'');
+    assert.equal(loadHelper.applied.watts,'150');assert.equal(loadHelper.applied.estimate,'400Wh以上');
+    assert.equal(loadHelper.applied.events.length,1);
+    assert.equal(loadHelper.applied.events[0][2].watts,150);
+    assert.ok(!('device_count' in loadHelper.applied.events[0][2]));
+    assert.equal(loadHelper.invalidDisabled,true);assert.equal(loadHelper.preserved,'150');
+    assert.equal(loadHelper.emptyDisabled,true);assert.equal(loadHelper.manualPreserved,'99');
+    assert.equal(loadHelper.fits,true);assert.equal(loadHelper.overflow,false);assert.ok(loadHelper.buttonHeight>=44);
+    result.loadHelper=loadHelper;
+    await evaluate(send, `document.querySelector('[data-power-load-tool]').scrollIntoView({block:'start',behavior:'instant'})`);
+    const loadShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+    fs.writeFileSync(path.join(screenshotDir,'power-load-'+width+'.png'),Buffer.from(loadShot.data,'base64'));
     powerResults.push(result);
   }
 
