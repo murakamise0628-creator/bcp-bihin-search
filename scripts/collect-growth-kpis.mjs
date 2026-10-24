@@ -505,6 +505,63 @@ async function appendPrioritySheet(id, token, report, fetchImpl) {
   }
 }
 
+export const pageEventHeaders = [
+  '取得日時', '開始日', '終了日', '集計範囲', 'ページ', 'イベント', 'イベント数', '取得状態', '解釈'
+];
+
+export function pageEventSheetRows(report) {
+  const period = report.ga?.current;
+  const coverage = period?.eventCoverage;
+  const events = [...new Set(coverage?.requested || [])].filter(name => /^[a-z][a-z0-9_]{0,79}$/.test(name));
+  const pagePaths = new Set((report.pagePriorities || []).map(row => normalizePagePath(row.path, report.siteUrl)).filter(Boolean));
+  const pageCounts = new Map();
+  for (const row of period?.eventPages || []) {
+    const pagePath = normalizePagePath(row.path, report.siteUrl);
+    if (!pagePath || !events.includes(row.eventName)) continue;
+    pagePaths.add(pagePath);
+    const key = JSON.stringify([pagePath, row.eventName]);
+    const previous = pageCounts.has(key) ? pageCounts.get(key) : 0;
+    const sum = previous + row.count;
+    pageCounts.set(key, previous !== null && Number.isSafeInteger(row.count) && row.count >= 0
+      && Number.isSafeInteger(sum) ? sum : null);
+  }
+  const rows = [];
+  const add = (scope, pagePath, name, count) => {
+    const known = coverage[scope] === true && Number.isSafeInteger(count) && count >= 0;
+    const meaning = name === 'view_item_list'
+      ? '一覧DOMの存在によるイベント。画面内の候補閲覧を示すものではありません。'
+      : '操作イベント数。購入件数・利用者数・購入率ではありません。';
+    rows.push([report.collectedAt, report.periods.current.startDate, report.periods.current.endDate,
+      scope, pagePath, name, known ? count : '', known ? 'complete' : 'unknown', meaning]);
+  };
+  for (const name of events) add('all', '', name, Object.hasOwn(period.events || {}, name) ? period.events[name] : 0);
+  for (const pagePath of [...pagePaths].sort()) {
+    for (const name of events) {
+      const key = JSON.stringify([pagePath, name]);
+      add('organic', pagePath, name, pageCounts.has(key) ? pageCounts.get(key) : 0);
+    }
+  }
+  return rows;
+}
+
+export async function appendPageEventSheet(id, token, report, fetchImpl) {
+  const rows = pageEventSheetRows(report);
+  if (!rows.length) return;
+  const title = 'Page Events';
+  await ensureSheet(id, token, title, fetchImpl);
+  const base = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values`;
+  const headerRange = `'${title}'!A1:J2`;
+  const current = await googleJson(`${base}/${encodeURIComponent(headerRange)}`, token, {}, fetchImpl);
+  if (!current.values?.length) {
+    await googleJson(`${base}/${encodeURIComponent(`'${title}'!A1:I1`)}?valueInputOption=RAW`, token,
+      { method: 'PUT', body: JSON.stringify({ values: [pageEventHeaders] }) }, fetchImpl);
+  } else if (!headersMatch(current.values[0], pageEventHeaders)) {
+    throw new Error('Unexpected Page Events headers; append cancelled.');
+  }
+  await googleJson(`${base}/${encodeURIComponent(`'${title}'!A:I`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, token,
+    { method: 'POST', body: JSON.stringify({ values: rows }) }, fetchImpl);
+}
+
 export async function collectGrowthKpis(options = {}) {
   if (options.readOnly !== undefined && typeof options.readOnly !== 'boolean') throw new Error('readOnly must be boolean.');
   const readOnly = options.readOnly === true;
@@ -525,6 +582,7 @@ export async function collectGrowthKpis(options = {}) {
   if (sheetId && !readOnly) {
     await appendSheet(sheetId, token, sheetRow(report), fetchImpl);
     await appendPrioritySheet(sheetId, token, report, fetchImpl);
+    await appendPageEventSheet(sheetId, token, report, fetchImpl);
     const indexRows = await inspectPriorityUrls(site, token, fetchImpl, report.collectedAt);
     await appendIndexSheet(sheetId, token, indexRows, fetchImpl);
   }
