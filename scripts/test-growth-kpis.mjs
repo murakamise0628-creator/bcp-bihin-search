@@ -367,8 +367,96 @@ test('normal KPI collection retains existing Sheet append behavior', async () =>
   const calls = [];
   await kpi.collectGrowthKpis({ propertyId: '123', sheetId: 'test-sheet', serviceAccount: testAccount, fetchImpl: fakeGoogle(calls) });
   assert.match(requestedScope(calls[0]), /spreadsheets/);
-  assert.equal(calls.filter(call => call.url.includes(':append?')).length, 3);
+  assert.equal(calls.filter(call => call.url.includes(':append?')).length, 4);
   assert.equal(calls.filter(call => call.url.includes('urlInspection')).length, 5);
+});
+
+function eventSheetFixture() {
+  return {
+    collectedAt: '2026-10-25T00:00:00Z', siteUrl: 'https://jigyousho-bousai.com',
+    periods: { current: { startDate: '2026-09-25', endDate: '2026-10-22' } },
+    ga: { current: {
+      events: { power_calculator_use: 7, view_item_list: 19, rakuten_click: 5, amazon_click: 1 },
+      eventCoverage: { requested: ['power_calculator_use', 'view_item_list', 'rakuten_click', 'amazon_click'], all: true, organic: true },
+      eventPages: [
+        { eventName: 'power_calculator_use', path: '/pages/portable-power-kaigo.html?source=test', count: 2 },
+        { eventName: 'view_item_list', path: '/pages/portable-power-kaigo.html', count: 8 },
+        { eventName: 'rakuten_click', path: '/pages/portable-power-kaigo.html', count: 3 },
+        { eventName: 'amazon_click', path: '/pages/portable-power-kaigo.html', count: 1 }
+      ]
+    } },
+    pagePriorities: [{ path: '/pages/portable-power-kaigo.html' }, { path: '/pages/toilet-office.html' }]
+  };
+}
+
+test('event detail persists calculator and list counts separately by scope and merchant', () => {
+  const rows = kpi.pageEventSheetRows(eventSheetFixture());
+  const find = (scope, page, event) => rows.find(row => row[3] === scope && row[4] === page && row[5] === event);
+  assert.equal(rows.length, 12);
+  assert.ok(rows.every(row => row.length === 9));
+  assert.equal(find('all', '', 'power_calculator_use')[6], 7);
+  assert.equal(find('organic', '/pages/portable-power-kaigo.html', 'power_calculator_use')[6], 2);
+  assert.equal(find('organic', '/pages/portable-power-kaigo.html', 'rakuten_click')[6], 3);
+  assert.equal(find('organic', '/pages/portable-power-kaigo.html', 'amazon_click')[6], 1);
+  assert.equal(find('organic', '/pages/toilet-office.html', 'power_calculator_use')[6], 0);
+  assert.match(find('organic', '/pages/portable-power-kaigo.html', 'view_item_list')[8], /DOM/);
+  assert.ok(!JSON.stringify(rows).includes('?source='));
+  assert.ok(!JSON.stringify(rows).includes('test-token'));
+});
+
+test('incomplete event detail stays unknown and never creates zeros for unrequested events', () => {
+  const report = eventSheetFixture();
+  report.ga.current.eventCoverage.organic = false;
+  const rows = kpi.pageEventSheetRows(report);
+  assert.ok(rows.filter(row => row[3] === 'organic').every(row => row[6] === '' && row[7] === 'unknown'));
+  assert.equal(rows.find(row => row[3] === 'all' && row[5] === 'power_calculator_use')[6], 7);
+  delete report.ga.current.eventCoverage;
+  assert.deepEqual(kpi.pageEventSheetRows(report), []);
+});
+
+test('invalid or overflowing event counts remain unknown', () => {
+  for (const value of [null, -1, NaN, Infinity, 1.5, '2', Number.MAX_SAFE_INTEGER + 1]) {
+    const report = eventSheetFixture();
+    report.ga.current.events.power_calculator_use = value;
+    report.ga.current.eventPages[0].count = value;
+    const rows = kpi.pageEventSheetRows(report).filter(row => row[5] === 'power_calculator_use' && (row[3] === 'all' || row[4] === '/pages/portable-power-kaigo.html'));
+    assert.ok(rows.every(row => row[6] === '' && row[7] === 'unknown'));
+  }
+});
+
+test('invalid normalized-page counts cannot be hidden by a later valid query-string row', () => {
+  const report = eventSheetFixture();
+  report.ga.current.eventPages[0].count = null;
+  report.ga.current.eventPages.push({ eventName: 'power_calculator_use', path: '/pages/portable-power-kaigo.html?source=second', count: 3 });
+  const row = kpi.pageEventSheetRows(report).find(row => row[3] === 'organic' && row[4] === '/pages/portable-power-kaigo.html' && row[5] === 'power_calculator_use');
+  assert.equal(row[6], '');
+  assert.equal(row[7], 'unknown');
+});
+
+test('event detail creates only its own sheet and appends RAW without changing existing headers', async () => {
+  const calls = [];
+  await kpi.appendPageEventSheet('test-sheet', 'token', eventSheetFixture(), fakeGoogle(calls));
+  const create = calls.find(call => call.url.endsWith(':batchUpdate'));
+  assert.deepEqual(JSON.parse(create.options.body), { requests: [{ addSheet: { properties: { title: 'Page Events' } } }] });
+  const writes = calls.filter(call => call.options.method && call.options.method !== 'GET');
+  const header = writes.find(call => call.options.method === 'PUT');
+  assert.deepEqual(JSON.parse(header.options.body).values, [kpi.pageEventHeaders]);
+  const append = writes.find(call => call.url.includes(':append?'));
+  assert.match(append.url, /valueInputOption=RAW/);
+  assert.equal(JSON.parse(append.options.body).values.length, 12);
+  assert.ok(writes.every(call => !decodeURIComponent(call.url).includes('Page Priorities') && !decodeURIComponent(call.url).includes('シート1')));
+});
+
+test('event detail rejects unexpected or extended headers and writes nothing', async () => {
+  for (const header of [['unexpected'], [...kpi.pageEventHeaders, 'unowned-column']]) {
+    const calls = [];
+    await assert.rejects(kpi.appendPageEventSheet('test-sheet', 'token', eventSheetFixture(), async (url, options = {}) => {
+      calls.push({ url, options });
+      const body = url.includes('?fields=') ? { sheets: [{ properties: { title: 'Page Events' } }] } : { values: [header] };
+      return { ok: true, text: async () => JSON.stringify(body) };
+    }), /append cancelled/);
+    assert.ok(calls.every(call => !call.options.method));
+  }
 });
 
 test('page query reading uses exact page filter, final periods and search-only scope', async () => {
