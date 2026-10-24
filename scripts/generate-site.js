@@ -2516,6 +2516,7 @@ function relatedLinks(slugs) {
 }
 
 function pageDescription(page, note) {
+  if (page.slug === 'portable-power-kaigo') return '介護施設の停電に備えるポータブル電源を容量Wh・出力W・価格で比較。機器ごとの消費電力と台数から合計Wを出し、使用時間に応じた必要容量の目安を計算できます。医療機器への適合・起動時電力は別途確認してください。';
   if (page.slug === 'restaurant-dansui') return '飲食店の断水に備える給水タンク・衛生用品・簡易トイレを用途別に比較。10L・15L・20Lの容量、1個とセットの違い、満水時の水の重さを確認できます。飲用可否や手洗い・営業判断の注意点も掲載。';
   if (page.slug === 'hoikuen-bousai') return '保育園の非常食を、調理に必要な水・熱源、保存期間、販売単位で比較。園児用と職員用を分け、対象年齢・原材料・食事形態を確認できます。園児数と提供回数から食数の目安も計算できます。';
   const disasters = (note.disasters || []).join('、');

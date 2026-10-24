@@ -66,6 +66,7 @@ assert.equal((power.match(/data-load-watts type=/g) || []).length, 3);
 assert.equal((power.match(/data-load-count type=/g) || []).length, 3);
 assert.match(power, /id="powerLoadApply" disabled/);
 assert.match(power, /医療機器への適合を判断する計算ではありません/);
+assert.match(power, /機器ごとの消費電力と台数から合計W/);
 const powerFaq = [...power.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
   .map(match => JSON.parse(match[1])).find(graph => graph['@type'] === 'FAQPage')?.mainEntity;
 assert.ok(powerFaq?.some(item => item.name === '機器を複数台使う場合、消費電力はどう計算しますか？'));
