@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import nurseryTools from './nursery-comparison.cjs';
 import waterContainerTools from './water-container-comparison.cjs';
 import { procurementCandidates } from './procurement-candidates.cjs';
+import { totalPowerWatts } from './power-load.cjs';
 import { displayProductName } from './display-product-name.cjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -14,6 +15,23 @@ import vm from 'node:vm';
 import { auditRefreshData } from './verify-refresh.mjs';
 
 const nurseryMealSearches = ['非常食 米粉パン', '非常食 アレルギー', '非常食 おかゆ', '非常食 水不要'];
+test('power load helper sums only entered device loads without changing inputs', () => {
+  const loads = [{ watts: '10', count: '3' }, { watts: '60', count: '2' }, { watts: '', count: '1' }];
+  const snapshot = structuredClone(loads);
+  assert.equal(totalPowerWatts(loads), 150);
+  assert.deepEqual(loads, snapshot);
+  assert.equal(totalPowerWatts([{ watts: '100', count: '1000' }]), 100000);
+});
+test('power load helper rejects empty, partial, invalid and excessive totals', () => {
+  assert.equal(totalPowerWatts([]), null);
+  for (const load of [
+    { watts: '', count: '1' }, { watts: '', count: '2' }, { watts: '10', count: '' },
+    { watts: '0', count: '1' }, { watts: '-1', count: '1' }, { watts: '10', count: '0' },
+    { watts: '2.5', count: '1' }, { watts: '2e2', count: '1' }, { watts: '10', count: '1.5' },
+    { watts: '1', count: '1001' }, { watts: '100001', count: '1' }, { watts: 'NaN', count: '1' }
+  ]) assert.equal(totalPowerWatts([load]), null);
+  assert.equal(totalPowerWatts([{ watts: '50000', count: '2' }, { watts: '1', count: '1' }]), null);
+});
 test('procurement candidates use fixed sale units and preserve source data', () => {
   const water = {itemCode:'water:1',productType:'water',titleRaw:'保存水 2L 6本 1ケース',price:1800};
   const food = {itemCode:'food:1',productType:'food',titleRaw:'非常食 アルファ米 50食',price:15000};
