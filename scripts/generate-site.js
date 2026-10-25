@@ -571,6 +571,37 @@ function nurseryCandidateLinks(products) {
   return `<nav class="chip-row" aria-label="備蓄品の用途"><span>用途別に見る</span>${groups.map(group => `<a class="chip" href="#nursery-purpose-${group.key}">${esc(group.label)}（${group.products.length}件）</a>`).join('')}</nav>`;
 }
 
+function nurseryStockList(products) {
+  const purposes = new Set(nurseryGroups(products).map(group => group.key));
+  const foodTarget = purposes.has('food') ? '#nursery-purpose-food' : '#quantity';
+  const waterTarget = purposes.has('water') ? '#nursery-purpose-water' : `${siteUrl}/pages/water-food-stock.html#comparison`;
+  const rows = [
+    ['園児の食料・ミルク', '食事形態ごとの人数と、提供する回数を分けて数えます。', '普段のミルク・離乳食・幼児食・個別食、原材料、水・加熱の要否を確認。1袋は園児1人の1食分とは限りません。', foodTarget, '非常食の内容を比較'],
+    ['飲用・調理用の水', '飲む量と、調理・調乳などに使う量を分けて確認します。', '容器の容量・重さ・保管場所を確認。乳幼児の飲水量に成人向けの計算値をそのまま使わないでください。', waterTarget, '保存水の容量を比較'],
+    ['おむつ・トイレ用品', '使用する園児数、交換頻度、待機時間から不足数を確認します。', 'サイズ、おしり拭き、汚物袋、使用後の保管場所を確認。職員のトイレ用品も別に数えます。', `${siteUrl}/pages/bcp-stockpile-checklist.html`, '備蓄点検リストで確認'],
+    ['食器・衛生用品', '食事の提供回数と、配膳・片付けの手順に合わせて数えます。', '紙皿・コップ・スプーン・手袋・袋類など。断水時にも準備と片付けができるか確認します。', `${siteUrl}/topics/water-outage.html`, '断水時に必要なものを確認'],
+    ['灯り・防寒・持出し用品', '待機する部屋と避難先、持ち出す担当者を確認します。', 'ライトの電池・充電、毛布や着替え、持出し袋の重さを点検。必要品は園の避難計画に合わせます。', `${siteUrl}/topics/power-outage.html`, '停電時に必要なものを確認'],
+    ['職員用の水・食料', '園児分とは分け、待機する職員数と日数から確認します。', '成人向けの目安から使える在庫を引き、保存水・非常食・簡易トイレの購入個数を確認します。', `${siteUrl}/pages/office-stockpile-quantity.html#quantity`, '職員用の購入個数を計算']
+  ];
+  return `<section class="section" id="nursery-stock-list" aria-labelledby="nursery-stock-heading">
+    <h2 id="nursery-stock-heading">保育園の防災備蓄リスト</h2>
+    <p>点検の出発点として、6つの区分で整理します。園児の月齢・食事形態、引き渡しまでの待機時間、園の災害計画に合わせて追加・調整してください。</p>
+    <style>
+      #nursery-stock-list .nursery-stock-items{list-style:none;margin:24px 0;padding:0}
+      #nursery-stock-list .nursery-stock-row{border:0;border-top:1px solid var(--rule-2);border-radius:0;background:transparent;margin:0;padding:0}
+      #nursery-stock-list summary{min-height:64px;padding:14px 0;cursor:pointer;overflow-wrap:anywhere}
+      #nursery-stock-list summary strong{font-size:18px}
+      #nursery-stock-list summary span{display:block;margin:6px 0 0 18px;font-size:16px;font-weight:400;line-height:1.7}
+      #nursery-stock-list .nursery-stock-check{padding:0 0 18px 18px;min-width:0}
+      #nursery-stock-list .nursery-stock-check p{margin:0 0 12px;font-size:16px}
+      #nursery-stock-list .small-button{min-height:44px;font-size:16px}
+    </style>
+    <ul class="nursery-stock-items">${rows.map(([name,quantity,check,href,label],index) => `<li><details class="nursery-stock-row"${index===0 ? ' open' : ''}><summary><strong>${esc(name)}</strong><span>${esc(quantity)}</span></summary><div class="nursery-stock-check"><p><strong>購入前に確認:</strong> ${esc(check)}</p><a class="small-button" href="${esc(href)}">${esc(label)}</a></div></details></li>`).join('')}</ul>
+    <p>食品や物品の整理は、<a href="https://www.pref.osaka.lg.jp/documents/22910/guid.pdf" target="_blank" rel="noopener">大阪府泉佐野保健所の保育施設向け資料（2018年）</a>も参考になります。一律の必要日数・数量を定めるものではないため、自治体の案内と園の計画を確認してください。</p>
+    <a class="small-button" href="#comparison">非常食の候補を比較する</a>
+  </section>`;
+}
+
 function cautionForProduct(product, note = {}) {
   if (note.slug === 'hoikuen-bousai') {
     if (isSupplementalCandy(product)) return 'あめはのどに詰まるおそれ。園児用は年齢・食べ方を確認し、食事の食数には含めない';
@@ -784,7 +815,7 @@ function quantityEstimateSection(slug = '') {
       <div><span>簡易トイレ</span><strong id="toiletEstimate">${initialToilet}回分</strong><small>1人1日5回の目安</small></div>
       <div><span>保温シート・毛布</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small></div>
     </div>
-    ${slug === 'toilet-office' ? `<div class="compare-scroll quantity-guide"><table class="compare-table"><thead><tr><th>利用人数</th><th>3日分</th><th>7日分</th></tr></thead><tbody><tr><td>10人</td><td>150回</td><td>350回</td></tr><tr><td>30人</td><td>450回</td><td>1,050回</td></tr><tr><td>50人</td><td>750回</td><td>1,750回</td></tr></tbody></table></div>` : ''}
+    ${slug === 'toilet-office' ? `<div class="compare-scroll quantity-guide"><table class="compare-table"><thead><tr><th>利用人数</th><th>3日分</th><th>7日分</th></tr></thead><tbody><tr><td>10人</td><td>150回</td><td>350回</td></tr><tr><td>30人</td><td>450回</td><td>1,050回</td></tr><tr><td>50人</td><td>750回</td><td>1,750回</td></tr></tbody></table></div>` : ''}${slug === 'office-stockpile-quantity' ? `<p>必要量がそのまま購入量とは限りません。期限内で使える在庫を引いて、買い足す量を確認してください。</p><p><a class="button orange" data-procurement-entry href="#procurement">在庫・購入個数を確認</a></p>` : ''}
     <div class="stock-plan-actions" aria-labelledby="stock-plan-title">
       <div><p class="eyebrow">この条件で比較</p><h3 id="stock-plan-title">必要量を持ったまま、商品候補を見る</h3></div>
       <div class="stock-plan-grid">
@@ -2518,7 +2549,7 @@ function relatedLinks(slugs) {
 function pageDescription(page, note) {
   if (page.slug === 'portable-power-kaigo') return '介護施設の停電に備えるポータブル電源を容量Wh・出力W・価格で比較。機器ごとの消費電力と台数から合計Wを出し、使用時間に応じた必要容量の目安を計算できます。医療機器への適合・起動時電力は別途確認してください。';
   if (page.slug === 'restaurant-dansui') return '飲食店の断水に備える給水タンク・衛生用品・簡易トイレを用途別に比較。10L・15L・20Lの容量、1個とセットの違い、満水時の水の重さを確認できます。飲用可否や手洗い・営業判断の注意点も掲載。';
-  if (page.slug === 'hoikuen-bousai') return '保育園の非常食を、調理に必要な水・熱源、保存期間、販売単位で比較。園児用と職員用を分け、対象年齢・原材料・食事形態を確認できます。園児数と提供回数から食数の目安も計算できます。';
+  if (page.slug === 'hoikuen-bousai') return '保育園の防災備蓄リストを、園児の食料・水・衛生用品・灯り・職員用に分けて確認。必要量の数え方と購入前の確認点を掲載し、非常食を水・加熱の要否、保存期間、販売単位で比較できます。乳幼児の食事形態・原材料は個別に確認してください。';
   const disasters = (note.disasters || []).join('、');
   return `${page.title}。${note.problem} ${note.conclusion} 想定する災害は${disasters}。比較表、選び方、必要数量、FAQから購入前の確認点を整理できます。`;
 }
@@ -2530,7 +2561,7 @@ function pageSeoTitle(page) {
     'blackout-power': '会社の停電対策用品比較｜ポータブル電源・ライト',
     'water-food-stock': '会社の保存水・非常食は何日分？備蓄量と商品比較',
     'emergency-food-office': '会社向け非常食セット比較｜3日分の食数・保存年数で選ぶ',
-    'hoikuen-bousai': '保育園の非常食比較｜水・加熱の要否と食数で選ぶ',
+    'hoikuen-bousai': '保育園の防災備蓄リストと非常食比較',
     'portable-power-kaigo': '介護施設向けポータブル電源比較｜容量・出力で選ぶ',
     'restaurant-dansui': '給水タンク10L・20Lと断水対策用品比較｜飲食店の備え'
   };
@@ -2889,6 +2920,7 @@ function pageHtml(page) {
   const powerFirst = page.slug === 'portable-power-kaigo';
   const nurseryFirst = page.slug === 'hoikuen-bousai';
   const restaurantFirst = page.slug === 'restaurant-dansui';
+  const introduction = nurseryFirst ? '園児の食料、水、おむつ、衛生用品、灯り、職員用の備蓄をリストで確認します。非常食は、対象年齢・原材料・水や加熱の要否を照合して比較。園児用と職員用を分け、足りない品目から確認してください。' : note.problem;
   const quantityFirst = powerFirst || ['toilet-office', 'office-bichiku', 'water-food-stock', 'emergency-food-office'].includes(page.slug);
   const primaryAction = page.slug === 'toilet-office'
     ? '必要回数を計算する'
@@ -2903,7 +2935,7 @@ function pageHtml(page) {
   const body = `<section class="hero">
     <p class="eyebrow">${esc(note.audience)}向け比較</p>
     <h1>${esc(displayHeading)}</h1>
-    <p class="lead">${esc(note.problem)}</p>
+    <p class="lead">${esc(introduction)}</p>
     <div class="hero-meta">
       <span class="pill navy">対象施設: ${esc(note.audience)}</span>
       <span class="pill navy">想定災害: ${esc(note.disasters.join('・'))}</span>
@@ -2912,18 +2944,18 @@ function pageHtml(page) {
       <span class="pill">最終更新: ${esc(updatedDate())}</span>
     </div>
     <div class="hero-actions">
-      <a class="button orange" href="${quantityFirst ? '#quantity' : '#comparison'}">${esc(primaryAction)}</a>
-      <a class="button secondary" href="${nurseryFirst || restaurantFirst ? '#quantity' : quantityFirst ? '#comparison' : '#conclusion'}">${nurseryFirst ? '園児の食数を数える' : restaurantFirst ? '断水時の確認事項を見る' : quantityFirst ? '商品候補を先に見る' : '選び方を確認する'}</a>
+      <a class="button orange" href="${nurseryFirst ? '#nursery-stock-list' : quantityFirst ? '#quantity' : '#comparison'}">${nurseryFirst ? '備蓄リストを確認する' : esc(primaryAction)}</a>
+      <a class="button secondary" href="${nurseryFirst ? '#comparison' : restaurantFirst ? '#quantity' : quantityFirst ? '#comparison' : '#conclusion'}">${nurseryFirst ? '非常食の候補を比較する' : restaurantFirst ? '断水時の確認事項を見る' : quantityFirst ? '商品候補を先に見る' : '選び方を確認する'}</a>
     </div>
     ${page.slug === 'hoikuen-bousai' ? `${nurseryCandidateLinks(products)}\n    ` : ''}<nav class="jump-nav" aria-label="ページ内目次">
       <span>このページの流れ</span>
       <a class="chip" href="#conclusion">結論</a>
-      <a class="chip" href="#quantity">${powerFirst ? '必要容量' : '必要数量'}</a>
+      <a class="chip" href="#quantity">${nurseryFirst ? '園児の食数を数える' : powerFirst ? '必要容量' : '必要数量'}</a>
       <a class="chip" href="#comparison">比較表</a>
       <a class="chip" href="#products">商品カード</a>
       <a class="chip" href="#faq">FAQ</a>
     </nav>
-  </section>
+  </section>${nurseryFirst ? `\n  ${nurseryStockList(products)}` : ''}
   <section class="section two" id="conclusion">
     <article class="card"><p class="eyebrow">このページの結論</p><h2>${esc(note.conclusion)}</h2><p>${esc(note.avoid)}</p></article>
     <article class="card"><p class="eyebrow">まず揃えるべきもの</p><div class="chip-row">${mustHave}</div></article>
@@ -3447,6 +3479,7 @@ ${quantityEstimateSection('office-stockpile-quantity')}
   <article class="card"><h3>事業所向け備蓄セット</h3><p>セット内容を人数分に換算し、不足する水・食料・トイレを分けて確認します。</p><a class="small-button" href="${siteUrl}/pages/office-bichiku.html">備蓄セットを比較</a></article>
 </div></section>
 <section class="section quantity-products" id="products"><div class="section-title"><div><p class="eyebrow">商品を確認</p><h2>必要量と、商品の入数・仕様を照らす</h2><p>早見表の数量を、1箱あたりの水量・食数・回数と照らして確認してください。</p></div><p class="notice">価格・在庫・仕様は楽天市場で最終確認</p></div>${quantityProductSections}</section>
+<section class="section" aria-labelledby="stockpile-scenario-heading"><h2 id="stockpile-scenario-heading">待機日数と置き場所を確認する</h2><p>拠点の災害計画に合わせて、待機する人数・期間と、備蓄を取り出せる場所を確認してください。</p><ul class="checklist"><li><a href="${siteUrl}/topics/earthquake.html">地震で水・トイレが使えない場合の備え</a></li><li><a href="${siteUrl}/topics/typhoon.html">台風・大雨で停電や浸水が想定される場合の備え</a></li><li><a href="${siteUrl}/topics/commuter-stranding.html">従業員が帰宅できない場合の備え</a></li></ul></section>
 ${sourceSection('home')}
 <section class="section faq" id="faq"><h2>よくある質問</h2>${quantityGuideFaq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
 ${structuredData(
