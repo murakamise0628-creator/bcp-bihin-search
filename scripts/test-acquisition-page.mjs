@@ -77,6 +77,9 @@ for (const kind of ['water','food','toilet']) {
   assert.match(quantityGuide,new RegExp(`id="${kind}Candidates"`));
 }
 assert.ok(quantityGuide.indexOf('id="procurement"') < quantityGuide.indexOf('id="quantity-table"'));
+const quantityResultSection = quantityGuide.match(/<section[^>]*id="quantity"[\s\S]*?<\/section>/)?.[0] || '';
+assert.match(quantityResultSection, /data-procurement-entry[^>]*href="#procurement"/, 'calculation result must lead to the purchase-unit calculator on the same page');
+assert.ok(quantityResultSection.indexOf('data-procurement-entry') < quantityResultSection.indexOf('class="stock-plan-actions"'), 'local purchase calculation must precede links to other comparison pages');
 assert.match(quantityGuide,/内容量・掲載価格を計算に使う/);
 assert.match(quantityGuide,/data-procurement-candidate/);
 assert.ok(!/<option[^>]+\sdata-(?:pack|price)=/.test(quantityGuide), 'candidate metadata must not shadow calculator inputs');
@@ -177,9 +180,17 @@ const waterTopic = fs.readFileSync(path.join(root, 'dist', 'topics', 'water-outa
 assert.match(waterTopic, /pages\/restaurant-dansui\.html#comparison">給水タンクを比較する/);
 
 const nursery = fs.readFileSync(path.join(root, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
-assert.match(nursery, /<h1>保育園の非常食比較｜水・加熱の要否と食数で選ぶ<\/h1>/);
-assert.match(nursery, /<title>保育園の非常食比較｜水・加熱の要否と食数で選ぶ/);
-assert.match(nursery, /<meta name="description" content="保育園の非常食を、調理に必要な水・熱源、保存期間、販売単位で比較/);
+assert.match(nursery, /<h1>保育園の防災備蓄リストと非常食比較<\/h1>/);
+assert.match(nursery, /<title>保育園の防災備蓄リストと非常食比較/);
+assert.match(nursery, /<meta name="description" content="保育園の防災備蓄リストを/);
+const nurseryStockList = nursery.match(/<section[^>]*id="nursery-stock-list"[\s\S]*?<\/section>/)?.[0] || '';
+assert.equal((nurseryStockList.match(/class="nursery-stock-row"/g) || []).length, 6);
+assert.ok(nursery.indexOf('id="nursery-stock-list"') < nursery.indexOf('id="comparison"'), 'list-intent visitors need item categories before product comparisons');
+for (const phrase of ['園児の食料・ミルク', '飲用・調理用の水', 'おむつ・トイレ用品', '食器・衛生用品', '灯り・防寒・持出し用品', '職員用の水・食料', '園児1人の1食分とは限りません']) {
+  assert.ok(nurseryStockList.includes(phrase), `nursery stock list missing: ${phrase}`);
+}
+assert.match(nurseryStockList, /pref\.osaka\.lg\.jp\/documents\/22910\/guid\.pdf/);
+assert.match(nursery, /href="#nursery-stock-list">備蓄リストを確認する<\/a>/);
 assert.ok(nursery.indexOf('id="comparison"') < nursery.indexOf('id="quantity"'), 'buyers must reach actual food comparisons before the two long calculators');
 assert.equal((nursery.match(/id="comparison"/g) || []).length, 1);
 assert.match(nursery, /href="#comparison">非常食の候補を比較する<\/a>/);
@@ -298,6 +309,10 @@ try {
     const links = html.match(/<nav class="chip-row" aria-label="備蓄品の用途"[\s\S]*?<\/nav>/)?.[0] || '';
     const table = html.match(/<section class="section" id="comparison">[\s\S]*?<\/section>/)?.[0] || '';
     const cards = html.match(/<section class="section" id="products">[\s\S]*?<\/section>/)?.[0] || '';
+    const stockList = html.match(/<section[^>]*id="nursery-stock-list"[\s\S]*?<\/section>/)?.[0] || '';
+    for (const [,target] of stockList.matchAll(/href="#([^"]+)"/g)) {
+      assert.ok(html.includes(`id="${target}"`), `nursery stock list has dead anchor: ${target}`);
+    }
     assert.equal((html.match(/<h1>/g) || []).length, 1);
     assert.equal((table.match(/data-nursery-purpose="food"/g) || []).length, count);
     assert.equal((cards.match(/data-nursery-purpose="food"/g) || []).length, Math.min(count, 6));

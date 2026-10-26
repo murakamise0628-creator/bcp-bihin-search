@@ -558,6 +558,21 @@ try {
     await send('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width<768});
     await navigateFresh(send,quantityPage+'?staff=30&days=3&visitors=0');
     await sleep(900);
+    const purchaseEntry=await evaluate(send,`(() => {
+      const link=document.querySelector('[data-procurement-entry]');
+      link.scrollIntoView({behavior:'instant',block:'center'});
+      const box=link.getBoundingClientRect();const range=document.createRange();range.selectNodeContents(link);
+      const result={inQuantity:document.getElementById('quantity').contains(link),href:link.getAttribute('href'),fits:box.left>=0&&box.right<=innerWidth,height:box.height,lines:range.getClientRects().length};
+      link.click();return result;
+    })()`);
+    assert.equal(purchaseEntry.inQuantity,true);
+    assert.equal(purchaseEntry.href,'#procurement');
+    assert.equal(purchaseEntry.fits,true);
+    assert.ok(purchaseEntry.height>=44);
+    assert.equal(purchaseEntry.lines,1);
+    await sleep(400);
+    assert.equal(await evaluate(send,`location.hash`),'#procurement');
+    assert.ok(Math.abs(await evaluate(send,`document.getElementById('procurement').getBoundingClientRect().top`))<100);
     const choices=await evaluate(send,`(async()=>{
       window.__candidateEvents=[];window.gtag=(...args)=>window.__candidateEvents.push(args);
       const records=[];
@@ -879,8 +894,24 @@ try {
       return {comparisonFirst:!!(comparison.compareDocumentPosition(quantity)&Node.DOCUMENT_POSITION_FOLLOWING),primaryTarget:new URL(primary.href).hash,title:document.querySelector('h1').textContent,images:comparison.querySelectorAll('tr[data-nursery-purpose="food"] img').length,preparation:comparison.textContent.includes('準備方法')};
     })()`);
     assert.equal(foodEntry.comparisonFirst, true);
-    assert.equal(foodEntry.primaryTarget, '#comparison');
-    assert.match(foodEntry.title, /保育園の非常食比較/);
+    assert.equal(foodEntry.primaryTarget, '#nursery-stock-list');
+    assert.match(foodEntry.title, /保育園の防災備蓄リストと非常食比較/);
+    const stockList = await evaluate(send, `(() => {
+      const list=document.getElementById('nursery-stock-list');
+      const rows=[...list.querySelectorAll('.nursery-stock-row')],initial=rows.map(row=>row.open);
+      rows.forEach(row=>row.open=true);
+      const links=[...list.querySelectorAll('a.small-button')].map(link=>({target:!link.getAttribute('href').startsWith('#')||!!document.querySelector(link.hash),height:link.getBoundingClientRect().height}));
+      rows.forEach((row,index)=>row.open=initial[index]);
+      const last=rows.at(-1);last.querySelector('summary').click();const toggled=last.open;last.querySelector('summary').click();
+      return {beforeComparison:!!(list.compareDocumentPosition(document.getElementById('comparison'))&Node.DOCUMENT_POSITION_FOLLOWING),rows:rows.length,initialOpen:initial.filter(Boolean).length,toggled,links,overflow:document.documentElement.scrollWidth>innerWidth+1,secondaryTarget:new URL(document.querySelectorAll('.hero-actions a')[1].href).hash};
+    })()`);
+    assert.equal(stockList.rows,6);
+    assert.equal(stockList.initialOpen,1);
+    assert.equal(stockList.toggled,true);
+    assert.equal(stockList.beforeComparison,true);
+    assert.equal(stockList.overflow,false);
+    assert.equal(stockList.secondaryTarget,'#comparison');
+    assert.ok(stockList.links.every(link=>link.target&&link.height>=44));
     assert.ok(foodEntry.images > 0);
     assert.equal(foodEntry.preparation, true);
     assert.ok(purposes.links.length > 0);
@@ -899,6 +930,9 @@ try {
     const entryShot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     fs.writeFileSync(path.join(screenshotDir, 'nursery-entry-' + width + '.png'), Buffer.from(entryShot.data, 'base64'));
     await evaluate(send, `document.querySelector('.hero-actions a').click()`);
+    await sleep(400);
+    assert.equal(await evaluate(send, `location.hash`), '#nursery-stock-list');
+    await evaluate(send, `document.querySelectorAll('.hero-actions a')[1].click()`);
     await sleep(1000);
     const foodComparison = await evaluate(send, `(() => {
       const scroll=document.querySelector('#comparison .compare-scroll');
