@@ -36,6 +36,35 @@ test('disable, invalid tag, unknown page, unknown product and missing original t
   assert.equal(amazonOfferFor({ ...product, summary: '凝固剤のみ' }, 'toilet-office', config, at), null);
 });
 
+test('manually verified title core permits only the limited leading promotion format', () => {
+  const title = 'Jackery ポータブル電源 1000 New 1070Wh 定格1500W 本体';
+  const power = { ...product, titleRaw: '【クーポン利用で71,880円 10/27 23:59まで】' + title, productType: 'power' };
+  const approved = { ...entry, productType: 'power', rawTitleSha256: createHash('sha256').update(power.titleRaw).digest('hex'),
+    titleCoreSha256: createHash('sha256').update(title).digest('hex') };
+  const verified = { ...config, products: [approved] };
+  for (const prefix of ['', '【10/30 00:00から】', '【クーポン利用で69,800円 11/2 23:59まで】']) {
+    assert.equal(amazonOfferFor({ ...power, titleRaw: prefix + title }, 'toilet-office', verified, at)?.asin, entry.asin);
+  }
+  assert.equal(amazonOfferFor({ ...power, titleRaw: '【10/30 00:00から】' + title }, 'toilet-office', { ...config, products: [approved].map(({ titleCoreSha256, ...item }) => item) }, at), null);
+});
+
+test('promotion-tolerant mapping still rejects changed models, bundles, descriptions and unknown prefixes', () => {
+  const title = 'Jackery ポータブル電源 1000 New 1070Wh 定格1500W 本体';
+  const power = { ...product, titleRaw: '【10/27 23:59まで】' + title, productType: 'power' };
+  const approved = { ...entry, productType: 'power', rawTitleSha256: createHash('sha256').update(power.titleRaw).digest('hex'),
+    titleCoreSha256: createHash('sha256').update(title).digest('hex') };
+  const verified = { ...config, products: [approved] };
+  for (const changed of [title.replace('1000 New', '1000 New V3'), title.replace('1070Wh', '1024Wh'),
+    title.replace('1500W', '1000W'), title + ' パネル100W付き', title + ' 2台セット',
+    '【100Wパネル無料】' + title, '【セール】' + title, '【11/2 23:59まで】【11/3 23:59まで】' + title]) {
+    assert.equal(amazonOfferFor({ ...power, titleRaw: changed }, 'toilet-office', verified, at), null, changed);
+  }
+  for (const changes of [{ summary: '100Wパネル1枚同梱' }, { productType: 'lighting' }, { priceIsFromVariant: true }]) {
+    assert.equal(amazonOfferFor({ ...power, titleRaw: '【11/2 23:59まで】' + title, ...changes }, 'toilet-office', verified, at), null);
+  }
+  assert.equal(amazonOfferFor({ ...power, titleRaw: title }, 'toilet-office', verified, Date.parse(entry.expiresAt)), null);
+});
+
 test('changed size, refills, changed descriptions and invalid or stale verification never retain the link', () => {
   for (const changed of ['BOS 非常用トイレ Bセット 100回分', 'BOS 凝固剤のみ 50回分', titleRaw + ' 2箱セット']) {
     assert.equal(amazonOfferFor({ ...product, titleRaw: changed }, 'toilet-office', config, at), null);

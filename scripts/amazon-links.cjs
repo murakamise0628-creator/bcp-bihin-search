@@ -10,7 +10,12 @@ function amazonOfferFor(product, pageSlug, config, now = Date.now()) {
   const expires = Date.parse(entry.expiresAt);
   if (![verified, expires, now].every(Number.isFinite) || verified > now || expires <= now || expires <= verified || expires - verified > 31 * 86400000) return null;
   const normalized = product.titleRaw.normalize('NFKC').trim().replace(/\s+/g, ' ');
-  if (createHash('sha256').update(normalized).digest('hex') !== entry.rawTitleSha256) return null;
+  if (createHash('sha256').update(normalized).digest('hex') !== entry.rawTitleSha256) {
+    // Only a manually verified identical title body may survive a dated promotion change.
+    const core = normalized.replace(/^【(?:クーポン利用で[\d,]+円 )?\d{1,2}\/\d{1,2} \d{1,2}:\d{2}(?:まで|から)】\s*/, '');
+    if (!/^[a-f0-9]{64}$/.test(entry.titleCoreSha256 || '') ||
+        createHash('sha256').update(core).digest('hex') !== entry.titleCoreSha256) return null;
+  }
   const summary = product.summary.normalize('NFKC').trim().replace(/\s+/g, ' ');
   if (createHash('sha256').update(summary).digest('hex') !== entry.summarySha256) return null;
   const url = new URL(`https://www.amazon.co.jp/dp/${entry.asin}`);
