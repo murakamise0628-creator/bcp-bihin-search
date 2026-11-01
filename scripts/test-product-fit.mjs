@@ -15,6 +15,36 @@ import vm from 'node:vm';
 import { auditRefreshData } from './verify-refresh.mjs';
 
 const nurseryMealSearches = ['非常食 米粉パン', '非常食 アレルギー', '非常食 おかゆ', '非常食 水不要'];
+test('nursery food kinds retain explicit food names lost from short titles', () => {
+  for (const [titleRaw, expected] of [
+    ['非常食セット 9食 アルファ米 5年保存', 'アルファ米'],
+    ['非常食 お菓子 ビスケット カンパン クラッカー', 'ビスケット・カンパン・クラッカー'],
+    ['4食 米粉パン 米粉クッキー 非常食 7年保存', '米粉パン・米粉クッキー'],
+    ['アルファ米を超えた! 非常食 ごはん ご飯 レトルト 24個', 'ご飯'],
+    ['石井食品 非常食3日分19品セット 惣菜', '惣菜'],
+    ['おかゆ レトルト お粥 20個入 250g', 'おかゆ'],
+    ['非常食 ごはん 12個 五目ご飯 カレー リゾット', 'ご飯']
+  ]) assert.equal(nurseryTools.nurseryFoodKind({ productType: 'food', titleRaw }), expected, titleRaw);
+});
+test('nursery food kinds abstain on missing, negated and non-food evidence', () => {
+  for (const product of [
+    { productType: 'food', titleRaw: '非常食 5年保存' },
+    { productType: 'food', titleShort: '米粉パン', summary: 'おかゆ' },
+    { productType: 'water', titleRaw: 'パン ご飯' },
+    { productType: 'food', titleRaw: 'アルファ米を超えた 非常食' },
+    { productType: 'food', titleRaw: '米粉パン以外 ビスケット不使用' },
+    { productType: 'food', titleRaw: 'おかゆではありません ご飯不要' },
+    { productType: 'food', titleRaw: 'ご飯の素 カンパン粉' },
+    { productType: 'food', titleRaw: '「米粉パン」不使用' },
+    { productType: 'food', titleRaw: 'アルファ米を含まない おかゆを除く' }
+  ]) assert.equal(nurseryTools.nurseryFoodKind(product), '');
+});
+test('nursery food kind extraction preserves the original product and omits advertising', () => {
+  const product = { productType: 'food', titleRaw: '【送料無料】米粉パン 米粉パン 最強 安心 アレルギー対応', price: 3000 };
+  const before = structuredClone(product);
+  assert.equal(nurseryTools.nurseryFoodKind(product), '米粉パン');
+  assert.deepEqual(product, before);
+});
 test('power load helper sums only entered device loads without changing inputs', () => {
   const loads = [{ watts: '10', count: '3' }, { watts: '60', count: '2' }, { watts: '', count: '1' }];
   const snapshot = structuredClone(loads);

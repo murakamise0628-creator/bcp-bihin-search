@@ -241,6 +241,10 @@ const nurseryRows = [...nursery.matchAll(/<tr [^>]*data-product-fit[\s\S]*?<\/tr
 const nurseryCards = nursery.match(/<section class="section" id="products">[\s\S]*?<\/section>/)?.[0] || '';
 for (const product of nurseryMeals.slice(0, 6)) {
   assert.ok(nurseryCards.includes(`data-product-key="${product.itemCode}"`), 'first food candidates need detailed cards, not only a table row');
+  const kind = nurseryComparison.nurseryFoodKind(product);
+  const card = [...nurseryCards.matchAll(/<article class="card product"[^>]*>[\s\S]*?<\/article>/g)]
+    .map(match => match[0]).find(html => html.includes(`data-product-key="${product.itemCode}"`));
+  if (kind) assert.ok(card.includes(`食品の種類（商品名表記）: ${kind}`), 'food cards must retain explicit food kinds');
 }
 assert.ok(nurseryRows.slice(0, nurseryMeals.length).every(row => row.includes('data-nursery-purpose="food"')), 'food must precede unrelated supplies');
 assert.match(nursery, /href="#quantity">園児の食数を数える<\/a>/);
@@ -271,6 +275,9 @@ for (const product of nurseryMeals) {
   const row = nurseryRows.find(row => row.includes(`data-product-key="${product.itemCode}"`));
   assert.ok(row.includes(nurseryPreparation(product)), 'food preparation must be visible beside each actual product');
   const purchaseCell = row.match(/<td class="table-product">[\s\S]*?<\/td>/)?.[0] || '';
+  const kind = nurseryComparison.nurseryFoodKind(product);
+  if (kind) assert.ok(purchaseCell.includes(`食品の種類（商品名表記）: ${kind}`), 'food kind must accompany the title and purchase link');
+  else assert.ok(!purchaseCell.includes('data-nursery-food-kind'), 'unknown food kinds must not become invented descriptions');
   assert.ok(purchaseCell.includes(`data-product-id="${product.itemCode}"`) && purchaseCell.includes('data-product-price=') && purchaseCell.includes('楽天で確認'), 'price, product and purchase link must share the first mobile-visible cell');
   if (product.image) assert.ok(row.includes(`src="${product.image.replaceAll('&', '&amp;')}"`), 'food comparison must show actual product images');
 }

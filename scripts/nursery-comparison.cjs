@@ -9,6 +9,27 @@ function nurseryPurpose(product) {
   return 'supplies';
 }
 
+function nurseryFoodKind(product) {
+  if (product.productType !== 'food') return '';
+  const title = String(product.titleRaw || '').normalize('NFKC');
+  const kinds = [
+    ['米粉パン', /米粉パン/g],
+    ['米粉クッキー', /米粉クッキー/g],
+    ['ビスケット', /ビスケット/g],
+    ['カンパン', /カンパン/g],
+    ['クラッカー', /クラッカー/g],
+    ['アルファ米', /アルファ(?:化)?米/g],
+    ['おかゆ', /おかゆ|お粥/g],
+    ['ご飯', /ごはん|ご飯/g],
+    ['惣菜', /惣菜/g]
+  ];
+  // A comparison or exclusion in a listing is not a statement of its contents.
+  const excluded = /^(?:を超え|以外|不使用|不要|なし|ではな|ではありません|じゃな|風|粉|の素|用|を含ま|を除|は含ま)/;
+  return kinds.filter(([, pattern]) => [...title.matchAll(pattern)].some(match =>
+    !excluded.test(title.slice(match.index + match[0].length).replace(/^[\s「」『』【】（）()]+/u, ''))
+  )).map(([label]) => label).join('・');
+}
+
 function nurseryGroups(products) {
   return [
     { key: 'food', label: '非常食・保存食' },
@@ -37,4 +58,4 @@ function nurseryPreparation(product) {
   return unknown;
 }
 
-module.exports = { isSupplementalCandy, nurseryPurpose, nurseryGroups, nurseryPreparation };
+module.exports = { isSupplementalCandy, nurseryPurpose, nurseryGroups, nurseryPreparation, nurseryFoodKind };
