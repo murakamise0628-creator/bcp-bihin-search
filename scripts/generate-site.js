@@ -6,7 +6,7 @@ const { procurementEstimate, selectPurchasePlan } = require('./procurement-estim
 const { comparisonUnit } = require('./comparison-unit');
 const { procurementCandidates } = require('./procurement-candidates.cjs');
 const { totalPowerWatts } = require('./power-load.cjs');
-const { isSupplementalCandy, nurseryPurpose, nurseryGroups, nurseryPreparation } = require('./nursery-comparison.cjs');
+const { isSupplementalCandy, nurseryPurpose, nurseryGroups, nurseryPreparation, nurseryFoodKind } = require('./nursery-comparison.cjs');
 const { restaurantPurpose, restaurantGroups, containerFacts } = require('./water-container-comparison.cjs');
 const { displayProductName } = require('./display-product-name.cjs');
 const { amazonOfferFor, amazonClickParams } = require('./amazon-links.cjs');
@@ -569,6 +569,11 @@ function nurseryCandidateLinks(products) {
   const groups = nurseryGroups(products);
   if (!groups.length) return '';
   return `<nav class="chip-row" aria-label="備蓄品の用途"><span>用途別に見る</span>${groups.map(group => `<a class="chip" href="#nursery-purpose-${group.key}">${esc(group.label)}（${group.products.length}件）</a>`).join('')}</nav>`;
+}
+
+function nurseryFoodKindLabel(product) {
+  const kind = nurseryFoodKind(product);
+  return kind ? `<p class="notice" data-nursery-food-kind>食品の種類（商品名表記）: ${esc(kind)}</p>` : '';
 }
 
 function nurseryStockList(products) {
@@ -2466,7 +2471,7 @@ function comparisonTable(products, note) {
   if (note.slug === 'hoikuen-bousai') {
     const firstByPurpose = new Map(nurseryGroups(products).map(group => [group.key, group.products[0]]));
     return `<section class="section" id="comparison"><div class="section-title"><div><p class="eyebrow">比較表</p><h2>非常食の調理方法・保存期間・価格を比較</h2></div></div><p>給食の代わりに用意する食品は、対象年齢・原材料に加え、水や熱源が使えないときの準備方法を確認してください。水と持出し用品は食品と分けて掲載しています。</p><p class="notice">調理方法は販売情報に明記された表現です。セット全品の条件や戻し時間は販売ページで確認してください。「品数」「袋数」は園児の食数と同じではありません。</p><div class="plan-summary" id="planSummary" hidden><span>職員・成人の備蓄目安</span><strong id="planSummaryText"></strong><small>園児分は食事形態ごとに別に確認してください。</small></div><div class="compare-scroll"><table class="compare-table"><thead><tr><th>商品・価格 / 販売店</th><th>用途・準備方法</th><th>レビュー（点数・件数）</th><th>保存年数・容量</th><th>人数・利用者の確認</th><th>購入前の確認</th></tr></thead><tbody>${products.map((product, index) => `<tr ${productFitAttrs(product, note)}${firstByPurpose.get(nurseryPurpose(product)) === product ? ` id="nursery-purpose-${nurseryPurpose(product)}"` : ''}>
-      <td class="table-product">${product.image ? `<img src="${esc(product.image)}" alt="" width="72" height="72" loading="lazy"><br>` : ''}${esc(displayTitle(product, 46))}<br><small>${esc(product.shopName || '楽天市場')}</small><p>${esc(displayPrice(product))}</p><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>${product.productType === 'food' ? '年齢・原材料を楽天で確認' : '内容・価格を楽天で確認'}</a></td>
+      <td class="table-product">${product.image ? `<img src="${esc(product.image)}" alt="" width="72" height="72" loading="lazy"><br>` : ''}${esc(displayTitle(product, 46))}${nurseryFoodKindLabel(product)}<br><small>${esc(product.shopName || '楽天市場')}</small><p>${esc(displayPrice(product))}</p><a class="small-button" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product, note.title, index + 1)}>${product.productType === 'food' ? '年齢・原材料を楽天で確認' : '内容・価格を楽天で確認'}</a></td>
       <td>${esc(product.relatedCandidate ? '関連候補' : recommendationClass(product, note))}${product.productType === 'food' ? `<br><strong>${esc(nurseryPreparation(product))}</strong>` : ''}</td>
       <td>${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</td>
       <td>${esc(storageYears(product))}<br>${esc(extractSpec(product))}</td>
@@ -2512,7 +2517,7 @@ function productCards(products, note) {
     ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" loading="lazy">` : '<div class="product-img placeholder" aria-hidden="true">商品画像<br>取得待ち</div>'}
     <div>
       <p class="pill navy">${esc(product.relatedCandidate ? '関連候補' : recommendationClass(product, note))}</p>
-      <h2>${esc(displayTitle(product))}</h2>
+      <h2>${esc(displayTitle(product))}</h2>${note.slug === 'hoikuen-bousai' ? `\n      ${nurseryFoodKindLabel(product)}` : ''}
       ${product.relatedCandidate ? `<p class="notice">この商品は「${esc(product.relatedFrom || '関連ページ')}」から補完した関連候補です。用途の一致度は販売ページで確認してください。</p>` : ''}
       <p class="summary">${esc(productDecisionSummary(product, note))}</p>${note.slug === 'hoikuen-bousai' && product.productType === 'food' ? `\n      <p>${esc(nurseryPreparation(product))}。セットの内訳・準備方法は販売ページで確認してください。</p>` : ''}
       <strong class="fit-result" data-fit-result>${esc(fitTierLabel(product, note))}</strong>
