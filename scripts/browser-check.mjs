@@ -330,6 +330,9 @@ try {
         estimate: document.querySelector('#powerEstimate')?.textContent || '',
         fit: first?.querySelector('[data-fit-result]')?.textContent || '',
         cta: first?.querySelector('a[data-product-id]')?.textContent || '',
+        insufficientCtas: [...document.querySelectorAll('[data-product-fit][data-fit-matched="false"]')]
+          .filter(node => Number(node.dataset.powerWh || 0) > 0 && Number(node.dataset.powerWh) < 1500)
+          .map(node => ({key:node.dataset.productKey,links:[...node.querySelectorAll('a[data-product-id]')].map(link=>({text:link.textContent,href:link.href}))})),
         powerWh: Number(first?.dataset.powerWh || 0),
         outputW: Number(first?.dataset.outputW || 0),
         visibleCandidates: quick.length,
@@ -348,6 +351,15 @@ try {
     assert.ok(result.outputW >= 300, `${width}px first power candidate output is insufficient`);
     assert.match(result.fit, /1,500Wh以上・300W対応候補/);
     assert.match(result.cta, /1,500Wh以上・300W対応候補を楽天で確認/);
+    assert.ok(result.insufficientCtas.length > 0, 'exercise an actual product below the example capacity');
+    for (const item of result.insufficientCtas) {
+      const product = productData.pages.find(page => page.slug === 'portable-power-kaigo').products.find(product => product.itemCode === item.key);
+      assert.ok(product);
+      for (const link of item.links) {
+        assert.equal(link.text, 'この商品の容量・出力を楽天で確認', 'insufficient-product CTA must not suggest the requested capacity belongs to this SKU');
+        assert.equal(link.href, new URL(product.url).href, 'copy correction must not change the purchase destination');
+      }
+    }
     assert.ok(result.visibleCandidates > 0 && result.visibleCandidates <= 3);
     assert.equal(result.validCandidates, true);
     assert.equal(result.candidateImages, result.visibleCandidates);
