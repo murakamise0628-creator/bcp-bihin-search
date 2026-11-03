@@ -1189,7 +1189,7 @@
             element.querySelectorAll('a[data-product-id]').forEach(function(anchor){
               anchor.textContent=plan.requiredWh<=0 || plan.watts<=0 ? '出力・容量を楽天で確認' : result.matched
                 ? plan.requiredWh.toLocaleString('ja-JP')+'Wh以上・'+plan.watts.toLocaleString('ja-JP')+'W対応候補を楽天で確認'
-                : plan.requiredWh.toLocaleString('ja-JP')+'Wh・'+plan.watts.toLocaleString('ja-JP')+'W条件を楽天で確認';
+                : 'この商品の容量・出力を楽天で確認';
             });
           }
           if(result.matched) matchedProducts.add(element.dataset.productKey || element.textContent);
