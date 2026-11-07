@@ -88,6 +88,7 @@ assert.match(quantityGuide,/procurement_candidate/);
 const method = quantityGuide.match(/<section[^>]*id="calculation-method"[\s\S]*?<\/section>/)?.[0] || '';
 assert.match(method, /会社の防災備蓄量の計算方法/, 'calculation method must be visible, not only inside noscript');
 assert.doesNotMatch(method, /<noscript/);
+assert.doesNotMatch(method, /下の入力欄/, 'moved explanation must not point to inputs below it');
 for (const formula of ['対象人数 × 日数 × 3L', '対象人数 × 日数 × 3食', '対象人数 × 日数 × 5回', '対象人数 × 1枚']) {
   assert.ok(method.includes(formula), `missing visible formula: ${formula}`);
 }
@@ -97,7 +98,12 @@ assert.match(method, /園児/);
 assert.match(method, /270L/);
 assert.match(method, /450回/);
 assert.match(method, /href="#quantity"/);
-assert.ok(quantityGuide.indexOf('id="calculation-method"') < quantityGuide.indexOf('id="quantity"'), 'explanation should lead into the existing calculator');
+assert.ok(quantityGuide.indexOf('id="quantity"') < quantityGuide.indexOf('id="procurement"'), 'calculate requirements before subtracting stock');
+assert.ok(quantityGuide.indexOf('id="procurement"') < quantityGuide.indexOf('id="calculation-method"'), 'purchase calculation must precede the long explanation');
+for (const kind of ['water','food','toilet','blankets']) {
+  assert.match(quantityResultSection, new RegExp(`data-procurement-kind="${kind}"[^>]*href="#procurement-${kind}"`), 'each quantity result must link directly to its purchase calculation');
+  assert.match(quantityGuide, new RegExp(`id="procurement-${kind}"[^>]*data-procurement="${kind}"`), 'each purchase link needs the matching stock-input target');
+}
 const quantityFaq = [...quantityGuide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
   .map(match => JSON.parse(match[1])).find(graph => graph['@type'] === 'FAQPage')?.mainEntity;
 assert.equal(quantityFaq.length, 5);

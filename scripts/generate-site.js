@@ -815,10 +815,10 @@ function quantityEstimateSection(slug = '') {
       <label>${slug === 'hoikuen-bousai' ? '成人の来訪者数（園児を除く）' : '来客・利用者数'}<input class="calc-input" id="visitorCount" type="number" min="0" value="0"></label>
     </div>
     <div class="estimate-grid" aria-live="polite">
-      <div><span>水</span><strong id="waterEstimate">${initialWater}L</strong><small>1人1日3Lの目安</small></div>
-      <div><span>食料</span><strong id="foodEstimate">${initialFood}食</strong><small>1人1日3食の目安</small></div>
-      <div><span>簡易トイレ</span><strong id="toiletEstimate">${initialToilet}回分</strong><small>1人1日5回の目安</small></div>
-      <div><span>保温シート・毛布</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small></div>
+      <div><span>水</span><strong id="waterEstimate">${initialWater}L</strong><small>1人1日3Lの目安</small>${slug === 'office-stockpile-quantity' ? '<a class="estimate-action" data-procurement-kind="water" href="#procurement-water" aria-label="保存水の購入個数と予算を確認">購入個数を確認</a>' : ''}</div>
+      <div><span>食料</span><strong id="foodEstimate">${initialFood}食</strong><small>1人1日3食の目安</small>${slug === 'office-stockpile-quantity' ? '<a class="estimate-action" data-procurement-kind="food" href="#procurement-food" aria-label="非常食の購入個数と予算を確認">購入個数を確認</a>' : ''}</div>
+      <div><span>簡易トイレ</span><strong id="toiletEstimate">${initialToilet}回分</strong><small>1人1日5回の目安</small>${slug === 'office-stockpile-quantity' ? '<a class="estimate-action" data-procurement-kind="toilet" href="#procurement-toilet" aria-label="簡易トイレの購入個数と予算を確認">購入個数を確認</a>' : ''}</div>
+      <div><span>保温シート・毛布</span><strong id="blanketEstimate">10枚</strong><small>1人1枚の目安</small>${slug === 'office-stockpile-quantity' ? '<a class="estimate-action" data-procurement-kind="blankets" href="#procurement-blankets" aria-label="毛布・保温シートの購入個数と予算を確認">購入個数を確認</a>' : ''}</div>
     </div>
     ${slug === 'toilet-office' ? `<div class="compare-scroll quantity-guide"><table class="compare-table"><thead><tr><th>利用人数</th><th>3日分</th><th>7日分</th></tr></thead><tbody><tr><td>10人</td><td>150回</td><td>350回</td></tr><tr><td>30人</td><td>450回</td><td>1,050回</td></tr><tr><td>50人</td><td>750回</td><td>1,750回</td></tr></tbody></table></div>` : ''}${slug === 'office-stockpile-quantity' ? `<p>必要量がそのまま購入量とは限りません。期限内で使える在庫を引いて、買い足す量を確認してください。</p><p><a class="button orange" data-procurement-entry href="#procurement">在庫・購入個数を確認</a></p>` : ''}
     <div class="stock-plan-actions" aria-labelledby="stock-plan-title">
@@ -3417,14 +3417,7 @@ const quantityProductSections = quantityProductGroups.map((group) => {
   return `<section class="quantity-product-group"><div class="section-title"><div><h3>${esc(group.heading)}</h3><p>${esc(group.intro)}</p></div><a class="small-button" href="${siteUrl}/pages/${group.slug}.html">全候補を比較</a></div><div class="product-list quantity-product-list">${productCards(products, note)}</div></section>`;
 }).join('');
 
-const quantityGuideBody = `<section class="hero">
-  <p class="eyebrow">会社・店舗・施設の数量早見表</p>
-  <h1>会社の防災備蓄量を計算する</h1>
-  <p class="lead">人数・日数から水、食料、簡易トイレの目安を計算し、使える在庫を引いて買い足す個数と予算を確認できます。10・30・50・100人の3日分・7日分の早見表も掲載。来客や施設利用者が残る場合は人数に加えてください。</p>
-  <div class="hero-actions"><a class="button orange" href="#quantity">自社の人数で計算する</a><a class="button secondary" href="#quantity-table">人数別の早見表を見る</a></div>
-</section>
-<section class="section card"><p class="eyebrow">このページの結論</p><h2>まず3日分を出発点に、人数と保管場所の両方で確認します</h2><p>水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回、毛布または保温シートは1人1枚を目安に計算しています。7日分は物流やライフラインの復旧に時間がかかる場合の比較用です。施設条件や自治体の方針に合わせて調整してください。</p></section>
-<section class="section" id="calculation-method" aria-labelledby="calculation-method-heading">
+const quantityCalculationMethod = `<section class="section" id="calculation-method" aria-labelledby="calculation-method-heading">
   <h2 id="calculation-method-heading">会社の防災備蓄量の計算方法</h2>
   <p>必要量は「対象人数 × 待機日数 × 1人1日あたりの量」で計算します。対象人数には従業員・職員に加え、施設内で待機する想定の来客・利用者を含めます。拠点や勤務帯ごとの人数を確認し、同じ人を二重に数えないようにしてください。</p>
   <div class="compare-scroll"><table class="compare-table"><caption>成人30人が3日間待機する場合の計算例</caption><thead><tr><th scope="col">品目</th><th scope="col">計算式の目安</th><th scope="col">30人・3日分</th></tr></thead><tbody>
@@ -3435,12 +3428,20 @@ const quantityGuideBody = `<section class="hero">
   </tbody></table></div>
   <p>毛布・保温シートは日数倍にせず、季節や待機場所に合わせて追加を検討します。水と食料は成人向けの計画の目安です。園児の飲水量・食数、ミルク、離乳食、個別食は施設の計画に合わせて別に数えてください。</p>
   <p>内閣府の<a href="https://www.bousai.go.jp/jishin/kitakukonnan/pdf/kitakukonnan_guideline.pdf" target="_blank" rel="noopener">帰宅困難者ガイドライン（参考資料2）</a>を水・主食・毛布の目安に、<a href="https://www.bousai.go.jp/taisaku/hinanjo/pdf/1605hinanjo_toilet_guideline.pdf" target="_blank" rel="noopener">トイレ確保・管理ガイドライン</a>の使用回数を参考にしています。事業所ごとの必要量や義務を断定するものではありません。</p>
-  <p>来客分は下の入力欄に想定人数を入れます。来客数を含めて計算した後に、同じ分を一律10%でも上乗せすると二重計上になります。受入方針や混雑時の人数に合わせて調整してください。</p>
+  <p>来客が待機する場合は、その想定人数も対象人数に含めます。来客数を含めて計算した後に、同じ分を一律10%でも上乗せすると二重計上になります。受入方針や混雑時の人数に合わせて調整してください。</p>
   <p><strong>必要量がそのまま購入量とは限りません。</strong>期限内で使える在庫を引き、不足量を1箱の内容量で割って端数を切り上げます。例として水270Lに対し在庫30L、1箱12Lなら不足240L、購入は20箱です。箱の内容量は販売ページで確認してください。</p>
   <a class="small-button" href="#quantity">自社の人数で必要量を計算</a>
+</section>`;
+const quantityGuideBody = `<section class="hero">
+  <p class="eyebrow">会社・店舗・施設の数量早見表</p>
+  <h1>会社の防災備蓄量を計算する</h1>
+  <p class="lead">人数・日数から水、食料、簡易トイレの目安を計算し、使える在庫を引いて買い足す個数と予算を確認できます。10・30・50・100人の3日分・7日分の早見表も掲載。来客や施設利用者が残る場合は人数に加えてください。</p>
+  <div class="hero-actions"><a class="button orange" href="#quantity">自社の人数で計算する</a><a class="button secondary" href="#quantity-table">人数別の早見表を見る</a></div>
 </section>
+<section class="section card"><p class="eyebrow">このページの結論</p><h2>まず3日分を出発点に、人数と保管場所の両方で確認します</h2><p>水は1人1日3L、食料は1人1日3食、簡易トイレは1人1日5回、毛布または保温シートは1人1枚を目安に計算しています。7日分は物流やライフラインの復旧に時間がかかる場合の比較用です。施設条件や自治体の方針に合わせて調整してください。</p></section>
 ${quantityEstimateSection('office-stockpile-quantity')}
 <style>
+  #quantity .estimate-action{display:flex;align-items:center;min-height:44px;font-size:16px}
   #procurement .procurement-choice{margin:0 0 20px}
   #procurement .procurement-choice label{display:block;font-size:16px;font-weight:700}
   #procurement select{display:block;width:100%;min-width:0;max-width:100%;min-height:48px;margin-top:8px;padding:10px;border:1px solid var(--rule-2);background:#fff;color:var(--ink);font:inherit;overflow:hidden;text-overflow:ellipsis}
@@ -3460,7 +3461,7 @@ ${quantityEstimateSection('office-stockpile-quantity')}
     ['food','非常食','食','例：50食入りなら50','1'],
     ['toilet','簡易トイレ','回分','例：100回分なら100','1'],
     ['blankets','毛布・保温シート','枚','例：10枚入りなら10','1']
-  ].map(([key,label,unit,example,step]) => `<div class="procurement-row" data-procurement="${key}" data-unit="${unit}">
+  ].map(([key,label,unit,example,step]) => `<div class="procurement-row" id="procurement-${key}" data-procurement="${key}" data-unit="${unit}">
     <h3>${label}</h3>${quantityCandidateChoice(key)}<div class="calc-grid">
       <label for="${key}Stock">使える在庫（${unit}）<input class="calc-input" id="${key}Stock" data-stock type="number" min="0" max="100000000" step="${step}" value="0"></label>
       <label for="${key}Pack">販売単位の内容量（${unit}）<input class="calc-input" id="${key}Pack" data-pack type="number" min="${step}" max="100000000" step="${step}" placeholder="${example}"></label>
@@ -3471,6 +3472,7 @@ ${quantityEstimateSection('office-stockpile-quantity')}
   <p class="notice">送料・クーポン・ポイント還元は含みません。価格と販売単位は購入前に再確認してください。トイレは凝固剤と処理袋がそろう回数、食料は配れる食数で数えます。調理用の追加水、衛生用品、電源などの費用は別に見積もってください。</p>
   <noscript><p>自動計算にはJavaScriptが必要です。不足量＝必要量−使用できる在庫、購入数量＝不足量÷販売単位の内容量（端数切り上げ）、概算金額＝購入数量×税込価格です。</p></noscript>
 </section>
+${quantityCalculationMethod}
 <section class="section" id="quantity-table"><div class="section-title"><div><p class="eyebrow">人数別</p><h2>3日分・7日分の備蓄量</h2></div><p class="notice">横にスクロールして比較できます</p></div>
   <div class="compare-scroll"><table class="compare-table"><thead><tr><th rowspan="2">人数</th><th colspan="4">3日分</th><th colspan="3">7日分</th></tr><tr><th>保存水</th><th>食料</th><th>簡易トイレ</th><th>毛布・保温</th><th>保存水</th><th>食料</th><th>簡易トイレ</th></tr></thead><tbody>${quantityTableRows}</tbody></table></div>
   <p class="notice">数値は購入量を決めるための目安です。箱数、1箱あたりの本数・食数・回数は販売ページで確認してください。</p>
