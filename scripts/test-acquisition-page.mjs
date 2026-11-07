@@ -134,6 +134,12 @@ assert.match(toilet, /不足する袋や凝固剤は別に補充/);
 const toiletData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'products.json'), 'utf8')).pages.find(item => item.slug === 'toilet-office');
 const purchaseCards = [...toilet.matchAll(/<article class="card procurement-card"([^>]*)>([\s\S]*?)<\/article>/g)];
 assert.equal(purchaseCards.length, 3);
+assert.ok(toilet.indexOf('id="quantity"') < toilet.indexOf('id="purchase-units"'));
+assert.ok(toilet.indexOf('id="purchase-units"') < toilet.indexOf('<h2>選び方</h2>'), 'purchase examples must precede long buying explanations');
+assert.equal((toilet.match(/id="quantity"/g) || []).length, 1);
+assert.equal((toilet.match(/id="purchase-units"/g) || []).length, 1);
+assert.match(toilet, /href="#purchase-units">人数別の購入例を見る/);
+assert.doesNotMatch(toilet,/下の目安計算で必要量を出す/,'moved calculator must not leave the old direction');
 for (const [index, match] of purchaseCards.entries()) {
   const attr = name => match[1].match(new RegExp(`data-${name}="([^"]+)"`))?.[1];
   const need = [150, 450, 750][index];
@@ -148,6 +154,10 @@ for (const [index, match] of purchaseCards.entries()) {
     Math.ceil(need / productTools.decisionFacts(product).toiletUses) * Number(product.price));
   assert.equal(Number(attr('purchase-cost')), Math.min(...costs));
   assert.equal(Number(attr('purchase-cost')), Number(candidate.price) * count);
+  if (candidate.image) assert.ok(match[2].includes(`src="${candidate.image.replaceAll('&', '&amp;')}"`));
+  assert.ok(match[2].includes(`1点あたり${productTools.decisionFacts(candidate).toiletUses}回分`));
+  assert.ok(match[2].includes(`1点の掲載価格 ${Number(candidate.price).toLocaleString('ja-JP')}円`));
+  if (/受注生産/.test(candidate.titleRaw || candidate.name || '')) assert.match(match[2], /受注生産の表記があります/);
   assert.ok(match[2].includes(`${count}点分の内容を楽天で確認`));
   assert.match(match[2], /送料、購入上限、価格、在庫/);
 }
@@ -162,6 +172,22 @@ assert.match(restaurant, /1個あたりの容量/);
 assert.match(restaurant, /飲用可否/);
 assert.match(restaurant, /営業できるとは限りません/);
 const restaurantData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'products.json'), 'utf8')).pages.find(item => item.slug === 'restaurant-dansui');
+const waterOffers = restaurant.match(/<section[^>]*id="products"[^>]*data-water-products[\s\S]*?<\/section>/)?.[0] || '';
+assert.ok(waterOffers, 'water products need readable capacity, price and purchase actions before the wide table');
+assert.ok(restaurant.indexOf('id="products"') < restaurant.indexOf('data-water-comparison'));
+assert.equal((restaurant.match(/id="products"/g) || []).length, 1);
+const expectedOffers = waterContainerTools.restaurantGroups(restaurantData.products).flatMap(group => group.products).slice(0,6);
+const offerCards = [...waterOffers.matchAll(/<article class="card product"[^>]*data-product-key="([^"]+)"[\s\S]*?<\/article>/g)];
+assert.deepEqual(offerCards.map(card=>card[1]), expectedOffers.map(product=>product.itemCode));
+for (const [index, card] of offerCards.entries()) {
+  const product=expectedOffers[index];
+  const facts=waterContainerTools.containerFacts(product);
+  assert.ok(card[0].includes(`data-product-id="${product.itemCode}"`));
+  assert.ok(card[0].includes(`href="${product.url.replaceAll('&','&amp;')}"`));
+  assert.ok(card[0].includes(`1個あたり: <strong>${facts.liters ? facts.liters+'L' : '容量を選択・確認'}</strong>`));
+  assert.ok(card[0].includes(`販売個数: <strong>${facts.containers ? facts.containers+'個' : '販売ページで確認'}</strong>`));
+  assert.ok(card[0].includes(`販売単位の合計: ${facts.totalLiters ? facts.totalLiters+'L' : '要確認'}`));
+}
 const restaurantRows = [...restaurant.matchAll(/<tr [^>]*data-restaurant-purpose[\s\S]*?<\/tr>/g)].map(match => match[0]);
 assert.equal(restaurantRows.length, restaurantData.products.length);
 for (const group of waterContainerTools.restaurantGroups(restaurantData.products)) {

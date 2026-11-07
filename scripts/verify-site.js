@@ -312,7 +312,7 @@ for (const file of files) {
   }
   if (relative.replace(/\\/g, '/') === 'pages/restaurant-dansui.html') {
     if (!html.includes('断水時の判断順') || !html.includes('1. 営業可否') || !html.includes('4. 清掃・復旧')) issues.push(`${relative}: water-outage decision flow missing`);
-    if (!html.includes('用途・在庫を楽天で確認')) issues.push(`${relative}: water-outage-specific CTA missing`);
+    if (!/(?:用途・在庫|容量・個数・価格)を楽天で確認<\/a>/.test(html)) issues.push(`${relative}: water-outage-specific CTA missing`);
   }
   if (['pages/water-food-stock.html', 'pages/emergency-food-office.html', 'pages/toilet-office.html'].includes(relative.replace(/\\/g, '/'))) {
     if (!html.includes('id="purchase-checks"')) issues.push(`${relative}: purchase decision guide missing`);

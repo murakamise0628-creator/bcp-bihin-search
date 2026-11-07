@@ -118,7 +118,7 @@ async function navigateFresh(send, url) {
 async function verifyPurchasePlans(send, width) {
   const plans = await evaluate(send, `(() => [...document.querySelectorAll('#purchase-units .procurement-card')].map(card => {
     const link=card.querySelector('a'); const box=link.getBoundingClientRect();
-    return {...card.dataset, href:link.href, linkText:link.textContent, fits:box.left>=0&&box.right<=innerWidth+1};
+    return {...card.dataset, href:link.href, linkText:link.textContent, fits:box.left>=0&&box.right<=innerWidth+1, image:card.querySelector('img')?.getAttribute('src'), text:card.textContent};
   }))()`);
   assert.equal(plans.length, 3);
   const candidates = productData.pages.find(page => page.slug === 'toilet-office').products.filter(productTools.isToiletPurchaseCandidate);
@@ -133,6 +133,8 @@ async function verifyPurchasePlans(send, width) {
     assert.equal(Number(plan.purchaseCost), minimum);
     assert.equal(plan.href, new URL(product.url).href);
     assert.ok(plan.linkText.includes(plan.purchasePackages + '点分'));
+    assert.equal(plan.image,product.image);
+    assert.ok(plan.text.includes('1点あたり'+productTools.decisionFacts(product).toiletUses+'回分'));
     assert.ok(plan.fits, 'purchase CTA overflows at ' + width);
   }
   return plans;
@@ -881,6 +883,34 @@ try {
     assert.equal(entry.comparisonFirst,true);
     assert.equal(entry.faq,5);
     assert.deepEqual(entry.ids,expectedRestaurant.map(p=>p.itemCode));
+    const offers=await evaluate(send,`(async()=>{
+      const section=document.querySelector('#products[data-water-products]');
+      const cards=[...section.querySelectorAll('.product')];
+      for(const image of section.querySelectorAll('img')){image.loading='eager';await image.decode();if(!image.naturalWidth)throw new Error('Water product image failed');}
+      const link=cards[0].querySelector('a');
+      const before=window.dataLayer.length;
+      document.addEventListener('click',e=>e.preventDefault(),{capture:true,once:true});link.click();
+      return {beforeTable:!!(section.compareDocumentPosition(document.querySelector('[data-water-comparison]'))&Node.DOCUMENT_POSITION_FOLLOWING),unique:document.querySelectorAll('#products').length,cards:cards.map(card=>{const link=card.querySelector('a');const box=link.getBoundingClientRect();return {id:card.dataset.productKey,href:link.href,price:Number(link.dataset.productPrice),text:card.textContent,fit:box.left>=0&&box.right<=innerWidth+1,height:box.height};}),events:window.dataLayer.slice(before).map(e=>Array.from(e)).filter(e=>e[0]==='event'&&['rakuten_click','amazon_click'].includes(e[1]))};
+    })()`);
+    assert.equal(offers.beforeTable,true);
+    assert.equal(offers.unique,1);
+    assert.deepEqual(offers.cards.map(c=>c.id),expectedRestaurant.slice(0,6).map(p=>p.itemCode));
+    for(const card of offers.cards){
+      const product=expectedRestaurant.find(p=>p.itemCode===card.id);
+      const facts=waterContainerTools.containerFacts(product);
+      assert.equal(card.href,new URL(product.url).href);
+      assert.equal(card.price,product.price);
+      assert.equal(card.fit,true,'water product CTA outside viewport at '+width);
+      assert.ok(card.height>=44);
+      if(product.productType==='water-container'){
+        assert.ok(card.text.includes('販売個数: '+(facts.containers?facts.containers+'個':'販売ページで確認')));
+        assert.ok(card.text.includes('販売単位の合計: '+(facts.totalLiters?facts.totalLiters+'L':'要確認')));
+      }
+    }
+    assert.equal(offers.events.length,1);
+    assert.equal(offers.events[0][1],'rakuten_click');
+    assert.equal(offers.events[0][2].cta_location,'product_card');
+    assert.equal(offers.events[0][2].product_id,expectedRestaurant[0].itemCode);
     if(width===375||width===1440){
       const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
       fs.writeFileSync(path.join(screenshotDir,'restaurant-entry-'+width+'.png'),Buffer.from(shot.data,'base64'));
