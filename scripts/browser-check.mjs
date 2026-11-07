@@ -585,6 +585,34 @@ try {
     await sleep(400);
     assert.equal(await evaluate(send,`location.hash`),'#procurement');
     assert.ok(Math.abs(await evaluate(send,`document.getElementById('procurement').getBoundingClientRect().top`))<100);
+    const calculationOrder=await evaluate(send,`(() => {
+      const quantity=document.getElementById('quantity'), procurement=document.getElementById('procurement'), method=document.getElementById('calculation-method');
+      return Boolean(quantity.compareDocumentPosition(procurement)&Node.DOCUMENT_POSITION_FOLLOWING)&&Boolean(procurement.compareDocumentPosition(method)&Node.DOCUMENT_POSITION_FOLLOWING);
+    })()`);
+    assert.equal(calculationOrder,true,'use the calculators before the long explanation');
+    for(const kind of ['water','food','toilet','blankets']){
+      const entry=await evaluate(send,`(async () => {
+        const link=document.querySelector('[data-procurement-kind="${kind}"]');
+        if(!link)return null;
+        link.scrollIntoView({behavior:'instant',block:'center'});
+        await new Promise(resolve=>requestAnimationFrame(resolve));
+        const box=link.getBoundingClientRect();
+        return {href:link.getAttribute('href'),fits:box.left>=0&&box.right<=innerWidth+1,height:box.height,x:box.x+box.width/2,y:box.y+box.height/2};
+      })()`);
+      assert.ok(entry,'a direct link is required for '+kind);
+      assert.equal(entry.href,'#procurement-'+kind);assert.equal(entry.fits,true);assert.ok(entry.height>=44);
+      await send('Input.dispatchMouseEvent',{type:'mousePressed',x:entry.x,y:entry.y,button:'left',clickCount:1});
+      await send('Input.dispatchMouseEvent',{type:'mouseReleased',x:entry.x,y:entry.y,button:'left',clickCount:1});
+      let target;
+      const deadline=Date.now()+3000;
+      do {
+        target=await evaluate(send,`(() => {const row=document.getElementById('procurement-${kind}');return {hash:location.hash,kind:row.dataset.procurement,top:row.getBoundingClientRect().top,stock:row.querySelector('[data-stock]').value,staff:document.getElementById('staffCount').value,days:document.getElementById('daysCount').value};})()`);
+        if(Math.abs(target.top)<100)break;
+        await sleep(50);
+      }while(Date.now()<deadline);
+      assert.equal(target.hash,entry.href);assert.equal(target.kind,kind);assert.ok(Math.abs(target.top)<100,`${width}px ${kind} purchase target did not arrive: ${target.top}px`);
+      assert.equal(target.stock,'0');assert.equal(target.staff,'30');assert.equal(target.days,'3');
+    }
     const choices=await evaluate(send,`(async()=>{
       window.__candidateEvents=[];window.gtag=(...args)=>window.__candidateEvents.push(args);
       const records=[];
