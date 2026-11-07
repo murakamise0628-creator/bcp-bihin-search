@@ -1747,7 +1747,7 @@ function clientScript(hasAmazonLinks = false) {
           target.searchParams.set('staff',String(plan.staff));
           target.searchParams.set('days',String(plan.days));
           target.searchParams.set('visitors',String(plan.visitors));
-          target.hash='comparison';
+          target.hash=target.hash || 'comparison';
           link.href=target.toString();
         });
         document.querySelectorAll('[data-paid-kit-offer][data-plan-path]').forEach(function(link){
@@ -2733,6 +2733,7 @@ function checklistQuantitySection() {
     </div>
     <h3>現在庫と照らし、不足する品目を比較</h3>
     <p class="notice">表示量をそのまま買い足すのではなく、期限内の在庫を差し引いてください。園児の食事や介護施設の個別条件は、年齢・食事形態・施設の方針に合わせて確認してください。</p>
+    <p><a class="button" data-stock-plan="procurement" data-plan-path="${siteUrl}/pages/office-stockpile-quantity.html#procurement" href="${siteUrl}/pages/office-stockpile-quantity.html?staff=10&amp;days=3&amp;visitors=0#procurement">不足数・購入個数・予算を確認</a></p>
     <nav class="stock-plan-grid" aria-label="不足品を比較">
       <a class="stock-plan-link" data-stock-plan="water_food" data-plan-path="${siteUrl}/pages/water-food-stock.html" href="${siteUrl}/pages/water-food-stock.html?staff=10&amp;days=3&amp;visitors=0#comparison"><span>保存水・非常食</span><strong id="waterFoodPlanLabel">10人・3日分を比較</strong><small>水量・食数・保存年数・単価を確認</small></a>
       <a class="stock-plan-link" data-stock-plan="food" data-plan-path="${siteUrl}/pages/emergency-food-office.html" href="${siteUrl}/pages/emergency-food-office.html?staff=10&amp;days=3&amp;visitors=0#comparison"><span>会社向け非常食セット</span><strong id="foodPlanLabel">90食分の候補を比較</strong><small>食数・調理用の水・原材料を確認</small></a>

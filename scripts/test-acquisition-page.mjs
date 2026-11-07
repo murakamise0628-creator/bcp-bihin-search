@@ -31,6 +31,11 @@ assert.match(page, /window\.print\(\)/);
 assert.match(page, /data-download-checklist/);
 const checklistQuantity = page.match(/<section[^>]*id="quantity"[\s\S]*?<\/section>/)?.[0] || '';
 assert.match(checklistQuantity, /aria-label="不足品を比較"/, 'comparison entry must follow the quantity result, before the long checklist');
+assert.match(checklistQuantity, /data-stock-plan="procurement"/);
+assert.match(checklistQuantity, /data-plan-path="https:\/\/jigyousho-bousai\.com\/pages\/office-stockpile-quantity\.html#procurement"/);
+assert.match(checklistQuantity, /href="https:\/\/jigyousho-bousai\.com\/pages\/office-stockpile-quantity\.html\?staff=10&amp;days=3&amp;visitors=0#procurement"/);
+assert.ok(checklistQuantity.indexOf('data-stock-plan="procurement"') < checklistQuantity.indexOf('aria-label="不足品を比較"'), 'stock deduction must be reachable before choosing a product category');
+assert.match(page, /target\.hash=target\.hash \|\| 'comparison'/, 'explicit purchase-calculator anchor must survive input changes');
 for (const [type, slug, label] of [
   ['water_food', 'water-food-stock', 'waterFoodPlanLabel'],
   ['food', 'emergency-food-office', 'foodPlanLabel'],

@@ -815,6 +815,32 @@ try {
     assert.equal(result.selectedFacility, 'restaurant');
     assert.match(result.csvHref, /jigyousho-bousai-checklist\.csv$/);
     assert.equal(result.productSchema, false);
+    const purchaseEntry = await evaluate(send, `(() => {
+      const link=document.querySelector('[data-stock-plan="procurement"]');
+      const initial=link?.href || '';
+      for(const [id,value] of [['staffCount',35],['daysCount',7],['visitorCount',2]]){
+        const input=document.getElementById(id);
+        input.value=String(value);
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+      const rect=link?.getBoundingClientRect();
+      return {initial,href:link?.href || '',water:document.getElementById('waterEstimate').textContent,
+        height:rect?.height || 0,right:rect?.right || 0,
+        compare:[...document.querySelectorAll('nav[aria-label="不足品を比較"] a')].map(a=>a.href)};
+    })()`);
+    assert.equal(purchaseEntry.initial,'https://jigyousho-bousai.com/pages/office-stockpile-quantity.html?staff=10&days=3&visitors=0#procurement');
+    assert.equal(purchaseEntry.href,'https://jigyousho-bousai.com/pages/office-stockpile-quantity.html?staff=35&days=7&visitors=2#procurement');
+    assert.equal(purchaseEntry.water,'777L');
+    assert.ok(purchaseEntry.height>=48 && purchaseEntry.right<=width+1, `${width}px purchase entry is clipped or too small`);
+    assert.equal(purchaseEntry.compare.length,3);
+    for(const href of purchaseEntry.compare){
+      const url=new URL(href);
+      assert.equal(url.hash,'#comparison');
+      assert.equal(url.searchParams.get('staff'),'35');
+      assert.equal(url.searchParams.get('days'),'7');
+      assert.equal(url.searchParams.get('visitors'),'2');
+    }
+    result.purchaseEntry=purchaseEntry;
     checklistResults.push(result);
   }
 
