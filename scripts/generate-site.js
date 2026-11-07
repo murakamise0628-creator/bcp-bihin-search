@@ -1410,7 +1410,7 @@ ${socialImage}
       .facility-panel[hidden]{display:none!important}
       .source-references,.faq{break-before:page}
       a{color:#000;text-decoration:none}
-    }
+    }${options.waterProducts ? '\n    [data-water-products] .product{display:flow-root}[data-water-products] .product-img{float:right;width:100px;height:100px;margin:0 0 12px 16px}[data-water-products] h3{overflow-wrap:anywhere}[data-water-products] .product .button{min-height:48px;max-width:100%;white-space:normal}' : ''}
   </style>
 </head>
 <body><main><header class="site-head"><a class="brand" href="${siteUrl}/">事業所防災ナビ</a><nav class="nav"><a href="${siteUrl}/#disasters">災害別</a><a href="${siteUrl}/#categories">カテゴリ</a><a href="${siteUrl}/#quantity">人数別目安</a><a href="${siteUrl}/#popular">よく使う比較</a></nav></header>${affiliateDisclosure}${breadcrumb}${body}${sharing}${siteFooter()}${clientScript(hasAmazonLinks)}</main></body>
@@ -2410,8 +2410,11 @@ function toiletPurchasePlans(products, note) {
     return `<article class="card procurement-card" data-required-uses="${requiredUses}" data-supplied-uses="${suppliedUses}" data-purchase-packages="${boxes}" data-purchase-cost="${totalPrice}" data-purchase-product="${esc(candidate.product.itemCode)}">
       <p class="pill orange">${plan.people}人・${plan.days}日</p>
       <h3>必要目安 ${requiredUses.toLocaleString('ja-JP')}回分</h3>
+      ${candidate.product.image ? `<img class="product-img" src="${esc(candidate.product.image)}" alt="${esc(displayTitle(candidate.product))}" width="150" height="150" loading="lazy">` : ''}
+      <p>1点あたり${candidate.quantity}回分<br>1点の掲載価格 ${yen(candidate.price)}<br>${esc(candidate.product.shopName || '楽天市場')}</p>
       <p><strong>${esc(displayTitle(candidate.product))}</strong>を${boxes}点で、合計${suppliedUses.toLocaleString('ja-JP')}回分になる組み方です。</p>
       <p class="price">概算 ${yen(totalPrice)}</p>
+      ${/受注生産/.test(candidate.product.titleRaw || candidate.product.name || '') ? '<p>受注生産の表記があります。必要日までに届くか、販売店に確認してください。</p>' : ''}
       <p class="notice">送料別の目安です。袋の構成・性能は商品で異なります。送料、購入上限、価格、在庫は販売ページで確認してください。</p>
       <a class="button orange" href="${esc(candidate.product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(candidate.product, `${note.title} ${plan.people}人${plan.days}日`, index + 1)}>${boxes}点分の内容を楽天で確認</a>
     </article>`;
@@ -2459,6 +2462,26 @@ function restaurantComparison(products, note) {
     <p class="notice">水の重さは1Lあたり約1kgの概算です。選択式の商品は、選んだ容量・個数により価格が異なる場合があります。個数・送料・在庫・仕様も販売ページで確認してください。</p>
     <p class="notice">確認資料: <a href="https://www.irisohyama.co.jp/products/tool-diy-material/emergency-supplies/emergency-supplies-separately/water-tank/">アイリスオーヤマの給水容器仕様</a> / <a href="https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/suido-gesui/suido/torikumi/saigai/katei.html">横浜市の家庭・職場の水の備え</a></p>
     <nav class="chip-row" aria-label="断水対策品の用途">${groups.map(group=>`<a class="chip" href="#restaurant-purpose-${group.key}">${esc(group.label)}（${group.products.length}件）</a>`).join('')}</nav>
+    <p><a class="small-button" href="#water-comparison-table">全${products.length}件を比較表で見る</a></p>
+    <section class="section" id="products" data-water-products aria-labelledby="water-products-title">
+      <h3 id="water-products-title">容量・販売単位を商品写真で確認</h3>
+      <div class="product-list">${products.slice(0,6).map((product,index)=>{
+        const facts=containerFacts(product);
+        const isWater=product.productType === 'water-container';
+        return `<article class="card product" ${productFitAttrs(product,note)}>
+          ${product.image ? `<img class="product-img" src="${esc(product.image)}" alt="${esc(displayTitle(product))}" width="150" height="150" loading="lazy">` : ''}
+          <div><h3>${esc(displayTitle(product))}</h3>
+            ${isWater ? `<p>1個あたり: <strong>${facts.liters ? facts.liters+'L' : '容量を選択・確認'}</strong> / 販売個数: <strong>${facts.containers ? facts.containers+'個' : '販売ページで確認'}</strong><br>販売単位の合計: ${facts.totalLiters ? facts.totalLiters+'L' : '要確認'}</p>
+            <p>${facts.liters ? `1個に${facts.liters}L入れると、水だけで約${facts.liters}kg。容器の重さは別です。` : '購入する容量と個数を販売ページで確認してください。'}</p>` : `<p>${esc(productDecisionSummary(product,note))}</p>`}
+            <p class="price">${esc(displayPrice(product))}</p>
+            <p>${esc(product.shopName || '楽天市場')} / レビュー ${esc(product.reviewAverage || '-')}（${esc(product.reviewCount || 0)}件）</p>
+            <p>${esc(checks[restaurantPurpose(product)])}</p>
+            <a class="button orange" href="${esc(product.url)}" target="_blank" rel="nofollow sponsored noopener" ${productTrackingAttrs(product,note.title,index+1)}>${isWater ? '容量・個数・価格を楽天で確認' : '用途・在庫を楽天で確認'}</a>
+          </div>
+        </article>`;
+      }).join('')}</div>
+    </section>
+    <h3 id="water-comparison-table">給水・衛生・トイレ用品の比較表</h3>
     <div class="compare-scroll" data-water-comparison><table class="compare-table"><thead><tr><th>商品・価格 / 販売店</th><th>用途 / 容量・個数</th><th>満水時の水の重さ</th><th>購入前の確認</th><th>レビュー（点数・件数）</th></tr></thead><tbody>${groups.flatMap(group=>group.products.map((product,index)=>{
     const facts = containerFacts(product);
     const saleUnit = group.key === 'water' ? `<br><strong>1個あたりの容量: ${facts.liters ? `${facts.liters}L` : '販売元に確認'}</strong><br>販売個数: ${facts.containers ? `${facts.containers}個` : '販売ページで確認'}<br>販売単位の合計: ${facts.totalLiters ? `${facts.totalLiters}L` : '要確認'}` : '';
@@ -2552,6 +2575,7 @@ function relatedLinks(slugs) {
 }
 
 function pageDescription(page, note) {
+  if (page.slug === 'toilet-office') return '会社・事業所の簡易トイレを回数・袋の構成・価格で比較。10人150回、30人450回、50人750回を3日分の目安に、凝固剤と処理袋の同梱表記がある商品の購入点数・概算総額を確認できます。送料・防臭袋・納期は販売ページで確認してください。';
   if (page.slug === 'portable-power-kaigo') return '介護施設の停電に備えるポータブル電源を容量Wh・出力W・価格で比較。機器ごとの消費電力と台数から合計Wを出し、使用時間に応じた必要容量の目安を計算できます。医療機器への適合・起動時電力は別途確認してください。';
   if (page.slug === 'restaurant-dansui') return '飲食店の断水に備える給水タンク・衛生用品・簡易トイレを用途別に比較。10L・15L・20Lの容量、1個とセットの違い、満水時の水の重さを確認できます。飲用可否や手洗い・営業判断の注意点も掲載。';
   if (page.slug === 'hoikuen-bousai') return '保育園の防災備蓄リストを、園児の食料・水・衛生用品・灯り・職員用に分けて確認。必要量の数え方と購入前の確認点を掲載し、非常食を水・加熱の要否、保存期間、販売単位で比較できます。乳幼児の食事形態・原材料は個別に確認してください。';
@@ -2950,7 +2974,7 @@ function pageHtml(page) {
     </div>
     <div class="hero-actions">
       <a class="button orange" href="${nurseryFirst ? '#nursery-stock-list' : quantityFirst ? '#quantity' : '#comparison'}">${nurseryFirst ? '備蓄リストを確認する' : esc(primaryAction)}</a>
-      <a class="button secondary" href="${nurseryFirst ? '#comparison' : restaurantFirst ? '#quantity' : quantityFirst ? '#comparison' : '#conclusion'}">${nurseryFirst ? '非常食の候補を比較する' : restaurantFirst ? '断水時の確認事項を見る' : quantityFirst ? '商品候補を先に見る' : '選び方を確認する'}</a>
+      <a class="button secondary" href="${page.slug === 'toilet-office' ? '#purchase-units' : nurseryFirst ? '#comparison' : restaurantFirst ? '#quantity' : quantityFirst ? '#comparison' : '#conclusion'}">${page.slug === 'toilet-office' ? '人数別の購入例を見る' : nurseryFirst ? '非常食の候補を比較する' : restaurantFirst ? '断水時の確認事項を見る' : quantityFirst ? '商品候補を先に見る' : '選び方を確認する'}</a>
     </div>
     ${page.slug === 'hoikuen-bousai' ? `${nurseryCandidateLinks(products)}\n    ` : ''}<nav class="jump-nav" aria-label="ページ内目次">
       <span>このページの流れ</span>
@@ -2964,10 +2988,10 @@ function pageHtml(page) {
   <section class="section two" id="conclusion">
     <article class="card"><p class="eyebrow">このページの結論</p><h2>${esc(note.conclusion)}</h2><p>${esc(note.avoid)}</p></article>
     <article class="card"><p class="eyebrow">まず揃えるべきもの</p><div class="chip-row">${mustHave}</div></article>
-  </section>
+  </section>${page.slug === 'toilet-office' ? `\n  ${quantityEstimateSection(page.slug)}${toiletPurchasePlans(products,note)}` : ''}
   ${powerFirst ? `${powerEstimateSection()}${quickPicks(products, note)}${comparisonTable(products, note)}` : nurseryFirst || restaurantFirst ? comparisonTable(products, note) : ''}
   ${powerFirst ? '' : `<section class="section decision-strip flow" aria-label="購入までの流れ">
-    <div><strong>${page.slug === 'hoikuen-bousai' ? '園児の人数と食事回数' : '人数と日数を決める'}</strong><span>${page.slug === 'hoikuen-bousai' ? 'ミルク・離乳食・幼児食を分けて数える' : '下の目安計算で必要量を出す'}</span></div>
+    <div><strong>${page.slug === 'hoikuen-bousai' ? '園児の人数と食事回数' : '人数と日数を決める'}</strong><span>${page.slug === 'hoikuen-bousai' ? 'ミルク・離乳食・幼児食を分けて数える' : page.slug === 'toilet-office' ? '職員・来客の人数から必要回数を確認' : '下の目安計算で必要量を出す'}</span></div>
     <div><strong>${page.slug === 'hoikuen-bousai' ? '食べられる食品を確認' : '比較表で候補を絞る'}</strong><span>${page.slug === 'hoikuen-bousai' ? '対象年齢・原材料・準備方法を照合' : '価格、回数、保存年数で見る'}</span></div>
     <div><strong>商品カードで確認</strong><span>向き不向きと注意点を見る</span></div>
     <div><strong>販売ページで揃える</strong><span>最新の価格と在庫を確認して購入</span></div>
@@ -2976,14 +3000,14 @@ function pageHtml(page) {
     <article class="card"><h2>選び方</h2><ul class="checklist">${checks}</ul></article>
     ${page.slug === 'office-bichiku' ? '<article class="card"><h2>買い方を先に決める</h2><ol class="steps"><li><strong>従業員ごとに配る</strong><span>1人用セットは必要人数分を確認</span></li><li><strong>共有備蓄にする</strong><span>水・食料は人数と日数から箱数を確認</span></li><li><strong>不足品を足す</strong><span>トイレ、防寒、給水用品を個別に補充</span></li></ol></article>' : page.slug === 'hoikuen-bousai' ? '<article class="card"><h2>保存年数より先に、食べ方を確認</h2><ol class="steps"><li><strong>水・熱源が必要か</strong><span>調理できない場合の食品を分けて用意</span></li><li><strong>配るまでの時間と手順</strong><span>戻し時間、食器、職員の手数を確認</span></li><li><strong>1袋の内容と配布量</strong><span>園児1人の1食分とは限らないため、食事形態ごとに確認</span></li></ol></article>' : page.slug === 'emergency-food-office' ? `<article class="card"><h2>このページで比べるもの</h2><p>非常食セットの食数、保存年数、調理方法を比べます。保存水を含む全体量は早見表で確認してください。</p><a class="small-button" href="${siteUrl}/pages/office-stockpile-quantity.html">人数別の備蓄量を見る</a></article>` : '<article class="card"><h2>おすすめ分類</h2><ol class="steps"><li>レビュー件数があるもの</li><li>必要量が読み取りやすいもの</li><li>保管期限・容量・回数が明記されているもの</li></ol></article>'}
   </section>
-  ${powerFirst ? '' : quantityEstimateSection(page.slug)}
+  ${powerFirst || page.slug === 'toilet-office' ? '' : quantityEstimateSection(page.slug)}
   ${purchaseDecisionGuide(page.slug)}
-  ${toiletPurchasePlans(products, note)}
+  ${page.slug === 'toilet-office' ? '' : toiletPurchasePlans(products,note)}
   ${marketSnapshotSection(products, note)}
   ${sourceSection(page.slug)}
   ${['toilet-office', 'office-bichiku', 'blackout-power', 'water-food-stock', 'emergency-food-office'].includes(page.slug) ? quickPicks(products, note) : ''}
   ${powerFirst || nurseryFirst || restaurantFirst ? '' : comparisonTable(products, note)}
-  <section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>${page.slug === 'hoikuen-bousai' ? '用途と購入前の確認事項を見る' : '上位候補の向き・注意点を見る'}</h2></div><p class="notice">${page.slug === 'hoikuen-bousai' ? '対象年齢・原材料・使い方を販売ページで確認してください' : '比較表から上位6件を詳しく掲載'}</p></div><div class="product-list">${productCards(products.slice(0, 6), note)}</div></section>
+  ${restaurantFirst ? '' : `<section class="section" id="products"><div class="section-title"><div><p class="eyebrow">商品カード</p><h2>${page.slug === 'hoikuen-bousai' ? '用途と購入前の確認事項を見る' : '上位候補の向き・注意点を見る'}</h2></div><p class="notice">${page.slug === 'hoikuen-bousai' ? '対象年齢・原材料・使い方を販売ページで確認してください' : '比較表から上位6件を詳しく掲載'}</p></div><div class="product-list">${productCards(products.slice(0, 6), note)}</div></section>`}
   ${stockCheckSection(page.slug)}
   <section class="section card"><h2>注意点</h2><p>${esc(requiredNotice)}</p><p>このページの数量計算は目安です。実際には建物の規模、滞在人数、地域リスク、保管場所、自治体や業界ルールに合わせて調整してください。</p><p class="ad-note">このサイトは楽天アフィリエイトを利用しています。リンク先で購入された場合、サイト運営者に成果報酬が発生することがあります。</p></section>
   ${faqSection(note)}
@@ -2995,7 +3019,7 @@ function pageHtml(page) {
     itemListJsonLd(products, canonical),
     productJsonLd(products)
   )}`;
-  return layout(pageSeoTitle(page), body, description, canonical, { crumbs: [displayHeading], ogImage: products.find((product) => product.image)?.image || '' });
+  return layout(pageSeoTitle(page), body, description, canonical, { crumbs: [displayHeading], ogImage: products.find((product) => product.image)?.image || '', waterProducts: restaurantFirst });
 }
 
 function topicHtml(topic) {
