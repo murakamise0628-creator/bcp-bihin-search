@@ -210,6 +210,29 @@ for(const item of restaurantFaq.mainEntity) {
 }
 const waterTopic = fs.readFileSync(path.join(root, 'dist', 'topics', 'water-outage.html'), 'utf8');
 assert.match(waterTopic, /pages\/restaurant-dansui\.html#comparison">給水タンクを比較する/);
+const waterChecks=waterTopic.match(/<section[^>]*id="water-outage-checks"[\s\S]*?<\/section>/)?.[0] || '';
+assert.ok(waterChecks,'water outage entry needs purpose-specific purchase checks, not only the shared calculator');
+assert.ok(waterTopic.indexOf('id="water-outage-checks"')<waterTopic.indexOf('id="quantity"'));
+for(const phrase of ['飲用・簡単な調理','手洗い・清掃','使えないトイレ','給水所からの運搬','厨房の洗浄や清掃用水']) assert.ok(waterChecks.includes(phrase));
+for(const target of ['water-food-stock','restaurant-dansui','toilet-office']) assert.ok(waterChecks.includes(`pages/${target}.html`));
+const waterFaq=[...waterTopic.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1])).find(g=>g['@type']==='FAQPage');
+assert.equal(waterFaq.mainEntity.length,5,'keep the four water-specific FAQs and the existing shared quantity question');
+for(const question of ['会社の断水対策は、1人1日3Lの水で足りますか？','給水タンクがあれば保存水は不要ですか？','給水タンクは10Lと20L、どちらを選びますか？','断水時は衛生用品を買えば飲食店の営業を続けられますか？']) assert.ok(waterFaq.mainEntity.some(item=>item.name===question));
+for(const item of waterFaq.mainEntity){assert.ok(waterTopic.includes(`<summary>${item.name}</summary>`));assert.ok(waterTopic.includes(`<p>${item.acceptedAnswer.text}</p>`));}
+const foodEntry=fs.readFileSync(path.join(root,'dist/pages/emergency-food-office.html'),'utf8');
+assert.ok(foodEntry.indexOf('id="quantity"')<foodEntry.indexOf('id="comparison"'));
+assert.ok(foodEntry.indexOf('id="comparison"')<foodEntry.indexOf('id="purchase-checks"'),'food comparison must precede long purchase guidance');
+for(const id of ['quantity','comparison','quick-picks-title']) assert.equal((foodEntry.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+assert.doesNotMatch(foodEntry,/下の目安計算で必要量を出す/);
+const foodRows=[...foodEntry.matchAll(/<tr [^>]*data-product-key="([^"]+)"[\s\S]*?<\/tr>/g)];
+assert.ok(foodRows.length>0);
+for(const row of foodRows){
+ const first=row[0].match(/<td class="table-product">[\s\S]*?<\/td>/)?.[0]||'';
+ assert.match(first,/<img /,'food comparison must show actual product photos in the first mobile-visible cell');
+ assert.ok(first.includes(`data-product-id="${row[1]}"`));
+ assert.match(first,/食数・価格を楽天で確認/);
+ assert.equal((row[0].match(/data-product-id=/g)||[]).length,1,'one purchase action per comparison row');
+}
 
 const nursery = fs.readFileSync(path.join(root, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
 assert.match(nursery, /<h1>保育園の防災備蓄リストと非常食比較<\/h1>/);
