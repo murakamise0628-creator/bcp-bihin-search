@@ -76,6 +76,17 @@ const powerFaq = [...power.matchAll(/<script type="application\/ld\+json">([\s\S
   .map(match => JSON.parse(match[1])).find(graph => graph['@type'] === 'FAQPage')?.mainEntity;
 assert.ok(powerFaq?.some(item => item.name === '機器を複数台使う場合、消費電力はどう計算しますか？'));
 const quantityGuide = fs.readFileSync(path.join(root, 'dist', 'pages', 'office-stockpile-quantity.html'), 'utf8');
+const waterChoiceHtml=quantityGuide.match(/<select id="waterCandidate"[\s\S]*?<\/select>/)?.[0] || '';
+const waterChoices=[...waterChoiceHtml.matchAll(/<option value="([^"]+)" data-candidate-pack="([^"]+)" data-candidate-price="([^"]+)">([^<]+)<\/option>/g)];
+assert.ok(waterChoices.length>0);
+assert.equal((quantityGuide.match(/data-water-unit-price/g)||[]).length,waterChoices.length);
+for(const [,id,pack,price,label] of waterChoices){
+  const unitLabel=`1Lあたり約${Math.ceil(Number(price)/Number(pack)).toLocaleString('ja-JP')}円`;
+  assert.ok(label.includes(unitLabel), 'water choice must expose comparable per-liter price: '+id);
+  const card=[...quantityGuide.matchAll(/<article class="procurement-candidate"[\s\S]*?<\/article>/g)].map(m=>m[0]).find(html=>html.includes(`data-procurement-candidate="${id}"`));
+  assert.ok(card?.includes(`<span data-water-unit-price>${unitLabel}（送料別）</span>`));
+}
+assert.match(quantityGuide,/単価は掲載価格÷総容量の目安（1円未満切り上げ・送料別）/);
 assert.doesNotMatch(quantityGuide, /data-power-load-tool/);
 for (const kind of ['water','food','toilet']) {
   assert.match(quantityGuide,new RegExp(`id="${kind}Candidate"[^>]*data-procurement-select`),'quantity calculator needs a bounded product choice');
