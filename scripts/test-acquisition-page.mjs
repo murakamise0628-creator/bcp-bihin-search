@@ -310,7 +310,10 @@ for (const [purpose, products] of Object.entries(nurseryPurposes)) {
 }
 const nurseryRows = [...nursery.matchAll(/<tr [^>]*data-product-fit[\s\S]*?<\/tr>/g)].map(match => match[0]);
 const nurseryCards = nursery.match(/<section class="section" id="products">[\s\S]*?<\/section>/)?.[0] || '';
-for (const product of nurseryMeals.slice(0, 6)) {
+const nurseryDetailIds = nurseryRows.slice(0,6).map(row=>row.match(/data-product-key="([^"]+)"/)[1]);
+const nurseryCardIds = [...nurseryCards.matchAll(/<article class="card product"[^>]*data-product-key="([^"]+)"/g)].map(match=>match[1]);
+assert.deepEqual(nurseryCardIds,nurseryDetailIds,'detail cards must match the first six displayed comparison rows, including their order');
+for (const product of nurseryMeals.filter(product=>nurseryDetailIds.includes(product.itemCode))) {
   assert.ok(nurseryCards.includes(`data-product-key="${product.itemCode}"`), 'first food candidates need detailed cards, not only a table row');
   const kind = nurseryComparison.nurseryFoodKind(product);
   const card = [...nurseryCards.matchAll(/<article class="card product"[^>]*>[\s\S]*?<\/article>/g)]
@@ -375,7 +378,7 @@ try {
   const input = JSON.parse(fs.readFileSync(path.join(root, 'data', 'products.json'), 'utf8'));
   const sample = { ...nurseryMeals[0], productType: 'food', titleRaw: '非常食 アルファ米 5年保存 9食', name: '非常食 アルファ米 5年保存 9食' };
   for (const count of [0, 1, 9]) {
-    const products = Array.from({ length: count }, (_, index) => ({ ...sample, itemCode: `fixture:meal-${index}`, url: `https://example.invalid/meal-${index}` }));
+    const products = Array.from({ length: count }, (_, index) => ({ ...sample, itemCode: `fixture:meal-${index}`, url: `https://example.invalid/meal-${index}`, titleShort: `非常食セット${index===1?0:index}` }));
     const fixtureData = { ...input, pages: input.pages.map(page => ({ ...page, products: page.slug === 'hoikuen-bousai' ? products : [] })) };
     fs.writeFileSync(path.join(fixtureRoot, 'data', 'products.json'), JSON.stringify(fixtureData));
     execFileSync(process.execPath, [path.join(fixtureRoot, 'scripts', 'generate-site.js')], { stdio: 'pipe' });
@@ -394,6 +397,14 @@ try {
     assert.equal((html.match(/<h1>/g) || []).length, 1);
     assert.equal((table.match(/data-nursery-purpose="food"/g) || []).length, count);
     assert.equal((cards.match(/data-nursery-purpose="food"/g) || []).length, Math.min(count, 6));
+    const tableIds=[...table.matchAll(/<tr [^>]*data-product-key="([^"]+)"/g)].map(match=>match[1]);
+    const cardIds=[...cards.matchAll(/<article class="card product"[^>]*data-product-key="([^"]+)"/g)].map(match=>match[1]);
+    assert.deepEqual([...tableIds].sort(),products.map(product=>product.itemCode).sort(),'every source candidate must remain in the comparison');
+    assert.deepEqual(cardIds,tableIds.slice(0,6),'cards must follow displayed comparison order');
+    if(count===9){
+      assert.deepEqual(cardIds,['fixture:meal-0','fixture:meal-2','fixture:meal-3','fixture:meal-4','fixture:meal-5','fixture:meal-6']);
+      assert.notDeepEqual(cardIds,products.slice(0,6).map(product=>product.itemCode),'fixture must reproduce a raw-order difference');
+    }
     if (!count) {
       assert.equal(links, '', 'zero candidates must not produce dead purpose links');
     } else {
