@@ -630,7 +630,7 @@ try {
           const link=panel.querySelector('a');const box=link.getBoundingClientRect();
           const before=window.__candidateEvents.length;
           link.addEventListener('click',e=>e.preventDefault(),{once:true});link.click();
-          records.push({kind,id:option.value,initial,pack:Number(row.querySelector('[data-pack]').value),price:Number(row.querySelector('[data-price]').value),required:row.querySelector('[data-required]').textContent,count:row.querySelector('[data-packages]').textContent,cost:row.querySelector('[data-cost]').textContent,summary:panel.querySelector('[data-candidate-summary]').textContent,href:link.href,height:box.height,fits:box.left>=0&&box.right<=innerWidth,events:window.__candidateEvents.slice(before).filter(e=>['rakuten_click','amazon_click'].includes(e[1]))});
+          records.push({kind,id:option.value,initial,pack:Number(row.querySelector('[data-pack]').value),price:Number(row.querySelector('[data-price]').value),unitPrice:panel.querySelector('[data-water-unit-price]')?.textContent || '',optionText:option.textContent,required:row.querySelector('[data-required]').textContent,count:row.querySelector('[data-packages]').textContent,cost:row.querySelector('[data-cost]').textContent,summary:panel.querySelector('[data-candidate-summary]').textContent,href:link.href,height:box.height,fits:box.left>=0&&box.right<=innerWidth,events:window.__candidateEvents.slice(before).filter(e=>['rakuten_click','amazon_click'].includes(e[1]))});
         }
       }
       const row=document.querySelector('[data-procurement="water"]'),select=row.querySelector('select');
@@ -652,6 +652,11 @@ try {
       const expected=quantityChoices.find(c=>c.product.itemCode===record.id);
       assert.deepEqual(record.initial,{value:'',visible:0});
       assert.equal(record.pack,expected.quantity);assert.equal(record.price,expected.product.price);
+      if(record.kind==='water'){
+        const label='1Lあたり約'+Math.ceil(expected.product.price/expected.quantity).toLocaleString('ja-JP')+'円';
+        assert.equal(record.unitPrice,label+'（送料別）');
+        assert.ok(record.optionText.startsWith(label+' / '));
+      }else assert.equal(record.unitPrice,'');
       const required=record.kind==='toilet'?450:270;
       const count=Math.ceil(required/expected.quantity);
       assert.equal(record.count,count.toLocaleString('ja-JP')+'点');assert.equal(record.cost,(count*expected.product.price).toLocaleString('ja-JP')+'円');
