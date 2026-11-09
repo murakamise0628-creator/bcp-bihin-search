@@ -891,12 +891,13 @@ try {
       if(width<768 && slug!=='toilet-office') assert.equal(comparison.scrollable,true);
       if(slug!=='portable-power-kaigo') assert.equal(comparison.hasGuide,true);
       if(['water-food-stock','emergency-food-office'].includes(slug)) assert.match(comparison.text,/1(?:L|食)あたり約/);
-      if(slug==='emergency-food-office'){
+      if(['water-food-stock','emergency-food-office'].includes(slug)){
         const foodOrder=await evaluate(send,`(() => {
           const before=(a,b)=>!!(document.getElementById(a).compareDocumentPosition(document.getElementById(b))&Node.DOCUMENT_POSITION_FOLLOWING);
           return {quantityFirst:before('quantity','comparison'),comparisonFirst:before('comparison','purchase-checks'),comparisonCount:document.querySelectorAll('#comparison').length,quantityCount:document.querySelectorAll('#quantity').length,actions:[...document.querySelectorAll('#comparison .table-product a')].map(link=>{const r=link.getBoundingClientRect();return {fits:r.left>=0&&r.right<=innerWidth+1,height:r.height};})};
         })()`);
-        assert.equal(foodOrder.quantityFirst,true);assert.equal(foodOrder.comparisonFirst,true);assert.equal(foodOrder.comparisonCount,1);assert.equal(foodOrder.quantityCount,1);
+        if(slug==='emergency-food-office'){assert.equal(foodOrder.quantityFirst,true);assert.equal(foodOrder.comparisonFirst,true);}
+        assert.equal(foodOrder.comparisonCount,1);assert.equal(foodOrder.quantityCount,1);
         assert.ok(foodOrder.actions.length>0);
         for(const link of foodOrder.actions){assert.equal(link.fits,true);assert.ok(link.height>=44);}
       }
