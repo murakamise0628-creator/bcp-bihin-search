@@ -2281,6 +2281,7 @@ function productFitAttrs(product, note = {}) {
 }
 
 function fitTierLabel(product, note = {}) {
+  if (['water-food-stock', 'emergency-food-office'].includes(note.slug) && !comparisonUnit(product).quantity) return '販売単位・単価を販売ページで要確認';
   if (note.slug === 'hoikuen-bousai' && product.productType === 'food') return isSupplementalCandy(product) ? '補助食品・のど詰まりに注意' : '対象年齢・食べ方は要確認';
   if (note.slug === 'hoikuen-bousai' && product.productType === 'disaster-set') return '園児用・職員用の内容を確認';
   if (note.slug === 'toilet-office' && productDecisionFacts(product).toiletSupplyType === 'contents-unclear') return '同梱品を販売ページで要確認';
