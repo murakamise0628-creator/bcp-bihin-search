@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import nurseryComparison from './nursery-comparison.cjs';
 import waterContainerTools from './water-container-comparison.cjs';
 import productTools from './fetch-products.js';
+import comparisonTools from './comparison-unit.js';
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptsDir, '..');
@@ -267,6 +268,23 @@ for(const row of waterFoodRows){
 }
 
 const nursery = fs.readFileSync(path.join(root, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
+for(const slug of ['water-food-stock','emergency-food-office']){
+ const html=fs.readFileSync(path.join(root,'dist/pages',slug+'.html'),'utf8');
+ const pages=JSON.parse(fs.readFileSync(path.join(root,'data/products.json'),'utf8')).pages;
+ const products=[...pages.find(item=>item.slug===slug).products,...pages.flatMap(item=>item.products)];
+ const rows=[...html.matchAll(/<tr [^>]*data-product-key="([^"]+)"[\s\S]*?<\/tr>/g)];
+ for(const row of rows){
+  const product=products.find(item=>item.itemCode===row[1]);
+  assert.ok(product,'comparison rows must have a source product, including related candidates');
+  const label=row[0].match(/<strong data-fit-result>([^<]*)<\/strong>/)?.[1];
+  assert.ok(label,'water and food rows need a visible comparison caveat');
+  if(!comparisonTools.comparisonUnit(product).quantity){
+   assert.equal(label,'販売単位・単価を販売ページで要確認','unknown sale units must not be presented as clear candidates');
+  }else{
+   assert.notEqual(label,'販売単位・単価を販売ページで要確認','confirmed sale units must keep their existing fit label');
+  }
+ }
+}
 assert.match(nursery, /<h1>保育園の防災備蓄リストと非常食比較<\/h1>/);
 assert.match(nursery, /<title>保育園の防災備蓄リストと非常食比較/);
 assert.match(nursery, /<meta name="description" content="保育園の防災備蓄リストを/);
