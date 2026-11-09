@@ -249,6 +249,22 @@ for(const row of foodRows){
  assert.match(first,/食数・価格を楽天で確認/);
  assert.equal((row[0].match(/data-product-id=/g)||[]).length,1,'one purchase action per comparison row');
 }
+const waterFoodEntry=fs.readFileSync(path.join(root,'dist/pages/water-food-stock.html'),'utf8');
+const waterFoodData=JSON.parse(fs.readFileSync(path.join(root,'data/products.json'),'utf8')).pages.find(item=>item.slug==='water-food-stock');
+const waterFoodRows=[...waterFoodEntry.matchAll(/<tr [^>]*data-product-key="([^"]+)"[\s\S]*?<\/tr>/g)];
+assert.ok(waterFoodRows.length>0);
+for(const row of waterFoodRows){
+ const first=row[0].match(/<td class="table-product">[\s\S]*?<\/td>/)?.[0]||'';
+ assert.match(first,/<img /,'water and food comparison must show real product photos before horizontal scrolling');
+ assert.ok(first.includes(`data-product-id="${row[1]}"`),'water and food purchase action must be in the first column');
+ assert.match(first.replace(/<[^>]*>/g,''),/内容量・価格を楽天で確認/);
+ assert.equal((row[0].match(/data-product-id=/g)||[]).length,1,'one purchase action per water and food comparison row');
+ const product=waterFoodData.products.find(item=>item.itemCode===row[1]);
+ if(productTools.decisionFacts(product).productType==='water'){
+  assert.match(row[0],/販売個数・到着時の保存期限・保管条件を確認/,'water needs water-specific purchase checks');
+  assert.doesNotMatch(row[0],/アレルギー/);
+ }
+}
 
 const nursery = fs.readFileSync(path.join(root, 'dist', 'pages', 'hoikuen-bousai.html'), 'utf8');
 assert.match(nursery, /<h1>保育園の防災備蓄リストと非常食比較<\/h1>/);
