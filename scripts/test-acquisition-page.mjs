@@ -382,7 +382,17 @@ assert.equal(nurseryPreparation({ productType: 'water', titleRaw: '水不要' })
 for (const product of nurseryMeals) {
   const row = nurseryRows.find(row => row.includes(`data-product-key="${product.itemCode}"`));
   assert.ok(row.includes(nurseryPreparation(product)), 'food preparation must be visible beside each actual product');
-  const purchaseCell = row.match(/<td class="table-product">[\s\S]*?<\/td>/)?.[0] || '';
+  const purchaseCell = row.match(/<td class="table-product"[^>]*>[\s\S]*?<\/td>/)?.[0] || '';
+  assert.ok(purchaseCell.includes('data-nursery-purchase-facts'), 'mobile purchase cell must expose preparation and sale units without horizontal scrolling');
+  assert.ok(purchaseCell.includes(nurseryPreparation(product)), 'preparation must accompany the price and purchase link');
+  const unit = comparisonTools.comparisonUnit(product);
+  if (unit.quantity && unit.unit === '食') {
+    assert.ok(purchaseCell.includes(`販売単位: ${unit.quantity.toLocaleString('ja-JP')}食`));
+    assert.ok(purchaseCell.includes(`1食あたり約${unit.unitPrice.toLocaleString('ja-JP')}円（送料除く）`));
+  } else {
+    assert.ok(purchaseCell.includes('販売単位・単価は販売ページで確認'));
+    assert.doesNotMatch(purchaseCell, /1食あたり約[\d,]+円/, 'unknown or variable sale units must not get an invented cost');
+  }
   const kind = nurseryComparison.nurseryFoodKind(product);
   if (kind) assert.ok(purchaseCell.includes(`食品の種類（商品名表記）: ${kind}`), 'food kind must accompany the title and purchase link');
   else assert.ok(!purchaseCell.includes('data-nursery-food-kind'), 'unknown food kinds must not become invented descriptions');
